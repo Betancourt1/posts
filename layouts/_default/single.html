@@ -1,0 +1,17 @@
+{{ define "main" }}
+  <article class="post">
+    <header class="post-header">
+      <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
+      {{ with .Params.tags }}
+        <div class="tag-list">
+          {{ range . }}
+            <a class="tag" href="{{ "/tags/" | relURL }}{{ . | urlize }}/">#{{ . }}</a>
+          {{ end }}
+        </div>
+      {{ end }}
+    </header>
+    <div class="post-body">
+      {{ .Content }}
+    </div>
+  </article>
+{{ end }}

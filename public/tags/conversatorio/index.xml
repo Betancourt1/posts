@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Conversatorio on Posts</title>
+    <link>http://localhost:1313/tags/conversatorio/</link>
+    <description>Recent content in Conversatorio on Posts</description>
+    <generator>Hugo</generator>
+    <language>es-mx</language>
+    <lastBuildDate>Wed, 19 Nov 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/conversatorio/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Un conversatorio</title>
+      <link>http://localhost:1313/posts/2025/noviembre/conversatorio/</link>
+      <pubDate>Wed, 19 Nov 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/2025/noviembre/conversatorio/</guid>
+      <description>&lt;h1 id=&#34;un-conversatorio&#34;&gt;Un conversatorio&lt;/h1&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;Â¿CÃ³mo define usted el uso Ã©tico de las herramientas de inteligencia artificial, tanto en el Ã¡mbito acadÃ©mico-profesional como en la investigaciÃ³n?&lt;/p&gt;&#xA;&lt;p&gt;Cuando hablamos de uso Ã©tico de la IA tenemos antes que definir algunas cosas acerca de nuestra Ã©tica en general ante el resto de herramientas y acerca de su naturaleza. La IA no hace cosas que no pudiÃ©ramos hacer antes, en realidad, por definiciÃ³n no puede hacer cosas que no pudiÃ©ramos hacer antes y esto es algo que todos deben de tener presente. La IA es simplemente una innovaciÃ³n de escala. Ahora todas las personas pueden hacerse de una herramienta que les da la habilidad de hacer cosas que ya se podÃ­an hacer desde hace dÃ©cadas, solamente que con menos esfuerzo que entonces. Entonces, preguntÃ©monos, Â¿esta es la primer tecnologÃ­a que viene a hacer por nosotros algo que de todas formas ya podÃ­amos hacer? No. La historia estÃ¡ llena de tecnologÃ­as asÃ­. Incluso pudiÃ©ramos tener la tentaciÃ³n de que la IA es especial porque es una tecnologÃ­a de &amp;ldquo;uso general&amp;rdquo;, algo que ha trascendido como &amp;ldquo;gpts&amp;rdquo;, pero quien piense eso deberÃ­a de preguntarse cuÃ¡ntos puestos de trabajo fueron transformados y ultimadamente automatizados por la computadora. AÃºn hoy, estoy seguro de que hay mÃ¡s trabajos siendo tomados por la computadora que por la IA: cajeros automÃ¡ticos en el super, en el banco, dispensadores de comida que ya tenemos normalizados, pases de reconocimiento facial o por tarjeta. La IA es solamente la nueva tecnologÃ­a de uso general y tendrÃ¡ asociadas cuestiones Ã©ticas similares. Ahora bien, respondiendo a la pregunta, defino el uso Ã©tico de las herramientas de IA en el contexto educativo y de investigaciÃ³n igual que con otras tecnologÃ­as. Deben de usarse responsablemente, deben de usarse sin intenciÃ³n de daÃ±ar y deben de usarse de forma transparente. Igual que stackoverflow, wikipedia, un becario.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

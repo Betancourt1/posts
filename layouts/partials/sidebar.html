@@ -1,0 +1,26 @@
+<div class="sidebar-block">
+  <h3>Archivos</h3>
+  <ul class="sidebar-list">
+    {{ $pages := where .Site.RegularPages "Section" "posts" }}
+    {{ range first 12 ($pages.GroupByDate "2006-01") }}
+      <li>
+        <a href="{{ "/archives/" | relURL }}#{{ .Key }}">{{ .Key }}</a>
+        <span class="count">{{ len .Pages }}</span>
+      </li>
+    {{ end }}
+  </ul>
+  <a class="sidebar-more" href="{{ "/archives/" | relURL }}">Ver todos</a>
+</div>
+
+<div class="sidebar-block">
+  <h3>Tags</h3>
+  <ul class="sidebar-list">
+    {{ range $term, $taxonomy := .Site.Taxonomies.tags }}
+      <li>
+        <a href="{{ $taxonomy.Page.RelPermalink }}">{{ $term }}</a>
+        <span class="count">{{ $taxonomy.Count }}</span>
+      </li>
+    {{ end }}
+  </ul>
+  <a class="sidebar-more" href="{{ "/tags/" | relURL }}">Ver todos</a>
+</div>

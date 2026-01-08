@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Derecho on Posts</title>
+    <link>http://localhost:1313/tags/derecho/</link>
+    <description>Recent content in Derecho on Posts</description>
+    <generator>Hugo</generator>
+    <language>es-mx</language>
+    <lastBuildDate>Thu, 21 Aug 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/derecho/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>El derecho de existir</title>
+      <link>http://localhost:1313/posts/2025/agosto/el_derecho_de_existir/</link>
+      <pubDate>Thu, 21 Aug 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/2025/agosto/el_derecho_de_existir/</guid>
+      <description>&lt;h1 id=&#34;el-derecho-de-existir&#34;&gt;El derecho de existir&lt;/h1&gt;&#xA;&lt;p&gt;Cosas que hago para sentir que tengo derecho a existir:&#xA;Correr&#xA;Ir al gimnasio&#xA;Leer&#xA;Escuchar mÃºsica que no me gusta&#xA;No decir que no me gusta esa mÃºsica&#xA;Trabajar&#xA;Decir que no trabajo en realidad porque me gusta mi trabajo&#xA;Escribir&#xA;Querer dinero&#xA;Decir que el dinero no es importante&#xA;Callarme&#xA;Apretar los dientes&#xA;Mirar con odio&#xA;Abrazar a Tamal&#xA;Acostar a Espresso en mi pecho&#xA;Llorar&#xA;Perder&#xA;Revolcarme&#xA;Atacar&#xA;Ir a la nutriÃ³loga una vez al mes&#xA;Cuestionarme&#xA;Apretar el paso&#xA;ReÃ­r&#xA;Gritar&#xA;Facturar todas mis citas al doctor para que el SAT me redima ISR&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

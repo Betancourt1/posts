@@ -1,0 +1,33 @@
+baseURL = "https://example.com/"
+languageCode = "es-mx"
+title = "Posts"
+enableRobotsTXT = true
+
+[pagination]
+  pagerSize = 20
+
+[taxonomies]
+  tag = "tags"
+
+[sitemap]
+  changefreq = "weekly"
+  priority = 0.5
+  filename = "sitemap.xml"
+
+[menu]
+  [[menu.main]]
+    name = "Inicio"
+    pageRef = "/"
+    weight = 1
+  [[menu.main]]
+    name = "Archivos"
+    pageRef = "/archives"
+    weight = 2
+  [[menu.main]]
+    name = "Tags"
+    pageRef = "/tags"
+    weight = 3
+  [[menu.main]]
+    name = "RSS"
+    url = "/index.xml"
+    weight = 4
