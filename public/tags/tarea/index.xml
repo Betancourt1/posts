@@ -2,59 +2,59 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tarea on Posts</title>
-    <link>http://localhost:1313/tags/tarea/</link>
+    <link>https://example.com/tags/tarea/</link>
     <description>Recent content in Tarea on Posts</description>
     <generator>Hugo</generator>
     <language>es-mx</language>
     <lastBuildDate>Sat, 29 Nov 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/tarea/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://example.com/tags/tarea/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>El futuro probablemente es primitivo</title>
-      <link>http://localhost:1313/posts/2025/noviembre/tarea_primitivismo/</link>
+      <link>https://example.com/posts/2025/noviembre/tarea_primitivismo/</link>
       <pubDate>Sat, 29 Nov 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/noviembre/tarea_primitivismo/</guid>
+      <guid>https://example.com/posts/2025/noviembre/tarea_primitivismo/</guid>
       <description>&lt;h1 id=&#34;el-futuro-probablemente-es-primitivo&#34;&gt;El futuro probablemente es primitivo&lt;/h1&gt;&#xA;&lt;h2 id=&#34;lo-que-asumimos&#34;&gt;Lo que asumimos&lt;/h2&gt;&#xA;&lt;p&gt;Tengo muchas semanas pensando en el futuro de la humanidad, concretamente en los siguientes cientos de miles de aÃ±os. Este interÃ©s naciÃ³ de notar que casi todo el scifi que he consumido abarca las siguientes decenas de miles de aÃ±os, y eso con suerte. Sin embargo, otros homÃ­nidos, como los neandertales, vivieron cientos de miles de aÃ±os; es razonable esperar que nosotros tambiÃ©n.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Tema para un ensayo</title>
-      <link>http://localhost:1313/posts/2025/octubre/tarea_tema_ensayo/</link>
+      <link>https://example.com/posts/2025/octubre/tarea_tema_ensayo/</link>
       <pubDate>Sun, 19 Oct 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/octubre/tarea_tema_ensayo/</guid>
+      <guid>https://example.com/posts/2025/octubre/tarea_tema_ensayo/</guid>
       <description>&lt;h1 id=&#34;tema-para-un-ensayo&#34;&gt;Tema para un ensayo&lt;/h1&gt;&#xA;&lt;h3 id=&#34;propuesta&#34;&gt;Propuesta&lt;/h3&gt;&#xA;&lt;p&gt;Tema: futurismo.&lt;/p&gt;&#xA;&lt;p&gt;Idea general: &lt;em&gt;el futuro de la humanidad es primitivo&lt;/em&gt;.&lt;/p&gt;&#xA;&lt;p&gt;Tesis: La existencia de tecnologÃ­a moderna, basada en el transistor, es una excepciÃ³n histÃ³rica y no es sostenible con el tiempo, lo que implica que en decenas o cientos de miles de aÃ±os, la humanidad puede estar de nuevo en una edad de piedra o de hierro.&lt;/p&gt;&#xA;&lt;h3 id=&#34;justificaciãn&#34;&gt;JustificaciÃ³n&lt;/h3&gt;&#xA;&lt;p&gt;La ciencia ficciÃ³n ha servido, histÃ³ricamente, para que la humanidad proyecte su imaginaciÃ³n al futuro de la humanidad. No es casualidad, entonces, que muchas cosas que solÃ­an ser ciencia ficciÃ³n, eventualmente se hicieron realidad. En este sentido, existe una gama muy amplia de historias en el gÃ©nero (dieselpunk, solarpunk, cyberpunk, atompunk, steampunk, etc.). La mayorÃ­a de ellas tienen algo en comÃºn: el futuro es hipertecnolÃ³gico. Incluso en aquellas en las que el futuro es distÃ³pico, como el &lt;em&gt;atompunk&lt;/em&gt;, donde se imagina cÃ³mo hubiera sido el futuro si la guerra frÃ­a hubiera culminado en un invierno nuclear; o el &lt;em&gt;steampunk&lt;/em&gt;, donde se imagina cÃ³mo hubiera sido el futuro si nunca se hubiera descubierto el motor a combustiÃ³n. No obstante, pueden existir razones para pensar que la tecnologÃ­a basada en microchips, de la que depende gran parte de nuestra civilizaciÃ³n, no es sostenible cuando pensamos en decenas o centenares de miles de aÃ±os en el futuro. Asimismo, es razonable pensar que la humanidad vivirÃ¡ por esa extensiÃ³n de tiempo, el neandertal viviÃ³ por unos 360,000 aÃ±os antes de extinguirse, la humanidad ha vivido por 300,000 y no estÃ¡ amenazada por otra especie de hominidos, como sÃ­ lo estaban los neandertales. Luego, se hace natural discutir esta posibilidad y sus implicaciones.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Tarea Diversidad Linguistica</title>
-      <link>http://localhost:1313/posts/2025/octubre/tarea_diversidad_linguistica/</link>
+      <link>https://example.com/posts/2025/octubre/tarea_diversidad_linguistica/</link>
       <pubDate>Sat, 04 Oct 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/octubre/tarea_diversidad_linguistica/</guid>
+      <guid>https://example.com/posts/2025/octubre/tarea_diversidad_linguistica/</guid>
       <description>&lt;h2 id=&#34;el-nacionalismo-y-la-diversidad-lingããstica-una-reflexiãn&#34;&gt;El nacionalismo y la diversidad lingÃ¼Ã­stica: una reflexiÃ³n&lt;/h2&gt;&#xA;&lt;p&gt;El texto &lt;em&gt;El nacionalismo y la diversidad lingÃ¼Ã­stica&lt;/em&gt; de YÃ¡snaya Aguilar es un ensayo argumentativo. La razÃ³n es clara: desarrolla una tesis que cuestiona los discursos nacionalistas y sus efectos sobre las lenguas no oficiales, en particular las indÃ­genas. No se limita a describir, sino que busca persuadir al lector mediante un razonamiento crÃ­tico, ejemplos concretos y referencias histÃ³ricas.&lt;/p&gt;&#xA;&lt;p&gt;La propuesta de la autora consiste en mostrar la diversidad lingÃ¼Ã­stica como una forma de resistencia frente al nacionalismo. Afirma que las lenguas no oficiales, al sobrevivir y usarse cotidianamente, confrontan la narrativa de homogeneidad cultural que los Estados-naciÃ³n imponen para sostener una identidad Ãºnica. En este sentido, la autora plantea que el ejercicio pleno de los derechos lingÃ¼Ã­sticos es inseparable de la defensa de otros derechos fundamentales.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Ensayo</title>
-      <link>http://localhost:1313/posts/2025/septiembre/tarea_que_es_un_ensayo/</link>
+      <link>https://example.com/posts/2025/septiembre/tarea_que_es_un_ensayo/</link>
       <pubDate>Sun, 21 Sep 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/septiembre/tarea_que_es_un_ensayo/</guid>
+      <guid>https://example.com/posts/2025/septiembre/tarea_que_es_un_ensayo/</guid>
       <description>&lt;h1 id=&#34;ensayo&#34;&gt;Ensayo&lt;/h1&gt;&#xA;&lt;p&gt;El ensayo es un gÃ©nero literario que consiste en hablar sobre cualquier tema que se desee de una forma mÃ¡s o menos estructurada. Carece en su mayorÃ­a de reglas claras, pero existen mÃºltiples convenciones y categorÃ­as de ensayo, dependiendo del propÃ³sito, extensiÃ³n y tema que se trate. En principio, se pueden distinguir dos grandes tipos de ensayo: el acadÃ©mico y el literario. El primero, se basa en la exposiciÃ³n de un tema acadÃ©mico, alguna o algunas tesis, y argumentos que la sustentan. El segundo, se basa en un texto libre donde el autor habla en prosa libre de lo que desee, desde meditaciones, opiniones, memorias o lo que quiera.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Â¿CuÃ¡l es el objeto de estudio del materialismo histÃ³rico?</title>
-      <link>http://localhost:1313/posts/2025/septiembre/tarea_ensayo_materialismo_hist%C3%B3rico/</link>
+      <link>https://example.com/posts/2025/septiembre/tarea_ensayo_materialismo_hist%C3%B3rico/</link>
       <pubDate>Tue, 16 Sep 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/septiembre/tarea_ensayo_materialismo_hist%C3%B3rico/</guid>
+      <guid>https://example.com/posts/2025/septiembre/tarea_ensayo_materialismo_hist%C3%B3rico/</guid>
       <description>&lt;h1 id=&#34;âcuãl-es-el-objeto-de-estudio-del-materialismo-histãrico&#34;&gt;Â¿CuÃ¡l es el objeto de estudio del materialismo histÃ³rico?&lt;/h1&gt;&#xA;&lt;h2 id=&#34;introducciãn&#34;&gt;IntroducciÃ³n&lt;/h2&gt;&#xA;&lt;p&gt;Durante el siglo XIX se hicieron numerosas aportaciones a lo que hoy conocemos como &lt;em&gt;ciencias sociales&lt;/em&gt;. MÃºltiples personajes se hicieron notar en este periodo, como Augusto Comte, Max Weber o Karl Marx. Respecto a este Ãºltimo, una de sus principales aportaciones fue el materialismo histÃ³rico, el cual fue un marco conceptual propuesto para interpretar la historia de las civilizaciones de una forma diferente a las predominantes en esos aÃ±os. Siendo el materialismo histÃ³rico tan relevante para esos tiempos y los nuestros, cabe preguntarse cuÃ¡l es su objeto de estudio. De forma breve, podemos decir que el materialismo histÃ³rico estudia el desarrollo histÃ³rico de la sociedad a partir de sus estructuras materiales. Esta forma de entender la historia, se postula como una forma cientÃ­fica de entender la evoluciÃ³n de las civilizaciones.&lt;/p&gt;</description>
     </item>
     <item>
       <title> Tarea Cuestionario Contexto</title>
-      <link>http://localhost:1313/posts/2025/agosto/_tarea_cuestionario_contexto/</link>
+      <link>https://example.com/posts/2025/agosto/_tarea_cuestionario_contexto/</link>
       <pubDate>Sun, 07 Sep 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/agosto/_tarea_cuestionario_contexto/</guid>
+      <guid>https://example.com/posts/2025/agosto/_tarea_cuestionario_contexto/</guid>
       <description>&lt;p&gt;\subsection{Â¿CÃ³mo explica Wallerstein el proceso de construcciÃ³n de las ciencias sociales en general y de la sociologÃ­a en particular?}&lt;/p&gt;&#xA;&lt;p&gt;Wallerstein nos explica el proceso de construcciÃ³n de las ciencias sociales a travÃ©s algunos procesos clave en la historia del conocimiento en Europa. Para empezar, la percepciÃ³n del universo pasÃ³ a ser similar a la de una divinidad: infinito, con leyes eternas y necesarias. Con este cambio de percepciÃ³n, no obstante, tambiÃ©n se relegaron los aspectos morales que se atribuÃ­an a Ã©sta misma: amor, humildad, caridad. Esto orientÃ³ los esfuerzos por entender el universo al intento de construir un conocimiento secular sistemÃ¡tico sobre la realidad con validaciÃ³n empÃ­rica. Esfuerzos que, paulatinamente, pasarÃ­an a tomar el nombre de &lt;em&gt;scientia&lt;/em&gt;.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Discurso acadÃ©mico y tipos de texto</title>
-      <link>http://localhost:1313/posts/2025/agosto/_tarea_tipos_de_texto/</link>
+      <link>https://example.com/posts/2025/agosto/_tarea_tipos_de_texto/</link>
       <pubDate>Sun, 24 Aug 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/agosto/_tarea_tipos_de_texto/</guid>
+      <guid>https://example.com/posts/2025/agosto/_tarea_tipos_de_texto/</guid>
       <description>&lt;h1 id=&#34;discurso-acadãmico-y-tipos-de-texto&#34;&gt;Discurso acadÃ©mico y tipos de texto&lt;/h1&gt;&#xA;&lt;h2 id=&#34;definiciones-en-tãrminos-llanos&#34;&gt;Definiciones, en tÃ©rminos llanos&lt;/h2&gt;&#xA;&lt;p&gt;&lt;strong&gt;Abstract.&lt;/strong&gt; Es un concentrado del trabajo: dice quÃ© problema se abordÃ³, con quÃ© mÃ©todos, quÃ© se hallÃ³ y por quÃ© importa. Hay dos usos: como resumen de artÃ­culo y como pieza para postular a un congreso. Suele incluir palabras clave.&lt;/p&gt;&#xA;&lt;p&gt;&lt;strong&gt;ArtÃ­culo de investigaciÃ³n.&lt;/strong&gt; Es el formato corto con el que una comunidad cientÃ­fica se comunica para reportar resultados originales. Es especÃ­fico en tema, terminologÃ­a y estructura.&lt;/p&gt;</description>
     </item>
   </channel>

@@ -2,129 +2,129 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts</title>
-    <link>http://localhost:1313/posts/</link>
+    <link>https://example.com/posts/</link>
     <description>Recent content on Posts</description>
     <generator>Hugo</generator>
     <language>es-mx</language>
     <lastBuildDate>Thu, 01 Jan 2026 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://example.com/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>ã©ã†ã‚‚ã‚ã‚ŠãŒã¨ã† Mr. Roboto</title>
-      <link>http://localhost:1313/posts/2026/enero/gracias/</link>
+      <title>ã©ã†ã‚‚ã‚ã‚ŠãŒã¨ã† Mr. Roboto</title>
+      <link>https://example.com/posts/2026/enero/gracias/</link>
       <pubDate>Thu, 01 Jan 2026 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2026/enero/gracias/</guid>
-      <description>&lt;h1 id=&#34;ãããããšãœãã-mr-roboto&#34;&gt;ã©ã†ã‚‚ã‚ã‚ŠãŒã¨ã† Mr. Roboto&lt;/h1&gt;</description>
+      <guid>https://example.com/posts/2026/enero/gracias/</guid>
+      <description>&lt;h1 id=&#34;ãããããšãœãã-mr-roboto&#34;&gt;ã©ã†ã‚‚ã‚ã‚ŠãŒã¨ã† Mr. Roboto&lt;/h1&gt;</description>
     </item>
     <item>
       <title>El narco</title>
-      <link>http://localhost:1313/posts/2026/enero/el_narco/</link>
+      <link>https://example.com/posts/2026/enero/el_narco/</link>
       <pubDate>Thu, 01 Jan 2026 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2026/enero/el_narco/</guid>
+      <guid>https://example.com/posts/2026/enero/el_narco/</guid>
       <description>&lt;h1 id=&#34;el-narco&#34;&gt;El narco&lt;/h1&gt;&#xA;&lt;p&gt;Cuando hablas del narco, me hablas de su mÃºsica&#xA;Dices que fomentan la violencia y que es muy preocupante&#xA;Cuando hablas del narco, me hablas de sus lÃ­deres&#xA;Dices que deberÃ­an encarcelarlos y que no merecen compasiÃ³n&#xA;Cuando hablas del narco, me hablas de las drogas&#xA;Dices que los consumidores tienen la culpa y que son sus cÃ³mplices&lt;/p&gt;&#xA;&lt;p&gt;Cuando hablo del narco, hablo de Luis&#xA;Te digo que jugÃ¡bamos de niÃ±os y lo mataron a los 16&#xA;Cuando hablo del narco, hablo de Dani&#xA;Te digo que lo corrieron de la secundaria y ahora estÃ¡ en el cartel&#xA;Cuando hablo del narco, hablo de mi hermano&#xA;Te digo que recayÃ³ luego de divorciarse y por deberles se les tuvo que unir&lt;/p&gt;</description>
     </item>
     <item>
       <title>Cabello</title>
-      <link>http://localhost:1313/posts/2025/diciembre/cabello/</link>
+      <link>https://example.com/posts/2025/diciembre/cabello/</link>
       <pubDate>Mon, 01 Dec 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/diciembre/cabello/</guid>
+      <guid>https://example.com/posts/2025/diciembre/cabello/</guid>
       <description>&lt;h1 id=&#34;cabello&#34;&gt;Cabello&lt;/h1&gt;&#xA;&lt;p&gt;Se siente como un vacÃ­o en el tiempo. Es una burbuja que nace en mi pecho y se extiende de golpe fuera de mÃ­ en todas direcciones. En un momento todo estÃ¡ saturado de esto que pasÃ³.&lt;/p&gt;</description>
     </item>
     <item>
       <title>El futuro probablemente es primitivo</title>
-      <link>http://localhost:1313/posts/2025/noviembre/tarea_primitivismo/</link>
+      <link>https://example.com/posts/2025/noviembre/tarea_primitivismo/</link>
       <pubDate>Sat, 29 Nov 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/noviembre/tarea_primitivismo/</guid>
+      <guid>https://example.com/posts/2025/noviembre/tarea_primitivismo/</guid>
       <description>&lt;h1 id=&#34;el-futuro-probablemente-es-primitivo&#34;&gt;El futuro probablemente es primitivo&lt;/h1&gt;&#xA;&lt;h2 id=&#34;lo-que-asumimos&#34;&gt;Lo que asumimos&lt;/h2&gt;&#xA;&lt;p&gt;Tengo muchas semanas pensando en el futuro de la humanidad, concretamente en los siguientes cientos de miles de aÃ±os. Este interÃ©s naciÃ³ de notar que casi todo el scifi que he consumido abarca las siguientes decenas de miles de aÃ±os, y eso con suerte. Sin embargo, otros homÃ­nidos, como los neandertales, vivieron cientos de miles de aÃ±os; es razonable esperar que nosotros tambiÃ©n.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Un conversatorio</title>
-      <link>http://localhost:1313/posts/2025/noviembre/conversatorio/</link>
+      <link>https://example.com/posts/2025/noviembre/conversatorio/</link>
       <pubDate>Wed, 19 Nov 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/noviembre/conversatorio/</guid>
+      <guid>https://example.com/posts/2025/noviembre/conversatorio/</guid>
       <description>&lt;h1 id=&#34;un-conversatorio&#34;&gt;Un conversatorio&lt;/h1&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;Â¿CÃ³mo define usted el uso Ã©tico de las herramientas de inteligencia artificial, tanto en el Ã¡mbito acadÃ©mico-profesional como en la investigaciÃ³n?&lt;/p&gt;&#xA;&lt;p&gt;Cuando hablamos de uso Ã©tico de la IA tenemos antes que definir algunas cosas acerca de nuestra Ã©tica en general ante el resto de herramientas y acerca de su naturaleza. La IA no hace cosas que no pudiÃ©ramos hacer antes, en realidad, por definiciÃ³n no puede hacer cosas que no pudiÃ©ramos hacer antes y esto es algo que todos deben de tener presente. La IA es simplemente una innovaciÃ³n de escala. Ahora todas las personas pueden hacerse de una herramienta que les da la habilidad de hacer cosas que ya se podÃ­an hacer desde hace dÃ©cadas, solamente que con menos esfuerzo que entonces. Entonces, preguntÃ©monos, Â¿esta es la primer tecnologÃ­a que viene a hacer por nosotros algo que de todas formas ya podÃ­amos hacer? No. La historia estÃ¡ llena de tecnologÃ­as asÃ­. Incluso pudiÃ©ramos tener la tentaciÃ³n de que la IA es especial porque es una tecnologÃ­a de &amp;ldquo;uso general&amp;rdquo;, algo que ha trascendido como &amp;ldquo;gpts&amp;rdquo;, pero quien piense eso deberÃ­a de preguntarse cuÃ¡ntos puestos de trabajo fueron transformados y ultimadamente automatizados por la computadora. AÃºn hoy, estoy seguro de que hay mÃ¡s trabajos siendo tomados por la computadora que por la IA: cajeros automÃ¡ticos en el super, en el banco, dispensadores de comida que ya tenemos normalizados, pases de reconocimiento facial o por tarjeta. La IA es solamente la nueva tecnologÃ­a de uso general y tendrÃ¡ asociadas cuestiones Ã©ticas similares. Ahora bien, respondiendo a la pregunta, defino el uso Ã©tico de las herramientas de IA en el contexto educativo y de investigaciÃ³n igual que con otras tecnologÃ­as. Deben de usarse responsablemente, deben de usarse sin intenciÃ³n de daÃ±ar y deben de usarse de forma transparente. Igual que stackoverflow, wikipedia, un becario.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Un discurso de boda</title>
-      <link>http://localhost:1313/posts/2025/noviembre/discurso/</link>
+      <link>https://example.com/posts/2025/noviembre/discurso/</link>
       <pubDate>Sat, 08 Nov 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/noviembre/discurso/</guid>
+      <guid>https://example.com/posts/2025/noviembre/discurso/</guid>
       <description>&lt;h1 id=&#34;un-discurso-de-boda&#34;&gt;Un discurso de boda&lt;/h1&gt;&#xA;&lt;p&gt;Buenas noches. Cuando Marinela y Abi me pidieron que dijera unas palabras el dÃ­a de hoy, me planteÃ© dos retos: no usar chatgpt para redactarlo y no demorar demasiado al decirlo frente a ustedes. Veremos si puedo cumplir mi segundo reto.&lt;/p&gt;&#xA;&lt;p&gt;Hoy en dÃ­a vivimos en un mundo complicado, que nos propone retos que la gran mayorÃ­a preferirÃ­a no tener que superar. Y estos retos, que a veces nos parecen monstruos gigantes e inabarcables, a menudo consiguen robarnos de a poco la esperanza. Esperanza, no en un mundo mejor sino en uno que nos den ganas de vivir. Uno al que nos queramos dirigir y sobre el cual nos sintamos a salvo. Un mundo que a veces sentimos mÃ¡s lejos y a veces mÃ¡s cerca. Un mundo en el que estarÃ¡n nuestros hijos o no.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Tema para un ensayo</title>
-      <link>http://localhost:1313/posts/2025/octubre/tarea_tema_ensayo/</link>
+      <link>https://example.com/posts/2025/octubre/tarea_tema_ensayo/</link>
       <pubDate>Sun, 19 Oct 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/octubre/tarea_tema_ensayo/</guid>
+      <guid>https://example.com/posts/2025/octubre/tarea_tema_ensayo/</guid>
       <description>&lt;h1 id=&#34;tema-para-un-ensayo&#34;&gt;Tema para un ensayo&lt;/h1&gt;&#xA;&lt;h3 id=&#34;propuesta&#34;&gt;Propuesta&lt;/h3&gt;&#xA;&lt;p&gt;Tema: futurismo.&lt;/p&gt;&#xA;&lt;p&gt;Idea general: &lt;em&gt;el futuro de la humanidad es primitivo&lt;/em&gt;.&lt;/p&gt;&#xA;&lt;p&gt;Tesis: La existencia de tecnologÃ­a moderna, basada en el transistor, es una excepciÃ³n histÃ³rica y no es sostenible con el tiempo, lo que implica que en decenas o cientos de miles de aÃ±os, la humanidad puede estar de nuevo en una edad de piedra o de hierro.&lt;/p&gt;&#xA;&lt;h3 id=&#34;justificaciãn&#34;&gt;JustificaciÃ³n&lt;/h3&gt;&#xA;&lt;p&gt;La ciencia ficciÃ³n ha servido, histÃ³ricamente, para que la humanidad proyecte su imaginaciÃ³n al futuro de la humanidad. No es casualidad, entonces, que muchas cosas que solÃ­an ser ciencia ficciÃ³n, eventualmente se hicieron realidad. En este sentido, existe una gama muy amplia de historias en el gÃ©nero (dieselpunk, solarpunk, cyberpunk, atompunk, steampunk, etc.). La mayorÃ­a de ellas tienen algo en comÃºn: el futuro es hipertecnolÃ³gico. Incluso en aquellas en las que el futuro es distÃ³pico, como el &lt;em&gt;atompunk&lt;/em&gt;, donde se imagina cÃ³mo hubiera sido el futuro si la guerra frÃ­a hubiera culminado en un invierno nuclear; o el &lt;em&gt;steampunk&lt;/em&gt;, donde se imagina cÃ³mo hubiera sido el futuro si nunca se hubiera descubierto el motor a combustiÃ³n. No obstante, pueden existir razones para pensar que la tecnologÃ­a basada en microchips, de la que depende gran parte de nuestra civilizaciÃ³n, no es sostenible cuando pensamos en decenas o centenares de miles de aÃ±os en el futuro. Asimismo, es razonable pensar que la humanidad vivirÃ¡ por esa extensiÃ³n de tiempo, el neandertal viviÃ³ por unos 360,000 aÃ±os antes de extinguirse, la humanidad ha vivido por 300,000 y no estÃ¡ amenazada por otra especie de hominidos, como sÃ­ lo estaban los neandertales. Luego, se hace natural discutir esta posibilidad y sus implicaciones.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Tarea Diversidad Linguistica</title>
-      <link>http://localhost:1313/posts/2025/octubre/tarea_diversidad_linguistica/</link>
+      <link>https://example.com/posts/2025/octubre/tarea_diversidad_linguistica/</link>
       <pubDate>Sat, 04 Oct 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/octubre/tarea_diversidad_linguistica/</guid>
+      <guid>https://example.com/posts/2025/octubre/tarea_diversidad_linguistica/</guid>
       <description>&lt;h2 id=&#34;el-nacionalismo-y-la-diversidad-lingããstica-una-reflexiãn&#34;&gt;El nacionalismo y la diversidad lingÃ¼Ã­stica: una reflexiÃ³n&lt;/h2&gt;&#xA;&lt;p&gt;El texto &lt;em&gt;El nacionalismo y la diversidad lingÃ¼Ã­stica&lt;/em&gt; de YÃ¡snaya Aguilar es un ensayo argumentativo. La razÃ³n es clara: desarrolla una tesis que cuestiona los discursos nacionalistas y sus efectos sobre las lenguas no oficiales, en particular las indÃ­genas. No se limita a describir, sino que busca persuadir al lector mediante un razonamiento crÃ­tico, ejemplos concretos y referencias histÃ³ricas.&lt;/p&gt;&#xA;&lt;p&gt;La propuesta de la autora consiste en mostrar la diversidad lingÃ¼Ã­stica como una forma de resistencia frente al nacionalismo. Afirma que las lenguas no oficiales, al sobrevivir y usarse cotidianamente, confrontan la narrativa de homogeneidad cultural que los Estados-naciÃ³n imponen para sostener una identidad Ãºnica. En este sentido, la autora plantea que el ejercicio pleno de los derechos lingÃ¼Ã­sticos es inseparable de la defensa de otros derechos fundamentales.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Ensayo</title>
-      <link>http://localhost:1313/posts/2025/septiembre/tarea_que_es_un_ensayo/</link>
+      <link>https://example.com/posts/2025/septiembre/tarea_que_es_un_ensayo/</link>
       <pubDate>Sun, 21 Sep 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/septiembre/tarea_que_es_un_ensayo/</guid>
+      <guid>https://example.com/posts/2025/septiembre/tarea_que_es_un_ensayo/</guid>
       <description>&lt;h1 id=&#34;ensayo&#34;&gt;Ensayo&lt;/h1&gt;&#xA;&lt;p&gt;El ensayo es un gÃ©nero literario que consiste en hablar sobre cualquier tema que se desee de una forma mÃ¡s o menos estructurada. Carece en su mayorÃ­a de reglas claras, pero existen mÃºltiples convenciones y categorÃ­as de ensayo, dependiendo del propÃ³sito, extensiÃ³n y tema que se trate. En principio, se pueden distinguir dos grandes tipos de ensayo: el acadÃ©mico y el literario. El primero, se basa en la exposiciÃ³n de un tema acadÃ©mico, alguna o algunas tesis, y argumentos que la sustentan. El segundo, se basa en un texto libre donde el autor habla en prosa libre de lo que desee, desde meditaciones, opiniones, memorias o lo que quiera.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Â¿CuÃ¡l es el objeto de estudio del materialismo histÃ³rico?</title>
-      <link>http://localhost:1313/posts/2025/septiembre/tarea_ensayo_materialismo_hist%C3%B3rico/</link>
+      <link>https://example.com/posts/2025/septiembre/tarea_ensayo_materialismo_hist%C3%B3rico/</link>
       <pubDate>Tue, 16 Sep 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/septiembre/tarea_ensayo_materialismo_hist%C3%B3rico/</guid>
+      <guid>https://example.com/posts/2025/septiembre/tarea_ensayo_materialismo_hist%C3%B3rico/</guid>
       <description>&lt;h1 id=&#34;âcuãl-es-el-objeto-de-estudio-del-materialismo-histãrico&#34;&gt;Â¿CuÃ¡l es el objeto de estudio del materialismo histÃ³rico?&lt;/h1&gt;&#xA;&lt;h2 id=&#34;introducciãn&#34;&gt;IntroducciÃ³n&lt;/h2&gt;&#xA;&lt;p&gt;Durante el siglo XIX se hicieron numerosas aportaciones a lo que hoy conocemos como &lt;em&gt;ciencias sociales&lt;/em&gt;. MÃºltiples personajes se hicieron notar en este periodo, como Augusto Comte, Max Weber o Karl Marx. Respecto a este Ãºltimo, una de sus principales aportaciones fue el materialismo histÃ³rico, el cual fue un marco conceptual propuesto para interpretar la historia de las civilizaciones de una forma diferente a las predominantes en esos aÃ±os. Siendo el materialismo histÃ³rico tan relevante para esos tiempos y los nuestros, cabe preguntarse cuÃ¡l es su objeto de estudio. De forma breve, podemos decir que el materialismo histÃ³rico estudia el desarrollo histÃ³rico de la sociedad a partir de sus estructuras materiales. Esta forma de entender la historia, se postula como una forma cientÃ­fica de entender la evoluciÃ³n de las civilizaciones.&lt;/p&gt;</description>
     </item>
     <item>
       <title> Tarea Cuestionario Contexto</title>
-      <link>http://localhost:1313/posts/2025/agosto/_tarea_cuestionario_contexto/</link>
+      <link>https://example.com/posts/2025/agosto/_tarea_cuestionario_contexto/</link>
       <pubDate>Sun, 07 Sep 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/agosto/_tarea_cuestionario_contexto/</guid>
+      <guid>https://example.com/posts/2025/agosto/_tarea_cuestionario_contexto/</guid>
       <description>&lt;p&gt;\subsection{Â¿CÃ³mo explica Wallerstein el proceso de construcciÃ³n de las ciencias sociales en general y de la sociologÃ­a en particular?}&lt;/p&gt;&#xA;&lt;p&gt;Wallerstein nos explica el proceso de construcciÃ³n de las ciencias sociales a travÃ©s algunos procesos clave en la historia del conocimiento en Europa. Para empezar, la percepciÃ³n del universo pasÃ³ a ser similar a la de una divinidad: infinito, con leyes eternas y necesarias. Con este cambio de percepciÃ³n, no obstante, tambiÃ©n se relegaron los aspectos morales que se atribuÃ­an a Ã©sta misma: amor, humildad, caridad. Esto orientÃ³ los esfuerzos por entender el universo al intento de construir un conocimiento secular sistemÃ¡tico sobre la realidad con validaciÃ³n empÃ­rica. Esfuerzos que, paulatinamente, pasarÃ­an a tomar el nombre de &lt;em&gt;scientia&lt;/em&gt;.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Discurso acadÃ©mico y tipos de texto</title>
-      <link>http://localhost:1313/posts/2025/agosto/_tarea_tipos_de_texto/</link>
+      <link>https://example.com/posts/2025/agosto/_tarea_tipos_de_texto/</link>
       <pubDate>Sun, 24 Aug 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/agosto/_tarea_tipos_de_texto/</guid>
+      <guid>https://example.com/posts/2025/agosto/_tarea_tipos_de_texto/</guid>
       <description>&lt;h1 id=&#34;discurso-acadãmico-y-tipos-de-texto&#34;&gt;Discurso acadÃ©mico y tipos de texto&lt;/h1&gt;&#xA;&lt;h2 id=&#34;definiciones-en-tãrminos-llanos&#34;&gt;Definiciones, en tÃ©rminos llanos&lt;/h2&gt;&#xA;&lt;p&gt;&lt;strong&gt;Abstract.&lt;/strong&gt; Es un concentrado del trabajo: dice quÃ© problema se abordÃ³, con quÃ© mÃ©todos, quÃ© se hallÃ³ y por quÃ© importa. Hay dos usos: como resumen de artÃ­culo y como pieza para postular a un congreso. Suele incluir palabras clave.&lt;/p&gt;&#xA;&lt;p&gt;&lt;strong&gt;ArtÃ­culo de investigaciÃ³n.&lt;/strong&gt; Es el formato corto con el que una comunidad cientÃ­fica se comunica para reportar resultados originales. Es especÃ­fico en tema, terminologÃ­a y estructura.&lt;/p&gt;</description>
     </item>
     <item>
       <title>El derecho de existir</title>
-      <link>http://localhost:1313/posts/2025/agosto/el_derecho_de_existir/</link>
+      <link>https://example.com/posts/2025/agosto/el_derecho_de_existir/</link>
       <pubDate>Thu, 21 Aug 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/agosto/el_derecho_de_existir/</guid>
+      <guid>https://example.com/posts/2025/agosto/el_derecho_de_existir/</guid>
       <description>&lt;h1 id=&#34;el-derecho-de-existir&#34;&gt;El derecho de existir&lt;/h1&gt;&#xA;&lt;p&gt;Cosas que hago para sentir que tengo derecho a existir:&#xA;Correr&#xA;Ir al gimnasio&#xA;Leer&#xA;Escuchar mÃºsica que no me gusta&#xA;No decir que no me gusta esa mÃºsica&#xA;Trabajar&#xA;Decir que no trabajo en realidad porque me gusta mi trabajo&#xA;Escribir&#xA;Querer dinero&#xA;Decir que el dinero no es importante&#xA;Callarme&#xA;Apretar los dientes&#xA;Mirar con odio&#xA;Abrazar a Tamal&#xA;Acostar a Espresso en mi pecho&#xA;Llorar&#xA;Perder&#xA;Revolcarme&#xA;Atacar&#xA;Ir a la nutriÃ³loga una vez al mes&#xA;Cuestionarme&#xA;Apretar el paso&#xA;ReÃ­r&#xA;Gritar&#xA;Facturar todas mis citas al doctor para que el SAT me redima ISR&lt;/p&gt;</description>
     </item>
     <item>
       <title>Cuento</title>
-      <link>http://localhost:1313/posts/2025/agosto/cuento/</link>
+      <link>https://example.com/posts/2025/agosto/cuento/</link>
       <pubDate>Mon, 18 Aug 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/agosto/cuento/</guid>
+      <guid>https://example.com/posts/2025/agosto/cuento/</guid>
       <description>&lt;h1 id=&#34;cuento&#34;&gt;Cuento&lt;/h1&gt;&#xA;&lt;p&gt;Vivo con Tamal, una gatita de 6 aÃ±os que fue criada por mi roomie. ConocÃ­ a Tamal el primer dÃ­a que fui a mi actual departamento, luego de que mi roomie se mudara ahÃ­ con sus dos gatos: Piyo y Tamal. Inmediatamente despuÃ©s de conocer a Tamal, me sentÃ© en el piso y le extendÃ­ la mano para que me conociera.&lt;/p&gt;</description>
     </item>
     <item>
       <title>IA para la productividad</title>
-      <link>http://localhost:1313/posts/2025/agosto/no_post_charla_ia/</link>
+      <link>https://example.com/posts/2025/agosto/no_post_charla_ia/</link>
       <pubDate>Wed, 13 Aug 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/agosto/no_post_charla_ia/</guid>
+      <guid>https://example.com/posts/2025/agosto/no_post_charla_ia/</guid>
       <description>&lt;h1 id=&#34;ia-para-la-productividad&#34;&gt;IA para la productividad&lt;/h1&gt;&#xA;&lt;h3 id=&#34;presentador-f-betancourt&#34;&gt;Presentador: F Betancourt&lt;/h3&gt;&#xA;&lt;h2 id=&#34;orden-de-la-charla&#34;&gt;Orden de la charla&lt;/h2&gt;&#xA;&lt;h3 id=&#34;mostrar-qr-5-mins&#34;&gt;Mostrar QR (5 mins)&lt;/h3&gt;&#xA;&lt;h3 id=&#34;conceptos-10-mins&#34;&gt;Conceptos (10 mins)&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Modelos no razonadores&lt;/li&gt;&#xA;&lt;li&gt;Modelos razonadores&lt;/li&gt;&#xA;&lt;li&gt;Agentes&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;demos-35-mins&#34;&gt;Demos (35 mins)&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Prezi&lt;/li&gt;&#xA;&lt;li&gt;Gemini en Google Sheets&lt;/li&gt;&#xA;&lt;li&gt;NotebookLM&lt;/li&gt;&#xA;&lt;li&gt;Claude Artifacts&lt;/li&gt;&#xA;&lt;li&gt;DeepResearch - ChatGPT&lt;/li&gt;&#xA;&lt;li&gt;Agent Mode - ChatGPT&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;parte-teãrica-10-mins&#34;&gt;Parte teÃ³rica (10 mins)&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Impactos en el trabajo&lt;/li&gt;&#xA;&lt;li&gt;Brecha de adopciÃ³n&lt;/li&gt;&#xA;&lt;li&gt;Dependencia en una herramienta&lt;/li&gt;&#xA;&lt;li&gt;El cambio del rol humano en el producto&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;preguntas-5-mins-espero&#34;&gt;Preguntas (5 mins espero)&lt;/h3&gt;</description>
     </item>
     <item>
       <title>El impacto del malware y phishing en la empresa y cÃ³mo prevenirlo</title>
-      <link>http://localhost:1313/posts/2025/agosto/_nopost_charla_seguridadinformatica/</link>
+      <link>https://example.com/posts/2025/agosto/_nopost_charla_seguridadinformatica/</link>
       <pubDate>Tue, 12 Aug 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/agosto/_nopost_charla_seguridadinformatica/</guid>
+      <guid>https://example.com/posts/2025/agosto/_nopost_charla_seguridadinformatica/</guid>
       <description>&lt;h1 id=&#34;el-impacto-del-malware-y-phishing-en-la-empresa-y-cãmo-prevenirlo&#34;&gt;El impacto del malware y phishing en la empresa y cÃ³mo prevenirlo&lt;/h1&gt;&#xA;&lt;h3 id=&#34;ponente-moisãs-saldaãa&#34;&gt;Ponente: MoisÃ©s SaldaÃ±a&lt;/h3&gt;&#xA;&lt;h2 id=&#34;key-points&#34;&gt;Key points&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;En 2024 Coppel fue hackeada que afectÃ³ a todos sus sistemas. Tardaron 3 meses en recuperar el 100% de la infraestructura afectada por el ciberataque.&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;El ataque fue un ransonware.&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;Malware: es cualquier software diseÃ±ado para infiltrarse en tu sistema para que haga que lo que tÃº no quieras.&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;Tipos comunes: virus, spyware, troyanos, gusanos, ransomware.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Â¿Por quÃ©?</title>
-      <link>http://localhost:1313/posts/2025/agosto/why/</link>
+      <link>https://example.com/posts/2025/agosto/why/</link>
       <pubDate>Sat, 09 Aug 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/2025/agosto/why/</guid>
+      <guid>https://example.com/posts/2025/agosto/why/</guid>
       <description>&lt;h1 id=&#34;âpor-quã&#34;&gt;Â¿Por quÃ©?&lt;/h1&gt;&#xA;&lt;p&gt;Como muchas personas, he utilizado redes sociales desde que comenzÃ³ mi adolescencia -quizÃ¡ un poco antes-. En aquellos dÃ­as (2009, quizÃ¡) la red social que utilizaba era metroflog. Recuerdo que solamente publicabas imÃ¡genes o artes ascii y las personas podÃ­an &lt;em&gt;firmar&lt;/em&gt; tu post desde sus propios blogs. Luego de eso vino Facebook y esa es la red social por excelencia que he usado hasta ahora.&lt;/p&gt;&#xA;&lt;p&gt;PodrÃ­a hacer algunas menciones honorÃ­ficas porque he intentado alejarme de Facebook muuuuuchas veces. Slowly es una red social que te permite enviar cartas con extraÃ±os de otros paÃ­ses. Es bonita pero requiere una constancia que yo no poseo. Pulse fue una red social basada en interacciones up-down que prometÃ­a un algoritmo objetivo y que favorecÃ­a la veracidad; hoy por hoy es una red social basada en crypto. TambiÃ©n intentÃ© usar Mastodon, BlueSky, Twitter no -gracias a dios-, Snap y seguramente me estoy olvidando de alguna.&lt;/p&gt;</description>
     </item>
   </channel>

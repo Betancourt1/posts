@@ -2,87 +2,87 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on Posts</title>
-    <link>http://localhost:1313/tags/</link>
+    <link>https://example.com/tags/</link>
     <description>Recent content in Tags on Posts</description>
     <generator>Hugo</generator>
     <language>es-mx</language>
     <lastBuildDate>Thu, 01 Jan 2026 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://example.com/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Narco</title>
-      <link>http://localhost:1313/tags/narco/</link>
+      <link>https://example.com/tags/narco/</link>
       <pubDate>Thu, 01 Jan 2026 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/narco/</guid>
+      <guid>https://example.com/tags/narco/</guid>
       <description></description>
     </item>
     <item>
       <title>Nota</title>
-      <link>http://localhost:1313/tags/nota/</link>
+      <link>https://example.com/tags/nota/</link>
       <pubDate>Thu, 01 Jan 2026 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/nota/</guid>
+      <guid>https://example.com/tags/nota/</guid>
       <description></description>
     </item>
     <item>
       <title>Cabello</title>
-      <link>http://localhost:1313/tags/cabello/</link>
+      <link>https://example.com/tags/cabello/</link>
       <pubDate>Mon, 01 Dec 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/cabello/</guid>
+      <guid>https://example.com/tags/cabello/</guid>
       <description></description>
     </item>
     <item>
       <title>Tarea</title>
-      <link>http://localhost:1313/tags/tarea/</link>
+      <link>https://example.com/tags/tarea/</link>
       <pubDate>Sat, 29 Nov 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/tarea/</guid>
+      <guid>https://example.com/tags/tarea/</guid>
       <description></description>
     </item>
     <item>
       <title>Conversatorio</title>
-      <link>http://localhost:1313/tags/conversatorio/</link>
+      <link>https://example.com/tags/conversatorio/</link>
       <pubDate>Wed, 19 Nov 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/conversatorio/</guid>
+      <guid>https://example.com/tags/conversatorio/</guid>
       <description></description>
     </item>
     <item>
       <title>Discurso</title>
-      <link>http://localhost:1313/tags/discurso/</link>
+      <link>https://example.com/tags/discurso/</link>
       <pubDate>Sat, 08 Nov 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/discurso/</guid>
+      <guid>https://example.com/tags/discurso/</guid>
       <description></description>
     </item>
     <item>
       <title>Ensayo</title>
-      <link>http://localhost:1313/tags/ensayo/</link>
+      <link>https://example.com/tags/ensayo/</link>
       <pubDate>Sun, 19 Oct 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/ensayo/</guid>
+      <guid>https://example.com/tags/ensayo/</guid>
       <description></description>
     </item>
     <item>
       <title>Derecho</title>
-      <link>http://localhost:1313/tags/derecho/</link>
+      <link>https://example.com/tags/derecho/</link>
       <pubDate>Thu, 21 Aug 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/derecho/</guid>
+      <guid>https://example.com/tags/derecho/</guid>
       <description></description>
     </item>
     <item>
       <title>Cuento</title>
-      <link>http://localhost:1313/tags/cuento/</link>
+      <link>https://example.com/tags/cuento/</link>
       <pubDate>Mon, 18 Aug 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/cuento/</guid>
+      <guid>https://example.com/tags/cuento/</guid>
       <description></description>
     </item>
     <item>
       <title>Charla</title>
-      <link>http://localhost:1313/tags/charla/</link>
+      <link>https://example.com/tags/charla/</link>
       <pubDate>Wed, 13 Aug 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/charla/</guid>
+      <guid>https://example.com/tags/charla/</guid>
       <description></description>
     </item>
     <item>
       <title>Reflexion</title>
-      <link>http://localhost:1313/tags/reflexion/</link>
+      <link>https://example.com/tags/reflexion/</link>
       <pubDate>Sat, 09 Aug 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/reflexion/</guid>
+      <guid>https://example.com/tags/reflexion/</guid>
       <description></description>
     </item>
   </channel>

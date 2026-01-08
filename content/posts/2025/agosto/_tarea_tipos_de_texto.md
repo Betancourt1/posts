@@ -23,7 +23,7 @@ tags: ["tarea"]
 
 **ReseÃ±a.** Presenta de forma breve una obra y la valora crÃ­ticamente. 
 
-**SÃ­ntesis (temÃ¡tica).** Recapitula ideas principales de varios textos, integra y reorganiza, y aÃ±ade anÃ¡lisis propio; aplicada a un â€œtemaâ€ mÃ¡s que a un solo texto.  
+**SÃ­ntesis (temÃ¡tica).** Recapitula ideas principales de varios textos, integra y reorganiza, y aÃ±ade anÃ¡lisis propio; aplicada a un â€œtemaâ€ mÃ¡s que a un solo texto.  
 
 ## Rasgos que las distinguen
 
@@ -37,7 +37,7 @@ Con eso en mente, los rasgos por tipo:
 
 â€¢ **Abstract:** compacto; estructura espejeada al artÃ­culo; incluye palabras clave. 
 
-â€¢ **ArtÃ­culo:** estructura canÃ³nica por disciplinas; en sociales: introducciÃ³n, desarrollo y conclusiones; en experimentales: ademÃ¡s â€œMateriales y mÃ©todosâ€, â€œResultadosâ€ y â€œDiscusiÃ³nâ€.  
+â€¢ **ArtÃ­culo:** estructura canÃ³nica por disciplinas; en sociales: introducciÃ³n, desarrollo y conclusiones; en experimentales: ademÃ¡s â€œMateriales y mÃ©todosâ€, â€œResultadosâ€ y â€œDiscusiÃ³nâ€.  
 
 â€¢ **Ensayo:** voz autoral, tesis explÃ­cita, andamiaje de argumentos. 
 
@@ -49,7 +49,7 @@ Con eso en mente, los rasgos por tipo:
 
 â€¢ **Resumen:** fidelidad estructural al original y uso de pocas palabras.
 
-â€¢ **ReseÃ±a:** contine â€œdatos de la obra â€“ descripciÃ³n â€“ juicio crÃ­ticoâ€. 
+â€¢ **ReseÃ±a:** contine â€œdatos de la obra â€“ descripciÃ³n â€“ juicio crÃ­ticoâ€. 
 
 ## FunciÃ³n y contextos de uso
 
@@ -74,5 +74,6 @@ Con eso en mente, los rasgos por tipo:
 ## **Â¿CuÃ¡les has escrito? Â¿CuÃ¡les has leÃ­do?**
 
 De todos estos, los que he escrito han sido ensayos, monografÃ­as, proyectos de investigaciÃ³n y reseÃ±as. Los he leÃ­do todos en algÃºn momento, pero sobre todo he leÃ­do papers y ensayos.
+
 
 
