@@ -13,7 +13,9 @@
         {{ partial "nav.html" . }}
       </aside>
       <main class="column content-column">
-        {{ block "main" . }}{{ end }}
+        <div class="content-inner">
+          {{ block "main" . }}{{ end }}
+        </div>
       </main>
       <aside class="column sidebar-column">
         {{ partial "sidebar.html" . }}
