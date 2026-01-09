@@ -3,7 +3,14 @@
     <h1>{{ .Title }}</h1>
   </header>
 
-  {{ $pages := where .Site.RegularPages "Section" "posts" }}
+  {{ $allPages := where .Site.RegularPages "Section" "posts" }}
+  {{ $scratch := newScratch }}
+  {{ range $allPages }}
+    {{ if not (hasPrefix .File.BaseFileName "no_post") }}
+      {{ $scratch.Add "pages" (slice .) }}
+    {{ end }}
+  {{ end }}
+  {{ $pages := $scratch.Get "pages" | default (slice) }}
   {{ range $year := $pages.GroupByDate "2006" }}
     <section class="archive-year">
       <h2 id="{{ $year.Key }}">{{ $year.Key }}</h2>

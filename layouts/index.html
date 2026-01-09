@@ -9,11 +9,13 @@
   <section class="post-list">
     {{ $posts := where .Site.RegularPages "Section" "posts" }}
     {{ range $posts.ByDate.Reverse }}
-      <article class="post-card">
-        <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
-        <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-        <div class="post-full">{{ .Content }}</div>
-      </article>
+      {{ if not (hasPrefix .File.BaseFileName "no_post") }}
+        <article class="post-card">
+          <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
+          <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+          <div class="post-full">{{ .Content }}</div>
+        </article>
+      {{ end }}
     {{ end }}
   </section>
 {{ end }}

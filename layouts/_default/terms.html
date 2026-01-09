@@ -4,9 +4,18 @@
   </header>
   <section class="tag-cloud">
     {{ range .Data.Terms.Alphabetical }}
-      <a class="tag" href="{{ .Page.RelPermalink }}">
-        #{{ .Page.Title }} <span class="count">{{ .Count }}</span>
-      </a>
+      {{ $scratch := newScratch }}
+      {{ range .Pages }}
+        {{ if not (hasPrefix .File.BaseFileName "no_post") }}
+          {{ $scratch.Add "pages" (slice .) }}
+        {{ end }}
+      {{ end }}
+      {{ $visible := $scratch.Get "pages" | default (slice) }}
+      {{ if gt (len $visible) 0 }}
+        <a class="tag" href="{{ .Page.RelPermalink }}">
+          #{{ .Page.Title }} <span class="count">{{ len $visible }}</span>
+        </a>
+      {{ end }}
     {{ end }}
   </section>
 {{ end }}

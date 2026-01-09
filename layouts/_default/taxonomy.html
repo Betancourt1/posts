@@ -4,11 +4,13 @@
   </header>
   <section class="post-list">
     {{ range .Pages.ByDate.Reverse }}
-      <article class="post-card">
-        <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
-        <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-        <p>{{ .Summary }}</p>
-      </article>
+      {{ if not (hasPrefix .File.BaseFileName "no_post") }}
+        <article class="post-card">
+          <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
+          <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+          <p>{{ .Summary }}</p>
+        </article>
+      {{ end }}
     {{ end }}
   </section>
 {{ end }}

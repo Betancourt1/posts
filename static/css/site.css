@@ -26,11 +26,13 @@ html, body {
 
 .site-header {
   padding: 26px 32px 6px;
+  text-align: center;
 }
 
 .site-title {
   margin: 0;
   font-size: 2rem;
+  color: var(--accent);
 }
 
 .site-subtitle {

@@ -1,7 +1,14 @@
 <div class="sidebar-block">
   <h3>Archivos</h3>
   <ul class="sidebar-list">
-    {{ $pages := where .Site.RegularPages "Section" "posts" }}
+    {{ $allPages := where .Site.RegularPages "Section" "posts" }}
+    {{ $scratch := newScratch }}
+    {{ range $allPages }}
+      {{ if not (hasPrefix .File.BaseFileName "no_post") }}
+        {{ $scratch.Add "pages" (slice .) }}
+      {{ end }}
+    {{ end }}
+    {{ $pages := $scratch.Get "pages" | default (slice) }}
     {{ range first 12 ($pages.GroupByDate "2006-01") }}
       <li>
         <a href="{{ "/archives/" | relURL }}#{{ .Key }}">{{ .Key }}</a>
@@ -16,10 +23,19 @@
   <h3>Tags</h3>
   <ul class="sidebar-list">
     {{ range $term, $taxonomy := .Site.Taxonomies.tags }}
-      <li>
-        <a href="{{ $taxonomy.Page.RelPermalink }}">{{ $term }}</a>
-        <span class="count">{{ $taxonomy.Count }}</span>
-      </li>
+      {{ $scratch = newScratch }}
+      {{ range $taxonomy.Pages }}
+        {{ if not (hasPrefix .File.BaseFileName "no_post") }}
+          {{ $scratch.Add "pages" (slice .) }}
+        {{ end }}
+      {{ end }}
+      {{ $visible := $scratch.Get "pages" | default (slice) }}
+      {{ if gt (len $visible) 0 }}
+        <li>
+          <a href="{{ $taxonomy.Page.RelPermalink }}">{{ $term }}</a>
+          <span class="count">{{ len $visible }}</span>
+        </li>
+      {{ end }}
     {{ end }}
   </ul>
   <a class="sidebar-more" href="{{ "/tags/" | relURL }}">Ver todos</a>
