@@ -27,7 +27,9 @@ enableRobotsTXT = true
     name = "Tags"
     pageRef = "/tags"
     weight = 3
-  [[menu.main]]
-    name = "RSS"
-    url = "/index.xml"
-    weight = 4
+
+[outputs]
+  home = ["HTML"]
+  section = ["HTML"]
+  taxonomy = ["HTML"]
+  term = ["HTML"]

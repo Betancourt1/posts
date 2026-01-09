@@ -1,9 +1,10 @@
 ﻿---
-title: "ã©ã†ã‚‚ã‚ã‚ŠãŒã¨ã† Mr. Roboto"
+title: "��も�り��� Mr. Roboto"
 date: 2026-01-01
 tags: ["nota"]
 ---
-# ã©ã†ã‚‚ã‚ã‚ŠãŒã¨ã† Mr. Roboto
+# ��も�り��� Mr. Roboto
+
 
 
 

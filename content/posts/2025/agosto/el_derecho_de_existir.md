@@ -9,8 +9,8 @@ Cosas que hago para sentir que tengo derecho a existir:
 Correr
 Ir al gimnasio
 Leer
-Escuchar mÃºsica que no me gusta
-No decir que no me gusta esa mÃºsica
+Escuchar música que no me gusta
+No decir que no me gusta esa música
 Trabajar
 Decir que no trabajo en realidad porque me gusta mi trabajo
 Escribir
@@ -25,10 +25,11 @@ Llorar
 Perder
 Revolcarme
 Atacar
-Ir a la nutriÃ³loga una vez al mes
+Ir a la nutrióloga una vez al mes
 Cuestionarme
 Apretar el paso
-ReÃ­r
+Reír
 Gritar
 Facturar todas mis citas al doctor para que el SAT me redima ISR
+
 

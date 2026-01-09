@@ -25,11 +25,12 @@ tags: ["charla"]
 * DeepResearch - ChatGPT
 * Agent Mode - ChatGPT
 
-### Parte teÃ³rica (10 mins)
+### Parte teórica (10 mins)
 * Impactos en el trabajo
-* Brecha de adopciÃ³n
+* Brecha de adopción
 * Dependencia en una herramienta
 * El cambio del rol humano en el producto
 
 ### Preguntas (5 mins espero)
+
 

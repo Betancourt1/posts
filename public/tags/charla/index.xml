@@ -2,25 +2,25 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Charla on Posts</title>
-    <link>https://example.com/tags/charla/</link>
+    <link>http://localhost:1313/tags/charla/</link>
     <description>Recent content in Charla on Posts</description>
     <generator>Hugo</generator>
     <language>es-mx</language>
     <lastBuildDate>Wed, 13 Aug 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://example.com/tags/charla/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/tags/charla/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>IA para la productividad</title>
-      <link>https://example.com/posts/2025/agosto/no_post_charla_ia/</link>
+      <link>http://localhost:1313/posts/2025/agosto/no_post_charla_ia/</link>
       <pubDate>Wed, 13 Aug 2025 00:00:00 +0000</pubDate>
-      <guid>https://example.com/posts/2025/agosto/no_post_charla_ia/</guid>
-      <description>&lt;h1 id=&#34;ia-para-la-productividad&#34;&gt;IA para la productividad&lt;/h1&gt;&#xA;&lt;h3 id=&#34;presentador-f-betancourt&#34;&gt;Presentador: F Betancourt&lt;/h3&gt;&#xA;&lt;h2 id=&#34;orden-de-la-charla&#34;&gt;Orden de la charla&lt;/h2&gt;&#xA;&lt;h3 id=&#34;mostrar-qr-5-mins&#34;&gt;Mostrar QR (5 mins)&lt;/h3&gt;&#xA;&lt;h3 id=&#34;conceptos-10-mins&#34;&gt;Conceptos (10 mins)&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Modelos no razonadores&lt;/li&gt;&#xA;&lt;li&gt;Modelos razonadores&lt;/li&gt;&#xA;&lt;li&gt;Agentes&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;demos-35-mins&#34;&gt;Demos (35 mins)&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Prezi&lt;/li&gt;&#xA;&lt;li&gt;Gemini en Google Sheets&lt;/li&gt;&#xA;&lt;li&gt;NotebookLM&lt;/li&gt;&#xA;&lt;li&gt;Claude Artifacts&lt;/li&gt;&#xA;&lt;li&gt;DeepResearch - ChatGPT&lt;/li&gt;&#xA;&lt;li&gt;Agent Mode - ChatGPT&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;parte-teãrica-10-mins&#34;&gt;Parte teÃ³rica (10 mins)&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Impactos en el trabajo&lt;/li&gt;&#xA;&lt;li&gt;Brecha de adopciÃ³n&lt;/li&gt;&#xA;&lt;li&gt;Dependencia en una herramienta&lt;/li&gt;&#xA;&lt;li&gt;El cambio del rol humano en el producto&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;preguntas-5-mins-espero&#34;&gt;Preguntas (5 mins espero)&lt;/h3&gt;</description>
+      <guid>http://localhost:1313/posts/2025/agosto/no_post_charla_ia/</guid>
+      <description>&lt;h1 id=&#34;ia-para-la-productividad&#34;&gt;IA para la productividad&lt;/h1&gt;&#xA;&lt;h3 id=&#34;presentador-f-betancourt&#34;&gt;Presentador: F Betancourt&lt;/h3&gt;&#xA;&lt;h2 id=&#34;orden-de-la-charla&#34;&gt;Orden de la charla&lt;/h2&gt;&#xA;&lt;h3 id=&#34;mostrar-qr-5-mins&#34;&gt;Mostrar QR (5 mins)&lt;/h3&gt;&#xA;&lt;h3 id=&#34;conceptos-10-mins&#34;&gt;Conceptos (10 mins)&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Modelos no razonadores&lt;/li&gt;&#xA;&lt;li&gt;Modelos razonadores&lt;/li&gt;&#xA;&lt;li&gt;Agentes&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;demos-35-mins&#34;&gt;Demos (35 mins)&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Prezi&lt;/li&gt;&#xA;&lt;li&gt;Gemini en Google Sheets&lt;/li&gt;&#xA;&lt;li&gt;NotebookLM&lt;/li&gt;&#xA;&lt;li&gt;Claude Artifacts&lt;/li&gt;&#xA;&lt;li&gt;DeepResearch - ChatGPT&lt;/li&gt;&#xA;&lt;li&gt;Agent Mode - ChatGPT&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;parte-teórica-10-mins&#34;&gt;Parte teórica (10 mins)&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Impactos en el trabajo&lt;/li&gt;&#xA;&lt;li&gt;Brecha de adopción&lt;/li&gt;&#xA;&lt;li&gt;Dependencia en una herramienta&lt;/li&gt;&#xA;&lt;li&gt;El cambio del rol humano en el producto&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;preguntas-5-mins-espero&#34;&gt;Preguntas (5 mins espero)&lt;/h3&gt;</description>
     </item>
     <item>
-      <title>El impacto del malware y phishing en la empresa y cÃ³mo prevenirlo</title>
-      <link>https://example.com/posts/2025/agosto/_nopost_charla_seguridadinformatica/</link>
+      <title>El impacto del malware y phishing en la empresa y cómo prevenirlo</title>
+      <link>http://localhost:1313/posts/2025/agosto/_nopost_charla_seguridadinformatica/</link>
       <pubDate>Tue, 12 Aug 2025 00:00:00 +0000</pubDate>
-      <guid>https://example.com/posts/2025/agosto/_nopost_charla_seguridadinformatica/</guid>
-      <description>&lt;h1 id=&#34;el-impacto-del-malware-y-phishing-en-la-empresa-y-cãmo-prevenirlo&#34;&gt;El impacto del malware y phishing en la empresa y cÃ³mo prevenirlo&lt;/h1&gt;&#xA;&lt;h3 id=&#34;ponente-moisãs-saldaãa&#34;&gt;Ponente: MoisÃ©s SaldaÃ±a&lt;/h3&gt;&#xA;&lt;h2 id=&#34;key-points&#34;&gt;Key points&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;En 2024 Coppel fue hackeada que afectÃ³ a todos sus sistemas. Tardaron 3 meses en recuperar el 100% de la infraestructura afectada por el ciberataque.&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;El ataque fue un ransonware.&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;Malware: es cualquier software diseÃ±ado para infiltrarse en tu sistema para que haga que lo que tÃº no quieras.&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;Tipos comunes: virus, spyware, troyanos, gusanos, ransomware.&lt;/p&gt;</description>
+      <guid>http://localhost:1313/posts/2025/agosto/_nopost_charla_seguridadinformatica/</guid>
+      <description>&lt;h1 id=&#34;el-impacto-del-malware-y-phishing-en-la-empresa-y-cómo-prevenirlo&#34;&gt;El impacto del malware y phishing en la empresa y cómo prevenirlo&lt;/h1&gt;&#xA;&lt;h3 id=&#34;ponente-moisés-saldaña&#34;&gt;Ponente: Moisés Saldaña&lt;/h3&gt;&#xA;&lt;h2 id=&#34;key-points&#34;&gt;Key points&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;En 2024 Coppel fue hackeada que afectó a todos sus sistemas. Tardaron 3 meses en recuperar el 100% de la infraestructura afectada por el ciberataque.&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;El ataque fue un ransonware.&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;Malware: es cualquier software diseñado para infiltrarse en tu sistema para que haga que lo que tú no quieras.&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;Tipos comunes: virus, spyware, troyanos, gusanos, ransomware.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>
