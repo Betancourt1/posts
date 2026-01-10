@@ -1,9 +1,9 @@
 ﻿---
-title: "��も�り��� Mr. Roboto"
+title: "どうもありがとう"
 date: 2026-01-01
 tags: ["nota"]
 ---
-# ��も�り��� Mr. Roboto
+# どうもありがとう
 
 
 
