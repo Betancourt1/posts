@@ -1,26 +1,29 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    {{ partial "head.html" . }}
-  </head>
-  <body>
-    <header class="site-header">
-      <h1 class="site-title">betancourt</h1>
-      <p class="site-subtitle">aqui escribo cosas</p>
-    </header>
-    <div class="layout">
-      <aside class="column nav-column">
-        {{ partial "nav.html" . }}
-      </aside>
-      <main class="column content-column">
-        <div class="content-inner">
-          {{ block "main" . }}{{ end }}
-        </div>
-      </main>
-      <aside class="column sidebar-column">
-        {{ partial "sidebar.html" . }}
-      </aside>
-    </div>
-    {{ partial "footer.html" . }}
-  </body>
+
+<head>
+  {{ partial "head.html" . }}
+</head>
+
+<body>
+  <header class="site-header">
+    <h1 class="site-title">betancourt</h1>
+    <p class="site-subtitle">aquí escribo cosas</p>
+  </header>
+  <div class="layout">
+    <aside class="column nav-column">
+      {{ partial "nav.html" . }}
+    </aside>
+    <main class="column content-column">
+      <div class="content-inner">
+        {{ block "main" . }}{{ end }}
+      </div>
+    </main>
+    <aside class="column sidebar-column">
+      {{ partial "sidebar.html" . }}
+    </aside>
+  </div>
+  {{ partial "footer.html" . }}
+</body>
+
 </html>
