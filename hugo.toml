@@ -28,6 +28,12 @@ enableRobotsTXT = true
     pageRef = "/tags"
     weight = 3
 
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      hardWraps = true
+
 [outputs]
   home = ["HTML"]
   section = ["HTML"]
