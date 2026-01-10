@@ -344,3 +344,7 @@ sup, sub { line-height: 0; }
     position: static;
   }
 }
+
+.post-full h1 {
+  display: none;
+}
