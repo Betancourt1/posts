@@ -11,6 +11,6 @@ Podría hacer algunas menciones honoríficas porque he intentado alejarme de Fac
 
 El punto de esta entrada es que sistemáticamente he utilizado Facebook con un fin: compartir citas bonitas de lo que estuviera leyendo, imágenes de las animaciones que amaba, reflexiones del tema en moda y ver memes. Todas esas cosas, menos una, se parecen más al uso de un blog que al de una red social. Así que, luego de decidir dejar de usar Facebook, he tomado la decisión de abrir un pequeño blog y escribir aquí las idioteces que se me ocurran. También postearé citas sueltas de libros que me gusten, mis reseñas de GoodReads, imágenes bonitas -si me es posible, no he revisado si puedo postear imágenes aquí-, o lo que se me dé la gana porque para eso estoy pagando yo la subscripción. 
 
+*Disclaimer: seguí usando facebook en diciembre del 2025 y nunca subí aquí ni citas ni esas otras coas que dije.*
+
 Este blog no pretende ser anónimo, así que mi nombre y algo de mi información estará por ahí visible. Este blog no pretende ser leído, o no particularmente. Este blog no pretende ser una imagen perfecta de lo que pienso o siento, sino una imagen de lo que me apetece compartir con los demás. La imagen que cualquiera se forme de mí, basándose en el contenido de este blog, es errónea. Soy mucho peor que eso. O mucho mejor, depende de tu marco moral. Este blog no es un portafolio profesional, si estás aquí porque eres un reclutador y googleaste mi nombre: te juro que no insto a la revolución en la oficina, necesito comer. 
-
-

@@ -1,7 +1,7 @@
 ﻿---
 title: "El derecho de existir"
 date: 2025-08-21
-tags: ["derecho"]
+tags: ["lista"]
 ---
 # El derecho de existir
 
@@ -24,12 +24,9 @@ Acostar a Espresso en mi pecho
 Llorar
 Perder
 Revolcarme
-Atacar
 Ir a la nutrióloga una vez al mes
 Cuestionarme
 Apretar el paso
 Reír
 Gritar
 Facturar todas mis citas al doctor para que el SAT me redima ISR
-
-

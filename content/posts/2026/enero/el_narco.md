@@ -6,7 +6,7 @@ tags: ["narco"]
 # El narco
 
 Cuando hablas del narco, me hablas de su música
-Dices que fomentan la violencia y que es muy preocupante
+Dices que ensucian la cultura y celebran la sangre
 Cuando hablas del narco, me hablas de sus líderes
 Dices que deberían encarcelarlos y que no merecen compasión
 Cuando hablas del narco, me hablas de las drogas
@@ -16,11 +16,9 @@ Cuando hablo del narco, hablo de Luis
 Te digo que jugábamos de niños y lo mataron a los 16
 Cuando hablo del narco, hablo de Dani
 Te digo que lo corrieron de la secundaria y ahora está en el cartel
-Cuando hablo del narco, hablo de mi hermano
-Te digo que recayó luego de divorciarse y por deberles se les tuvo que unir
+Cuando hablo del narco, hablo de mi hermano 
+Te digo que recayó y ya no volvió
 
 Cuando hablamos del narco, no pensamos la misma tragedia
-Cuando hablamos del narco, piensas en titulares
-Cuando hablamos del narco, pienso en las caras que no voy a volver a ver
-
+Cuando hablamos del narco, tú piensas en titulares, yo pienso en los ojos que ya no me miran
 
