@@ -37,4 +37,5 @@ Cosas que me dan miedo:
 - Que no me mires a los ojos
 - Creerme superior a ti
 - Mis hermanos
+- Tú
 - Yo
