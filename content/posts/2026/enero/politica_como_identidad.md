@@ -1,3 +1,9 @@
+﻿---
+title: "¿Por qué votan los que votan?"
+date: 2026-01-14
+tags: ["ensayo", "política"]
+---
+
 # ¿Por qué votan los que votan?
 
 > Tu postura política habla mucho de ti. No es solo una opinión: es el reflejo de tus valores y de tu capacidad de empatía.
