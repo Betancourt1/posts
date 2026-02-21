@@ -11,6 +11,53 @@
   <meta name="description" content="{{ . }}" />
 {{ end }}
 <link rel="stylesheet" href="{{ "css/site.css" | relURL }}" />
+{{ $showSearch := partial "search_enabled.html" . }}
+{{ if $showSearch }}
+  <link rel="stylesheet" href="{{ "pagefind/pagefind-ui.css" | relURL }}" />
+  <script src="{{ "pagefind/pagefind-ui.js" | relURL }}" defer></script>
+  <script defer>
+    document.addEventListener("DOMContentLoaded", function () {
+      var searchElement = document.getElementById("search");
+      if (!searchElement || typeof window.PagefindUI === "undefined") {
+        return;
+      }
+
+      var bundlePath = "{{ "pagefind/" | relURL }}";
+      var indexProbePath = "{{ "pagefind/pagefind.js" | relURL }}";
+
+      fetch(indexProbePath)
+        .then(function (response) {
+          if (!response.ok) {
+            return;
+          }
+
+          searchElement.classList.remove("site-search--hidden");
+
+          new window.PagefindUI({
+            element: "#search",
+            bundlePath: bundlePath,
+            resetStyles: false,
+            showImages: false,
+            showSubResults: true,
+            placeholder: "Buscar en el sitio",
+            translations: {
+              clear_search: "Limpiar",
+              load_more: "Ver mas resultados",
+              search_label: "Buscar",
+              filters_label: "Filtros",
+              zero_results: "No hay resultados para [SEARCH_TERM]",
+              one_result: "[COUNT] resultado para [SEARCH_TERM]",
+              many_results: "[COUNT] resultados para [SEARCH_TERM]",
+              searching: "Buscando [SEARCH_TERM]..."
+            }
+          });
+        })
+        .catch(function () {
+          return;
+        });
+    });
+  </script>
+{{ end }}
 <link rel="apple-touch-icon" href="{{ "favicon-32.png" | relURL }}">
 <link rel="icon" type="image/png" sizes="32x32" href="{{ "favicon-32.png" | relURL }}">
 <link rel="icon" type="image/png" sizes="16x16" href="{{ "favicon-16.png" | relURL }}">
