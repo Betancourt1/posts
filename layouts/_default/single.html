@@ -1,5 +1,6 @@
 {{ define "main" }}
-  <article class="post">
+  {{ $excludeFromSearch := or (hasPrefix .File.BaseFileName "no_post") (eq .Params.search false) }}
+  <article class="post" {{ if $excludeFromSearch }}data-pagefind-ignore="all"{{ else }}data-pagefind-body{{ end }}>
     <header class="post-header">
       <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
       {{ with .Params.tags }}
@@ -8,6 +9,9 @@
             <a class="tag" href="{{ "/tags/" | relURL }}{{ . | urlize }}/">#{{ . }}</a>
           {{ end }}
         </div>
+      {{ end }}
+      {{ with .Params.summary }}
+        <p class="lead post-summary">{{ . }}</p>
       {{ end }}
     </header>
     <div class="post-body">

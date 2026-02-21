@@ -8,11 +8,25 @@
 
   <section class="post-list">
     {{ range .Pages.ByDate.Reverse }}
-      {{ if not (hasPrefix .File.BaseFileName "no_post") }}
+      {{ $isHidden := hasPrefix .File.BaseFileName "no_post" }}
+      {{ if not $isHidden }}
+        {{ $summary := .Params.summary }}
+        {{ if not $summary }}
+          {{ $summary = .Plain | truncate 220 }}
+        {{ end }}
         <article class="post-card">
           <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
           <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-          <div class="post-full">{{ .Content }}</div>
+          {{ with .Params.tags }}
+            <div class="tag-list">
+              {{ range . }}
+                <a class="tag" href="{{ "/tags/" | relURL }}{{ . | urlize }}/">#{{ . }}</a>
+              {{ end }}
+            </div>
+          {{ end }}
+          {{ with $summary }}
+            <p class="post-summary">{{ . }}</p>
+          {{ end }}
         </article>
       {{ end }}
     {{ end }}
