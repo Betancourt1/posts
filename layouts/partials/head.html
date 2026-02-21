@@ -1,5 +1,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+{{ $buildID := printf "%d" now.UnixNano }}
+<meta name="x-build-id" content="{{ $buildID }}" />
 <title>
   {{ if .IsHome }}
     {{ .Site.Title }}
@@ -10,11 +12,11 @@
 {{ with .Site.Params.description }}
   <meta name="description" content="{{ . }}" />
 {{ end }}
-<link rel="stylesheet" href="{{ "css/site.css" | relURL }}" />
+<link rel="stylesheet" href="{{ "css/site.css" | relURL }}?v={{ $buildID }}" />
 {{ $showSearch := partial "search_enabled.html" . }}
 {{ if $showSearch }}
-  <link rel="stylesheet" href="{{ "pagefind/pagefind-ui.css" | relURL }}" />
-  <script src="{{ "pagefind/pagefind-ui.js" | relURL }}" defer></script>
+  <link rel="stylesheet" href="{{ "pagefind/pagefind-ui.css" | relURL }}?v={{ $buildID }}" />
+  <script src="{{ "pagefind/pagefind-ui.js" | relURL }}?v={{ $buildID }}" defer></script>
   <script defer>
     document.addEventListener("DOMContentLoaded", function () {
       var searchElement = document.getElementById("search");
@@ -41,7 +43,6 @@
             showSubResults: true,
             placeholder: "Buscar en el sitio",
             translations: {
-              clear_search: "Limpiar",
               load_more: "Ver mas resultados",
               search_label: "Buscar",
               filters_label: "Filtros",
@@ -58,6 +59,57 @@
     });
   </script>
 {{ end }}
+<script defer>
+  document.addEventListener("DOMContentLoaded", function () {
+    var buildMeta = document.querySelector("meta[name='x-build-id']");
+    if (!buildMeta || !buildMeta.content) {
+      return;
+    }
+
+    var currentBuild = buildMeta.content;
+    var sessionKey = "site_build_seen";
+    if (window.sessionStorage && sessionStorage.getItem(sessionKey) === currentBuild) {
+      return;
+    }
+
+    var probeUrl = window.location.pathname + "?__build_probe=" + Date.now();
+    fetch(probeUrl, { cache: "no-store", credentials: "same-origin" })
+      .then(function (response) {
+        if (!response.ok) {
+          return null;
+        }
+        return response.text();
+      })
+      .then(function (html) {
+        if (!html) {
+          return;
+        }
+
+        var match = html.match(/<meta\s+name=["']x-build-id["']\s+content=["']([^"']+)["']/i);
+        if (!match || !match[1]) {
+          return;
+        }
+
+        var latestBuild = match[1];
+        if (window.sessionStorage) {
+          sessionStorage.setItem(sessionKey, latestBuild);
+        }
+        if (latestBuild === currentBuild) {
+          return;
+        }
+
+        var params = new URLSearchParams(window.location.search);
+        params.set("__v", latestBuild);
+        params.delete("__build_probe");
+        var nextQuery = params.toString();
+        var nextUrl = window.location.pathname + (nextQuery ? "?" + nextQuery : "") + window.location.hash;
+        window.location.replace(nextUrl);
+      })
+      .catch(function () {
+        return;
+      });
+  });
+</script>
 <link rel="apple-touch-icon" href="{{ "favicon-32.png" | relURL }}">
 <link rel="icon" type="image/png" sizes="32x32" href="{{ "favicon-32.png" | relURL }}">
 <link rel="icon" type="image/png" sizes="16x16" href="{{ "favicon-16.png" | relURL }}">
