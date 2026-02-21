@@ -1,20 +1,102 @@
 {{ define "main" }}
-<header class="page-header">
-  {{ with .Site.Params.description }}
-  <p class="lead">{{ . }}</p>
-  {{ end }}
-</header>
+  {{ $about := site.GetPage "/about" }}
+  {{ $professional := site.GetPage "/proyectos-profesionales" }}
+  {{ $academic := site.GetPage "/proyectos-academicos" }}
+  {{ $postsPage := site.GetPage "/posts" }}
+  {{ $cv := site.GetPage "/cv" }}
 
-<section class="post-list">
-  {{ $posts := where .Site.RegularPages "Section" "posts" }}
-  {{ range $posts.ByDate.Reverse }}
-  {{ if not (hasPrefix .File.BaseFileName "no_post") }}
-  <article class="post-card">
-    <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
-    <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-    <div class="post-full">{{ .Content }}</div>
-  </article>
+  <header class="page-header">
+    <h1>{{ with .Title }}{{ . }}{{ else }}Inicio{{ end }}</h1>
+    {{ with .Params.description }}
+      <p class="lead">{{ . }}</p>
+    {{ else }}
+      <p class="lead">Mapa rapido del sitio: perfil, proyectos y textos recientes.</p>
+    {{ end }}
+  </header>
+
+  {{ with .Content }}
+    <section class="post-body">
+      {{ . }}
+    </section>
   {{ end }}
+
+  <section class="home-section">
+    <div class="home-section-head">
+      <h2>Explora</h2>
+    </div>
+    <div class="portfolio-grid">
+      {{ with $about }}
+        <article class="portfolio-card">
+          <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+          <p>{{ with .Params.description }}{{ . }}{{ else }}Contexto personal y como leer este sitio.{{ end }}</p>
+        </article>
+      {{ end }}
+      {{ with $professional }}
+        <article class="portfolio-card">
+          <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+          <p>{{ with .Params.description }}{{ . }}{{ else }}Proyectos aplicados, decisiones y resultados.{{ end }}</p>
+        </article>
+      {{ end }}
+      {{ with $academic }}
+        <article class="portfolio-card">
+          <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+          <p>{{ with .Params.description }}{{ . }}{{ else }}Trabajos de investigacion, metodologia y analisis.{{ end }}</p>
+        </article>
+      {{ end }}
+      {{ with $postsPage }}
+        <article class="portfolio-card">
+          <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+          <p>{{ with .Params.description }}{{ . }}{{ else }}Notas y textos personales.{{ end }}</p>
+        </article>
+      {{ end }}
+      {{ with $cv }}
+        <article class="portfolio-card">
+          <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+          <p>{{ with .Params.description }}{{ . }}{{ else }}Resumen de experiencia, formacion y habilidades.{{ end }}</p>
+        </article>
+      {{ end }}
+    </div>
+  </section>
+
+  {{ $visiblePosts := slice }}
+  {{ range (where .Site.RegularPages "Section" "posts").ByDate.Reverse }}
+    {{ if not (hasPrefix .File.BaseFileName "no_post") }}
+      {{ $visiblePosts = $visiblePosts | append . }}
+    {{ end }}
   {{ end }}
-</section>
+
+  <section class="home-section">
+    <div class="home-section-head">
+      <h2>Escritos recientes</h2>
+      {{ with $postsPage }}
+        <a class="sidebar-more" href="{{ .RelPermalink }}">Ver todos</a>
+      {{ end }}
+    </div>
+    {{ if gt (len $visiblePosts) 0 }}
+      <div class="post-list">
+        {{ range first 5 $visiblePosts }}
+          {{ $summary := .Params.summary }}
+          {{ if not $summary }}
+            {{ $summary = .Plain | truncate 220 }}
+          {{ end }}
+          <article class="post-card">
+            <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
+            <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+            {{ with .Params.tags }}
+              <div class="tag-list">
+                {{ range . }}
+                  <a class="tag" href="{{ "/tags/" | relURL }}{{ . | urlize }}/">#{{ . }}</a>
+                {{ end }}
+              </div>
+            {{ end }}
+            {{ with $summary }}
+              <p class="post-summary">{{ . }}</p>
+            {{ end }}
+          </article>
+        {{ end }}
+      </div>
+    {{ else }}
+      <p class="lead">Aun no hay escritos publicados.</p>
+    {{ end }}
+  </section>
 {{ end }}

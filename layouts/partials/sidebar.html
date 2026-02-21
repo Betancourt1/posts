@@ -18,25 +18,3 @@
   </ul>
   <a class="sidebar-more" href="{{ "/archives/" | relURL }}">Ver todos</a>
 </div>
-
-<div class="sidebar-block">
-  <h3>Tags</h3>
-  <ul class="sidebar-list">
-    {{ range $term, $taxonomy := .Site.Taxonomies.tags }}
-      {{ $scratch = newScratch }}
-      {{ range $taxonomy.Pages }}
-        {{ if not (hasPrefix .File.BaseFileName "no_post") }}
-          {{ $scratch.Add "pages" (slice .) }}
-        {{ end }}
-      {{ end }}
-      {{ $visible := $scratch.Get "pages" | default (slice) }}
-      {{ if gt (len $visible) 0 }}
-        <li>
-          <a href="{{ $taxonomy.Page.RelPermalink }}">{{ $term }}</a>
-          <span class="count">{{ len $visible }}</span>
-        </li>
-      {{ end }}
-    {{ end }}
-  </ul>
-  <a class="sidebar-more" href="{{ "/tags/" | relURL }}">Ver todos</a>
-</div>
