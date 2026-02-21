@@ -3,6 +3,7 @@
   {{ $professional := site.GetPage "/proyectos-profesionales" }}
   {{ $academic := site.GetPage "/proyectos-academicos" }}
   {{ $postsPage := site.GetPage "/posts" }}
+  {{ $zettelkasten := site.GetPage "/zettelkasten" }}
   {{ $cv := site.GetPage "/cv" }}
 
   <header class="page-header">
@@ -10,7 +11,7 @@
     {{ with .Params.description }}
       <p class="lead">{{ . }}</p>
     {{ else }}
-      <p class="lead">Mapa rapido del sitio: perfil, proyectos y textos recientes.</p>
+      <p class="lead">Mapa rapido del sitio: perfil, proyectos y notas recientes.</p>
     {{ end }}
   </header>
 
@@ -47,6 +48,12 @@
         <article class="portfolio-card">
           <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
           <p>{{ with .Params.description }}{{ . }}{{ else }}Notas y textos personales.{{ end }}</p>
+        </article>
+      {{ end }}
+      {{ with $zettelkasten }}
+        <article class="portfolio-card">
+          <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+          <p>{{ with .Params.description }}{{ . }}{{ else }}Notas atomicas para ideas y referencias rapidas.{{ end }}</p>
         </article>
       {{ end }}
       {{ with $cv }}

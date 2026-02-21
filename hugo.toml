@@ -1,6 +1,6 @@
 baseURL = "https://example.com/"
 languageCode = "es-mx"
-title = "Posts"
+title = "betancourt"
 enableRobotsTXT = true
 
 [pagination]
@@ -20,14 +20,29 @@ enableRobotsTXT = true
     pageRef = "/"
     weight = 1
   [[menu.main]]
-    name = "Archivos"
-    pageRef = "/archives"
+    name = "Sobre mí"
+    pageRef = "/about"
     weight = 2
   [[menu.main]]
-    name = "Tags"
-    pageRef = "/tags"
+    name = "Profesional"
+    pageRef = "/proyectos-profesionales"
     weight = 3
-
+  [[menu.main]]
+    name = "Académico"
+    pageRef = "/proyectos-academicos"
+    weight = 4
+  [[menu.main]]
+    name = "Escritos"
+    pageRef = "/posts"
+    weight = 5
+  [[menu.main]]
+    name = "Zettelkasten"
+    pageRef = "/zettelkasten"
+    weight = 6
+  [[menu.main]]
+    name = "CV"
+    pageRef = "/cv"
+    weight = 7
 
 [markup]
   [markup.goldmark]
