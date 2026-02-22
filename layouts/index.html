@@ -1,4 +1,4 @@
-﻿{{ define "main" }}
+{{ define "main" }}
   {{ $about := site.GetPage "/about" }}
   {{ $professional := site.GetPage "/proyectos-profesionales" }}
   {{ $academic := site.GetPage "/proyectos-academicos" }}
@@ -29,12 +29,15 @@
     </section>
   {{ end }}
 
-  <section class="home-cta" aria-label="Acciones principales">
-    <p class="home-cta-copy">Si quieres ir directo a lo importante, aqui tienes accesos rapidos.</p>
-    <div class="home-cta-actions">
-      <a class="button button-primary" href="{{ $cvURL }}">Descargar CV</a>
-      <a class="button" href="{{ $contactURL }}">Contáctame</a>
+  <section class="home-section home-cta">
+    <div class="home-section-head">
+      <h2>Accesos rapidos</h2>
     </div>
+    <p class="lead">Si quieres ir directo a lo importante, aqui puedes descargar mi CV o enviarme un mensaje.</p>
+    <p class="home-cta-actions">
+      <a class="button" href="{{ $cvURL }}">Descargar CV</a>
+      <a class="button" href="{{ $contactURL }}">Contáctame</a>
+    </p>
   </section>
 
   <section class="home-section">

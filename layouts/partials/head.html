@@ -1,4 +1,4 @@
-﻿<meta charset="utf-8" />
+<meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 {{ $buildID := printf "%d" now.UnixNano }}
 <meta name="x-build-id" content="{{ $buildID }}" />
@@ -12,25 +12,6 @@
 {{ with .Site.Params.description }}
   <meta name="description" content="{{ . }}" />
 {{ end }}
-<script>
-  (function () {
-    var storageKey = "site_theme";
-    var theme = "dark";
-
-    try {
-      var storedTheme = window.localStorage ? localStorage.getItem(storageKey) : null;
-      if (storedTheme === "light" || storedTheme === "dark") {
-        theme = storedTheme;
-      } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) {
-        theme = "light";
-      }
-    } catch (error) {
-      theme = "dark";
-    }
-
-    document.documentElement.setAttribute("data-theme", theme);
-  })();
-</script>
 <link rel="stylesheet" href="{{ "css/site.css" | relURL }}?v={{ $buildID }}" />
 {{ $showSearch := partial "search_enabled.html" . }}
 {{ if $showSearch }}
@@ -127,91 +108,6 @@
       .catch(function () {
         return;
       });
-  });
-</script>
-<script defer>
-  document.addEventListener("DOMContentLoaded", function () {
-    var root = document.documentElement;
-    var body = document.body;
-    var themeToggle = document.getElementById("theme-toggle");
-    var navToggle = document.getElementById("nav-toggle");
-    var navOverlay = document.getElementById("nav-overlay");
-    var storageKey = "site_theme";
-
-    function normalizeTheme(theme) {
-      return theme === "light" ? "light" : "dark";
-    }
-
-    function updateThemeControl(theme) {
-      if (!themeToggle) {
-        return;
-      }
-
-      var nextTheme = theme === "dark" ? "light" : "dark";
-      themeToggle.setAttribute("data-next-theme", nextTheme);
-      themeToggle.setAttribute(
-        "aria-label",
-        nextTheme === "light" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"
-      );
-      themeToggle.textContent = nextTheme === "light" ? "Modo claro" : "Modo oscuro";
-    }
-
-    function setTheme(theme, persist) {
-      var normalized = normalizeTheme(theme);
-      root.setAttribute("data-theme", normalized);
-      updateThemeControl(normalized);
-
-      if (persist) {
-        try {
-          localStorage.setItem(storageKey, normalized);
-        } catch (error) {
-          return;
-        }
-      }
-    }
-
-    setTheme(root.getAttribute("data-theme"), false);
-
-    if (themeToggle) {
-      themeToggle.addEventListener("click", function () {
-        var nextTheme = themeToggle.getAttribute("data-next-theme");
-        setTheme(nextTheme, true);
-      });
-    }
-
-    function setNavOpen(isOpen) {
-      if (!body) {
-        return;
-      }
-      body.classList.toggle("nav-open", isOpen);
-      if (navToggle) {
-        navToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-      }
-    }
-
-    if (navToggle) {
-      navToggle.addEventListener("click", function () {
-        setNavOpen(!body.classList.contains("nav-open"));
-      });
-    }
-
-    if (navOverlay) {
-      navOverlay.addEventListener("click", function () {
-        setNavOpen(false);
-      });
-    }
-
-    document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape" && body.classList.contains("nav-open")) {
-        setNavOpen(false);
-      }
-    });
-
-    window.addEventListener("resize", function () {
-      if (window.innerWidth > 1000 && body.classList.contains("nav-open")) {
-        setNavOpen(false);
-      }
-    });
   });
 </script>
 <link rel="apple-touch-icon" href="{{ "favicon-32.png" | relURL }}">
