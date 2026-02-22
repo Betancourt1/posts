@@ -5,5 +5,5 @@ date: 2026-02-22
 draft: false
 ---
 
-Este sitio reúne mi perfil personal, proyectos y escritos en un solo lugar; descarga el CV o contáctame para conversar sobre colaboraciones.
-Si prefieres un recorrido rapido, usa los accesos directos para ver mi CV o pasar a la seccion de contacto.
+Soy ingeniero de datos con foco en plataformas cloud-native, automatizacion analitica y desarrollo de soluciones con IA aplicada.
+Aqui concentro mi perfil personal, proyectos y escritos para que puedas revisar rapidamente mi trabajo y mi enfoque.
