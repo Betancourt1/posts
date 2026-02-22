@@ -1,10 +1,18 @@
-{{ define "main" }}
+﻿{{ define "main" }}
   {{ $about := site.GetPage "/about" }}
   {{ $professional := site.GetPage "/proyectos-profesionales" }}
   {{ $academic := site.GetPage "/proyectos-academicos" }}
   {{ $postsPage := site.GetPage "/posts" }}
   {{ $zettelkasten := site.GetPage "/zettelkasten" }}
   {{ $cv := site.GetPage "/cv" }}
+  {{ $cvURL := "/cv/" | relURL }}
+  {{ if $cv }}
+    {{ $cvURL = $cv.RelPermalink }}
+  {{ end }}
+  {{ $contactURL := "/about/" | relURL }}
+  {{ if $cv }}
+    {{ $contactURL = printf "%s#contacto" $cv.RelPermalink }}
+  {{ end }}
 
   <header class="page-header">
     <h1>{{ with .Title }}{{ . }}{{ else }}Inicio{{ end }}</h1>
@@ -20,6 +28,23 @@
       {{ . }}
     </section>
   {{ end }}
+
+  <section class="home-cta">
+    <h2>Listo para avanzar juntos?</h2>
+    <p>Descarga mi currículum para revisar experiencias recientes o escríbeme directamente si quieres conversar sobre un proyecto.</p>
+    <div class="cta-group">
+      <a class="button" href="{{ "/cv/" | relURL }}">Descargar CV</a>
+      <a class="button" href="{{ "/about/" | relURL }}">Contáctame</a>
+    </div>
+  </section>
+
+  <section class="home-cta" aria-label="Acciones principales">
+    <p class="home-cta-copy">Si quieres ir directo a lo importante, aqui tienes accesos rapidos.</p>
+    <div class="home-cta-actions">
+      <a class="button button-primary" href="{{ $cvURL }}">Descargar CV</a>
+      <a class="button" href="{{ $contactURL }}">Contactame</a>
+    </div>
+  </section>
 
   <section class="home-section">
     <div class="home-section-head">

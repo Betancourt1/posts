@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="es">
 
 <head>
@@ -10,12 +10,31 @@
   <header class="site-header">
     <h1 class="site-title"><a href="{{ "/" | relURL }}">betancourt</a></h1>
     <p class="site-subtitle">aquí escribo cosas</p>
+    <div class="header-actions">
+      <button
+        type="button"
+        class="mobile-nav-toggle"
+        id="mobile-nav-toggle"
+        aria-label="Mostrar navegación"
+        aria-expanded="false"
+      >
+        <span>Menú</span>
+      </button>
+      <button
+        type="button"
+        class="theme-toggle"
+        id="theme-toggle"
+        aria-label="Cambiar tema"
+      >
+        <span id="theme-toggle-label">Tema</span>
+      </button>
+    </div>
     {{ if $showSearch }}
       <div class="site-search site-search--hidden" id="search"></div>
     {{ end }}
   </header>
   <div class="layout">
-    <aside class="column nav-column">
+    <aside class="column nav-column" id="site-nav-column">
       {{ partial "nav.html" . }}
     </aside>
     <main class="column content-column">
@@ -27,6 +46,7 @@
       {{ partial "sidebar.html" . }}
     </aside>
   </div>
+  <div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div>
   {{ partial "footer.html" . }}
 </body>
 
