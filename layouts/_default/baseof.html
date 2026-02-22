@@ -9,8 +9,8 @@
   {{ $showSearch := partial "search_enabled.html" . }}
   <header class="site-header">
     <h1 class="site-title"><a href="{{ "/" | relURL }}">betancourt</a></h1>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Cambiar tema">Tema claro</button>
     <p class="site-subtitle">aquí escribo cosas</p>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Cambiar tema">Tema claro</button>
     {{ if $showSearch }}
       <div class="site-search site-search--hidden" id="search"></div>
     {{ end }}
