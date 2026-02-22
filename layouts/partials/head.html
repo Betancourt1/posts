@@ -2,6 +2,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 {{ $buildID := printf "%d" now.UnixNano }}
 <meta name="x-build-id" content="{{ $buildID }}" />
+<script>
+  (function () {
+    var storageKey = "site_theme";
+    var theme = "dark";
+
+    try {
+      var savedTheme = window.localStorage ? localStorage.getItem(storageKey) : null;
+      if (savedTheme === "light" || savedTheme === "dark") {
+        theme = savedTheme;
+      }
+    } catch (error) {
+      theme = "dark";
+    }
+
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
 <title>
   {{ if .IsHome }}
     {{ .Site.Title }}
@@ -108,6 +125,49 @@
       .catch(function () {
         return;
       });
+  });
+</script>
+<script defer>
+  document.addEventListener("DOMContentLoaded", function () {
+    var toggle = document.getElementById("theme-toggle");
+    if (!toggle) {
+      return;
+    }
+
+    var root = document.documentElement;
+    var storageKey = "site_theme";
+    var resolveTheme = function () {
+      var current = root.getAttribute("data-theme");
+      if (current === "light" || current === "dark") {
+        return current;
+      }
+      return "dark";
+    };
+
+    var applyTheme = function (theme) {
+      root.setAttribute("data-theme", theme);
+      if (theme === "light") {
+        toggle.textContent = "Tema oscuro";
+        toggle.setAttribute("aria-label", "Cambiar a tema oscuro");
+        return;
+      }
+      toggle.textContent = "Tema claro";
+      toggle.setAttribute("aria-label", "Cambiar a tema claro");
+    };
+
+    applyTheme(resolveTheme());
+
+    toggle.addEventListener("click", function () {
+      var nextTheme = resolveTheme() === "dark" ? "light" : "dark";
+      applyTheme(nextTheme);
+      try {
+        if (window.localStorage) {
+          localStorage.setItem(storageKey, nextTheme);
+        }
+      } catch (error) {
+        return;
+      }
+    });
   });
 </script>
 <link rel="apple-touch-icon" href="{{ "favicon-32.png" | relURL }}">
