@@ -84,6 +84,29 @@
     </div>
   </section>
 
+  {{ $graphEntries := slice }}
+  {{ range .Site.RegularPages }}
+    {{ $page := . }}
+    {{ with $page.Params.tags }}
+      {{ $graphEntries = $graphEntries | append (dict "title" $page.Title "permalink" $page.RelPermalink "tags" .) }}
+    {{ end }}
+  {{ end }}
+  {{ $tagLinks := dict }}
+  {{ range $tag, $taxonomy := .Site.Taxonomies.tags }}
+    {{ $tagLinks = merge $tagLinks (dict $tag $taxonomy.Page.RelPermalink) }}
+  {{ end }}
+  {{ $graphPayload := dict "posts" $graphEntries "tagLinks" $tagLinks }}
+
+  <section class="home-section home-graph">
+    <div class="home-section-head">
+      <h2>Grafo de conocimiento</h2>
+    </div>
+    <p class="lead">Mapa interactivo de como se conectan los tags del sitio.</p>
+    <div class="knowledge-graph" id="knowledge-graph" role="img" aria-label="Grafo interactivo de tags"></div>
+    <p class="knowledge-graph-hint">Arrastra nodos, usa zoom y abre un tag con click o toque.</p>
+    <script id="knowledge-graph-data" type="application/json">{{ $graphPayload | jsonify | safeJS }}</script>
+  </section>
+
   {{ $visiblePosts := slice }}
   {{ range (where .Site.RegularPages "Section" "posts").ByDate.Reverse }}
     {{ if not (hasPrefix .File.BaseFileName "no_post") }}

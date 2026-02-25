@@ -238,6 +238,63 @@ h3 { font-size: 1.2rem; color: var(--ink); }
   margin: 0.9rem 0 0;
 }
 
+.home-graph {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  background: var(--bg-soft);
+}
+
+.knowledge-graph {
+  position: relative;
+  width: 100%;
+  height: 420px;
+  margin-top: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(78,204,163,.09) 0%, rgba(78,204,163,0) 44%),
+    radial-gradient(circle at 85% 78%, rgba(78,204,163,.06) 0%, rgba(78,204,163,0) 46%),
+    var(--bg);
+}
+
+:root[data-theme="light"] .knowledge-graph {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(36,104,79,.09) 0%, rgba(36,104,79,0) 45%),
+    radial-gradient(circle at 85% 78%, rgba(36,104,79,.06) 0%, rgba(36,104,79,0) 47%),
+    var(--bg);
+}
+
+.knowledge-graph canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+  touch-action: none;
+}
+
+.knowledge-graph.is-grabbing canvas {
+  cursor: grabbing;
+}
+
+.knowledge-graph-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+  padding: 1rem;
+}
+
+.knowledge-graph-hint {
+  margin: 0.7rem 0 0;
+  color: var(--ink-muted);
+  font-size: 0.86rem;
+}
+
 .home-section-head {
   display: flex;
   align-items: baseline;
@@ -586,6 +643,10 @@ sup, sub { line-height: 0; }
 
   .home-section-head {
     flex-wrap: wrap;
+  }
+
+  .knowledge-graph {
+    height: 320px;
   }
 
   .layout {
