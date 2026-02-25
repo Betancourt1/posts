@@ -103,10 +103,39 @@
     </div>
     <p class="lead">Mapa interactivo de como se conectan los tags del sitio.</p>
     <div class="knowledge-graph-tools" id="knowledge-graph-tools" aria-label="Herramientas del grafo">
-      <button type="button" class="button graph-tool" data-graph-action="zoom-out">Alejar</button>
-      <button type="button" class="button graph-tool" data-graph-action="zoom-in">Acercar</button>
-      <button type="button" class="button graph-tool" data-graph-action="reset-view">Centrar</button>
-      <button type="button" class="button graph-tool" id="graph-toggle-labels" data-graph-action="toggle-labels" aria-pressed="false">Etiquetas: auto</button>
+      <button type="button" class="button graph-tool" data-graph-action="zoom-out" aria-label="Alejar" title="Alejar">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="6.5"></circle>
+          <path d="M16 16L21 21"></path>
+          <path d="M8 11H14"></path>
+        </svg>
+      </button>
+      <button type="button" class="button graph-tool" data-graph-action="zoom-in" aria-label="Acercar" title="Acercar">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="6.5"></circle>
+          <path d="M16 16L21 21"></path>
+          <path d="M8 11H14"></path>
+          <path d="M11 8V14"></path>
+        </svg>
+      </button>
+      <button type="button" class="button graph-tool" data-graph-action="reset-view" aria-label="Centrar vista" title="Centrar vista">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="7"></circle>
+          <path d="M12 3V7"></path>
+          <path d="M12 17V21"></path>
+          <path d="M3 12H7"></path>
+          <path d="M17 12H21"></path>
+          <circle cx="12" cy="12" r="1.5"></circle>
+        </svg>
+      </button>
+      <button type="button" class="button graph-tool" id="graph-toggle-labels" data-graph-action="toggle-labels" aria-pressed="false" aria-label="Etiquetas: auto" title="Etiquetas: auto">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4.5 7.5H19.5"></path>
+          <path d="M4.5 12H14"></path>
+          <path d="M4.5 16.5H12"></path>
+          <circle cx="17.5" cy="12" r="2.5"></circle>
+        </svg>
+      </button>
       <label class="graph-range" for="graph-spacing">Separacion
         <input id="graph-spacing" type="range" min="58" max="110" step="2" value="72" />
       </label>

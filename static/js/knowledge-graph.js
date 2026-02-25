@@ -274,8 +274,11 @@
       if (!labelsButton) {
         return;
       }
-      labelsButton.textContent = state.forceLabels ? "Etiquetas: todo" : "Etiquetas: auto";
+      var label = state.forceLabels ? "Etiquetas: todo" : "Etiquetas: auto";
       labelsButton.setAttribute("aria-pressed", state.forceLabels ? "true" : "false");
+      labelsButton.setAttribute("aria-label", label);
+      labelsButton.setAttribute("title", label);
+      labelsButton.classList.toggle("is-active", state.forceLabels);
     }
 
     function pickNode(worldX, worldY) {

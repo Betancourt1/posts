@@ -262,9 +262,33 @@ h3 { font-size: 1.2rem; color: var(--ink); }
 }
 
 .graph-tool {
-  padding: 0.35rem 0.55rem;
-  font-size: 0.8rem;
-  line-height: 1.2;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  line-height: 1;
+}
+
+.graph-tool svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.graph-tool.is-active {
+  border-color: var(--accent);
+  color: var(--accent-2);
+  background: rgba(78,204,163,.12);
+}
+
+:root[data-theme="light"] .graph-tool.is-active {
+  background: rgba(36,104,79,.14);
 }
 
 .graph-range {
@@ -689,7 +713,8 @@ sup, sub { line-height: 0; }
   }
 
   .graph-tool {
-    font-size: 0.76rem;
+    width: 32px;
+    height: 32px;
   }
 
   .graph-range {
