@@ -253,6 +253,37 @@ h3 { font-size: 1.2rem; color: var(--ink); }
   background: var(--bg-soft);
 }
 
+.knowledge-graph-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0.65rem 0 0.25rem;
+}
+
+.graph-tool {
+  padding: 0.35rem 0.55rem;
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+.graph-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.28rem 0.5rem;
+  font-size: 0.78rem;
+  color: var(--ink-dim);
+  background: var(--bg);
+}
+
+.graph-range input {
+  width: 108px;
+  accent-color: var(--accent);
+}
+
 .knowledge-graph {
   position: relative;
   width: 100%;
@@ -651,6 +682,23 @@ sup, sub { line-height: 0; }
 
   .home-section-head {
     flex-wrap: wrap;
+  }
+
+  .knowledge-graph-tools {
+    gap: 6px;
+  }
+
+  .graph-tool {
+    font-size: 0.76rem;
+  }
+
+  .graph-range {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .graph-range input {
+    width: min(160px, 56vw);
   }
 
   .knowledge-graph {

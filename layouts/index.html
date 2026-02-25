@@ -102,6 +102,15 @@
       <h2>Grafo de conocimiento</h2>
     </div>
     <p class="lead">Mapa interactivo de como se conectan los tags del sitio.</p>
+    <div class="knowledge-graph-tools" id="knowledge-graph-tools" aria-label="Herramientas del grafo">
+      <button type="button" class="button graph-tool" data-graph-action="zoom-out">Alejar</button>
+      <button type="button" class="button graph-tool" data-graph-action="zoom-in">Acercar</button>
+      <button type="button" class="button graph-tool" data-graph-action="reset-view">Centrar</button>
+      <button type="button" class="button graph-tool" id="graph-toggle-labels" data-graph-action="toggle-labels" aria-pressed="false">Etiquetas: auto</button>
+      <label class="graph-range" for="graph-spacing">Separacion
+        <input id="graph-spacing" type="range" min="58" max="110" step="2" value="72" />
+      </label>
+    </div>
     <div class="knowledge-graph" id="knowledge-graph" role="img" aria-label="Grafo interactivo de tags"></div>
     <p class="knowledge-graph-hint">Tags en verde y notas en azul. Arrastra nodos, usa zoom y abre con click o toque.</p>
     <script id="knowledge-graph-data" type="application/json">{{ $graphPayload | jsonify | safeJS }}</script>

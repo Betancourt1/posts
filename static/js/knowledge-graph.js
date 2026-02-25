@@ -111,6 +111,9 @@
   function init() {
     var container = document.getElementById("knowledge-graph");
     var dataEl = document.getElementById("knowledge-graph-data");
+    var toolsEl = document.getElementById("knowledge-graph-tools");
+    var spacingInput = document.getElementById("graph-spacing");
+    var labelsButton = document.getElementById("graph-toggle-labels");
     if (!container || !dataEl) {
       return;
     }
@@ -145,6 +148,9 @@
       zoom: 1,
       minZoom: 0.45,
       maxZoom: 2.3,
+      baseLinkDistance: 72,
+      linkDistance: 72,
+      forceLabels: false,
       offsetX: 0,
       offsetY: 0,
       pointerId: null,
@@ -241,6 +247,37 @@
       };
     }
 
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function applyZoomByFactor(factor, screenX, screenY) {
+      var worldBefore = screenToWorld(screenX, screenY);
+      var nextZoom = clamp(state.zoom * factor, state.minZoom, state.maxZoom);
+      if (nextZoom === state.zoom) {
+        return;
+      }
+
+      state.zoom = nextZoom;
+      state.offsetX = screenX - worldBefore.x * state.zoom;
+      state.offsetY = screenY - worldBefore.y * state.zoom;
+    }
+
+    function recenterGraph() {
+      state.zoom = 1;
+      state.offsetX = width / 2;
+      state.offsetY = height / 2;
+      placeInitialNodes();
+    }
+
+    function syncLabelsButton() {
+      if (!labelsButton) {
+        return;
+      }
+      labelsButton.textContent = state.forceLabels ? "Etiquetas: todo" : "Etiquetas: auto";
+      labelsButton.setAttribute("aria-pressed", state.forceLabels ? "true" : "false");
+    }
+
     function pickNode(worldX, worldY) {
       var best = null;
       var bestDistance = Infinity;
@@ -299,7 +336,7 @@
 
       nodes.forEach(function (node) {
         var hovered = state.hoverNode === node;
-        var showLabel = hovered;
+        var showLabel = state.forceLabels || hovered;
         if (!showLabel && node.type === "tag") {
           showLabel = node.count > 1 || nodes.length <= 28;
         }
@@ -318,7 +355,8 @@
     }
 
     function tick() {
-      var repulsion = 2200;
+      var spacingScale = state.linkDistance / state.baseLinkDistance;
+      var repulsion = 2200 * spacingScale;
       var springStrength = 0.011;
       var centerStrength = 0.0025;
       var damping = 0.88;
@@ -354,10 +392,7 @@
         var dx = tx - sx;
         var dy = ty - sy;
         var distance = Math.sqrt(dx * dx + dy * dy) || 0.001;
-        var desired = 72;
-        if (link.source.type === "tag" && link.target.type === "tag") {
-          desired = 82;
-        }
+        var desired = state.linkDistance;
         var stretch = distance - desired;
         var spring = springStrength * (0.8 + Math.min(2, link.weight * 0.35));
         var fx = (stretch * spring * dx) / distance;
@@ -474,19 +509,55 @@
       function (event) {
         event.preventDefault();
         var pos = pointerXY(event);
-        var worldBefore = screenToWorld(pos.x, pos.y);
         var zoomDelta = Math.exp(-event.deltaY * 0.0012);
-        var nextZoom = Math.max(state.minZoom, Math.min(state.maxZoom, state.zoom * zoomDelta));
-        if (nextZoom === state.zoom) {
-          return;
-        }
-
-        state.zoom = nextZoom;
-        state.offsetX = pos.x - worldBefore.x * state.zoom;
-        state.offsetY = pos.y - worldBefore.y * state.zoom;
+        applyZoomByFactor(zoomDelta, pos.x, pos.y);
       },
       { passive: false }
     );
+
+    if (spacingInput) {
+      var parsedSpacing = Number(spacingInput.value);
+      if (!isNaN(parsedSpacing)) {
+        state.linkDistance = clamp(parsedSpacing, 58, 110);
+      }
+
+      spacingInput.addEventListener("input", function () {
+        var nextValue = Number(spacingInput.value);
+        if (isNaN(nextValue)) {
+          return;
+        }
+        state.linkDistance = clamp(nextValue, 58, 110);
+      });
+    }
+
+    if (toolsEl) {
+      toolsEl.addEventListener("click", function (event) {
+        var button = event.target.closest("[data-graph-action]");
+        if (!button) {
+          return;
+        }
+
+        var action = button.getAttribute("data-graph-action");
+        var cx = width / 2;
+        var cy = height / 2;
+        if (action === "zoom-in") {
+          applyZoomByFactor(1.16, cx, cy);
+          return;
+        }
+        if (action === "zoom-out") {
+          applyZoomByFactor(0.86, cx, cy);
+          return;
+        }
+        if (action === "reset-view") {
+          recenterGraph();
+          return;
+        }
+        if (action === "toggle-labels") {
+          state.forceLabels = !state.forceLabels;
+          syncLabelsButton();
+        }
+      });
+    }
 
     window.addEventListener("resize", setCanvasSize);
 
@@ -500,6 +571,7 @@
 
     refreshTheme();
     setCanvasSize();
+    syncLabelsButton();
     tick();
   }
 
