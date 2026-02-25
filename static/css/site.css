@@ -16,6 +16,10 @@
   --search-drawer-bg: linear-gradient(180deg, rgba(23,26,32,.95) 0%, rgba(15,17,21,.95) 100%);
   --result-separator: rgba(123,127,136,.25);
   --nested-separator: rgba(123,127,136,.35);
+  --graph-tag: #4ecca3;
+  --graph-tag-hover: #35b98f;
+  --graph-note: #7da3ff;
+  --graph-note-hover: #9db8ff;
 }
 
 :root[data-theme="light"] {
@@ -36,6 +40,10 @@
   --search-drawer-bg: linear-gradient(180deg, rgba(207,215,225,.97) 0%, rgba(220,226,233,.97) 100%);
   --result-separator: rgba(81,94,109,.34);
   --nested-separator: rgba(81,94,109,.46);
+  --graph-tag: #24684f;
+  --graph-tag-hover: #1a4f3c;
+  --graph-note: #3f64bf;
+  --graph-note-hover: #2f4e9f;
 }
 
 * { box-sizing: border-box; }

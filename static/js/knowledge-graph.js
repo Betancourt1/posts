@@ -29,7 +29,9 @@
 
   function buildGraph(posts, tagLinks) {
     var tagCounts = new Map();
-    var edgeCounts = new Map();
+    var tagNodes = new Map();
+    var noteNodes = [];
+    var links = [];
 
     posts.forEach(function (post) {
       if (!post || !Array.isArray(post.tags)) {
@@ -47,61 +49,63 @@
         cleanTags.push(tag);
       });
 
+      if (cleanTags.length === 0) {
+        return;
+      }
+
       cleanTags.forEach(function (tag) {
         tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
       });
 
-      for (var i = 0; i < cleanTags.length; i += 1) {
-        for (var j = i + 1; j < cleanTags.length; j += 1) {
-          var a = cleanTags[i];
-          var b = cleanTags[j];
-          var key = a < b ? a + "||" + b : b + "||" + a;
-          edgeCounts.set(key, (edgeCounts.get(key) || 0) + 1);
-        }
-      }
-    });
-
-    var nodes = Array.from(tagCounts.entries()).map(function (entry) {
-      var tag = entry[0];
-      var count = entry[1];
-      return {
-        id: tag,
-        count: count,
-        radius: 5 + Math.min(11, Math.sqrt(count) * 2.2),
+      var noteLabel = typeof post.title === "string" && post.title.trim() ? post.title.trim() : "Nota";
+      var noteNode = {
+        id: "note:" + (typeof post.permalink === "string" ? post.permalink : noteLabel),
+        label: noteLabel,
+        type: "note",
+        count: cleanTags.length,
+        radius: 4.5 + Math.min(7.5, Math.sqrt(cleanTags.length) * 1.7),
         x: 0,
         y: 0,
         vx: 0,
         vy: 0,
-        url: typeof tagLinks[tag] === "string" ? tagLinks[tag] : null
+        url: typeof post.permalink === "string" ? post.permalink : null
       };
-    });
+      noteNodes.push(noteNode);
 
-    var nodeById = new Map();
-    nodes.forEach(function (node) {
-      nodeById.set(node.id, node);
-    });
+      cleanTags.forEach(function (tag) {
+        if (!tagNodes.has(tag)) {
+          tagNodes.set(tag, {
+            id: "tag:" + tag,
+            label: tag,
+            type: "tag",
+            count: 0,
+            radius: 0,
+            x: 0,
+            y: 0,
+            vx: 0,
+            vy: 0,
+            url: typeof tagLinks[tag] === "string" ? tagLinks[tag] : null
+          });
+        }
 
-    var links = [];
-    edgeCounts.forEach(function (weight, key) {
-      var pair = key.split("||");
-      var source = nodeById.get(pair[0]);
-      var target = nodeById.get(pair[1]);
-      if (source && target) {
-        links.push({ source: source, target: target, weight: weight });
-      }
-    });
-
-    if (links.length === 0 && nodes.length > 1) {
-      var sortedNodes = nodes.slice().sort(function (a, b) {
-        return b.count - a.count;
+        links.push({
+          source: noteNode,
+          target: tagNodes.get(tag),
+          weight: 1
+        });
       });
-      var hub = sortedNodes[0];
-      sortedNodes.slice(1).forEach(function (node) {
-        links.push({ source: hub, target: node, weight: 0.7 });
-      });
-    }
+    });
 
-    return { nodes: nodes, links: links };
+    tagNodes.forEach(function (tagNode, tag) {
+      var count = tagCounts.get(tag) || 1;
+      tagNode.count = count;
+      tagNode.radius = 5.5 + Math.min(11, Math.sqrt(count) * 2.2);
+    });
+
+    return {
+      nodes: Array.from(tagNodes.values()).concat(noteNodes),
+      links: links
+    };
   }
 
   function init() {
@@ -119,7 +123,7 @@
     if (nodes.length === 0) {
       var emptyState = document.createElement("p");
       emptyState.className = "knowledge-graph-empty";
-      emptyState.textContent = "Aun no hay tags suficientes para construir el grafo.";
+      emptyState.textContent = "Aun no hay notas con tags suficientes para construir el grafo.";
       container.appendChild(emptyState);
       return;
     }
@@ -164,8 +168,10 @@
         line: readVar("--line", "#2a2f36"),
         ink: readVar("--ink", "#cfcfd2"),
         inkDim: readVar("--ink-dim", "#a8abb2"),
-        accent: readVar("--accent", "#4ecca3"),
-        accentStrong: readVar("--accent-2", "#35b98f")
+        tag: readVar("--graph-tag", readVar("--accent", "#4ecca3")),
+        tagHover: readVar("--graph-tag-hover", readVar("--accent-2", "#35b98f")),
+        note: readVar("--graph-note", "#7ba2ff"),
+        noteHover: readVar("--graph-note-hover", "#9eb9ff")
       };
     }
 
@@ -194,11 +200,27 @@
         return;
       }
 
-      var ringRadius = Math.max(90, Math.min(width, height) * 0.28);
-      nodes.forEach(function (node, index) {
-        var angle = (index / n) * Math.PI * 2;
-        node.x = Math.cos(angle) * ringRadius;
-        node.y = Math.sin(angle) * ringRadius;
+      var tags = nodes.filter(function (node) {
+        return node.type === "tag";
+      });
+      var notes = nodes.filter(function (node) {
+        return node.type === "note";
+      });
+
+      var tagRingRadius = Math.max(80, Math.min(width, height) * 0.22);
+      tags.forEach(function (node, index) {
+        var angle = (index / Math.max(tags.length, 1)) * Math.PI * 2;
+        node.x = Math.cos(angle) * tagRingRadius;
+        node.y = Math.sin(angle) * tagRingRadius;
+        node.vx = 0;
+        node.vy = 0;
+      });
+
+      var noteRingRadius = Math.max(120, Math.min(width, height) * 0.34);
+      notes.forEach(function (node, index) {
+        var angle = (index / Math.max(notes.length, 1)) * Math.PI * 2 + 0.22;
+        node.x = Math.cos(angle) * noteRingRadius;
+        node.y = Math.sin(angle) * noteRingRadius;
         node.vx = 0;
         node.vy = 0;
       });
@@ -257,7 +279,11 @@
 
       nodes.forEach(function (node) {
         var hovered = state.hoverNode === node;
-        ctx.fillStyle = hovered ? theme.accentStrong : theme.accent;
+        if (node.type === "note") {
+          ctx.fillStyle = hovered ? theme.noteHover : theme.note;
+        } else {
+          ctx.fillStyle = hovered ? theme.tagHover : theme.tag;
+        }
         ctx.strokeStyle = theme.line;
         ctx.lineWidth = hovered ? 1.5 : 1;
 
@@ -273,14 +299,20 @@
 
       nodes.forEach(function (node) {
         var hovered = state.hoverNode === node;
-        var showLabel = hovered || node.count > 1 || nodes.length <= 24;
+        var showLabel = hovered;
+        if (!showLabel && node.type === "tag") {
+          showLabel = node.count > 1 || nodes.length <= 28;
+        }
+        if (!showLabel && node.type === "note") {
+          showLabel = nodes.length <= 18;
+        }
         if (!showLabel) {
           return;
         }
 
         ctx.globalAlpha = hovered ? 1 : 0.85;
         ctx.fillStyle = hovered ? theme.ink : theme.inkDim;
-        ctx.fillText(node.id, node.x, node.y - node.radius - 6);
+        ctx.fillText(node.label, node.x, node.y - node.radius - 6);
       });
       ctx.globalAlpha = 1;
     }
@@ -322,7 +354,10 @@
         var dx = tx - sx;
         var dy = ty - sy;
         var distance = Math.sqrt(dx * dx + dy * dy) || 0.001;
-        var desired = 70 + Math.max(0, 3 - link.weight) * 9;
+        var desired = 72;
+        if (link.source.type === "tag" && link.target.type === "tag") {
+          desired = 82;
+        }
         var stretch = distance - desired;
         var spring = springStrength * (0.8 + Math.min(2, link.weight * 0.35));
         var fx = (stretch * spring * dx) / distance;
