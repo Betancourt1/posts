@@ -265,18 +265,21 @@ h3 { font-size: 1.2rem; color: var(--ink); }
   width: 34px;
   height: 34px;
   padding: 0;
-  display: inline-grid;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
   font-size: 0;
   text-align: center;
+  vertical-align: middle;
 }
 
 .graph-tool svg {
   width: 17px;
   height: 17px;
+  flex: 0 0 17px;
   display: block;
-  margin: 0 auto;
+  margin: 0;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.8;

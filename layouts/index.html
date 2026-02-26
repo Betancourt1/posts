@@ -29,6 +29,80 @@
     </section>
   {{ end }}
 
+  {{ $graphEntries := slice }}
+  {{ $graphTagLinks := dict }}
+  {{ range .Site.RegularPages }}
+    {{ $page := . }}
+    {{ $includeInGraph := not $page.Draft }}
+    {{ if and $includeInGraph (eq $page.Section "posts") }}
+      {{ with $page.File }}
+        {{ if hasPrefix .BaseFileName "no_post" }}
+          {{ $includeInGraph = false }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+    {{ if $includeInGraph }}
+      {{ with $page.Params.tags }}
+        {{ $graphEntries = $graphEntries | append (dict "title" $page.Title "permalink" $page.RelPermalink "tags" .) }}
+        {{ range . }}
+          {{ $tagText := replaceRE "^\\s+|\\s+$" "" (printf "%v" .) }}
+          {{ if $tagText }}
+            {{ $graphTagLinks = merge $graphTagLinks (dict $tagText (printf "%s%s/" ("/tags/" | relURL) ($tagText | urlize))) }}
+          {{ end }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+  {{ $graphPayload := dict "posts" $graphEntries "tagLinks" $graphTagLinks }}
+
+  <section class="home-section home-graph">
+    <div class="home-section-head">
+      <h2>Grafo de conocimiento</h2>
+    </div>
+    <p class="lead">Mapa interactivo de como se conectan los tags del sitio.</p>
+    <div class="knowledge-graph-tools" id="knowledge-graph-tools" aria-label="Herramientas del grafo">
+      <button type="button" class="button graph-tool" data-graph-action="zoom-out" aria-label="Alejar" title="Alejar">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="6.5"></circle>
+          <path d="M16 16L21 21"></path>
+          <path d="M8 11H14"></path>
+        </svg>
+      </button>
+      <button type="button" class="button graph-tool" data-graph-action="zoom-in" aria-label="Acercar" title="Acercar">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="6.5"></circle>
+          <path d="M16 16L21 21"></path>
+          <path d="M8 11H14"></path>
+          <path d="M11 8V14"></path>
+        </svg>
+      </button>
+      <button type="button" class="button graph-tool" data-graph-action="reset-view" aria-label="Centrar vista" title="Centrar vista">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="7"></circle>
+          <path d="M12 3V7"></path>
+          <path d="M12 17V21"></path>
+          <path d="M3 12H7"></path>
+          <path d="M17 12H21"></path>
+          <circle cx="12" cy="12" r="1.5"></circle>
+        </svg>
+      </button>
+      <button type="button" class="button graph-tool" id="graph-toggle-labels" data-graph-action="toggle-labels" aria-pressed="false" aria-label="Etiquetas: auto" title="Etiquetas: auto">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4.5 7.5H19.5"></path>
+          <path d="M4.5 12H14"></path>
+          <path d="M4.5 16.5H12"></path>
+          <circle cx="17.5" cy="12" r="2.5"></circle>
+        </svg>
+      </button>
+      <label class="graph-range" for="graph-spacing">Separacion
+        <input id="graph-spacing" type="range" min="58" max="110" step="2" value="72" />
+      </label>
+    </div>
+    <div class="knowledge-graph" id="knowledge-graph" role="img" aria-label="Grafo interactivo de tags"></div>
+    <p class="knowledge-graph-hint">Tags en verde y notas en azul. Arrastra nodos, usa zoom y abre con click o toque.</p>
+    <script id="knowledge-graph-data" type="application/json">{{ $graphPayload | jsonify | safeJS }}</script>
+  </section>
+
   <section class="home-section home-cta">
     <div class="home-section-head">
       <h2>Accesos rapidos</h2>
@@ -82,67 +156,6 @@
         </article>
       {{ end }}
     </div>
-  </section>
-
-  {{ $graphEntries := slice }}
-  {{ range .Site.RegularPages }}
-    {{ $page := . }}
-    {{ with $page.Params.tags }}
-      {{ $graphEntries = $graphEntries | append (dict "title" $page.Title "permalink" $page.RelPermalink "tags" .) }}
-    {{ end }}
-  {{ end }}
-  {{ $tagLinks := dict }}
-  {{ range $tag, $taxonomy := .Site.Taxonomies.tags }}
-    {{ $tagLinks = merge $tagLinks (dict $tag $taxonomy.Page.RelPermalink) }}
-  {{ end }}
-  {{ $graphPayload := dict "posts" $graphEntries "tagLinks" $tagLinks }}
-
-  <section class="home-section home-graph">
-    <div class="home-section-head">
-      <h2>Grafo de conocimiento</h2>
-    </div>
-    <p class="lead">Mapa interactivo de como se conectan los tags del sitio.</p>
-    <div class="knowledge-graph-tools" id="knowledge-graph-tools" aria-label="Herramientas del grafo">
-      <button type="button" class="button graph-tool" data-graph-action="zoom-out" aria-label="Alejar" title="Alejar">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="11" cy="11" r="6.5"></circle>
-          <path d="M16 16L21 21"></path>
-          <path d="M8 11H14"></path>
-        </svg>
-      </button>
-      <button type="button" class="button graph-tool" data-graph-action="zoom-in" aria-label="Acercar" title="Acercar">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="11" cy="11" r="6.5"></circle>
-          <path d="M16 16L21 21"></path>
-          <path d="M8 11H14"></path>
-          <path d="M11 8V14"></path>
-        </svg>
-      </button>
-      <button type="button" class="button graph-tool" data-graph-action="reset-view" aria-label="Centrar vista" title="Centrar vista">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="7"></circle>
-          <path d="M12 3V7"></path>
-          <path d="M12 17V21"></path>
-          <path d="M3 12H7"></path>
-          <path d="M17 12H21"></path>
-          <circle cx="12" cy="12" r="1.5"></circle>
-        </svg>
-      </button>
-      <button type="button" class="button graph-tool" id="graph-toggle-labels" data-graph-action="toggle-labels" aria-pressed="false" aria-label="Etiquetas: auto" title="Etiquetas: auto">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M4.5 7.5H19.5"></path>
-          <path d="M4.5 12H14"></path>
-          <path d="M4.5 16.5H12"></path>
-          <circle cx="17.5" cy="12" r="2.5"></circle>
-        </svg>
-      </button>
-      <label class="graph-range" for="graph-spacing">Separacion
-        <input id="graph-spacing" type="range" min="58" max="110" step="2" value="72" />
-      </label>
-    </div>
-    <div class="knowledge-graph" id="knowledge-graph" role="img" aria-label="Grafo interactivo de tags"></div>
-    <p class="knowledge-graph-hint">Tags en verde y notas en azul. Arrastra nodos, usa zoom y abre con click o toque.</p>
-    <script id="knowledge-graph-data" type="application/json">{{ $graphPayload | jsonify | safeJS }}</script>
   </section>
 
   {{ $visiblePosts := slice }}

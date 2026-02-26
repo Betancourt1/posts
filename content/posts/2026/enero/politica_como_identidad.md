@@ -1,7 +1,7 @@
 ---
 title: ¿Por qué votan los que votan?
 date: 2026-01-14
-tags: [ensayo, política]
+tags: [ensayo, politica]
 ---
 
 # ¿Por qué votan los que votan?

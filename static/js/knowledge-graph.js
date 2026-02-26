@@ -5,7 +5,11 @@
     if (typeof value !== "string") {
       return "";
     }
-    return value.trim();
+    var normalized = value.replace(/^#+/, "").trim().replace(/\s+/g, " ").toLowerCase();
+    if (typeof normalized.normalize === "function") {
+      normalized = normalized.normalize("NFC");
+    }
+    return normalized;
   }
 
   function parsePayload(scriptEl) {
@@ -28,6 +32,17 @@
   }
 
   function buildGraph(posts, tagLinks) {
+    var normalizedTagLinks = {};
+    if (tagLinks && typeof tagLinks === "object") {
+      Object.keys(tagLinks).forEach(function (tagName) {
+        var normalizedTag = toTagName(tagName);
+        if (!normalizedTag || typeof tagLinks[tagName] !== "string") {
+          return;
+        }
+        normalizedTagLinks[normalizedTag] = tagLinks[tagName];
+      });
+    }
+
     var tagCounts = new Map();
     var tagNodes = new Map();
     var noteNodes = [];
@@ -84,7 +99,7 @@
             y: 0,
             vx: 0,
             vy: 0,
-            url: typeof tagLinks[tag] === "string" ? tagLinks[tag] : null
+            url: typeof normalizedTagLinks[tag] === "string" ? normalizedTagLinks[tag] : null
           });
         }
 
