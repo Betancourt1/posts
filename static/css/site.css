@@ -564,7 +564,7 @@ tr:nth-child(even) { background: var(--table-stripe); }
   font-family: serif;
 }
 
-button, .button, a.button {
+button:not(.graph-tool), .button:not(.graph-tool), a.button {
   display: inline-block;
   border: 1px solid var(--accent);
   border-radius: 8px;
@@ -575,12 +575,12 @@ button, .button, a.button {
   cursor: pointer;
 }
 
-button:hover, .button:hover, a.button:hover {
+button:not(.graph-tool):hover, .button:not(.graph-tool):hover, a.button:hover {
   background: rgba(78,204,163,.08);
   color: var(--accent-2);
 }
 
-button:focus-visible, .button:focus-visible, a.button:focus-visible {
+button:not(.graph-tool):focus-visible, .button:not(.graph-tool):focus-visible, a.button:focus-visible {
   outline: 2px dashed var(--accent);
   outline-offset: 3px;
 }
