@@ -564,6 +564,12 @@ tr:nth-child(even) { background: var(--table-stripe); }
   font-family: serif;
 }
 
+.site-footer-updated {
+  margin: 0;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
 button:not(.graph-tool), .button:not(.graph-tool), a.button {
   display: inline-block;
   border: 1px solid var(--accent);
