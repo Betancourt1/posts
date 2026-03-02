@@ -322,6 +322,18 @@ body.graph-maximized {
   pointer-events: none;
 }
 
+#graph-toggle-maximize .graph-icon-restore {
+  display: none;
+}
+
+#graph-toggle-maximize.is-active .graph-icon-maximize {
+  display: none;
+}
+
+#graph-toggle-maximize.is-active .graph-icon-restore {
+  display: block;
+}
+
 .graph-tool.is-active {
   color: var(--accent);
 }
