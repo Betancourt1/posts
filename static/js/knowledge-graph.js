@@ -331,6 +331,20 @@
       updateSearchStatus("");
     }
 
+    function centerViewport(node) {
+      if (node) {
+        state.offsetX = width / 2 - node.x * state.zoom;
+        state.offsetY = height / 2 - node.y * state.zoom;
+        return;
+      }
+      state.offsetX = width / 2;
+      state.offsetY = height / 2;
+    }
+
+    function centerViewForCurrentFocus() {
+      centerViewport(state.searchNode);
+    }
+
     function focusNode(node) {
       if (!node) {
         return;
@@ -338,14 +352,14 @@
       state.hoverNode = node;
       state.searchNode = node;
       state.zoom = clamp(Math.max(state.zoom, 1.08), state.minZoom, state.maxZoom);
-      state.offsetX = width / 2 - node.x * state.zoom;
-      state.offsetY = height / 2 - node.y * state.zoom;
+      centerViewport(node);
     }
 
     function applySearchQuery(rawQuery, cycleNext) {
       var query = normalizeSearchText(rawQuery);
       if (!query) {
         clearSearchSelection();
+        centerViewport(null);
         return;
       }
 
@@ -440,6 +454,7 @@
         setFallbackMaximized(false);
         syncMaximizeButton();
         setCanvasSize();
+        centerViewForCurrentFocus();
         return;
       }
 
@@ -450,6 +465,7 @@
             setFallbackMaximized(true);
             syncMaximizeButton();
             setCanvasSize();
+            centerViewForCurrentFocus();
           });
         }
         return;
@@ -458,6 +474,7 @@
       setFallbackMaximized(true);
       syncMaximizeButton();
       setCanvasSize();
+      centerViewForCurrentFocus();
     }
 
     function pickNode(worldX, worldY) {
@@ -727,6 +744,7 @@
         if (event.key === "Escape" && searchInput.value) {
           searchInput.value = "";
           clearSearchSelection();
+          centerViewport(null);
         }
       });
     }
@@ -771,12 +789,14 @@
       }
       syncMaximizeButton();
       setCanvasSize();
+      centerViewForCurrentFocus();
     });
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && state.fallbackMaximized) {
         setFallbackMaximized(false);
         syncMaximizeButton();
         setCanvasSize();
+        centerViewForCurrentFocus();
       }
     });
 
