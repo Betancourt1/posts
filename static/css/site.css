@@ -291,6 +291,18 @@ body.graph-maximized {
   margin: 0.65rem 0 0.25rem;
 }
 
+.graph-search {
+  display: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0.35rem 0 0.2rem;
+}
+
+.graph-search.is-visible {
+  display: flex;
+}
+
 .graph-tool {
   width: 34px;
   height: 34px;
@@ -364,6 +376,38 @@ body.graph-maximized {
 .graph-range input {
   width: 108px;
   accent-color: var(--accent);
+}
+
+.graph-search-input {
+  flex: 1 1 260px;
+  min-width: 180px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.42rem 0.58rem;
+  font: inherit;
+  line-height: 1.2;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+.graph-search-input::placeholder {
+  color: var(--ink-muted);
+}
+
+.graph-search-input:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(78,204,163,.14);
+}
+
+.graph-search-status {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+}
+
+.graph-search-status:empty {
+  display: none;
 }
 
 .knowledge-graph {
@@ -796,6 +840,12 @@ sup, sub { line-height: 0; }
 
   .graph-range input {
     width: min(160px, 56vw);
+  }
+
+  .graph-search-input {
+    flex-basis: 100%;
+    width: 100%;
+    min-width: 0;
   }
 
   .knowledge-graph {

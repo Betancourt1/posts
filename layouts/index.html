@@ -120,6 +120,10 @@
         <input id="graph-spacing" type="range" min="58" max="110" step="2" value="72" />
       </label>
     </div>
+    <div class="graph-search" id="graph-search">
+      <input id="graph-node-search" class="graph-search-input" type="search" placeholder="Buscar etiqueta de nodo" aria-label="Buscar etiqueta de nodo" autocomplete="off" spellcheck="false" />
+      <p class="graph-search-status" id="graph-search-status" aria-live="polite"></p>
+    </div>
     <div class="knowledge-graph" id="knowledge-graph" role="img" aria-label="Grafo interactivo de tags"></div>
     <p class="knowledge-graph-hint">Tags en verde y notas en azul. Arrastra nodos, usa zoom y abre con click o toque.</p>
     <script id="knowledge-graph-data" type="application/json">{{ $graphPayload | jsonify | safeJS }}</script>

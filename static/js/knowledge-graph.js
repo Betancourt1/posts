@@ -12,6 +12,17 @@
     return normalized;
   }
 
+  function normalizeSearchText(value) {
+    if (typeof value !== "string") {
+      return "";
+    }
+    var normalized = value.trim().toLowerCase();
+    if (typeof normalized.normalize === "function") {
+      normalized = normalized.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+    return normalized;
+  }
+
   function parsePayload(scriptEl) {
     if (!scriptEl) {
       return { posts: [], tagLinks: {} };
@@ -127,6 +138,9 @@
     var container = document.getElementById("knowledge-graph");
     var dataEl = document.getElementById("knowledge-graph-data");
     var toolsEl = document.getElementById("knowledge-graph-tools");
+    var searchEl = document.getElementById("graph-search");
+    var searchInput = document.getElementById("graph-node-search");
+    var searchStatus = document.getElementById("graph-search-status");
     var spacingInput = document.getElementById("graph-spacing");
     var labelsButton = document.getElementById("graph-toggle-labels");
     var maximizeButton = document.getElementById("graph-toggle-maximize");
@@ -179,7 +193,11 @@
       downScreenY: 0,
       panStartOffsetX: 0,
       panStartOffsetY: 0,
-      fallbackMaximized: false
+      fallbackMaximized: false,
+      maximized: false,
+      searchNode: null,
+      searchMatches: [],
+      searchMatchIndex: -1
     };
 
     function readVar(name, fallback) {
@@ -299,6 +317,64 @@
       labelsButton.classList.toggle("is-active", state.forceLabels);
     }
 
+    function updateSearchStatus(message) {
+      if (!searchStatus) {
+        return;
+      }
+      searchStatus.textContent = message || "";
+    }
+
+    function clearSearchSelection() {
+      state.searchNode = null;
+      state.searchMatches = [];
+      state.searchMatchIndex = -1;
+      updateSearchStatus("");
+    }
+
+    function focusNode(node) {
+      if (!node) {
+        return;
+      }
+      state.hoverNode = node;
+      state.searchNode = node;
+      state.zoom = clamp(Math.max(state.zoom, 1.08), state.minZoom, state.maxZoom);
+      state.offsetX = width / 2 - node.x * state.zoom;
+      state.offsetY = height / 2 - node.y * state.zoom;
+    }
+
+    function applySearchQuery(rawQuery, cycleNext) {
+      var query = normalizeSearchText(rawQuery);
+      if (!query) {
+        clearSearchSelection();
+        return;
+      }
+
+      var matches = nodes.filter(function (node) {
+        return normalizeSearchText(node.label).indexOf(query) !== -1;
+      });
+      state.searchMatches = matches;
+      if (matches.length === 0) {
+        state.searchNode = null;
+        state.searchMatchIndex = -1;
+        updateSearchStatus("Sin coincidencias.");
+        return;
+      }
+
+      var index = 0;
+      if (cycleNext && matches.length > 1 && state.searchNode) {
+        var currentIndex = matches.indexOf(state.searchNode);
+        if (currentIndex >= 0) {
+          index = (currentIndex + 1) % matches.length;
+        }
+      }
+      state.searchMatchIndex = index;
+
+      var selected = matches[index];
+      focusNode(selected);
+      var hint = matches.length > 1 ? " Presiona Enter para siguiente." : "";
+      updateSearchStatus("Coincidencia " + (index + 1) + " de " + matches.length + "." + hint);
+    }
+
     function isGraphFullscreen() {
       return !!homeGraphSection && document.fullscreenElement === homeGraphSection;
     }
@@ -316,11 +392,31 @@
         return;
       }
       var active = state.fallbackMaximized || isGraphFullscreen();
+      var wasActive = state.maximized;
+      state.maximized = active;
       var label = active ? "Restaurar vista" : "Maximizar vista";
       maximizeButton.setAttribute("aria-pressed", active ? "true" : "false");
       maximizeButton.setAttribute("aria-label", label);
       maximizeButton.setAttribute("title", label);
       maximizeButton.classList.toggle("is-active", active);
+
+      if (searchEl) {
+        searchEl.classList.toggle("is-visible", active);
+      }
+
+      if (!active && wasActive && searchInput) {
+        searchInput.value = "";
+        clearSearchSelection();
+      }
+      if (active && !wasActive && searchInput) {
+        window.setTimeout(function () {
+          try {
+            searchInput.focus();
+          } catch (error) {
+            return;
+          }
+        }, 0);
+      }
     }
 
     function toggleMaximize() {
@@ -402,13 +498,14 @@
 
       nodes.forEach(function (node) {
         var hovered = state.hoverNode === node;
+        var selected = state.searchNode === node;
         if (node.type === "note") {
-          ctx.fillStyle = hovered ? theme.noteHover : theme.note;
+          ctx.fillStyle = hovered || selected ? theme.noteHover : theme.note;
         } else {
-          ctx.fillStyle = hovered ? theme.tagHover : theme.tag;
+          ctx.fillStyle = hovered || selected ? theme.tagHover : theme.tag;
         }
         ctx.strokeStyle = theme.line;
-        ctx.lineWidth = hovered ? 1.5 : 1;
+        ctx.lineWidth = selected ? 2.2 : hovered ? 1.5 : 1;
 
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
@@ -422,7 +519,8 @@
 
       nodes.forEach(function (node) {
         var hovered = state.hoverNode === node;
-        var showLabel = state.forceLabels || hovered;
+        var selected = state.searchNode === node;
+        var showLabel = state.forceLabels || hovered || selected;
         if (!showLabel && node.type === "tag") {
           showLabel = node.count > 1 || nodes.length <= 28;
         }
@@ -433,8 +531,8 @@
           return;
         }
 
-        ctx.globalAlpha = hovered ? 1 : 0.85;
-        ctx.fillStyle = hovered ? theme.ink : theme.inkDim;
+        ctx.globalAlpha = hovered || selected ? 1 : 0.85;
+        ctx.fillStyle = hovered || selected ? theme.ink : theme.inkDim;
         ctx.fillText(node.label, node.x, node.y - node.radius - 6);
       });
       ctx.globalAlpha = 1;
@@ -613,6 +711,23 @@
           return;
         }
         state.linkDistance = clamp(nextValue, 58, 110);
+      });
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener("input", function () {
+        applySearchQuery(searchInput.value, false);
+      });
+      searchInput.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          applySearchQuery(searchInput.value, true);
+          return;
+        }
+        if (event.key === "Escape" && searchInput.value) {
+          searchInput.value = "";
+          clearSearchSelection();
+        }
       });
     }
 
