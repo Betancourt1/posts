@@ -129,9 +129,11 @@
     var toolsEl = document.getElementById("knowledge-graph-tools");
     var spacingInput = document.getElementById("graph-spacing");
     var labelsButton = document.getElementById("graph-toggle-labels");
+    var maximizeButton = document.getElementById("graph-toggle-maximize");
     if (!container || !dataEl) {
       return;
     }
+    var homeGraphSection = container.closest(".home-graph");
 
     var payload = parsePayload(dataEl);
     var graph = buildGraph(payload.posts, payload.tagLinks);
@@ -176,7 +178,8 @@
       downScreenX: 0,
       downScreenY: 0,
       panStartOffsetX: 0,
-      panStartOffsetY: 0
+      panStartOffsetY: 0,
+      fallbackMaximized: false
     };
 
     function readVar(name, fallback) {
@@ -294,6 +297,71 @@
       labelsButton.setAttribute("aria-label", label);
       labelsButton.setAttribute("title", label);
       labelsButton.classList.toggle("is-active", state.forceLabels);
+    }
+
+    function isGraphFullscreen() {
+      return !!homeGraphSection && document.fullscreenElement === homeGraphSection;
+    }
+
+    function setFallbackMaximized(enabled) {
+      state.fallbackMaximized = enabled;
+      if (homeGraphSection) {
+        homeGraphSection.classList.toggle("is-maximized", enabled);
+      }
+      document.body.classList.toggle("graph-maximized", enabled);
+    }
+
+    function syncMaximizeButton() {
+      if (!maximizeButton) {
+        return;
+      }
+      var active = state.fallbackMaximized || isGraphFullscreen();
+      var label = active ? "Restaurar vista" : "Maximizar vista";
+      maximizeButton.setAttribute("aria-pressed", active ? "true" : "false");
+      maximizeButton.setAttribute("aria-label", label);
+      maximizeButton.setAttribute("title", label);
+      maximizeButton.classList.toggle("is-active", active);
+    }
+
+    function toggleMaximize() {
+      if (!homeGraphSection) {
+        return;
+      }
+
+      if (isGraphFullscreen()) {
+        if (typeof document.exitFullscreen === "function") {
+          var exitResult = document.exitFullscreen();
+          if (exitResult && typeof exitResult.catch === "function") {
+            exitResult.catch(function () {
+              return;
+            });
+          }
+        }
+        return;
+      }
+
+      if (state.fallbackMaximized) {
+        setFallbackMaximized(false);
+        syncMaximizeButton();
+        setCanvasSize();
+        return;
+      }
+
+      if (typeof homeGraphSection.requestFullscreen === "function") {
+        var requestResult = homeGraphSection.requestFullscreen();
+        if (requestResult && typeof requestResult.catch === "function") {
+          requestResult.catch(function () {
+            setFallbackMaximized(true);
+            syncMaximizeButton();
+            setCanvasSize();
+          });
+        }
+        return;
+      }
+
+      setFallbackMaximized(true);
+      syncMaximizeButton();
+      setCanvasSize();
     }
 
     function pickNode(worldX, worldY) {
@@ -573,11 +641,29 @@
         if (action === "toggle-labels") {
           state.forceLabels = !state.forceLabels;
           syncLabelsButton();
+          return;
+        }
+        if (action === "toggle-maximize") {
+          toggleMaximize();
         }
       });
     }
 
     window.addEventListener("resize", setCanvasSize);
+    document.addEventListener("fullscreenchange", function () {
+      if (state.fallbackMaximized && isGraphFullscreen()) {
+        setFallbackMaximized(false);
+      }
+      syncMaximizeButton();
+      setCanvasSize();
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && state.fallbackMaximized) {
+        setFallbackMaximized(false);
+        syncMaximizeButton();
+        setCanvasSize();
+      }
+    });
 
     var themeObserver = new MutationObserver(function () {
       refreshTheme();
@@ -590,6 +676,7 @@
     refreshTheme();
     setCanvasSize();
     syncLabelsButton();
+    syncMaximizeButton();
     tick();
   }
 
