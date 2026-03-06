@@ -1,5 +1,6 @@
 baseURL = "https://example.com/"
 languageCode = "es-mx"
+timeZone = "America/Mexico_City"
 title = "betancourt"
 enableRobotsTXT = true
 
