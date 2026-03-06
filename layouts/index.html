@@ -19,7 +19,7 @@
     {{ with .Params.description }}
       <p class="lead">{{ . }}</p>
     {{ else }}
-      <p class="lead">Mapa rapido del sitio: perfil, proyectos y notas recientes.</p>
+      <p class="lead">Mapa rápido del sitio: perfil, proyectos y notas recientes.</p>
     {{ end }}
   </header>
 
@@ -59,7 +59,7 @@
     <div class="home-section-head">
       <h2>Grafo de conocimiento</h2>
     </div>
-    <p class="lead">Mapa interactivo de como se conectan los tags del sitio.</p>
+    <p class="lead">Mapa interactivo de cómo se conectan los tags del sitio.</p>
     <div class="knowledge-graph-tools" id="knowledge-graph-tools" aria-label="Herramientas del grafo">
       <button type="button" class="button graph-tool" data-graph-action="zoom-out" aria-label="Alejar" title="Alejar">
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -116,7 +116,7 @@
           <circle cx="17.5" cy="12" r="2.5"></circle>
         </svg>
       </button>
-      <label class="graph-range" for="graph-spacing">Separacion
+      <label class="graph-range" for="graph-spacing">Separación
         <input id="graph-spacing" type="range" min="58" max="110" step="2" value="72" />
       </label>
     </div>
@@ -131,9 +131,9 @@
 
   <section class="home-section home-cta">
     <div class="home-section-head">
-      <h2>Accesos rapidos</h2>
+      <h2>Accesos rápidos</h2>
     </div>
-    <p class="lead">Si quieres ir directo a lo importante, aqui puedes descargar mi CV o enviarme un mensaje.</p>
+    <p class="lead">Si quieres ir directo a lo importante, aquí puedes descargar mi CV o enviarme un mensaje.</p>
     <p class="home-cta-actions">
       <a class="button" href="{{ $cvURL }}">Descargar CV</a>
       <a class="button" href="{{ $contactURL }}">Contáctame</a>
@@ -148,7 +148,7 @@
       {{ with $about }}
         <article class="portfolio-card">
           <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-          <p>{{ with .Params.description }}{{ . }}{{ else }}Contexto personal y como leer este sitio.{{ end }}</p>
+          <p>{{ with .Params.description }}{{ . }}{{ else }}Contexto personal y cómo leer este sitio.{{ end }}</p>
         </article>
       {{ end }}
       {{ with $professional }}
@@ -160,7 +160,7 @@
       {{ with $academic }}
         <article class="portfolio-card">
           <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-          <p>{{ with .Params.description }}{{ . }}{{ else }}Trabajos de investigacion, metodologia y analisis.{{ end }}</p>
+          <p>{{ with .Params.description }}{{ . }}{{ else }}Trabajos de investigación, metodología y análisis.{{ end }}</p>
         </article>
       {{ end }}
       {{ with $postsPage }}
@@ -172,13 +172,13 @@
       {{ with $zettelkasten }}
         <article class="portfolio-card">
           <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-          <p>{{ with .Params.description }}{{ . }}{{ else }}Notas atomicas para ideas y referencias rapidas.{{ end }}</p>
+          <p>{{ with .Params.description }}{{ . }}{{ else }}Notas atómicas para ideas y referencias rápidas.{{ end }}</p>
         </article>
       {{ end }}
       {{ with $cv }}
         <article class="portfolio-card">
           <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-          <p>{{ with .Params.description }}{{ . }}{{ else }}Resumen de experiencia, formacion y habilidades.{{ end }}</p>
+          <p>{{ with .Params.description }}{{ . }}{{ else }}Resumen de experiencia, formación y habilidades.{{ end }}</p>
         </article>
       {{ end }}
     </div>

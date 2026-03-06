@@ -3,7 +3,7 @@
   {{ if gt (len $pages) 0 }}
     {{ $latest := index (first 1 (sort $pages "Lastmod" "desc")) 0 }}
     <p class="site-footer-updated">
-      Ultima actualizacion del sitio:
+      Última actualización del sitio:
       <time datetime="{{ $latest.Lastmod.Format "2006-01-02T15:04:05Z07:00" }}">
         {{ $latest.Lastmod.Format "02/01/2006" }}
       </time>

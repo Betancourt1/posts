@@ -157,7 +157,7 @@
     if (nodes.length === 0) {
       var emptyState = document.createElement("p");
       emptyState.className = "knowledge-graph-empty";
-      emptyState.textContent = "Aun no hay notas con tags suficientes para construir el grafo.";
+      emptyState.textContent = "Aún no hay notas con tags suficientes para construir el grafo.";
       container.appendChild(emptyState);
       return;
     }
