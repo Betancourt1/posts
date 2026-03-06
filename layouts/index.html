@@ -5,14 +5,6 @@
   {{ $postsPage := site.GetPage "/posts" }}
   {{ $zettelkasten := site.GetPage "/zettelkasten" }}
   {{ $cv := site.GetPage "/cv" }}
-  {{ $cvURL := "/cv/" | relURL }}
-  {{ if $cv }}
-    {{ $cvURL = $cv.RelPermalink }}
-  {{ end }}
-  {{ $contactURL := "/about/" | relURL }}
-  {{ if $cv }}
-    {{ $contactURL = printf "%s#contacto" $cv.RelPermalink }}
-  {{ end }}
 
   <header class="page-header">
     <h1>{{ with .Title }}{{ . }}{{ else }}Inicio{{ end }}</h1>
@@ -127,17 +119,6 @@
     <div class="knowledge-graph" id="knowledge-graph" role="img" aria-label="Grafo interactivo de tags"></div>
     <p class="knowledge-graph-hint">Tags en verde y notas en azul. Arrastra nodos, usa zoom y abre con click o toque.</p>
     <script id="knowledge-graph-data" type="application/json">{{ $graphPayload | jsonify | safeJS }}</script>
-  </section>
-
-  <section class="home-section home-cta">
-    <div class="home-section-head">
-      <h2>Accesos rápidos</h2>
-    </div>
-    <p class="lead">Si quieres ir directo a lo importante, aquí puedes descargar mi CV o enviarme un mensaje.</p>
-    <p class="home-cta-actions">
-      <a class="button" href="{{ $cvURL }}">Descargar CV</a>
-      <a class="button" href="{{ $contactURL }}">Contáctame</a>
-    </p>
   </section>
 
   <section class="home-section">

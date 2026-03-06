@@ -234,20 +234,6 @@ h3 { font-size: 1.2rem; color: var(--ink); }
   margin-top: 2.2rem;
 }
 
-.home-cta {
-  border: 0;
-  border-radius: 0;
-  padding: 0;
-  background: transparent;
-}
-
-.home-cta-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 0.9rem 0 0;
-}
-
 .home-graph {
   border: 0;
   border-radius: 0;
