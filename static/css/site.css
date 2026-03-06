@@ -20,6 +20,7 @@
   --graph-tag-hover: #35b98f;
   --graph-note: #7da3ff;
   --graph-note-hover: #9db8ff;
+  --graph-bg: #0a0c10;
 }
 
 :root[data-theme="light"] {
@@ -44,6 +45,7 @@
   --graph-tag-hover: #1a4f3c;
   --graph-note: #3f64bf;
   --graph-note-hover: #2f4e9f;
+  --graph-bg: #ccd4de;
 }
 
 * { box-sizing: border-box; }
@@ -418,7 +420,7 @@ body.graph-maximized {
   border: 1px solid var(--line);
   border-radius: 10px;
   overflow: hidden;
-  background: transparent;
+  background: var(--graph-bg);
 }
 
 .home-graph:-webkit-full-screen .knowledge-graph,
@@ -430,7 +432,7 @@ body.graph-maximized {
 }
 
 :root[data-theme="light"] .knowledge-graph {
-  background: transparent;
+  background: var(--graph-bg);
 }
 
 .knowledge-graph canvas {
