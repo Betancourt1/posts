@@ -28,9 +28,7 @@
       {{ partial "sidebar.html" . }}
     </aside>
   </div>
-  {{ if .IsHome }}
-    <script src="{{ "js/knowledge-graph.js" | relURL }}" defer></script>
-  {{ end }}
+  <script src="{{ "js/knowledge-graph.js" | relURL }}" defer></script>
   {{ partial "footer.html" . }}
 </body>
 

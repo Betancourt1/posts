@@ -1,3 +1,8 @@
+{{ if not .IsHome }}
+  <div class="sidebar-block sidebar-block--graph">
+    {{ partial "knowledge-graph.html" (dict "page" . "variant" "sidebar") }}
+  </div>
+{{ end }}
 <div class="sidebar-block">
   <h3>Archivos</h3>
   <ul class="sidebar-list">
