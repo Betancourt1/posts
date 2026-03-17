@@ -212,6 +212,7 @@
         inkDim: readVar("--ink-dim", "#a8abb2"),
         tag: readVar("--graph-tag", readVar("--accent", "#4ecca3")),
         tagHover: readVar("--graph-tag-hover", readVar("--accent-2", "#35b98f")),
+        linkActive: readVar("--graph-link-active", readVar("--graph-tag-hover", readVar("--accent-2", "#35b98f"))),
         note: readVar("--graph-note", "#7ba2ff"),
         noteHover: readVar("--graph-note-hover", "#9eb9ff")
       };
@@ -500,16 +501,42 @@
       ctx.clearRect(0, 0, width, height);
       ctx.translate(state.offsetX, state.offsetY);
       ctx.scale(state.zoom, state.zoom);
+      var activeNode = state.draggingNode || state.hoverNode || state.searchNode;
+      var hasActiveNode = !!activeNode;
 
-      links.forEach(function (link) {
-        var alpha = Math.min(0.7, 0.16 + link.weight * 0.08);
-        ctx.globalAlpha = alpha;
-        ctx.strokeStyle = theme.line;
-        ctx.lineWidth = 0.7 + Math.min(2.4, link.weight * 0.45);
+      function isAdjacentLink(link) {
+        return !!activeNode && (link.source === activeNode || link.target === activeNode);
+      }
+
+      function drawLink(link, active) {
+        if (active) {
+          ctx.globalAlpha = 0.96;
+          ctx.strokeStyle = theme.linkActive;
+          ctx.lineWidth = 1.4 + Math.min(3.1, link.weight * 0.9);
+        } else {
+          ctx.globalAlpha = hasActiveNode
+            ? Math.min(0.34, 0.08 + link.weight * 0.05)
+            : Math.min(0.7, 0.16 + link.weight * 0.08);
+          ctx.strokeStyle = theme.line;
+          ctx.lineWidth = 0.7 + Math.min(2.4, link.weight * 0.45);
+        }
         ctx.beginPath();
         ctx.moveTo(link.source.x, link.source.y);
         ctx.lineTo(link.target.x, link.target.y);
         ctx.stroke();
+      }
+
+      links.forEach(function (link) {
+        if (isAdjacentLink(link)) {
+          return;
+        }
+        drawLink(link, false);
+      });
+      links.forEach(function (link) {
+        if (!isAdjacentLink(link)) {
+          return;
+        }
+        drawLink(link, true);
       });
       ctx.globalAlpha = 1;
 
