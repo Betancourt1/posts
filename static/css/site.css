@@ -18,7 +18,7 @@
   --nested-separator: rgba(123,127,136,.35);
   --graph-tag: #4ecca3;
   --graph-tag-hover: #35b98f;
-  --graph-link-active: #63d9b3;
+  --graph-link-active: #f5f7fb;
   --graph-note: #7da3ff;
   --graph-note-hover: #9db8ff;
   --graph-bg: #0a0c10;
@@ -44,7 +44,7 @@
   --nested-separator: rgba(81,94,109,.46);
   --graph-tag: #24684f;
   --graph-tag-hover: #1a4f3c;
-  --graph-link-active: #2d7a60;
+  --graph-link-active: #f8fbff;
   --graph-note: #3f64bf;
   --graph-note-hover: #2f4e9f;
   --graph-bg: #ccd4de;

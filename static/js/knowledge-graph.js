@@ -510,9 +510,9 @@
 
       function drawLink(link, active) {
         if (active) {
-          ctx.globalAlpha = 0.96;
+          ctx.globalAlpha = 0.92;
           ctx.strokeStyle = theme.linkActive;
-          ctx.lineWidth = 1.4 + Math.min(3.1, link.weight * 0.9);
+          ctx.lineWidth = 0.95 + Math.min(1.1, link.weight * 0.28);
         } else {
           ctx.globalAlpha = hasActiveNode
             ? Math.min(0.34, 0.08 + link.weight * 0.05)
