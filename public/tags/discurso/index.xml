@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Discurso on Posts</title>
+    <link>http://localhost:1313/tags/discurso/</link>
+    <description>Recent content in Discurso on Posts</description>
+    <generator>Hugo</generator>
+    <language>es-mx</language>
+    <lastBuildDate>Sat, 08 Nov 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/discurso/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Un discurso de boda</title>
+      <link>http://localhost:1313/posts/2025/noviembre/discurso/</link>
+      <pubDate>Sat, 08 Nov 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/2025/noviembre/discurso/</guid>
+      <description>&lt;h1 id=&#34;un-discurso-de-boda&#34;&gt;Un discurso de boda&lt;/h1&gt;&#xA;&lt;p&gt;Buenas noches. Cuando Marinela y Abi me pidieron que dijera unas palabras el día de hoy, me planteé dos retos: no usar chatgpt para redactarlo y no demorar demasiado al decirlo frente a ustedes. Veremos si puedo cumplir mi segundo reto.&lt;/p&gt;&#xA;&lt;p&gt;Hoy en día vivimos en un mundo complicado, que nos propone retos que la gran mayoría preferiría no tener que superar. Y estos retos, que a veces nos parecen monstruos gigantes e inabarcables, a menudo consiguen robarnos de a poco la esperanza. Esperanza, no en un mundo mejor sino en uno que nos den ganas de vivir. Uno al que nos queramos dirigir y sobre el cual nos sintamos a salvo. Un mundo que a veces sentimos más lejos y a veces más cerca. Un mundo en el que estarán nuestros hijos o no.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

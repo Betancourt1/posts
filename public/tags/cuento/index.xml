@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Cuento on Posts</title>
+    <link>http://localhost:1313/tags/cuento/</link>
+    <description>Recent content in Cuento on Posts</description>
+    <generator>Hugo</generator>
+    <language>es-mx</language>
+    <lastBuildDate>Mon, 18 Aug 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/cuento/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Cuento</title>
+      <link>http://localhost:1313/posts/2025/agosto/cuento/</link>
+      <pubDate>Mon, 18 Aug 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/2025/agosto/cuento/</guid>
+      <description>&lt;h1 id=&#34;cuento&#34;&gt;Cuento&lt;/h1&gt;&#xA;&lt;p&gt;Vivo con Tamal, una gatita de 6 años que fue criada por mi roomie. Conocí a Tamal el primer día que fui a mi actual departamento, luego de que mi roomie se mudara ahí con sus dos gatos: Piyo y Tamal. Inmediatamente después de conocer a Tamal, me senté en el piso y le extendí la mano para que me conociera.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

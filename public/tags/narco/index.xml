@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Narco on Posts</title>
+    <link>http://localhost:1313/tags/narco/</link>
+    <description>Recent content in Narco on Posts</description>
+    <generator>Hugo</generator>
+    <language>es-mx</language>
+    <lastBuildDate>Thu, 01 Jan 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/narco/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>El narco</title>
+      <link>http://localhost:1313/posts/2026/enero/el_narco/</link>
+      <pubDate>Thu, 01 Jan 2026 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/2026/enero/el_narco/</guid>
+      <description>&lt;h1 id=&#34;el-narco&#34;&gt;El narco&lt;/h1&gt;&#xA;&lt;p&gt;Cuando hablas del narco, me hablas de su música&#xA;Dices que fomentan la violencia y que es muy preocupante&#xA;Cuando hablas del narco, me hablas de sus líderes&#xA;Dices que deberían encarcelarlos y que no merecen compasión&#xA;Cuando hablas del narco, me hablas de las drogas&#xA;Dices que los consumidores tienen la culpa y que son sus cómplices&lt;/p&gt;&#xA;&lt;p&gt;Cuando hablo del narco, hablo de Luis&#xA;Te digo que jugábamos de niños y lo mataron a los 16&#xA;Cuando hablo del narco, hablo de Dani&#xA;Te digo que lo corrieron de la secundaria y ahora está en el cartel&#xA;Cuando hablo del narco, hablo de mi hermano&#xA;Te digo que recayó luego de divorciarse y por deberles se les tuvo que unir&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
