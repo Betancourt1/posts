@@ -1,5 +1,5 @@
 ---
-title: "Lit"
+title: "Lecturas"
 description: "Citas literales, pasajes subrayados y notas textuales de lectura."
 date: 2026-04-20
 draft: false

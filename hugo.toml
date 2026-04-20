@@ -41,7 +41,7 @@ enableRobotsTXT = true
     pageRef = "/zettelkasten"
     weight = 6
   [[menu.main]]
-    name = "Lit"
+    name = "Lecturas"
     pageRef = "/lit"
     weight = 7
   [[menu.main]]
