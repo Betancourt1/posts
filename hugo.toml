@@ -41,9 +41,13 @@ enableRobotsTXT = true
     pageRef = "/zettelkasten"
     weight = 6
   [[menu.main]]
+    name = "Lit"
+    pageRef = "/lit"
+    weight = 7
+  [[menu.main]]
     name = "CV"
     pageRef = "/cv"
-    weight = 7
+    weight = 8
 
 [markup]
   [markup.goldmark]
