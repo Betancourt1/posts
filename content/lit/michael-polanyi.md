@@ -7,7 +7,10 @@ summary: "Podemos saber más de lo que podemos decir."
 aliases: ["/zettelkasten/michael-polanyi/"]
 ---
 
-> Podemos saber más de lo que podemos decir.
+# Michael Polanyi
+
+> "Podemos saber más de lo que podemos decir."
+> - Michael Polanyi -
 
 ## Notas
 - [conocimiento tacito](/zettelkasten/conocimiento-tacito/)

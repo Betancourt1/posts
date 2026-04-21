@@ -3,13 +3,19 @@ title: "Mark Fisher"
 date: 2026-04-19T14:14:22-06:00
 draft: false
 tags: ["lit", "cita", "politica", "ideologia", "clase", "debate", "capitalismo", "trabajo", "subjetividad", "quote"]
-summary: "Defender la tolerancia, el debate y el respeto como valores universales es ya una posición política de clase. El \"diálogo\" con los defensores de la explotación laboral no es neutralidad: es un privilegio ideológico qu..."
+summary: "No, no soy tolerante. No, no quiero \"debatir\" o \"entrar en diálogo con\" demócratas liberales, PoMoSofistas, opiniólogos, carnalistas, hedonistas, mencheviques, individualistas... No, no te respeto, ni solicito tal res..."
 aliases: ["/zettelkasten/mark-fisher/"]
 ---
 
-> Defender la tolerancia, el debate y el respeto como valores universales es ya una posición política de clase. El "diálogo" con los defensores de la explotación laboral no es neutralidad: es un privilegio ideológico que solo quienes no sufren la explotación pueden sostener.
+# Mark Fisher
 
-> Tanto el trabajo como "estar en una relación" funcionan como requisitos tácitos de existencia legítima. Sin ellos, uno no cuenta como persona real.
+## Citas
+
+> «No, no soy tolerante. No, no quiero "debatir" o "entrar en diálogo con" demócratas liberales, PoMoSofistas, opiniólogos, carnalistas, hedonistas, mencheviques, individualistas... No, no te respeto, ni solicito tal respeto para mí de tu parte. Los defensores de la tolerancia, el debate, el diálogo y el respeto anuncian sus credenciales burguesas con tal defensa. Lo siento, apologistas de la explotación laboral, pero no, no veo como mi deber proporcionar al enemigo un espacio para expresarse».
+> Mark Fisher
+
+> "El trabajo, al igual que 'estar en una relación', me otorgaría automáticamente el status de Person Real."
+> -Mark Fisher-
 
 ## Notas
 - [no tolerancia al debate liberal](/zettelkasten/no-tolerancia-al-debate-liberal/)

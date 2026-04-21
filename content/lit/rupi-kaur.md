@@ -3,11 +3,25 @@ title: "Rupi Kaur"
 date: 2026-04-19T14:14:22-06:00
 draft: false
 tags: ["lit", "cita", "amor", "vinculos", "lenguaje", "poesia", "quote"]
-summary: "te quiero\" puede significar el deseo de querer, quedarse un poco más, no saber cómo irse, o no tener otro lugar a donde ir."
+summary: "a veces"
 aliases: ["/zettelkasten/rupi-kaur/"]
 ---
 
-> "te quiero" puede significar el deseo de querer, quedarse un poco más, no saber cómo irse, o no tener otro lugar a donde ir.
+# Rupi Kaur
+
+> a veces
+> te quiero significa
+> deseo quererte
+> a veces
+> te quiero significa
+> me quedaré un poco más
+> a veces
+> te quiero significa
+> no sé cómo irme
+> a veces
+> te quiero significa
+> no tengo otro lugar a dónde ir
+> Rupi Kaur
 
 ## Notas
 - [te quiero como multivalencia](/zettelkasten/te-quiero-como-multivalencia/)

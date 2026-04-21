@@ -3,11 +3,15 @@ title: "Angélica Santa Olaya — *Una estrella para Pedro*"
 date: 2026-04-19T14:14:22-06:00
 draft: false
 tags: ["lit", "cita", "masculinidad", "genero", "suicidio", "emociones", "microficcion", "quote"]
-summary: "Al niño \"que nunca llora\" le enseñan que el éxito es la estrella dorada de la frente. La única estrella que termina ganando es la roja: la bala."
+summary: "De niño le enseñaron que los hombres nunca lloran y él fue un buen alumno. Siempre llegaba casa con estrellitas doradas en la frente. Esta no sería la excepción. Tomó el revólver, apretó el gatillo y se colocó en la f..."
 aliases: ["/zettelkasten/angelica-santa-olaya/"]
 ---
 
-> Al niño "que nunca llora" le enseñan que el éxito es la estrella dorada de la frente. La única estrella que termina ganando es la roja: la bala.
+# Angélica Santa Olaya — *Una estrella para Pedro*
+
+> “De niño le enseñaron que los hombres nunca lloran y él fue un buen alumno. Siempre llegaba casa con estrellitas doradas en la frente. Esta no sería la excepción. Tomó el revólver, apretó el gatillo y se colocó en la frente una estrella roja como el reflejo de aquella tarde en que una sola lágrima de acero pesó como todas las lágrimas nunca lloradas”.
+> •Angélica Santa Olaya | Una estrella para Pedro
+> Raquel Ramirez
 
 ## Notas
 - [hombres que no lloran y sus consecuencias](/zettelkasten/hombres-que-no-lloran-y-sus-consecuencias/)

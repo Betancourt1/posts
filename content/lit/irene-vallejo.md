@@ -3,11 +3,14 @@ title: "Irene Vallejo"
 date: 2026-04-19T14:14:22-06:00
 draft: false
 tags: ["lit", "cita", "vinculos", "vulnerabilidad", "bondad", "capitalismo", "quote"]
-summary: "La bondad asusta porque nos vuelve conscientes de la vulnerabilidad —ajena y propia. Preferimos el ideal de suficiencia, que promete fortaleza al precio del aislamiento. En ese océano de islas amuralladas, la bondad a..."
+summary: "La bondad asusta porque nos vuelve conscientes de la vulnerabilidad ajena, y de la propia. No queremos afrontar la fragilidad acechante de nuestros cuerpos. Preferimos el ideal de suficiencia, menos promiscuo, que pro..."
 aliases: ["/zettelkasten/irene-vallejo/"]
 ---
 
-> La bondad asusta porque nos vuelve conscientes de la vulnerabilidad —ajena y propia. Preferimos el ideal de suficiencia, que promete fortaleza al precio del aislamiento. En ese océano de islas amuralladas, la bondad acaba siendo el placer prohibido.
+# Irene Vallejo
+
+> "La bondad asusta porque nos vuelve conscientes de la vulnerabilidad ajena, y de la propia. No queremos afrontar la fragilidad acechante de nuestros cuerpos. Preferimos el ideal de suficiencia, menos promiscuo, que promete fortaleza e independencia, al precio de aislarnos. Por eso, nos obsesionamos con encontrar la seguridad en el éxito y, en esa carrera despiadada, negamos la alegría y el disfrute de los actos generosos. Reprimimos nuestros instintos, nos refrenamos. En un océano de islas amuralladas, sin tacto ni contacto, la bondad acabará por ser nuestro placer prohibido".
+> Irene Vallejo
 
 ## Notas
 - [bondad como placer prohibido](/zettelkasten/bondad-como-placer-prohibido/)

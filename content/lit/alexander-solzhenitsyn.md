@@ -7,7 +7,10 @@ summary: "Sabemos que nos mienten, ellos saben que mienten, ellos saben que sabe
 aliases: ["/zettelkasten/alexander-solzhenitsyn/"]
 ---
 
-> Sabemos que nos mienten, ellos saben que mienten, ellos saben que sabemos que nos mienten. Sabemos que ellos saben que sabemos que nos mienten. Y sin embargo, siguen mintiendo.
+# Alexander Solzhenitsyn
+
+> "Sabemos que nos mienten, ellos saben que mienten, ellos saben que sabemos que nos mienten. Sabemos que ellos saben que sabemos que nos mienten. Y sin embargo, siguen mintiendo."
+> -Alexander Solzhenitsyn
 
 ## Notas
 - [poder y mentira performativa](/zettelkasten/poder-y-mentira-performativa/)
