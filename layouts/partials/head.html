@@ -1,6 +1,22 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 {{ $buildID := printf "%d" now.UnixNano }}
+{{ $siteTitle := .Site.Title }}
+{{ $pageTitle := cond .IsHome $siteTitle (printf "%s | %s" .Title $siteTitle) }}
+{{ $description := .Site.Params.description | default "" }}
+{{ with .Description }}
+  {{ $description = . }}
+{{ end }}
+{{ if not $description }}
+  {{ with .Summary }}
+    {{ $description = . | plainify | truncate 180 }}
+  {{ end }}
+{{ end }}
+{{ if not $description }}
+  {{ $description = $siteTitle }}
+{{ end }}
+{{ $description = $description | plainify | truncate 180 }}
+{{ $socialImage := (.Site.Params.social_image | default "og-image.png") | absURL }}
 <meta name="x-build-id" content="{{ $buildID }}" />
 <script>
   (function () {
@@ -19,16 +35,25 @@
     document.documentElement.setAttribute("data-theme", theme);
   })();
 </script>
-<title>
-  {{ if .IsHome }}
-    {{ .Site.Title }}
-  {{ else }}
-    {{ .Title }} | {{ .Site.Title }}
-  {{ end }}
-</title>
-{{ with .Site.Params.description }}
-  <meta name="description" content="{{ . }}" />
-{{ end }}
+<title>{{ $pageTitle }}</title>
+<meta name="description" content="{{ $description }}" />
+<link rel="canonical" href="{{ .Permalink }}" />
+<meta property="og:locale" content="es_MX" />
+<meta property="og:site_name" content="{{ $siteTitle }}" />
+<meta property="og:title" content="{{ $pageTitle }}" />
+<meta property="og:description" content="{{ $description }}" />
+<meta property="og:url" content="{{ .Permalink }}" />
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}" />
+<meta property="og:image" content="{{ $socialImage }}" />
+<meta property="og:image:secure_url" content="{{ $socialImage }}" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="{{ $siteTitle }}" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="{{ $pageTitle }}" />
+<meta name="twitter:description" content="{{ $description }}" />
+<meta name="twitter:image" content="{{ $socialImage }}" />
 <link rel="stylesheet" href="{{ "css/site.css" | relURL }}?v={{ $buildID }}" />
 {{ $showSearch := partial "search_enabled.html" . }}
 {{ if $showSearch }}

@@ -1,8 +1,12 @@
-baseURL = "https://example.com/"
+baseURL = "https://fbetancourt.work/"
 languageCode = "es-mx"
 timeZone = "America/Mexico_City"
 title = "betancourt"
 enableRobotsTXT = true
+
+[params]
+  description = "Lecturas, zettelkasten y textos de Francisco Betancourt."
+  social_image = "og-image.png"
 
 [pagination]
   pagerSize = 20
