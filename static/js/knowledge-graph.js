@@ -56,8 +56,26 @@
 
     var tagCounts = new Map();
     var tagNodes = new Map();
-    var noteNodes = [];
-    var links = [];
+    var linksByPair = new Map();
+
+    function ensureTagNode(tag) {
+      if (!tagNodes.has(tag)) {
+        tagNodes.set(tag, {
+          id: "tag:" + tag,
+          label: tag,
+          type: "tag",
+          count: 0,
+          radius: 0,
+          x: 0,
+          y: 0,
+          vx: 0,
+          vy: 0,
+          url: typeof normalizedTagLinks[tag] === "string" ? normalizedTagLinks[tag] : null
+        });
+      }
+
+      return tagNodes.get(tag);
+    }
 
     posts.forEach(function (post) {
       if (!post || !Array.isArray(post.tags)) {
@@ -81,45 +99,29 @@
 
       cleanTags.forEach(function (tag) {
         tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+        ensureTagNode(tag);
       });
 
-      var noteLabel = typeof post.title === "string" && post.title.trim() ? post.title.trim() : "Nota";
-      var noteNode = {
-        id: "note:" + (typeof post.permalink === "string" ? post.permalink : noteLabel),
-        label: noteLabel,
-        type: "note",
-        count: cleanTags.length,
-        radius: 4.5 + Math.min(7.5, Math.sqrt(cleanTags.length) * 1.7),
-        x: 0,
-        y: 0,
-        vx: 0,
-        vy: 0,
-        url: typeof post.permalink === "string" ? post.permalink : null
-      };
-      noteNodes.push(noteNode);
+      for (var i = 0; i < cleanTags.length; i += 1) {
+        for (var j = i + 1; j < cleanTags.length; j += 1) {
+          var sourceTag = cleanTags[i];
+          var targetTag = cleanTags[j];
+          var pair = sourceTag < targetTag ? [sourceTag, targetTag] : [targetTag, sourceTag];
+          var pairKey = pair[0] + "\u0000" + pair[1];
+          var link = linksByPair.get(pairKey);
 
-      cleanTags.forEach(function (tag) {
-        if (!tagNodes.has(tag)) {
-          tagNodes.set(tag, {
-            id: "tag:" + tag,
-            label: tag,
-            type: "tag",
-            count: 0,
-            radius: 0,
-            x: 0,
-            y: 0,
-            vx: 0,
-            vy: 0,
-            url: typeof normalizedTagLinks[tag] === "string" ? normalizedTagLinks[tag] : null
-          });
+          if (!link) {
+            link = {
+              source: ensureTagNode(pair[0]),
+              target: ensureTagNode(pair[1]),
+              weight: 0
+            };
+            linksByPair.set(pairKey, link);
+          }
+
+          link.weight += 1;
         }
-
-        links.push({
-          source: noteNode,
-          target: tagNodes.get(tag),
-          weight: 1
-        });
-      });
+      }
     });
 
     tagNodes.forEach(function (tagNode, tag) {
@@ -129,8 +131,8 @@
     });
 
     return {
-      nodes: Array.from(tagNodes.values()).concat(noteNodes),
-      links: links
+      nodes: Array.from(tagNodes.values()),
+      links: Array.from(linksByPair.values())
     };
   }
 
@@ -157,7 +159,7 @@
     if (nodes.length === 0) {
       var emptyState = document.createElement("p");
       emptyState.className = "knowledge-graph-empty";
-      emptyState.textContent = "Aún no hay notas con tags suficientes para construir el grafo.";
+      emptyState.textContent = "Aún no hay tags suficientes para construir el grafo.";
       container.appendChild(emptyState);
       return;
     }
@@ -212,9 +214,7 @@
         inkDim: readVar("--ink-dim", "#a8abb2"),
         tag: readVar("--graph-tag", readVar("--accent", "#4ecca3")),
         tagHover: readVar("--graph-tag-hover", readVar("--accent-2", "#35b98f")),
-        linkActive: readVar("--graph-link-active", readVar("--graph-tag-hover", readVar("--accent-2", "#35b98f"))),
-        note: readVar("--graph-note", "#7ba2ff"),
-        noteHover: readVar("--graph-note-hover", "#9eb9ff")
+        linkActive: readVar("--graph-link-active", readVar("--graph-tag-hover", readVar("--accent-2", "#35b98f")))
       };
     }
 
@@ -243,27 +243,11 @@
         return;
       }
 
-      var tags = nodes.filter(function (node) {
-        return node.type === "tag";
-      });
-      var notes = nodes.filter(function (node) {
-        return node.type === "note";
-      });
-
       var tagRingRadius = Math.max(80, Math.min(width, height) * 0.22);
-      tags.forEach(function (node, index) {
-        var angle = (index / Math.max(tags.length, 1)) * Math.PI * 2;
+      nodes.forEach(function (node, index) {
+        var angle = (index / Math.max(nodes.length, 1)) * Math.PI * 2;
         node.x = Math.cos(angle) * tagRingRadius;
         node.y = Math.sin(angle) * tagRingRadius;
-        node.vx = 0;
-        node.vy = 0;
-      });
-
-      var noteRingRadius = Math.max(120, Math.min(width, height) * 0.34);
-      notes.forEach(function (node, index) {
-        var angle = (index / Math.max(notes.length, 1)) * Math.PI * 2 + 0.22;
-        node.x = Math.cos(angle) * noteRingRadius;
-        node.y = Math.sin(angle) * noteRingRadius;
         node.vx = 0;
         node.vy = 0;
       });
@@ -543,11 +527,7 @@
       nodes.forEach(function (node) {
         var hovered = state.hoverNode === node;
         var selected = state.searchNode === node;
-        if (node.type === "note") {
-          ctx.fillStyle = hovered || selected ? theme.noteHover : theme.note;
-        } else {
-          ctx.fillStyle = hovered || selected ? theme.tagHover : theme.tag;
-        }
+        ctx.fillStyle = hovered || selected ? theme.tagHover : theme.tag;
         ctx.strokeStyle = theme.line;
         ctx.lineWidth = selected ? 2.2 : hovered ? 1.5 : 1;
 
@@ -565,11 +545,8 @@
         var hovered = state.hoverNode === node;
         var selected = state.searchNode === node;
         var showLabel = state.forceLabels || hovered || selected;
-        if (!showLabel && node.type === "tag") {
+        if (!showLabel) {
           showLabel = node.count > 1 || nodes.length <= 28;
-        }
-        if (!showLabel && node.type === "note") {
-          showLabel = nodes.length <= 18;
         }
         if (!showLabel) {
           return;
