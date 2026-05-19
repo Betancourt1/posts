@@ -779,7 +779,7 @@
     if (spacingInput) {
       var parsedSpacing = Number(spacingInput.value);
       if (!isNaN(parsedSpacing)) {
-        state.linkDistance = clamp(parsedSpacing, 58, 110);
+        state.linkDistance = clamp(parsedSpacing, 30, 200);
       }
 
       spacingInput.addEventListener("input", function () {
@@ -787,7 +787,7 @@
         if (isNaN(nextValue)) {
           return;
         }
-        state.linkDistance = clamp(nextValue, 58, 110);
+        state.linkDistance = clamp(nextValue, 30, 200);
       });
     }
 
