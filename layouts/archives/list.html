@@ -2,6 +2,14 @@
   <header class="page-header">
     <h1>{{ .Title }}</h1>
   </header>
+  <div class="archive-filters">
+    <button class="filter-btn active" data-filter="all">Todos</button>
+    <button class="filter-btn" data-filter="posts">Escritos</button>
+    <button class="filter-btn" data-filter="proyectos-profesionales">Profesionales</button>
+    <button class="filter-btn" data-filter="proyectos-academicos">Académicos</button>
+    <button class="filter-btn" data-filter="zettelkasten">Zettelkasten</button>
+    <button class="filter-btn" data-filter="lit">Lecturas</button>
+  </div>
 
   {{ $allPages := where .Site.RegularPages "Section" "in" (slice "posts" "proyectos-profesionales" "proyectos-academicos" "zettelkasten" "lit") }}
   {{ $scratch := newScratch }}
@@ -18,13 +26,77 @@
         <h3 id="{{ $month.Key }}">{{ $month.Key }}</h3>
         <ul class="archive-list">
           {{ range $month.Pages.ByDate.Reverse }}
-            <li>
+            {{ $section := .Section }}
+            {{ $label := $section }}
+            {{ if eq $section "posts" }}{{ $label = "escrito" }}
+            {{ else if eq $section "proyectos-profesionales" }}{{ $label = "profesional" }}
+            {{ else if eq $section "proyectos-academicos" }}{{ $label = "académico" }}
+            {{ else if eq $section "zettelkasten" }}{{ $label = "zettel" }}
+            {{ else if eq $section "lit" }}{{ $label = "lectura" }}{{ end }}
+            <li class="archive-item" data-section="{{ $section }}">
               <span class="archive-date">{{ .Date.Format "2006-01-02" }}</span>
               <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+              <span class="archive-badge archive-badge--{{ $section }}">{{ $label }}</span>
             </li>
           {{ end }}
         </ul>
       {{ end }}
     </section>
   {{ end }}
+
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const buttons = document.querySelectorAll(".filter-btn");
+    const items = document.querySelectorAll(".archive-item");
+    const lists = document.querySelectorAll(".archive-list");
+    const years = document.querySelectorAll(".archive-year");
+
+    buttons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        // Toggle active status
+        buttons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const filterValue = btn.getAttribute("data-filter");
+
+        // Filter items
+        items.forEach(item => {
+          if (filterValue === "all" || item.getAttribute("data-section") === filterValue) {
+            item.style.display = "flex";
+          } else {
+            item.style.display = "none";
+          }
+        });
+
+        // Hide empty months
+        lists.forEach(list => {
+          const visibleItems = list.querySelectorAll('.archive-item:not([style*="display: none"])');
+          const monthHeader = list.previousElementSibling;
+          if (visibleItems.length === 0) {
+            list.style.display = "none";
+            if (monthHeader && monthHeader.tagName === "H3") {
+              monthHeader.style.display = "none";
+            }
+          } else {
+            list.style.display = "block";
+            if (monthHeader && monthHeader.tagName === "H3") {
+              monthHeader.style.display = "block";
+            }
+          }
+        });
+
+        // Hide empty years
+        years.forEach(year => {
+          const visibleItems = year.querySelectorAll('.archive-item:not([style*="display: none"])');
+          if (visibleItems.length === 0) {
+            year.style.display = "none";
+          } else {
+            year.style.display = "block";
+          }
+        });
+      });
+    });
+  });
+  </script>
+
 {{ end }}
