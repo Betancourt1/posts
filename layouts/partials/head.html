@@ -228,12 +228,12 @@
     var applyTheme = function (theme) {
       root.setAttribute("data-theme", theme);
       if (theme === "light") {
-        toggle.textContent = "Tema oscuro";
         toggle.setAttribute("aria-label", "Cambiar a tema oscuro");
+        toggle.setAttribute("title", "Cambiar a tema oscuro");
         return;
       }
-      toggle.textContent = "Tema claro";
       toggle.setAttribute("aria-label", "Cambiar a tema claro");
+      toggle.setAttribute("title", "Cambiar a tema claro");
     };
 
     applyTheme(resolveTheme());

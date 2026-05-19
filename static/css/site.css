@@ -108,13 +108,14 @@ html, body {
   right: 32px;
   border: none !important;
   border-radius: 0 !important;
-  border-bottom: 1px dashed var(--line) !important;
   background: transparent !important;
   color: var(--ink-dim) !important;
-  padding: 2px 0 !important;
-  font-size: 0.8rem;
-  line-height: 1.25;
-  font-family: inherit;
+  padding: 0 !important;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -122,8 +123,15 @@ html, body {
 .theme-toggle:hover {
   background: transparent !important;
   color: var(--accent) !important;
-  border-bottom: 1px solid var(--accent) !important;
 }
+
+/* Show sun icon in dark mode, hide moon icon */
+:root .theme-toggle .sun-icon { display: block; }
+:root .theme-toggle .moon-icon { display: none; }
+
+/* Show moon icon in light mode, hide sun icon */
+:root[data-theme="light"] .theme-toggle .sun-icon { display: none; }
+:root[data-theme="light"] .theme-toggle .moon-icon { display: block; }
 
 .site-search {
   max-width: 70ch;
@@ -1034,36 +1042,38 @@ body.search-active {
 .zen-toggle-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   border: none !important;
   border-radius: 0 !important;
-  border-bottom: 1px dashed var(--line) !important;
-  padding: 2px 0 !important;
+  padding: 0 !important;
+  width: 32px;
+  height: 32px;
   background: transparent !important;
   color: var(--ink-dim) !important;
-  font-size: 0.78rem;
   cursor: pointer;
-  line-height: 1.25;
-  font-family: inherit;
   transition: all 0.2s ease;
 }
 
 .zen-toggle-btn:hover {
   color: var(--accent) !important;
-  border-bottom: 1px solid var(--accent) !important;
   background: transparent !important;
 }
 
 .zen-toggle-btn.is-active {
   color: var(--accent) !important;
-  background: transparent !important;
-  border-bottom: 1px solid var(--accent) !important;
 }
 
 .zen-toggle-btn.is-active:hover {
   color: var(--accent-2) !important;
-  border-bottom: 1px solid var(--accent-2) !important;
-  background: transparent !important;
 }
+
+/* Normal state: show normal eye, hide eye-off */
+.zen-toggle-btn .zen-icon-normal { display: block; }
+.zen-toggle-btn .zen-icon-active { display: none; }
+
+/* Active Zen state: show eye-off, hide normal eye */
+.zen-toggle-btn.is-active .zen-icon-normal { display: none; }
+.zen-toggle-btn.is-active .zen-icon-active { display: block; }
 
 body.zen-mode .nav-column,
 body.zen-mode .sidebar-column {
