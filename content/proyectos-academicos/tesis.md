@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Tesis de licenciatura"
 date: 2026-02-13
 draft: false
@@ -36,11 +36,9 @@ El trabajo identifica una tensión importante: la infraestructura física muestr
 
 Este proyecto busca aportar una base cuantitativa para discutir movilidad urbana desde matemáticas aplicadas, con implicaciones para planeación, priorización de inversión y evaluación de riesgo sistémico en transporte público.
 
-## Repositorio
+## Repositorio y Acceso
 
-Este proyecto redirige al repositorio de GitHub:
+El repositorio se encuentra actualmente **abierto y accesible de forma pública** en GitHub para su consulta, auditoría e investigación:
+
 [github.com/Betancourt1/tesis](https://github.com/Betancourt1/tesis)
 
-## Estado de acceso
-
-El repositorio no será accesible públicamente hasta después de la defensa, prevista para agosto de 2026.
