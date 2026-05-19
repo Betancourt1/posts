@@ -126,44 +126,39 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 
 .theme-toggle,
 .grayscale-toggle {
-  border: 1px solid var(--line) !important;
-  border-radius: 8px !important;
-  background: var(--bg-soft) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
   color: var(--ink-dim) !important;
   padding: 0 !important;
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  width: 32px;
+  height: 32px;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: none !important;
+  transition: color 0.25s ease !important;
 }
 
 .theme-toggle:hover,
 .grayscale-toggle:hover {
-  background: var(--line) !important;
+  background: transparent !important;
   color: var(--accent) !important;
-  border-color: var(--accent) !important;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(78, 204, 163, 0.12);
-}
-
-:root[data-theme="light"] .theme-toggle:hover,
-:root[data-theme="light"] .grayscale-toggle:hover {
-  box-shadow: 0 4px 12px rgba(36, 104, 79, 0.12);
+  border: none !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .grayscale-toggle.is-active {
   color: var(--accent) !important;
-  border-color: var(--accent) !important;
-  background: var(--line) !important;
+  border: none !important;
+  background: transparent !important;
 }
 
 .grayscale-icon {
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   display: block;
   transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -175,8 +170,9 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 /* Icon Morphing styles */
 .theme-icon-wrapper {
   position: relative;
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
+  display: block;
 }
 
 .sun-icon,
@@ -184,8 +180,8 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   position: absolute;
   top: 0;
   left: 0;
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   display: block;
   fill: none;
   stroke: currentColor;
