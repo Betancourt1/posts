@@ -90,6 +90,9 @@
         if (!tag || seen.has(tag)) {
           return;
         }
+        if (tag === "nota" || tag === "zettelkasten") {
+          return;
+        }
         seen.add(tag);
         cleanTags.push(tag);
       });
