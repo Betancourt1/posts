@@ -1,0 +1,37 @@
+{{ $currentUrl := .RelPermalink }}
+{{ $currentFile := "" }}
+{{ with .File }}
+  {{ $currentFile = .LogicalName }}
+{{ end }}
+{{ $backlinks := slice }}
+
+{{ range .Site.RegularPages }}
+  {{ if ne .RelPermalink $currentUrl }}
+    {{ $hasLink := false }}
+    {{ if and $currentFile (in .RawContent (printf "ref %q" $currentFile)) }}
+      {{ $hasLink = true }}
+    {{ else if in .RawContent $currentUrl }}
+      {{ $hasLink = true }}
+    {{ end }}
+    {{ if $hasLink }}
+      {{ $backlinks = $backlinks | append . }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{ if gt (len $backlinks) 0 }}
+<section class="backlinks-section">
+  <hr class="backlinks-divider">
+  <h3>Enlaces que apuntan aquí</h3>
+  <ul class="backlinks-list">
+    {{ range $backlinks }}
+    <li>
+      <a href="{{ .RelPermalink }}" class="backlink-link">
+        <span class="backlink-title">{{ .Title }}</span>
+        <span class="backlink-meta"> ({{ .Date.Format "2006-01-02" }})</span>
+      </a>
+    </li>
+    {{ end }}
+  </ul>
+</section>
+{{ end }}

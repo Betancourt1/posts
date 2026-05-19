@@ -10,11 +10,35 @@
   <header class="site-header">
     <h1 class="site-title"><a href="{{ "/" | relURL }}">betancourt</a></h1>
     <p class="site-subtitle">aquí escribo cosas</p>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Cambiar tema">Tema claro</button>
-    {{ if $showSearch }}
-      <div class="site-search site-search--hidden" id="search"></div>
-    {{ end }}
+    <div class="site-header-controls" style="margin-top: 10px; display: flex; justify-content: center; gap: 10px; align-items: center;">
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Cambiar tema" style="position: static; margin: 0;">Tema claro</button>
+      {{ if $showSearch }}
+        <button class="search-trigger" id="search-trigger" type="button" aria-label="Buscar (Ctrl+K)" style="display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; padding: 0.35rem 0.65rem; background: transparent; color: var(--ink-dim); font-size: 0.8rem; cursor: pointer; line-height: 1.25;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px; margin-right: 6px;">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span>Buscar...</span>
+          <kbd class="search-kbd" style="margin-left: 8px; font-size: 0.7rem; padding: 1px 4px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-weight: normal; color: var(--ink-dim);">Ctrl K</kbd>
+        </button>
+      {{ end }}
+    </div>
   </header>
+
+  {{ if $showSearch }}
+    <div class="search-modal-overlay" id="search-modal-overlay">
+      <div class="search-modal">
+        <div class="search-modal-header">
+          <span class="search-modal-title">Búsqueda Global</span>
+          <button class="search-modal-close" id="search-modal-close" type="button" aria-label="Cerrar búsqueda">&times;</button>
+        </div>
+        <div class="site-search" id="search"></div>
+        <div class="search-modal-footer">
+          <span>Presiona <kbd>Esc</kbd> para cerrar</span>
+        </div>
+      </div>
+    </div>
+  {{ end }}
   <div class="layout">
     <aside class="column nav-column">
       {{ partial "nav.html" . }}
