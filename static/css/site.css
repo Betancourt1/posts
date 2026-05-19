@@ -106,16 +106,23 @@ html, body {
   position: absolute;
   top: 22px;
   right: 32px;
-  border-color: var(--line);
-  color: var(--ink-dim);
-  padding: 0.35rem 0.65rem;
+  border: none !important;
+  border-radius: 0 !important;
+  border-bottom: 1px dashed var(--line) !important;
+  background: transparent !important;
+  color: var(--ink-dim) !important;
+  padding: 2px 0 !important;
   font-size: 0.8rem;
   line-height: 1.25;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .theme-toggle:hover {
-  background: var(--bg-soft);
-  color: var(--ink);
+  background: transparent !important;
+  color: var(--accent) !important;
+  border-bottom: 1px solid var(--accent) !important;
 }
 
 .site-search {
@@ -1027,11 +1034,12 @@ body.search-active {
 .zen-toggle-btn {
   display: inline-flex;
   align-items: center;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 0.28rem 0.58rem;
-  background: transparent;
-  color: var(--ink-dim);
+  border: none !important;
+  border-radius: 0 !important;
+  border-bottom: 1px dashed var(--line) !important;
+  padding: 2px 0 !important;
+  background: transparent !important;
+  color: var(--ink-dim) !important;
   font-size: 0.78rem;
   cursor: pointer;
   line-height: 1.25;
@@ -1040,20 +1048,21 @@ body.search-active {
 }
 
 .zen-toggle-btn:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-  background: rgba(78, 204, 163, 0.06);
+  color: var(--accent) !important;
+  border-bottom: 1px solid var(--accent) !important;
+  background: transparent !important;
 }
 
 .zen-toggle-btn.is-active {
-  color: var(--bg) !important;
-  background: var(--accent) !important;
-  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  background: transparent !important;
+  border-bottom: 1px solid var(--accent) !important;
 }
 
 .zen-toggle-btn.is-active:hover {
-  background: var(--accent-2) !important;
-  border-color: var(--accent-2) !important;
+  color: var(--accent-2) !important;
+  border-bottom: 1px solid var(--accent-2) !important;
+  background: transparent !important;
 }
 
 body.zen-mode .nav-column,
