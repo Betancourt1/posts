@@ -3,7 +3,7 @@
     <h1>{{ .Title }}</h1>
   </header>
 
-  {{ $allPages := where .Site.RegularPages "Section" "posts" }}
+  {{ $allPages := where .Site.RegularPages "Section" "in" (slice "posts" "proyectos-profesionales" "proyectos-academicos" "zettelkasten" "lit") }}
   {{ $scratch := newScratch }}
   {{ range $allPages }}
     {{ if not (hasPrefix .File.BaseFileName "no_post") }}
