@@ -1195,26 +1195,32 @@ body.zen-mode .content-column {
   border-bottom: 1px solid var(--line);
 }
 
-.filter-btn {
-  font-family: inherit;
-  font-size: 0.82rem;
-  background: transparent;
-  color: var(--ink-muted);
-  border: none;
-  padding: 0 0 6px 0;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-bottom: 2px solid transparent;
+.archive-filters .filter-btn {
+  font-family: inherit !important;
+  font-size: 0.82rem !important;
+  background: transparent !important;
+  color: var(--ink-muted) !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+  padding: 0 0 6px 0 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: inline-block !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
-.filter-btn:hover {
-  color: var(--ink);
+.archive-filters .filter-btn:hover {
+  color: var(--ink) !important;
+  background: transparent !important;
 }
 
-.filter-btn.active {
-  color: var(--accent);
-  border-bottom: 2px solid var(--accent);
-  font-weight: 700;
+.archive-filters .filter-btn.active {
+  color: var(--accent) !important;
+  border-bottom: 2px solid var(--accent) !important;
+  font-weight: 700 !important;
+  background: transparent !important;
 }
 
 .archive-badge {
