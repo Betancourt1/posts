@@ -13,7 +13,8 @@ Este ecosistema actúa como un puente seguro, gobernado y de alto rendimiento en
 
 > [!NOTE]
 > **Nota de Confidencialidad y Propiedad Intelectual:**
-> Al tratarse de un desarrollo empresarial privado y estratégico, el código fuente, esquemas internos y credenciales no están disponibles de forma pública (no es open-source) para resguardar la seguridad del DWH y las reglas de negocio de la organización.
+> Al tratarse de un desarrollo empresarial privado y estratégico, el código fuente, las credenciales, y la base de código/esquemas del **Data Warehouse (DWH)** no están disponibles de forma pública (no son de código abierto / open-source) para resguardar la seguridad de la información y las reglas operativas de la organización.
+
 
 ---
 
@@ -37,6 +38,13 @@ El proyecto se estructuró como un ecosistema multi-servidor orquestado en conte
 | **`logistics-mcp`** | `get_inventory_position`, `compare_erp_wms_stock`, `get_movement_trace`, `get_stockout_risk` | JSON / XLSX | Visibilidad del stock actual, control de inventario en tránsito y prevención de quiebres de stock. |
 | **`bi-mcp`** | `run_metric_query`, `search_metric`, `explain_metric_formula` | JSON / Inline | Interfaz de lenguaje natural para consultar el catálogo de métricas gobernadas y fórmulas de la compañía. |
 | **`data-engineering-mcp`** | `list_pipeline_runs`, `get_model_lineage`, `get_table_profile`, `run_readonly_sql` | JSON / Inline | Herramientas operativas de lectura para auditoría técnica de pipelines, linaje de datos y perfiles de tablas. |
+
+### Arquitectura y Capas de Código del Data Warehouse (DWH)
+
+Este ecosistema no solo expone herramientas de análisis para los modelos de lenguaje, sino que también integra de manera nativa la base de código de las capas de datos del **Data Warehouse (DWH)**, estructurada bajo una arquitectura medallion (medallón) auditable y gobernada:
+
+* **Capa `core/` (Datos Normalizados):** Contiene el código, esquemas y definiciones DDL para las tablas normalizadas y auditables de la empresa (Finanzas, Ventas, Logística, BI) y el esquema común `audit_logs` para control de accesos.
+* **Capa `marts/` (Vistas de Consulta y Exportación):** Define las vistas gobernadas estructuradas específicamente para consumo ágil de los modelos de IA y exportación directa de datos (`marts_fin_*`, `marts_com_*`, `marts_log_*`), integrando un registro centralizado de contratos de exportación autorizados para garantizar el control y seguridad de la información procesada.
 
 ### Contrato de "Delivery" Dinámico
 
