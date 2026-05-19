@@ -125,13 +125,13 @@ html, body {
   color: var(--accent) !important;
 }
 
-/* Show sun icon in dark mode, hide moon icon */
-:root .theme-toggle .sun-icon { display: block; }
-:root .theme-toggle .moon-icon { display: none; }
+/* Show moon icon in dark mode, hide sun icon */
+:root .theme-toggle .sun-icon { display: none; }
+:root .theme-toggle .moon-icon { display: block; }
 
-/* Show moon icon in light mode, hide sun icon */
-:root[data-theme="light"] .theme-toggle .sun-icon { display: none; }
-:root[data-theme="light"] .theme-toggle .moon-icon { display: block; }
+/* Show sun icon in light mode, hide moon icon */
+:root[data-theme="light"] .theme-toggle .sun-icon { display: block; }
+:root[data-theme="light"] .theme-toggle .moon-icon { display: none; }
 
 .site-search {
   max-width: 70ch;
