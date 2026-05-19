@@ -70,6 +70,7 @@
           y: 0,
           vx: 0,
           vy: 0,
+          neighbors: new Set(),
           url: typeof normalizedTagLinks[tag] === "string" ? normalizedTagLinks[tag] : null
         });
       }
@@ -120,6 +121,8 @@
           }
 
           link.weight += 1;
+          link.source.neighbors.add(link.target);
+          link.target.neighbors.add(link.source);
         }
       }
     });
@@ -214,7 +217,8 @@
         inkDim: readVar("--ink-dim", "#a8abb2"),
         tag: readVar("--graph-tag", readVar("--accent", "#4ecca3")),
         tagHover: readVar("--graph-tag-hover", readVar("--accent-2", "#35b98f")),
-        linkActive: readVar("--graph-link-active", readVar("--graph-tag-hover", readVar("--accent-2", "#35b98f")))
+        linkActive: readVar("--graph-link-active", readVar("--graph-tag-hover", readVar("--accent-2", "#35b98f"))),
+        bg: readVar("--graph-bg", "#0a0c10")
       };
     }
 
@@ -537,23 +541,59 @@
         ctx.stroke();
       });
 
-      ctx.font = "12px ui-monospace, SFMono-Regular, Menlo, Monaco, Cascadia Mono, Fira Code, IBM Plex Mono, Liberation Mono, monospace";
       ctx.textAlign = "center";
       ctx.textBaseline = "bottom";
+
+      var activeNode = state.draggingNode || state.hoverNode || state.searchNode;
+      var hasActiveNode = !!activeNode;
+
+      // Calcular umbral dinámico para etiquetas por defecto
+      var defaultThreshold = 2;
+      if (nodes.length > 20) {
+        var counts = nodes.map(function (n) { return n.count; }).sort(function (a, b) { return b - a; });
+        defaultThreshold = Math.max(2, counts[Math.min(counts.length - 1, 14)]);
+      }
 
       nodes.forEach(function (node) {
         var hovered = state.hoverNode === node;
         var selected = state.searchNode === node;
-        var showLabel = state.forceLabels || hovered || selected;
-        if (!showLabel) {
-          showLabel = node.count > 1 || nodes.length <= 28;
+        var isMainActive = hovered || selected;
+        var isNeighbor = hasActiveNode && (activeNode.neighbors && activeNode.neighbors.has(node));
+
+        var showLabel = false;
+        if (state.forceLabels) {
+          showLabel = true;
+        } else if (hasActiveNode) {
+          showLabel = isMainActive || isNeighbor;
+        } else {
+          showLabel = node.count >= defaultThreshold || nodes.length <= 20;
         }
+
         if (!showLabel) {
           return;
         }
 
-        ctx.globalAlpha = hovered || selected ? 1 : 0.85;
-        ctx.fillStyle = hovered || selected ? theme.ink : theme.inkDim;
+        // Jerarquía visual y tipografía
+        if (isMainActive) {
+          ctx.globalAlpha = 1;
+          ctx.fillStyle = theme.ink;
+          ctx.font = "bold 13px ui-monospace, SFMono-Regular, Menlo, Monaco, Cascadia Mono, Fira Code, IBM Plex Mono, Liberation Mono, monospace";
+        } else if (isNeighbor) {
+          ctx.globalAlpha = 0.95;
+          ctx.fillStyle = theme.inkDim;
+          ctx.font = "500 12px ui-monospace, SFMono-Regular, Menlo, Monaco, Cascadia Mono, Fira Code, IBM Plex Mono, Liberation Mono, monospace";
+        } else {
+          ctx.globalAlpha = 0.75;
+          ctx.fillStyle = theme.inkDim;
+          ctx.font = "11px ui-monospace, SFMono-Regular, Menlo, Monaco, Cascadia Mono, Fira Code, IBM Plex Mono, Liberation Mono, monospace";
+        }
+
+        // Dibujar contorno de contraste protector (stroke)
+        ctx.strokeStyle = theme.bg;
+        ctx.lineWidth = isMainActive ? 4.5 : 3.5;
+        ctx.strokeText(node.label, node.x, node.y - node.radius - 6);
+
+        // Dibujar el texto
         ctx.fillText(node.label, node.x, node.y - node.radius - 6);
       });
       ctx.globalAlpha = 1;
@@ -585,6 +625,22 @@
           if (state.draggingNode !== b) {
             b.vx += fx;
             b.vy += fy;
+          }
+
+          // Fuerza de prevención de colisión (círculos elásticos)
+          var minDist = a.radius + b.radius + 14;
+          if (distanceSq < minDist * minDist) {
+            var overlapForce = (minDist * minDist - distanceSq) * 0.08;
+            var ox = (overlapForce * dx) / distance;
+            var oy = (overlapForce * dy) / distance;
+            if (state.draggingNode !== a) {
+              a.vx -= ox;
+              a.vy -= oy;
+            }
+            if (state.draggingNode !== b) {
+              b.vx += ox;
+              b.vy += oy;
+            }
           }
         }
       }
