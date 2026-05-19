@@ -20,3 +20,7 @@ Si estás aquí, sabes mi nombre. Se supone que debo escribir aquí algo de mí 
 - **Escritos**: Textos libres, notas y reflexiones.
 - **Zettelkasten**: Notas de mi zettelkasten que considero que pueden ser leídas por otra gente.
 - **CV**: Resumen de experiencia, formación y habilidades.
+
+---
+
+Si estás aquí porque te pedí trabajo, por favor no me tomes a cuenta lo de los traumas. En realidad soy muy agradable y mucha gente me quiere. Y soy muy bueno trabajando.
