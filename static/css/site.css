@@ -1,25 +1,25 @@
 :root{
   color-scheme: dark;
-  --bg: #0f1115;
-  --bg-soft: #171a20;
+  --bg: #000000;
+  --bg-soft: #0b0c0f;
   --ink: #cfcfd2;
   --ink-dim: #a8abb2;
   --ink-muted: #7b7f88;
   --accent: #4ecca3;
   --accent-2: #35b98f;
-  --line: #2a2f36;
-  --code-bg: #14171d;
-  --table-stripe: #1a1f26;
+  --line: #1c2025;
+  --code-bg: #07080a;
+  --table-stripe: #0f1115;
   --heading: #ffffff;
   --rule: #f5f5f5;
   --selection-ink: #e7fff6;
-  --search-drawer-bg: linear-gradient(180deg, rgba(23,26,32,.95) 0%, rgba(15,17,21,.95) 100%);
+  --search-drawer-bg: linear-gradient(180deg, rgba(11,12,15,.95) 0%, rgba(0,0,0,.95) 100%);
   --result-separator: rgba(123,127,136,.25);
   --nested-separator: rgba(123,127,136,.35);
   --graph-tag: #4ecca3;
   --graph-tag-hover: #35b98f;
   --graph-link-active: #f5f7fb;
-  --graph-bg: #0a0c10;
+  --graph-bg: #000000;
 
   /* Badge design tokens (Dark Mode) */
   --badge-bg: var(--bg-soft);
@@ -102,10 +102,25 @@ html, body {
   color: var(--ink-muted);
 }
 
-.theme-toggle {
+html {
+  transition: filter 0.3s ease;
+}
+
+html.grayscale-mode {
+  filter: grayscale(100%);
+}
+
+.site-header-actions {
   position: absolute;
   top: 22px;
   right: 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.theme-toggle,
+.grayscale-toggle {
   border: none !important;
   border-radius: 0 !important;
   background: transparent !important;
@@ -120,8 +135,13 @@ html, body {
   transition: all 0.2s ease;
 }
 
-.theme-toggle:hover {
+.theme-toggle:hover,
+.grayscale-toggle:hover {
   background: transparent !important;
+  color: var(--accent) !important;
+}
+
+.grayscale-toggle.is-active {
   color: var(--accent) !important;
 }
 
@@ -871,10 +891,12 @@ sup, sub { line-height: 0; }
     padding: 22px 16px 6px;
   }
 
-  .theme-toggle {
+  .site-header-actions {
     position: static;
     margin: 10px auto 0;
-    display: inline-block;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
   }
 
   .site-search {

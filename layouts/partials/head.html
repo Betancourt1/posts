@@ -211,44 +211,87 @@
 <script defer>
   document.addEventListener("DOMContentLoaded", function () {
     var toggle = document.getElementById("theme-toggle");
-    if (!toggle) {
-      return;
+    var root = document.documentElement;
+
+    // Theme Toggle Logic
+    if (toggle) {
+      var storageKey = "site_theme";
+      var resolveTheme = function () {
+        var current = root.getAttribute("data-theme");
+        if (current === "light" || current === "dark") {
+          return current;
+        }
+        return "dark";
+      };
+
+      var applyTheme = function (theme) {
+        root.setAttribute("data-theme", theme);
+        if (theme === "light") {
+          toggle.setAttribute("aria-label", "Cambiar a tema oscuro");
+          toggle.setAttribute("title", "Cambiar a tema oscuro");
+          return;
+        }
+        toggle.setAttribute("aria-label", "Cambiar a tema claro");
+        toggle.setAttribute("title", "Cambiar a tema claro");
+      };
+
+      applyTheme(resolveTheme());
+
+      toggle.addEventListener("click", function () {
+        var nextTheme = resolveTheme() === "dark" ? "light" : "dark";
+        applyTheme(nextTheme);
+        try {
+          if (window.localStorage) {
+            localStorage.setItem(storageKey, nextTheme);
+          }
+        } catch (error) {
+          return;
+        }
+      });
     }
 
-    var root = document.documentElement;
-    var storageKey = "site_theme";
-    var resolveTheme = function () {
-      var current = root.getAttribute("data-theme");
-      if (current === "light" || current === "dark") {
-        return current;
-      }
-      return "dark";
-    };
+    // Grayscale Toggle Logic
+    var grayscaleToggle = document.getElementById("grayscale-toggle");
+    var grayscaleStorageKey = "grayscale_mode_enabled";
 
-    var applyTheme = function (theme) {
-      root.setAttribute("data-theme", theme);
-      if (theme === "light") {
-        toggle.setAttribute("aria-label", "Cambiar a tema oscuro");
-        toggle.setAttribute("title", "Cambiar a tema oscuro");
-        return;
-      }
-      toggle.setAttribute("aria-label", "Cambiar a tema claro");
-      toggle.setAttribute("title", "Cambiar a tema claro");
-    };
-
-    applyTheme(resolveTheme());
-
-    toggle.addEventListener("click", function () {
-      var nextTheme = resolveTheme() === "dark" ? "light" : "dark";
-      applyTheme(nextTheme);
-      try {
-        if (window.localStorage) {
-          localStorage.setItem(storageKey, nextTheme);
+    var applyGrayscale = function (enabled) {
+      if (enabled) {
+        root.classList.add("grayscale-mode");
+        if (grayscaleToggle) {
+          grayscaleToggle.classList.add("is-active");
+          grayscaleToggle.setAttribute("aria-label", "Desactivar escala de grises");
+          grayscaleToggle.setAttribute("title", "Desactivar escala de grises");
         }
-      } catch (error) {
-        return;
+      } else {
+        root.classList.remove("grayscale-mode");
+        if (grayscaleToggle) {
+          grayscaleToggle.classList.remove("is-active");
+          grayscaleToggle.setAttribute("aria-label", "Activar escala de grises");
+          grayscaleToggle.setAttribute("title", "Activar escala de grises");
+        }
       }
-    });
+    };
+
+    var isGrayscaleEnabled = false;
+    try {
+      if (window.localStorage) {
+        isGrayscaleEnabled = localStorage.getItem(grayscaleStorageKey) === "true";
+      }
+    } catch (e) {}
+
+    applyGrayscale(isGrayscaleEnabled);
+
+    if (grayscaleToggle) {
+      grayscaleToggle.addEventListener("click", function () {
+        isGrayscaleEnabled = !isGrayscaleEnabled;
+        applyGrayscale(isGrayscaleEnabled);
+        try {
+          if (window.localStorage) {
+            localStorage.setItem(grayscaleStorageKey, isGrayscaleEnabled ? "true" : "false");
+          }
+        } catch (e) {}
+      });
+    }
   });
 </script>
 <link rel="apple-touch-icon" href="{{ "favicon-32.png" | relURL }}">
