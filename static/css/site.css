@@ -20,6 +20,19 @@
   --graph-tag-hover: #35b98f;
   --graph-link-active: #f5f7fb;
   --graph-bg: #0a0c10;
+
+  /* Badge design tokens (Dark Mode) */
+  --badge-bg: var(--bg-soft);
+  --badge-posts-border: rgba(78, 204, 163, 0.35);
+  --badge-posts-text: var(--accent);
+  --badge-prof-border: rgba(85, 172, 238, 0.45);
+  --badge-prof-text: #55acee;
+  --badge-acad-border: rgba(255, 172, 51, 0.45);
+  --badge-acad-text: #ffac33;
+  --badge-zettel-border: rgba(168, 107, 255, 0.45);
+  --badge-zettel-text: #a86bff;
+  --badge-lit-border: rgba(255, 107, 107, 0.45);
+  --badge-lit-text: #ff6b6b;
 }
 
 :root[data-theme="light"] {
@@ -44,6 +57,19 @@
   --graph-tag-hover: #1a4f3c;
   --graph-link-active: #f8fbff;
   --graph-bg: #ccd4de;
+
+  /* Badge design tokens (Light Mode - high contrast) */
+  --badge-bg: rgba(255, 255, 255, 0.65);
+  --badge-posts-border: rgba(36, 104, 79, 0.45);
+  --badge-posts-text: var(--accent);
+  --badge-prof-border: rgba(26, 85, 153, 0.45);
+  --badge-prof-text: #1a5599;
+  --badge-acad-border: rgba(184, 98, 0, 0.45);
+  --badge-acad-text: #b86200;
+  --badge-zettel-border: rgba(90, 39, 173, 0.45);
+  --badge-zettel-text: #5a27ad;
+  --badge-lit-border: rgba(186, 37, 37, 0.45);
+  --badge-lit-text: #ba2525;
 }
 
 * { box-sizing: border-box; }
@@ -1226,37 +1252,37 @@ body.zen-mode .content-column {
 .archive-badge {
   font-family: inherit;
   font-size: 0.7rem;
-  padding: 1px 6px;
+  padding: 2px 6px;
   border-radius: 3px;
   border: 1px solid var(--line);
   color: var(--ink-dim);
-  background: var(--bg-soft);
+  background: var(--badge-bg);
   text-transform: uppercase;
   margin-left: auto;
   white-space: nowrap;
   letter-spacing: 0.05em;
-  opacity: 0.85;
+  opacity: 1;
 }
 
 .archive-badge--posts {
-  border-color: rgba(78, 204, 163, 0.35);
-  color: var(--accent);
+  border-color: var(--badge-posts-border);
+  color: var(--badge-posts-text);
 }
 .archive-badge--proyectos-profesionales {
-  border-color: rgba(85, 172, 238, 0.45);
-  color: #55acee;
+  border-color: var(--badge-prof-border);
+  color: var(--badge-prof-text);
 }
 .archive-badge--proyectos-academicos {
-  border-color: rgba(255, 172, 51, 0.45);
-  color: #ffac33;
+  border-color: var(--badge-acad-border);
+  color: var(--badge-acad-text);
 }
 .archive-badge--zettelkasten {
-  border-color: rgba(168, 107, 255, 0.45);
-  color: #a86bff;
+  border-color: var(--badge-zettel-border);
+  color: var(--badge-zettel-text);
 }
 .archive-badge--lit {
-  border-color: rgba(255, 107, 107, 0.45);
-  color: #ff6b6b;
+  border-color: var(--badge-lit-border);
+  color: var(--badge-lit-text);
 }
 
 /* Ensure active/hover items look clean and don't wrap badge weirdly */
