@@ -2,7 +2,7 @@
 title: "Laura Terciado"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["lit", "cita", "abuso", "genero", "trauma", "vinculos", "verguenza", "quote"]
+tags: ["cita", "abuso", "genero", "trauma", "vinculos", "verguenza"]
 summary: "Da vergüenza admitir que te han violado, da vergüenza sostenerle la mirada a alguien que se deja abusar por un stalker. Y da vergüenza hablar de por qué volvemos una y otra vez a quien nos destroza. Da vergüenza pensa..."
 aliases: ["/zettelkasten/laura-terciado/"]
 ---

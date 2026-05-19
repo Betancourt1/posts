@@ -2,7 +2,7 @@
 title: "Jean-Paul Sartre — *Hablando con Sartre*"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["lit", "cita", "filosofia", "vinculos", "colectivo", "quote"]
+tags: ["cita", "filosofia", "vinculos", "colectivo"]
 summary: "El infierno son los demás\" es solo una cara de la moneda. La otra cara, que nadie parece mencionar, es también 'El cielo somos los demás'. El infierno es la separación, la incomunicación, el egocentrismo, la lujuria p..."
 aliases: ["/zettelkasten/jean-paul-sartre/"]
 ---

@@ -2,7 +2,7 @@
 title: "Eduardo Galeano"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["lit", "cita", "amor", "duelo", "ausencia", "quote"]
+tags: ["cita", "amor", "duelo", "ausencia"]
 summary: "Yo también te extraño mucho. Olvídate de todas las cosas feas que te tengo dichas y las veces que yo no te entendía. Solamente quiero que vuelvas. Quiero que estemos juntos por un rato aunque sea y quiero decirte que..."
 aliases: ["/zettelkasten/eduardo-galeano/"]
 ---

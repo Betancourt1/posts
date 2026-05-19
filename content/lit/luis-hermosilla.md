@@ -2,7 +2,7 @@
 title: "Luis Hermosilla"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["lit", "cita", "diseno", "tecnologia", "ia", "artesania", "creatividad", "quote"]
+tags: ["cita", "diseno", "tecnologia", "ia", "artesania", "creatividad"]
 summary: "Es cada vez más difícil imaginar un mundo que valore la artesanía. Todo debe hacerse más rápido, más barato y a gran escala. Las marcas se difuminan entre sí. Los pocos que eligen crear con cuidado e intención a menud..."
 aliases: ["/zettelkasten/luis-hermosilla/"]
 ---

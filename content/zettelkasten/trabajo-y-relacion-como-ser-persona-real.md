@@ -2,7 +2,7 @@
 title: "Trabajo y relación como condiciones de ser una \\\"persona real\\\""
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "capitalismo", "trabajo", "subjetividad", "identidad", "quote"]
+tags: ["zettelkasten", "nota", "capitalismo", "trabajo", "subjetividad", "identidad", "cita"]
 summary: "Mark Fisher lo describe con precisión: tanto el trabajo como \\\"estar en una relación\\\" funcionan como requisitos tácitos de existencia legítima. Sin ellos, uno no cuenta como persona real."
 ---
 

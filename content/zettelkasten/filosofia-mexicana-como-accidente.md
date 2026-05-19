@@ -2,7 +2,7 @@
 title: "La filosofía mexicana como mirada desde el accidente histórico"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "filosofia", "mexico", "colonialismo", "historia", "quote"]
+tags: ["zettelkasten", "nota", "filosofia", "mexico", "colonialismo", "historia", "cita"]
 summary: "Carlos Alberto Sánchez: ver el mundo a través de la filosofía mexicana es ver a través de los ojos de quienes se perciben a sí mismos como accidentes de la historia y la catástrofe."
 ---
 

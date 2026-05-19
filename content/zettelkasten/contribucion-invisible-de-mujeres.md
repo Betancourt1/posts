@@ -2,7 +2,7 @@
 title: "La contribución invisible de las mujeres a la historia intelectual"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "genero", "historia", "trabajo", "invisibilidad", "intelectual", "quote"]
+tags: ["zettelkasten", "nota", "genero", "historia", "trabajo", "invisibilidad", "intelectual", "cita"]
 summary: "Graeber lo señala: sería fascinante —aunque imposible— catalogar los libros, planes y documentos atribuidos a hombres famosos que en realidad fueron redactados por sus secretarias."
 ---
 

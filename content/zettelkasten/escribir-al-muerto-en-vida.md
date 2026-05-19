@@ -2,7 +2,7 @@
 title: "Escribir al muerto mientras sigue vivo"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "escritura", "duelo", "madre", "amor", "quote"]
+tags: ["zettelkasten", "nota", "escritura", "duelo", "madre", "amor", "cita"]
 summary: "Vuong cita el *Diario de duelo* de Barthes —escrito a la madre muerta— y decide escribirle a su madre viva. El duelo se anticipa; la carta se escribe antes de la muerte porque la muerte ya empieza en el envejecimiento y la enfermedad."
 ---
 

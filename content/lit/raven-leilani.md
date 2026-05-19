@@ -2,7 +2,7 @@
 title: "Raven Leilani"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["lit", "cita", "genero", "feminismo", "sobrevivencia", "quote"]
+tags: ["cita", "genero", "feminismo", "sobrevivencia"]
 summary: "Eric es lo más obvio que me ha pasado jamás, y por toda la ciudad les está sucediendo lo mismo a otras mujeres tontas y a medio formar que se dejan emocionar por hombres que simplemente han cumplido con el requisito d..."
 aliases: ["/zettelkasten/raven-leilani/"]
 ---

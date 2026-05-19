@@ -2,7 +2,7 @@
 title: "Los usuarios como producto de los servicios digitales"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "tecnologia", "capitalismo", "plataformas", "datos", "atencion", "quote"]
+tags: ["zettelkasten", "nota", "tecnologia", "capitalismo", "plataformas", "datos", "atencion", "cita"]
 summary: "Igual que las mujeres entran gratis a las discotecas porque no son clientes sino parte del producto, los usuarios de servicios digitales no los consumen: son consumidos por ellos."
 ---
 

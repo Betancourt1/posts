@@ -2,7 +2,7 @@
 title: "Melissa Febos"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["lit", "cita", "genero", "violencia", "romanticismo", "medios", "consentimiento", "quote"]
+tags: ["cita", "genero", "violencia", "romanticismo", "medios", "consentimiento"]
 summary: "Justo como estas producciones animan a los hombres a creer que el acecho y espiar son formas aceptables de cortejo, probablemente para resolver en un emparejamiento amoroso, así también prescriben a las mujeres el des..."
 aliases: ["/zettelkasten/melissa-febos/"]
 ---

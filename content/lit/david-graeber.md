@@ -2,7 +2,7 @@
 title: "David Graeber"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["lit", "cita", "anarquismo", "politica", "genero", "historia", "quote"]
+tags: ["cita", "anarquismo", "politica", "genero", "historia"]
 summary: "Cada vez que tratas a otro ser humano con consideración y respeto, estás siendo anarquista. Cada vez que resuelves tus divergencias con otros, llegando a un arreglo razonable, escuchando lo que todos tienen que decir,..."
 aliases: ["/zettelkasten/david-graeber/"]
 ---

@@ -2,7 +2,7 @@
 title: "Julian Gough — Intro de Minecraft"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["lit", "cita", "filosofia", "universo", "conciencia", "misterio", "quote"]
+tags: ["cita", "filosofia", "universo", "conciencia", "misterio"]
 summary: "¿Quiénes somos? Una vez nos llamaron el espíritu de la montaña. Padre sol, madre luna. Espíritus ancestrales, espíritus animales. Genios. Fantasmas. El hombre verde. Y dioses, demonios. Ángeles. Poltergeists. Alieníge..."
 aliases: ["/zettelkasten/julian-gough/"]
 ---

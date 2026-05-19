@@ -2,7 +2,7 @@
 title: "El doomscrolling como síntoma estructural millennial"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "millennials", "fatiga", "capitalismo", "redes-sociales", "quote"]
+tags: ["zettelkasten", "nota", "millennials", "fatiga", "capitalismo", "redes-sociales", "cita"]
 summary: "La escena repetida del millennial que llega tarde a casa y pasa una hora haciendo scroll sin publicar nada, \\\"asomado al abismo\\\", no es flojera ni adicción individual: es el síntoma de una fatiga que el concepto de generación no alcanza a explicar."
 ---
 

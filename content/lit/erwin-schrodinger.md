@@ -2,7 +2,7 @@
 title: "Erwin Schrödinger"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["lit", "cita", "filosofia", "ciencia", "epistemologia", "experiencia", "quote"]
+tags: ["cita", "filosofia", "ciencia", "epistemologia", "experiencia"]
 summary: "La imagen científica del mundo que me rodea es muy deficiente. Proporciona una gran cantidad de información sobre los hechos, reduce toda experiencia a un orden maravillosamente consistente, pero guarda un silencio se..."
 aliases: ["/zettelkasten/erwin-schrodinger/"]
 ---

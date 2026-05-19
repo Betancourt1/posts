@@ -2,7 +2,7 @@
 title: "Ernesto Castro"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["lit", "cita", "tecnologia", "capitalismo", "plataformas", "datos", "atencion", "quote"]
+tags: ["cita", "tecnologia", "capitalismo", "plataformas", "datos", "atencion"]
 summary: "Igual que las mujeres entran gratis a las discotecas porque no son los usuarios de la discoteca sino que son, en parte, el producto a ser consumido, tenemos que darnos cuenta de que muchos de los servicios digitales q..."
 aliases: ["/zettelkasten/ernesto-castro/"]
 ---

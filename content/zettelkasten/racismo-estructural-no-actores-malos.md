@@ -2,7 +2,7 @@
 title: "El racismo como estructura, no como actores malos"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "racismo", "datos", "algoritmos", "estructura", "discriminacion", "quote"]
+tags: ["zettelkasten", "nota", "racismo", "datos", "algoritmos", "estructura", "discriminacion", "cita"]
 summary: "Los primeros sistemas de big data se construyeron eliminando humanos \\\"sesgados\\\" del proceso. Pero si el racismo es estructural, no individual, sacar las \\\"manzanas podridas\\\" no lo elimina: solo lo automatiza."
 ---
 

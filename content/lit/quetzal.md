@@ -2,7 +2,7 @@
 title: "Quetzal"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["lit", "cita", "redes-sociales", "parasocial", "genero", "contenido-digital", "quote"]
+tags: ["cita", "redes-sociales", "parasocial", "genero", "contenido-digital"]
 summary: "Pero se me ocurre un ejercicio que igual iría bien, igual refrescará las mentes de todos los bandos en este trend veraniego. ¿Qué os parecería el ejercicio radical de humanizar a Roro? ¿Qué tal si en lugar de tirarnos..."
 aliases: ["/zettelkasten/quetzal/"]
 ---

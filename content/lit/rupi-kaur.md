@@ -2,7 +2,7 @@
 title: "Rupi Kaur"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["lit", "cita", "amor", "vinculos", "lenguaje", "poesia", "quote"]
+tags: ["cita", "amor", "vinculos", "lenguaje", "poesia"]
 summary: "a veces"
 aliases: ["/zettelkasten/rupi-kaur/"]
 ---

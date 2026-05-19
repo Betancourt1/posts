@@ -2,7 +2,7 @@
 title: "Una buena historia y alguien con quien hablar de ella"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "literatura", "vinculos", "amor", "sentido", "quote"]
+tags: ["zettelkasten", "nota", "literatura", "vinculos", "amor", "sentido", "cita"]
 summary: "Kawamura recoge una idea de *La leyenda del pianista en el océano*: que exista una buena historia y haya una persona con quien puedas hablar de ella es razón suficiente para vivir."
 ---
 

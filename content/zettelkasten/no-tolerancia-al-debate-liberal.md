@@ -2,7 +2,7 @@
 title: "La tolerancia al debate como credencial burguesa"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "politica", "ideologia", "clase", "debate", "quote"]
+tags: ["zettelkasten", "nota", "politica", "ideologia", "clase", "debate", "cita"]
 summary: "Mark Fisher: defender la tolerancia, el debate y el respeto como valores universales es ya una posición política de clase. El \\\"diálogo\\\" con los defensores de la explotación laboral no es neutralidad: es un privilegio ideológico que solo quienes no sufren la explotación pueden sostener."
 ---
 

@@ -2,7 +2,7 @@
 title: "John Scalzi"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["lit", "cita", "etica", "juicio-moral", "vinculos", "complejidad", "quote"]
+tags: ["cita", "etica", "juicio-moral", "vinculos", "complejidad"]
 summary: "Toda persona que alguna vez has admirado ha cometido errores, a veces muy graves. Todos aquellos a quienes has admirado tienen secretos, y es posible que algunos de esos secretos cambiarían materialmente tu opinión so..."
 aliases: ["/zettelkasten/john-scalzi/"]
 ---

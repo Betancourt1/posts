@@ -2,7 +2,7 @@
 title: "Bell Hooks"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["lit", "cita", "masculinidad", "genero", "infancia", "emociones", "patriarcado", "quote"]
+tags: ["cita", "masculinidad", "genero", "infancia", "emociones", "patriarcado"]
 summary: "Los niños pequeños son los únicos hombres en nuestra cultura que tienen permitido estar completamente en contacto con sus sentimientos, momentos permitidos donde pueden expresarse sin humillación su deseo de amar y se..."
 aliases: ["/zettelkasten/bell-hooks/"]
 ---

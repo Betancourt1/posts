@@ -2,7 +2,7 @@
 title: "BoJack Horseman"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["lit", "cita", "amor", "identidad", "vinculos", "miedo", "felicidad", "psicologia", "quote"]
+tags: ["cita", "amor", "identidad", "vinculos", "miedo", "felicidad", "psicologia"]
 summary: "Diane: Todo el mundo estaba preocupado por usted, no puede desaparecerse. Lastimó a mucha gente."
 aliases: ["/zettelkasten/bojack-horseman/"]
 ---

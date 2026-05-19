@@ -2,7 +2,7 @@
 title: "Ser buen humano antes que buen escritor"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "escritura", "etica", "conocimiento", "literatura", "quote"]
+tags: ["zettelkasten", "nota", "escritura", "etica", "conocimiento", "literatura", "cita"]
 summary: "Alan Moore: las voces que nos hablan más fuerte a través de los siglos son las que tenían almas más profundas, no las más técnicamente hábiles. Conocer algo requiere amarlo —incluso si es aborrecible. Particularmente si es aborrecible."
 ---
 

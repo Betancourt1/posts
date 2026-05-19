@@ -2,7 +2,7 @@
 title: "Katherine Angel"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["lit", "cita", "genero", "consentimiento", "sexualidad", "feminismo", "quote"]
+tags: ["cita", "genero", "consentimiento", "sexualidad", "feminismo"]
 summary: "Según la pedagoga sexual Christina Tesoro, se insiste mucho en que la mujer desarrolle la capacidad de decir que no, así como de decir que sí de corazón, pero no se le enseña a decir «quizá. A decir, \"no estoy segura\"..."
 aliases: ["/zettelkasten/katherine-angel/"]
 ---

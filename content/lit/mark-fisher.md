@@ -2,7 +2,7 @@
 title: "Mark Fisher"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["lit", "cita", "politica", "ideologia", "clase", "debate", "capitalismo", "trabajo", "subjetividad", "quote"]
+tags: ["cita", "politica", "ideologia", "clase", "debate", "capitalismo", "trabajo", "subjetividad"]
 summary: "No, no soy tolerante. No, no quiero \"debatir\" o \"entrar en diálogo con\" demócratas liberales, PoMoSofistas, opiniólogos, carnalistas, hedonistas, mencheviques, individualistas... No, no te respeto, ni solicito tal res..."
 aliases: ["/zettelkasten/mark-fisher/"]
 ---

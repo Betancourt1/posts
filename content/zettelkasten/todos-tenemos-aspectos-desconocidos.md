@@ -2,7 +2,7 @@
 title: "Todos tenemos aspectos desconocidos —incluso para quienes nos aman"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "etica", "juicio-moral", "vinculos", "complejidad", "quote"]
+tags: ["zettelkasten", "nota", "etica", "juicio-moral", "vinculos", "complejidad", "cita"]
 summary: "John Scalzi: toda persona que admiras ha cometido errores graves, tiene secretos, tiene aspectos que cambiarían tu opinión de ella. Y lo mismo aplica a ti: tienes secretos, has mentido, has sido hipócrita."
 ---
 

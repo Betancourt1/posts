@@ -2,7 +2,7 @@
 title: "El poder y la mentira performativa"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "politica", "poder", "mentira", "ideologia", "quote"]
+tags: ["zettelkasten", "nota", "politica", "poder", "mentira", "ideologia", "cita"]
 summary: "Solzhenitsyn: \\\"Sabemos que nos mienten, ellos saben que mienten, ellos saben que sabemos que nos mienten. Sabemos que ellos saben que sabemos que nos mienten. Y sin embargo, siguen mintiendo.\\\""
 ---
 

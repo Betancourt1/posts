@@ -2,7 +2,7 @@
 title: "El amor al trabajo como depravación"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "capitalismo", "trabajo", "autorrealizacion", "critica", "quote"]
+tags: ["zettelkasten", "nota", "capitalismo", "trabajo", "autorrealizacion", "critica", "cita"]
 summary: "Lafargue lo nombró y Espluga lo retoma: el amor al trabajo no es virtud natural sino enfermedad socialmente inducida. La crítica ambiciosa no busca mejores condiciones laborales sino romper la ecuación trabajo = vida buena."
 ---
 

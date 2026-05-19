@@ -2,7 +2,7 @@
 title: "La tecnología como disputa política, no como herramienta neutral"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "tecnologia", "politica", "capitalismo", "educacion", "quote"]
+tags: ["zettelkasten", "nota", "tecnologia", "politica", "capitalismo", "educacion", "cita"]
 summary: "No deberíamos ver la tecnología como algo tedioso que hay que aprender para ser \\\"empleables\\\", ni como alienación inevitable. Es una disputa entre quienes la usan para controlar y lucrar, y quienes quieren convertirla en herramienta de libertad."
 ---
 

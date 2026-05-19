@@ -2,7 +2,7 @@
 title: "Oliver Meredith"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["lit", "cita", "tecnologia", "politica", "capitalismo", "educacion", "quote"]
+tags: ["cita", "tecnologia", "politica", "capitalismo", "educacion"]
 summary: "Sin duda, hemos podido y debemos responsabilizar a acciones y organizaciones poco éticas: conducir ebrio solía ser algo común, las tabacaleras aseguraban públicamente que la nicotina no era adictiva y, como mencioné a..."
 aliases: ["/zettelkasten/oliver-meredith/"]
 ---
