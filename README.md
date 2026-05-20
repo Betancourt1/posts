@@ -23,6 +23,9 @@ Desde la raiz del repo:
 
 # Build de produccion
 .\tools\hugo\hugo.exe --gc --minify
+
+# Build de produccion con indice de busqueda
+npm run build:local
 ```
 
 Si tienes `hugo` en PATH, puedes usar `hugo server -D` y `hugo --gc --minify`.
@@ -44,6 +47,8 @@ Despues de generar `public/`, puedes regenerar el indice:
 ```powershell
 npx pagefind --site public
 ```
+
+Para despliegues en Cloudflare Pages usa `npm run build` como build command y `public` como output directory. Si el deploy solo ejecuta `hugo`, el boton de busqueda aparece pero los archivos `pagefind/*` no se generan.
 
 ## Cache y despliegue
 

@@ -231,6 +231,14 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   display: none;
 }
 
+.site-search-message {
+  margin: 0;
+  padding: 2rem 0;
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
 .layout {
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr) 260px;

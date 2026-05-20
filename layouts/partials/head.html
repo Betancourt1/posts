@@ -68,16 +68,26 @@
 
       setupSearchModal();
 
-      if (typeof window.PagefindUI !== "undefined") {
+      initSearch();
+
+      function initSearch() {
+        if (typeof window.PagefindUI === "undefined") {
+          showSearchMessage("No se pudo cargar el motor de búsqueda.");
+          return;
+        }
+
         var bundlePath = "{{ "pagefind/" | relURL }}";
         var indexProbePath = "{{ "pagefind/pagefind.js" | relURL }}";
 
-        fetch(indexProbePath)
+        fetch(indexProbePath, { cache: "no-store" })
           .then(function (response) {
-            if (!response.ok) {
+            var contentType = response.headers.get("content-type") || "";
+            if (!response.ok || contentType.indexOf("text/html") !== -1) {
+              showSearchMessage("El índice de búsqueda no está disponible.");
               return;
             }
 
+            searchElement.textContent = "";
             new window.PagefindUI({
               element: "#search",
               bundlePath: bundlePath,
@@ -97,8 +107,16 @@
             });
           })
           .catch(function () {
-            return;
+            showSearchMessage("No se pudo cargar el índice de búsqueda.");
           });
+      }
+
+      function showSearchMessage(message) {
+        var messageElement = document.createElement("p");
+        messageElement.className = "site-search-message";
+        messageElement.textContent = message;
+        searchElement.textContent = "";
+        searchElement.appendChild(messageElement);
       }
 
       function setupSearchModal() {

@@ -1,5 +1,6 @@
 # Local-only workspace files
 /tmp/
+/node_modules/
 /tools/hugo/
 /public/
 .hugo_build.lock
