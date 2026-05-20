@@ -90,7 +90,7 @@
         if (!tag || seen.has(tag)) {
           return;
         }
-        if (tag === "nota" || tag === "zettelkasten") {
+        if (tag === "nota" || tag === "zettelkasten" || tag === "cita") {
           return;
         }
         seen.add(tag);
