@@ -62,42 +62,44 @@
   <script defer>
     document.addEventListener("DOMContentLoaded", function () {
       var searchElement = document.getElementById("search");
-      if (!searchElement || typeof window.PagefindUI === "undefined") {
+      if (!searchElement) {
         return;
       }
 
-      var bundlePath = "{{ "pagefind/" | relURL }}";
-      var indexProbePath = "{{ "pagefind/pagefind.js" | relURL }}";
+      setupSearchModal();
 
-      fetch(indexProbePath)
-        .then(function (response) {
-          if (!response.ok) {
-            return;
-          }
+      if (typeof window.PagefindUI !== "undefined") {
+        var bundlePath = "{{ "pagefind/" | relURL }}";
+        var indexProbePath = "{{ "pagefind/pagefind.js" | relURL }}";
 
-          new window.PagefindUI({
-            element: "#search",
-            bundlePath: bundlePath,
-            resetStyles: false,
-            showImages: false,
-            showSubResults: true,
-            placeholder: "Buscar en el sitio",
-            translations: {
-              load_more: "Ver más resultados",
-              search_label: "Buscar",
-              filters_label: "Filtros",
-              zero_results: "No hay resultados para [SEARCH_TERM]",
-              one_result: "[COUNT] resultado para [SEARCH_TERM]",
-              many_results: "[COUNT] resultados para [SEARCH_TERM]",
-              searching: "Buscando [SEARCH_TERM]..."
+        fetch(indexProbePath)
+          .then(function (response) {
+            if (!response.ok) {
+              return;
             }
-          });
 
-          setupSearchModal();
-        })
-        .catch(function () {
-          return;
-        });
+            new window.PagefindUI({
+              element: "#search",
+              bundlePath: bundlePath,
+              resetStyles: false,
+              showImages: false,
+              showSubResults: true,
+              placeholder: "Buscar en el sitio",
+              translations: {
+                load_more: "Ver más resultados",
+                search_label: "Buscar",
+                filters_label: "Filtros",
+                zero_results: "No hay resultados para [SEARCH_TERM]",
+                one_result: "[COUNT] resultado para [SEARCH_TERM]",
+                many_results: "[COUNT] resultados para [SEARCH_TERM]",
+                searching: "Buscando [SEARCH_TERM]..."
+              }
+            });
+          })
+          .catch(function () {
+            return;
+          });
+      }
 
       function setupSearchModal() {
         var overlay = document.getElementById("search-modal-overlay");
