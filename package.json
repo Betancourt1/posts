@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "build": "hugo --gc --minify && pagefind --site public",
-    "build:local": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/build_with_pagefind.ps1 -Minify"
+    "build:local": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/build_with_pagefind.ps1 -Minify -SyncStatic"
   },
   "devDependencies": {
     "pagefind": "1.5.2"

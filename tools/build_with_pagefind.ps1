@@ -1,5 +1,6 @@
 param(
-  [switch]$Minify
+  [switch]$Minify,
+  [switch]$SyncStatic
 )
 
 $ErrorActionPreference = "Stop"
@@ -31,6 +32,21 @@ try {
   & npx.cmd --cache $npmCache pagefind --site public
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
+  }
+
+  if ($SyncStatic) {
+    $pagefindOutput = Join-Path $repoRoot "public\\pagefind"
+    $staticPagefind = Join-Path $repoRoot "static\\pagefind"
+
+    if (-not (Test-Path $pagefindOutput)) {
+      throw "Pagefind output was not found at $pagefindOutput"
+    }
+
+    if (Test-Path $staticPagefind) {
+      Remove-Item -LiteralPath $staticPagefind -Recurse -Force
+    }
+
+    Copy-Item -LiteralPath $pagefindOutput -Destination $staticPagefind -Recurse
   }
 }
 finally {

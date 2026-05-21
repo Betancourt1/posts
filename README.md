@@ -50,6 +50,8 @@ npx pagefind --site public
 
 Para despliegues en Cloudflare Pages usa `npm run build` como build command y `public` como output directory. Si el deploy solo ejecuta `hugo`, el boton de busqueda aparece pero los archivos `pagefind/*` no se generan.
 
+El repo tambien versiona `static/pagefind/` como respaldo para produccion. Cuando cambie el contenido indexable, ejecuta `npm run build:local` para refrescar ese respaldo antes de commitear.
+
 ## Cache y despliegue
 
 - Las cabeceras HTTP para Cloudflare Pages estan en `static/_headers`.
