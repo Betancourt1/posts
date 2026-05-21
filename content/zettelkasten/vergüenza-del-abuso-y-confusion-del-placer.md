@@ -2,7 +2,7 @@
 title: "La vergüenza del abuso y la confusión del placer con la culpa"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "abuso", "genero", "trauma", "vinculos", "verguenza", "cita"]
+tags: ["zettelkasten", "nota", "abuso", "genero", "trauma", "vinculos", "verguenza", "violencia", "salud-mental", "cita"]
 summary: "Hay vergüenza en admitir que se vuelve a quien abusa, que su atención intermitente es una adicción, que quien hace daño también hace feliz. La mezcla de placer y culpa puede volverse indistinguible."
 ---
 

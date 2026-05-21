@@ -2,7 +2,7 @@
 title: "Integraciones de IA con Model Context Protocol (MCP)"
 date: 2026-05-14
 draft: false
-tags: ["mcp", "inteligencia-artificial", "data-warehouse", "arquitectura", "privado"]
+tags: ["mcp", "inteligencia-artificial", "ia", "tecnologia", "data-warehouse", "arquitectura", "privado"]
 ---
 
 ## Contexto
