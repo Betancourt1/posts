@@ -125,7 +125,8 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 }
 
 .theme-toggle,
-.grayscale-toggle {
+.grayscale-toggle,
+.lang-toggle {
   border: none !important;
   border-radius: 0 !important;
   background: transparent !important;
@@ -138,16 +139,22 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   justify-content: center !important;
   cursor: pointer;
   box-shadow: none !important;
-  transition: color 0.25s ease !important;
+  transition: color 0.25s ease, transform 0.25s ease !important;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none !important;
 }
 
 .theme-toggle:hover,
-.grayscale-toggle:hover {
+.grayscale-toggle:hover,
+.lang-toggle:hover {
   background: transparent !important;
   color: var(--accent) !important;
   border: none !important;
-  transform: none !important;
+  transform: scale(1.08) !important;
   box-shadow: none !important;
+  text-decoration: none !important;
 }
 
 .grayscale-toggle.is-active {

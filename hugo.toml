@@ -1,12 +1,9 @@
 baseURL = "https://fbetancourt.work/"
-languageCode = "es-mx"
-timeZone = "America/Mexico_City"
+defaultContentLanguage = "es"
+defaultContentLanguageInSubdir = false
 title = "betancourt"
 enableRobotsTXT = true
-
-[params]
-  description = "Lecturas, zettelkasten y textos de Francisco Betancourt."
-  social_image = "og-image.png"
+timeZone = "America/Mexico_City"
 
 [pagination]
   pagerSize = 20
@@ -19,40 +16,6 @@ enableRobotsTXT = true
   priority = 0.5
   filename = "sitemap.xml"
 
-[menu]
-  [[menu.main]]
-    name = "Inicio"
-    pageRef = "/"
-    weight = 1
-  [[menu.main]]
-    name = "Sobre mí"
-    pageRef = "/about"
-    weight = 2
-  [[menu.main]]
-    name = "Profesional"
-    pageRef = "/proyectos-profesionales"
-    weight = 3
-  [[menu.main]]
-    name = "Académico"
-    pageRef = "/proyectos-academicos"
-    weight = 4
-  [[menu.main]]
-    name = "Escritos"
-    pageRef = "/posts"
-    weight = 5
-  [[menu.main]]
-    name = "Zettelkasten"
-    pageRef = "/zettelkasten"
-    weight = 6
-  [[menu.main]]
-    name = "Lecturas"
-    pageRef = "/lit"
-    weight = 7
-  [[menu.main]]
-    name = "CV"
-    pageRef = "/cv"
-    weight = 8
-
 [markup]
   [markup.goldmark]
     [markup.goldmark.renderer]
@@ -63,3 +26,82 @@ enableRobotsTXT = true
   section = ["HTML"]
   taxonomy = ["HTML"]
   term = ["HTML"]
+
+[languages]
+  [languages.es]
+    languageCode = "es-mx"
+    languageName = "Español"
+    contentDir = "content"
+    weight = 1
+    
+    [languages.es.params]
+      description = "Lecturas, zettelkasten y textos de Francisco Betancourt."
+      subtitle = "aquí escribo cosas"
+      social_image = "og-image.png"
+
+    [languages.es.menu]
+      [[languages.es.menu.main]]
+        name = "Inicio"
+        pageRef = "/"
+        weight = 1
+      [[languages.es.menu.main]]
+        name = "Sobre mí"
+        pageRef = "/about"
+        weight = 2
+      [[languages.es.menu.main]]
+        name = "Profesional"
+        pageRef = "/proyectos-profesionales"
+        weight = 3
+      [[languages.es.menu.main]]
+        name = "Académico"
+        pageRef = "/proyectos-academicos"
+        weight = 4
+      [[languages.es.menu.main]]
+        name = "Escritos"
+        pageRef = "/posts"
+        weight = 5
+      [[languages.es.menu.main]]
+        name = "Zettelkasten"
+        pageRef = "/zettelkasten"
+        weight = 6
+      [[languages.es.menu.main]]
+        name = "Lecturas"
+        pageRef = "/lit"
+        weight = 7
+      [[languages.es.menu.main]]
+        name = "CV"
+        pageRef = "/cv"
+        weight = 8
+
+  [languages.en]
+    languageCode = "en"
+    languageName = "English"
+    contentDir = "content"
+    weight = 2
+    
+    [languages.en.params]
+      description = "Readings, zettelkasten, and essays of Francisco Betancourt."
+      subtitle = "here I write things"
+      social_image = "og-image.png"
+
+    [languages.en.menu]
+      [[languages.en.menu.main]]
+        name = "Home"
+        pageRef = "/"
+        weight = 1
+      [[languages.en.menu.main]]
+        name = "About"
+        pageRef = "/about"
+        weight = 2
+      [[languages.en.menu.main]]
+        name = "Professional"
+        pageRef = "/proyectos-profesionales"
+        weight = 3
+      [[languages.en.menu.main]]
+        name = "Academic"
+        pageRef = "/proyectos-academicos"
+        weight = 4
+      [[languages.en.menu.main]]
+        name = "CV"
+        pageRef = "/cv"
+        weight = 8

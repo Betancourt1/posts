@@ -7,11 +7,11 @@
   {{ $cv := site.GetPage "/cv" }}
 
   <header class="page-header">
-    <h1>{{ with .Title }}{{ . }}{{ else }}Inicio{{ end }}</h1>
+    <h1>{{ with .Title }}{{ . }}{{ else }}{{ if eq .Site.Language.Lang "en" }}Home{{ else }}Inicio{{ end }}{{ end }}</h1>
     {{ with .Params.description }}
       <p class="lead">{{ . }}</p>
     {{ else }}
-      <p class="lead">Mapa rápido del sitio: perfil, proyectos y notas recientes.</p>
+      <p class="lead">{{ if eq $.Site.Language.Lang "en" }}Site quick map: profile, projects, and recent notes.{{ else }}Mapa rápido del sitio: perfil, proyectos y notas recientes.{{ end }}</p>
     {{ end }}
   </header>
 
@@ -25,43 +25,43 @@
 
   <section class="home-section">
     <div class="home-section-head">
-      <h2>Explora</h2>
+      <h2>{{ if eq .Site.Language.Lang "en" }}Explore{{ else }}Explora{{ end }}</h2>
     </div>
     <div class="portfolio-grid">
       {{ with $about }}
         <article class="portfolio-card">
           <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-          <p>{{ with .Params.description }}{{ . }}{{ else }}Contexto personal y cómo leer este sitio.{{ end }}</p>
+          <p>{{ with .Params.description }}{{ . }}{{ else }}{{ if eq $.Site.Language.Lang "en" }}Personal context and how to read this site.{{ else }}Contexto personal y cómo leer este sitio.{{ end }}{{ end }}</p>
         </article>
       {{ end }}
       {{ with $professional }}
         <article class="portfolio-card">
           <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-          <p>{{ with .Params.description }}{{ . }}{{ else }}Proyectos aplicados, decisiones y resultados.{{ end }}</p>
+          <p>{{ with .Params.description }}{{ . }}{{ else }}{{ if eq $.Site.Language.Lang "en" }}Applied projects, decisions, and results.{{ else }}Proyectos aplicados, decisiones y resultados.{{ end }}{{ end }}</p>
         </article>
       {{ end }}
       {{ with $academic }}
         <article class="portfolio-card">
           <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-          <p>{{ with .Params.description }}{{ . }}{{ else }}Trabajos de investigación, metodología y análisis.{{ end }}</p>
+          <p>{{ with .Params.description }}{{ . }}{{ else }}{{ if eq $.Site.Language.Lang "en" }}Research papers, methodology, and analysis.{{ else }}Trabajos de investigación, metodología y análisis.{{ end }}{{ end }}</p>
         </article>
       {{ end }}
       {{ with $postsPage }}
         <article class="portfolio-card">
           <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-          <p>{{ with .Params.description }}{{ . }}{{ else }}Notas y textos personales.{{ end }}</p>
+          <p>{{ with .Params.description }}{{ . }}{{ else }}{{ if eq $.Site.Language.Lang "en" }}Personal notes and essays.{{ else }}Notas y textos personales.{{ end }}{{ end }}</p>
         </article>
       {{ end }}
       {{ with $zettelkasten }}
         <article class="portfolio-card">
           <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-          <p>{{ with .Params.description }}{{ . }}{{ else }}Notas atómicas para ideas y referencias rápidas.{{ end }}</p>
+          <p>{{ with .Params.description }}{{ . }}{{ else }}{{ if eq $.Site.Language.Lang "en" }}Atomic notes for ideas and quick references.{{ else }}Notas atómicas para ideas y referencias rápidas.{{ end }}{{ end }}</p>
         </article>
       {{ end }}
       {{ with $cv }}
         <article class="portfolio-card">
           <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-          <p>{{ with .Params.description }}{{ . }}{{ else }}Resumen de experiencia, formación y habilidades.{{ end }}</p>
+          <p>{{ with .Params.description }}{{ . }}{{ else }}{{ if eq $.Site.Language.Lang "en" }}Summary of experience, education, and skills.{{ else }}Resumen de experiencia, formación y habilidades.{{ end }}{{ end }}</p>
         </article>
       {{ end }}
     </div>

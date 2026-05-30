@@ -1,7 +1,7 @@
 <footer class="site-footer">
   {{ $buildTime := now }}
   <p class="site-footer-updated">
-    Última actualización del sitio:
+    {{ if eq .Site.Language.Lang "en" }}Last updated:{{ else }}Última actualización del sitio:{{ end }}
     <time datetime="{{ $buildTime.Format "2006-01-02T15:04:05Z07:00" }}">
       {{ $buildTime.Format "02/01/2006" }}
     </time>

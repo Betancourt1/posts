@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="{{ .Site.Language.Lang }}">
 
 <head>
   {{ partial "head.html" . }}
@@ -9,8 +9,27 @@
   {{ $showSearch := partial "search_enabled.html" . }}
   <header class="site-header">
     <h1 class="site-title"><a href="{{ "/" | relURL }}">betancourt</a></h1>
-    <p class="site-subtitle">aquí escribo cosas</p>
+    <p class="site-subtitle">{{ .Site.Params.subtitle | default "aquí escribo cosas" }}</p>
     <div class="site-header-actions">
+      {{ if .IsTranslated }}
+        {{ range .AllTranslations }}
+          {{ if ne .Language.Lang $.Site.Language.Lang }}
+            <a class="lang-toggle" href="{{ .Permalink }}" title="{{ if eq .Language.Lang "en" }}Switch to English{{ else }}Cambiar a Español{{ end }}">
+              {{ if eq .Language.Lang "en" }}EN{{ else }}ES{{ end }}
+            </a>
+          {{ end }}
+        {{ end }}
+      {{ else }}
+        {{ if eq .Site.Language.Lang "es" }}
+          <a class="lang-toggle" href="/en/" title="Switch to English">
+            EN
+          </a>
+        {{ else }}
+          <a class="lang-toggle" href="/" title="Cambiar a Español">
+            ES
+          </a>
+        {{ end }}
+      {{ end }}
       <button class="grayscale-toggle" id="grayscale-toggle" type="button" aria-label="Modo escala de grises" title="Modo escala de grises">
         <svg class="grayscale-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
@@ -38,12 +57,12 @@
     </div>
     <div class="site-header-controls" style="margin-top: 10px; display: flex; justify-content: center; gap: 10px; align-items: center;">
       {{ if $showSearch }}
-        <button class="search-trigger" id="search-trigger" type="button" aria-label="Buscar (Ctrl+K)" style="display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; padding: 0.35rem 0.65rem; background: transparent; color: var(--ink-dim); font-size: 0.8rem; cursor: pointer; line-height: 1.25;">
+        <button class="search-trigger" id="search-trigger" type="button" aria-label="{{ if eq .Site.Language.Lang "en" }}Search (Ctrl+K){{ else }}Buscar (Ctrl+K){{ end }}" style="display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; padding: 0.35rem 0.65rem; background: transparent; color: var(--ink-dim); font-size: 0.8rem; cursor: pointer; line-height: 1.25;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px; margin-right: 6px;">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <span>Buscar...</span>
+          <span>{{ if eq .Site.Language.Lang "en" }}Search...{{ else }}Buscar...{{ end }}</span>
           <kbd class="search-kbd" style="margin-left: 8px; font-size: 0.7rem; padding: 1px 4px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-weight: normal; color: var(--ink-dim);">Ctrl K</kbd>
         </button>
       {{ end }}
@@ -54,16 +73,16 @@
     <div class="search-modal-overlay" id="search-modal-overlay">
       <div class="search-modal">
         <div class="search-modal-header">
-          <span class="search-modal-title">Búsqueda Global</span>
-          <button class="search-modal-close" id="search-modal-close" type="button" aria-label="Cerrar búsqueda">&times;</button>
+          <span class="search-modal-title">{{ if eq .Site.Language.Lang "en" }}Global Search{{ else }}Búsqueda Global{{ end }}</span>
+          <button class="search-modal-close" id="search-modal-close" type="button" aria-label="{{ if eq .Site.Language.Lang "en" }}Close search{{ else }}Cerrar búsqueda{{ end }}">&times;</button>
         </div>
         <div class="site-search" id="search">
           <p class="site-search-message">
-            Cargando motor de búsqueda...
+            {{ if eq .Site.Language.Lang "en" }}Loading search engine...{{ else }}Cargando motor de búsqueda...{{ end }}
           </p>
         </div>
         <div class="search-modal-footer">
-          <span>Presiona <kbd>Esc</kbd> para cerrar</span>
+          <span>{{ if eq .Site.Language.Lang "en" }}Press <kbd>Esc</kbd> to close{{ else }}Presiona <kbd>Esc</kbd> para cerrar{{ end }}</span>
         </div>
       </div>
     </div>
