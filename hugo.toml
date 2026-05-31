@@ -1,5 +1,5 @@
 baseURL = "https://fbetancourt.work/"
-defaultContentLanguage = "es"
+defaultContentLanguage = "en"
 defaultContentLanguageInSubdir = false
 title = "betancourt"
 enableRobotsTXT = true
@@ -28,11 +28,44 @@ timeZone = "America/Mexico_City"
   term = ["HTML"]
 
 [languages]
+  [languages.en]
+    languageCode = "en"
+    languageName = "English"
+    contentDir = "content_en"
+    weight = 1
+    
+    [languages.en.params]
+      description = "Readings, zettelkasten, and essays of Francisco Betancourt."
+      subtitle = "here I write things"
+      social_image = "og-image.png"
+
+    [languages.en.menu]
+      [[languages.en.menu.main]]
+        name = "Home"
+        pageRef = "/"
+        weight = 1
+      [[languages.en.menu.main]]
+        name = "About"
+        pageRef = "/about"
+        weight = 2
+      [[languages.en.menu.main]]
+        name = "Professional"
+        pageRef = "/proyectos-profesionales"
+        weight = 3
+      [[languages.en.menu.main]]
+        name = "Academic"
+        pageRef = "/proyectos-academicos"
+        weight = 4
+      [[languages.en.menu.main]]
+        name = "CV"
+        pageRef = "/cv"
+        weight = 8
+
   [languages.es]
     languageCode = "es-mx"
     languageName = "Español"
-    contentDir = "content"
-    weight = 1
+    contentDir = "content_es"
+    weight = 2
     
     [languages.es.params]
       description = "Lecturas, zettelkasten y textos de Francisco Betancourt."
@@ -73,35 +106,3 @@ timeZone = "America/Mexico_City"
         pageRef = "/cv"
         weight = 8
 
-  [languages.en]
-    languageCode = "en"
-    languageName = "English"
-    contentDir = "content"
-    weight = 2
-    
-    [languages.en.params]
-      description = "Readings, zettelkasten, and essays of Francisco Betancourt."
-      subtitle = "here I write things"
-      social_image = "og-image.png"
-
-    [languages.en.menu]
-      [[languages.en.menu.main]]
-        name = "Home"
-        pageRef = "/"
-        weight = 1
-      [[languages.en.menu.main]]
-        name = "About"
-        pageRef = "/about"
-        weight = 2
-      [[languages.en.menu.main]]
-        name = "Professional"
-        pageRef = "/proyectos-profesionales"
-        weight = 3
-      [[languages.en.menu.main]]
-        name = "Academic"
-        pageRef = "/proyectos-academicos"
-        weight = 4
-      [[languages.en.menu.main]]
-        name = "CV"
-        pageRef = "/cv"
-        weight = 8
