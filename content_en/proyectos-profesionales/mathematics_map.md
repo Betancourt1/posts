@@ -12,8 +12,9 @@ In the domain of formal mathematical proofs and interactive theorem proving, **L
 To address this challenge and assist mathematical research and learning, the **Mathematical Dependency Interface** was created—a lightweight, high-performance web-based 3D visualization tool designed to map, filter, and intuitively explore the logical dependencies within `mathlib4`.
 
 > [!TIP]
-> **Open Source Project:**
-> This project is open source. Its source code, architectural design, and graph processing tools are publicly hosted at [Betancourt1/mathematics_map](https://github.com/Betancourt1/mathematics_map).
+> **Open Source Project & Interactive Demo:**
+> This project is open source and features a live deployment. Explore the interactive 3D mathematical map at [Interactive 3D Dependency Viewer](https://betancourt1.github.io/mathematics_map/#mode=overview&depth=2).
+> The source code, architectural design, and data processing tools are hosted at [Betancourt1/mathematics_map](https://github.com/Betancourt1/mathematics_map).
 
 ---
 
@@ -66,5 +67,7 @@ The data preparation operates in two stages:
 
 ## Repository and Access
 
+* **Live Interactive Viewer:** Explore the 3D mathematical map directly in your browser with the default overview layout:
+  [betancourt1.github.io/mathematics_map](https://betancourt1.github.io/mathematics_map/#mode=overview&depth=2)
 * **Official GitHub Repository:** You can view the data pipeline scripts, the frontend client source code, and run instructions on:
   [github.com/Betancourt1/mathematics_map](https://github.com/Betancourt1/mathematics_map)

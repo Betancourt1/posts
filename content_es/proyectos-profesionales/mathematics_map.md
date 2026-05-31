@@ -12,8 +12,9 @@ En el ámbito del desarrollo de pruebas matemáticas formales y el uso de asiste
 Para abordar este desafío y facilitar la investigación matemática y el aprendizaje, se concibió el **Mathematical Dependency Interface**, una interfaz interactiva en 3D de alto rendimiento que permite mapear, filtrar y explorar visualmente las dependencias lógicas y teóricas de `mathlib4`.
 
 > [!TIP]
-> **Proyecto de Código Abierto:**
-> Este proyecto es de código abierto. Su código fuente, diseño arquitectónico y herramientas de procesamiento de grafos están alojados públicamente en [Betancourt1/mathematics_map](https://github.com/Betancourt1/mathematics_map).
+> **Proyecto de Código Abierto y Demostración Interactiva:**
+> Este proyecto es de código abierto y cuenta con una demo en vivo. Explora el mapa matemático 3D interactivo en [Visualizador Interactivo 3D](https://betancourt1.github.io/mathematics_map/#mode=overview&depth=2).
+> Su código fuente, diseño arquitectónico y herramientas de procesamiento de grafos están alojados públicamente en [Betancourt1/mathematics_map](https://github.com/Betancourt1/mathematics_map).
 
 ---
 
@@ -66,5 +67,7 @@ El pipeline procesa los datos en dos etapas principales:
 
 ## Repositorio y Acceso
 
+* **Visualizador en Vivo (Demo Interactiva):** Explora las dependencias en 3D directamente desde tu navegador con el modo general preconfigurado:
+  [betancourt1.github.io/mathematics_map](https://betancourt1.github.io/mathematics_map/#mode=overview&depth=2)
 * **Repositorio Oficial en GitHub:** Puedes acceder a los scripts del pipeline de datos, el código del cliente interactivo en 3D y las instrucciones de inicialización locales directamente en:
   [github.com/Betancourt1/mathematics_map](https://github.com/Betancourt1/mathematics_map)
