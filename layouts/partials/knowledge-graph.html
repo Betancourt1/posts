@@ -30,18 +30,18 @@
 
 <section class="home-section home-graph{{ if $isSidebar }} sidebar-graph{{ end }}">
   <div class="home-section-head">
-    <h2>{{ if $isSidebar }}Grafo{{ else }}Grafo de conocimiento{{ end }}</h2>
+    <h2>{{ if $isSidebar }}{{ i18n "knowledgeGraphTitleSidebar" }}{{ else }}{{ i18n "knowledgeGraphTitle" }}{{ end }}</h2>
   </div>
-  <p class="lead{{ if $isSidebar }} sidebar-graph-lead{{ end }}">Mapa interactivo de cómo se conectan los tags del sitio.</p>
-  <div class="knowledge-graph-tools" id="knowledge-graph-tools" aria-label="Herramientas del grafo">
-    <button type="button" class="button graph-tool" data-graph-action="zoom-out" aria-label="Alejar" title="Alejar">
+  <p class="lead{{ if $isSidebar }} sidebar-graph-lead{{ end }}">{{ i18n "knowledgeGraphLead" }}</p>
+  <div class="knowledge-graph-tools" id="knowledge-graph-tools" aria-label="{{ i18n "knowledgeGraphToolsLabel" }}">
+    <button type="button" class="button graph-tool" data-graph-action="zoom-out" aria-label="{{ i18n "knowledgeGraphZoomOutLabel" }}" title="{{ i18n "knowledgeGraphZoomOutLabel" }}">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="11" cy="11" r="6.5"></circle>
         <path d="M16 16L21 21"></path>
         <path d="M8 11H14"></path>
       </svg>
     </button>
-    <button type="button" class="button graph-tool" data-graph-action="zoom-in" aria-label="Acercar" title="Acercar">
+    <button type="button" class="button graph-tool" data-graph-action="zoom-in" aria-label="{{ i18n "knowledgeGraphZoomInLabel" }}" title="{{ i18n "knowledgeGraphZoomInLabel" }}">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="11" cy="11" r="6.5"></circle>
         <path d="M16 16L21 21"></path>
@@ -49,7 +49,7 @@
         <path d="M11 8V14"></path>
       </svg>
     </button>
-    <button type="button" class="button graph-tool" data-graph-action="reset-view" aria-label="Centrar vista" title="Centrar vista">
+    <button type="button" class="button graph-tool" data-graph-action="reset-view" aria-label="{{ i18n "knowledgeGraphResetViewLabel" }}" title="{{ i18n "knowledgeGraphResetViewLabel" }}">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="12" cy="12" r="7"></circle>
         <path d="M12 3V7"></path>
@@ -59,7 +59,7 @@
         <circle cx="12" cy="12" r="1.5"></circle>
       </svg>
     </button>
-    <button type="button" class="button graph-tool" id="graph-toggle-maximize" data-graph-action="toggle-maximize" aria-pressed="false" aria-label="Maximizar vista" title="Maximizar vista">
+    <button type="button" class="button graph-tool" id="graph-toggle-maximize" data-graph-action="toggle-maximize" aria-pressed="false" aria-label="{{ i18n "knowledgeGraphToggleMaximizeLabel" }}" title="{{ i18n "knowledgeGraphToggleMaximizeLabel" }}">
       <svg class="graph-icon graph-icon-maximize" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M8 3.5H3.5V8"></path>
         <path d="M3.5 3.5L9 9"></path>
@@ -81,21 +81,21 @@
         <path d="M15 15L20.5 20.5"></path>
       </svg>
     </button>
-    <button type="button" class="button graph-tool" id="graph-toggle-labels" data-graph-action="toggle-labels" aria-pressed="false" aria-label="Etiquetas: auto" title="Etiquetas: auto">
+    <button type="button" class="button graph-tool" id="graph-toggle-labels" data-graph-action="toggle-labels" aria-pressed="false" aria-label="{{ i18n "knowledgeGraphToggleLabelsLabel" }}" title="{{ i18n "knowledgeGraphToggleLabelsLabel" }}">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M20.59 13.41L11 3.83A2 2 0 0 0 9.59 3H4A1 1 0 0 0 3 4V9.59A2 2 0 0 0 3.59 11L13.17 20.59A2 2 0 0 0 16 20.59L20.59 16A2 2 0 0 0 20.59 13.41Z"></path>
         <circle cx="7" cy="7" r="1"></circle>
       </svg>
     </button>
-    <label class="graph-range" for="graph-spacing">Separación
+    <label class="graph-range" for="graph-spacing">{{ i18n "knowledgeGraphSpacingLabel" }}
       <input id="graph-spacing" type="range" min="30" max="200" step="2" value="72" />
     </label>
   </div>
   <div class="graph-search" id="graph-search">
-    <input id="graph-node-search" class="graph-search-input" type="search" placeholder="Buscar etiqueta de nodo" aria-label="Buscar etiqueta de nodo" autocomplete="off" spellcheck="false" />
+    <input id="graph-node-search" class="graph-search-input" type="search" placeholder="{{ i18n "knowledgeGraphSearchPlaceholder" }}" aria-label="{{ i18n "knowledgeGraphSearchLabel" }}" autocomplete="off" spellcheck="false" />
     <p class="graph-search-status" id="graph-search-status" aria-live="polite"></p>
   </div>
-  <div class="knowledge-graph" id="knowledge-graph" role="img" aria-label="Grafo interactivo de tags"></div>
-  <p class="knowledge-graph-hint">Cada enlace conecta tags que aparecen juntos en una publicación. Arrastra nodos, usa zoom y abre con click o toque.</p>
+  <div class="knowledge-graph" id="knowledge-graph" role="img" aria-label="{{ i18n "knowledgeGraphInteractiveMapLabel" }}"></div>
+  <p class="knowledge-graph-hint">{{ i18n "knowledgeGraphHint" }}</p>
   <script id="knowledge-graph-data" type="application/json">{{ $graphPayload | jsonify | safeJS }}</script>
 </section>
