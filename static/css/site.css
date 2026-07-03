@@ -39,9 +39,9 @@
   color-scheme: light;
   --bg: #f7f8fa;
   --bg-soft: #eceff3;
-  --ink: #1c2733;
-  --ink-dim: #364351;
-  --ink-muted: #5b6875;
+  --ink: #16202b;
+  --ink-dim: #2b3743;
+  --ink-muted: #495562;
   --accent: #1f7a5a;
   --accent-2: #155c43;
   --line: #dde3ea;
@@ -51,12 +51,12 @@
   --rule: #cbd3dc;
   --selection-ink: #0f171f;
   --search-drawer-bg: linear-gradient(180deg, rgba(247,248,250,.97) 0%, rgba(236,239,243,.97) 100%);
-  --result-separator: rgba(91,104,117,.28);
-  --nested-separator: rgba(91,104,117,.4);
+  --result-separator: rgba(73,85,98,.3);
+  --nested-separator: rgba(73,85,98,.42);
   --graph-tag: #1f7a5a;
   --graph-tag-hover: #155c43;
   --graph-link-active: #0f171f;
-  --graph-bg: #eef1f5;
+  --graph-bg: #f4f6f8;
 
   /* Badge design tokens (Light Mode - high contrast) */
   --badge-bg: rgba(255, 255, 255, 0.65);
