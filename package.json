@@ -1,10 +1,13 @@
 {
   "private": true,
   "scripts": {
+    "dev": "hugo server --bind 0.0.0.0 --port 3000 --baseURL / --appendPort=false --disableFastRender",
+    "start": "hugo server --bind 0.0.0.0 --port 3000 --baseURL / --appendPort=false --disableFastRender",
     "build": "hugo --gc --minify && pagefind --site public",
     "build:local": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/build_with_pagefind.ps1 -Minify -SyncStatic"
   },
   "devDependencies": {
+    "hugo-extended": "^0.163.3",
     "pagefind": "1.5.2"
   }
 }
