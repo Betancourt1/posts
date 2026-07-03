@@ -37,30 +37,30 @@
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #dce2e9;
-  --bg-soft: #cfd7e1;
+  --bg: #f7f8fa;
+  --bg-soft: #eceff3;
   --ink: #1c2733;
   --ink-dim: #364351;
-  --ink-muted: #515e6d;
-  --accent: #24684f;
-  --accent-2: #1a4f3c;
-  --line: #b8c3cf;
-  --code-bg: #c6d0db;
-  --table-stripe: #bec9d5;
+  --ink-muted: #5b6875;
+  --accent: #1f7a5a;
+  --accent-2: #155c43;
+  --line: #dde3ea;
+  --code-bg: #eef1f5;
+  --table-stripe: #f0f3f6;
   --heading: #0f1a26;
-  --rule: #aab7c6;
+  --rule: #cbd3dc;
   --selection-ink: #0f171f;
-  --search-drawer-bg: linear-gradient(180deg, rgba(207,215,225,.97) 0%, rgba(220,226,233,.97) 100%);
-  --result-separator: rgba(81,94,109,.34);
-  --nested-separator: rgba(81,94,109,.46);
-  --graph-tag: #24684f;
-  --graph-tag-hover: #1a4f3c;
-  --graph-link-active: #f8fbff;
-  --graph-bg: #ccd4de;
+  --search-drawer-bg: linear-gradient(180deg, rgba(247,248,250,.97) 0%, rgba(236,239,243,.97) 100%);
+  --result-separator: rgba(91,104,117,.28);
+  --nested-separator: rgba(91,104,117,.4);
+  --graph-tag: #1f7a5a;
+  --graph-tag-hover: #155c43;
+  --graph-link-active: #0f171f;
+  --graph-bg: #eef1f5;
 
   /* Badge design tokens (Light Mode - high contrast) */
   --badge-bg: rgba(255, 255, 255, 0.65);
-  --badge-posts-border: rgba(36, 104, 79, 0.45);
+  --badge-posts-border: rgba(31, 122, 90, 0.45);
   --badge-posts-text: var(--accent);
   --badge-prof-border: rgba(26, 85, 153, 0.45);
   --badge-prof-text: #1a5599;
