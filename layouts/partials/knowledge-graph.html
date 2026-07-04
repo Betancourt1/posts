@@ -32,7 +32,7 @@
   <div class="home-section-head">
     <h2>{{ if $isSidebar }}{{ i18n "knowledgeGraphTitleSidebar" }}{{ else }}{{ i18n "knowledgeGraphTitle" }}{{ end }}</h2>
   </div>
-  <p class="lead{{ if $isSidebar }} sidebar-graph-lead{{ end }}">{{ i18n "knowledgeGraphLead" }}</p>
+  <p class="knowledge-graph-hint knowledge-graph-hint--intro{{ if $isSidebar }} sidebar-graph-lead{{ end }}">{{ i18n "knowledgeGraphHint" }}</p>
   <div class="knowledge-graph-tools" id="knowledge-graph-tools" aria-label="{{ i18n "knowledgeGraphToolsLabel" }}">
     <button type="button" class="button graph-tool" data-graph-action="zoom-out" aria-label="{{ i18n "knowledgeGraphZoomOutLabel" }}" title="{{ i18n "knowledgeGraphZoomOutLabel" }}">
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -96,6 +96,5 @@
     <p class="graph-search-status" id="graph-search-status" aria-live="polite"></p>
   </div>
   <div class="knowledge-graph" id="knowledge-graph" role="img" aria-label="{{ i18n "knowledgeGraphInteractiveMapLabel" }}"></div>
-  <p class="knowledge-graph-hint">{{ i18n "knowledgeGraphHint" }}</p>
   <script id="knowledge-graph-data" type="application/json">{{ $graphPayload | jsonify | safeJS }}</script>
 </section>
