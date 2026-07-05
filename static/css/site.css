@@ -319,10 +319,10 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 28px;
   padding: 28px 32px 48px;
-  transition: gap 0.45s cubic-bezier(0.25, 1, 0.5, 1),
-              padding 0.45s cubic-bezier(0.25, 1, 0.5, 1),
-              max-width 0.45s cubic-bezier(0.25, 1, 0.5, 1),
-              margin 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: gap 0.85s cubic-bezier(0.25, 1, 0.5, 1),
+              padding 0.85s cubic-bezier(0.25, 1, 0.5, 1),
+              max-width 0.85s cubic-bezier(0.25, 1, 0.5, 1),
+              margin 0.85s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .column {
@@ -1277,9 +1277,9 @@ body.zen-mode .layout {
     opacity: 1;
     transform: translateX(0);
     overflow: visible;
-    transition: width 0.45s cubic-bezier(0.25, 1, 0.5, 1),
-                opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-                transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: width 0.85s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 0.85s cubic-bezier(0.25, 1, 0.5, 1);
   }
 
   .sidebar-column {
@@ -1287,9 +1287,9 @@ body.zen-mode .layout {
     opacity: 1;
     transform: translateX(0);
     overflow: visible;
-    transition: width 0.45s cubic-bezier(0.25, 1, 0.5, 1),
-                opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-                transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: width 0.85s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 0.85s cubic-bezier(0.25, 1, 0.5, 1);
   }
 
   body.zen-mode .nav-column {
