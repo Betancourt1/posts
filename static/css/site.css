@@ -316,9 +316,13 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 
 .layout {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr) 260px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 28px;
   padding: 28px 32px 48px;
+  transition: gap 0.45s cubic-bezier(0.25, 1, 0.5, 1),
+              padding 0.45s cubic-bezier(0.25, 1, 0.5, 1),
+              max-width 0.45s cubic-bezier(0.25, 1, 0.5, 1),
+              margin 0.45s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .column {
@@ -1251,9 +1255,12 @@ body.search-active {
 .zen-toggle-btn.is-active .zen-icon-normal { display: none; }
 .zen-toggle-btn.is-active .zen-icon-active { display: block; }
 
-body.zen-mode .nav-column,
-body.zen-mode .sidebar-column,
 body.zen-mode .ssh-terminal-open-btn {
+  display: none !important;
+}
+
+body.zen-mode .nav-column,
+body.zen-mode .sidebar-column {
   display: none !important;
 }
 
@@ -1262,6 +1269,51 @@ body.zen-mode .layout {
   max-width: 72ch;
   margin: 0 auto;
   padding: 24px 20px 48px;
+}
+
+@media (min-width: 1001px) {
+  .nav-column {
+    width: 220px;
+    opacity: 1;
+    transform: translateX(0);
+    overflow: visible;
+    transition: width 0.45s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .sidebar-column {
+    width: 260px;
+    opacity: 1;
+    transform: translateX(0);
+    overflow: visible;
+    transition: width 0.45s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  body.zen-mode .nav-column {
+    display: block !important;
+    width: 0;
+    opacity: 0;
+    transform: translateX(-40px);
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  body.zen-mode .sidebar-column {
+    display: block !important;
+    width: 0;
+    opacity: 0;
+    transform: translateX(40px);
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  body.zen-mode .layout {
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+    gap: 0;
+  }
 }
 
 body.zen-mode .content-column {
