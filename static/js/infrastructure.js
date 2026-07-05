@@ -403,16 +403,9 @@
     if (!overlay) return;
     if (open) {
       overlay.classList.add("is-open");
-      var savedHeight = localStorage.getItem("infra_terminal_height");
-      if (savedHeight) {
-        overlay.style.height = savedHeight + "px";
-      } else {
-        overlay.style.height = "";
-      }
+      overlay.style.height = "100vh";
       if (input) input.focus();
       localStorage.setItem(TERMINAL_STORAGE_KEY, "true");
-      /* Wait for transition then set margin */
-      setTimeout(function () { updateContentMargin(overlay.offsetHeight); }, 260);
     } else {
       overlay.classList.remove("is-open");
       overlay.style.height = "0px";
