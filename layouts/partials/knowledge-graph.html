@@ -7,12 +7,8 @@
 {{ range $page.Site.RegularPages }}
   {{ $entryPage := . }}
   {{ $includeInGraph := not $entryPage.Draft }}
-  {{ if and $includeInGraph (eq $entryPage.Section "posts") }}
-    {{ with $entryPage.File }}
-      {{ if hasPrefix .BaseFileName "no_post" }}
-        {{ $includeInGraph = false }}
-      {{ end }}
-    {{ end }}
+  {{ if partial "is_hidden.html" $entryPage }}
+    {{ $includeInGraph = false }}
   {{ end }}
   {{ if $includeInGraph }}
     {{ with $entryPage.Params.tags }}

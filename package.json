@@ -3,8 +3,8 @@
   "scripts": {
     "dev": "hugo server --bind 0.0.0.0 --port 3000 --baseURL / --appendPort=false --disableFastRender",
     "start": "hugo server --bind 0.0.0.0 --port 3000 --baseURL / --appendPort=false --disableFastRender",
-    "build": "hugo --gc --minify && pagefind --site public",
-    "build:local": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/build_with_pagefind.ps1 -Minify -SyncStatic"
+    "build": "hugo --gc --minify && node tools/clean_pagefind_output.mjs && pagefind --site public",
+    "build:local": "npm run build && node tools/sync_pagefind_static.mjs"
   },
   "devDependencies": {
     "hugo-extended": "^0.163.3",

@@ -1,0 +1,7 @@
+{{ $hidden := eq .Params.hidden true }}
+{{ with .File }}
+  {{ if hasPrefix .BaseFileName "no_post" }}
+    {{ $hidden = true }}
+  {{ end }}
+{{ end }}
+{{ return $hidden }}

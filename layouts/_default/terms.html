@@ -6,7 +6,7 @@
     {{ range .Data.Terms.Alphabetical }}
       {{ $scratch := newScratch }}
       {{ range .Pages }}
-        {{ if not (hasPrefix .File.BaseFileName "no_post") }}
+        {{ if not (partial "is_hidden.html" .) }}
           {{ $scratch.Add "pages" (slice .) }}
         {{ end }}
       {{ end }}

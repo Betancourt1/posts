@@ -6,7 +6,7 @@
     {{- $pages := .Pages -}}
     {{- $dirChildren := slice -}}
     {{- range $pages -}}
-      {{- if not (hasPrefix .File.BaseFileName "no_post") -}}
+      {{- if not (partial "is_hidden.html" .) -}}
         {{- $fileName := printf "%s.md" .File.BaseFileName -}}
         {{- $rawContent := .RawContent -}}
         {{- $frontMatter := printf "---\ntitle: %s\ndate: %s\ntags: [%s]\n---" .Title (.Date.Format "2006-01-02") (delimit (.Params.tags | default slice) ", ") -}}

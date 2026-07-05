@@ -7,6 +7,7 @@ $ErrorActionPreference = "Stop"
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $hugoCache = Join-Path $repoRoot "tmp\\hugo_cache"
 $npmCache = Join-Path $repoRoot "tmp\\npm-cache"
+$pagefindOutput = Join-Path $repoRoot "public\\pagefind"
 
 Push-Location $repoRoot
 try {
@@ -29,13 +30,16 @@ try {
     exit $LASTEXITCODE
   }
 
-  & npx.cmd --cache $npmCache pagefind --site public
+  if (Test-Path $pagefindOutput) {
+    Remove-Item -LiteralPath $pagefindOutput -Recurse -Force
+  }
+
+  & npx --cache $npmCache pagefind --site public
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }
 
   if ($SyncStatic) {
-    $pagefindOutput = Join-Path $repoRoot "public\\pagefind"
     $staticPagefind = Join-Path $repoRoot "static\\pagefind"
 
     if (-not (Test-Path $pagefindOutput)) {

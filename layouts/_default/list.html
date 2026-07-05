@@ -8,7 +8,7 @@
 
   <section class="post-list">
     {{ range .Pages.ByDate.Reverse }}
-      {{ $isHidden := hasPrefix .File.BaseFileName "no_post" }}
+      {{ $isHidden := partial "is_hidden.html" . }}
       {{ if not $isHidden }}
         {{ $summary := .Params.summary }}
         {{ if not $summary }}

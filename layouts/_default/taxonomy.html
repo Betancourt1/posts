@@ -4,7 +4,7 @@
   </header>
   <section class="post-list">
     {{ range .Pages.ByDate.Reverse }}
-      {{ if not (hasPrefix .File.BaseFileName "no_post") }}
+      {{ if not (partial "is_hidden.html" .) }}
         <article class="post-card">
           <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
           <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>

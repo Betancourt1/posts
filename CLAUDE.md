@@ -14,6 +14,9 @@ hugo --gc --minify
 # Full production build with search index (use before committing)
 npm run build
 
+# Full build and refresh the committed Pagefind backup
+npm run build:local
+
 # Regenerate Pagefind search index only
 npx pagefind --site public
 ```
@@ -30,13 +33,13 @@ hugo new content_es/posts/2026/julio/mi_post.md
 hugo new --kind zettel content_es/zettelkasten/mi_nota.md
 ```
 
-Filenames use lowercase with underscores. Required front matter: `title`, `date`, `draft`, `tags`, `summary`.
+Filenames use lowercase with underscores. Use clear `title`, `date`, `draft`, and `tags`; add `summary` when a custom listing or social preview is useful. Prefer `hidden: true` for pages that should be excluded from listings, archives, search, infrastructure mode, and the knowledge graph. Existing `no_post*` filenames still work as legacy hidden content.
 
 ## Architecture
 
 **Bilingual Hugo site** with separate content directories per language:
-- `content_es/` — Spanish (default language served at `/`)
-- `content_en/` — English (served at `/en/`)
+- `content_en/` — English, default language served at `/`
+- `content_es/` — Spanish, served at `/es/`
 
 Language routing is configured in `hugo.toml` via `[languages.en]` and `[languages.es]` blocks with their own `contentDir`, menus, and params. UI strings (button labels, section headings) are localized in `i18n/en.toml` and `i18n/es.toml`.
 
@@ -50,7 +53,7 @@ Language routing is configured in `hugo.toml` via `[languages.en]` and `[languag
 
 **Backlinks** (`layouts/partials/backlinks.html`): scans all site pages at build time looking for references to the current page (by URL or filename), then renders a list at the bottom of any page that has inbound links.
 
-**Search**: Pagefind runs after Hugo generates `public/`. The `static/pagefind/` directory is committed as a fallback so that search works in production even if the deploy command only runs `hugo`. Refresh this backup with `npm run build` before committing when indexable content changes.
+**Search**: Pagefind runs after Hugo generates `public/`. The `static/pagefind/` directory is committed as a fallback so that search works in production even if the deploy command only runs `hugo`. Refresh this backup with `npm run build:local` before committing when indexable content changes.
 
 **Deployment**: Cloudflare Pages deploys from `main` with build command `npm run build` and output directory `public`. HTTP headers for caching are in `static/_headers`.
 

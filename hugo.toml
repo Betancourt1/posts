@@ -29,8 +29,8 @@ timeZone = "America/Mexico_City"
 
 [languages]
   [languages.en]
-    languageCode = "en"
-    languageName = "English"
+    locale = "en"
+    label = "English"
     contentDir = "content_en"
     weight = 1
     
@@ -62,8 +62,8 @@ timeZone = "America/Mexico_City"
         weight = 8
 
   [languages.es]
-    languageCode = "es-mx"
-    languageName = "Español"
+    locale = "es-mx"
+    label = "Español"
     contentDir = "content_es"
     weight = 2
     
@@ -105,4 +105,3 @@ timeZone = "America/Mexico_City"
         name = "CV"
         pageRef = "/cv"
         weight = 8
-

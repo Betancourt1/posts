@@ -24,6 +24,8 @@ if /I "%~1"=="--minify" (
 )
 if errorlevel 1 goto :fail
 
+if exist "public\pagefind" rmdir /s /q "public\pagefind"
+
 call npx.cmd --cache "tmp\npm-cache" pagefind --site public
 if errorlevel 1 goto :fail
 
@@ -36,4 +38,3 @@ set "EXIT_CODE=%ERRORLEVEL%"
 popd
 endlocal
 exit /b %EXIT_CODE%
-
