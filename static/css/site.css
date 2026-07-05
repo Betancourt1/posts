@@ -85,6 +85,10 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+body {
+  position: relative;
+}
+
 .site-header {
   position: relative;
   padding: 26px 32px 6px;
@@ -1684,7 +1688,7 @@ html.infra-mode .post-header .post-summary { display: none; }
 
 /* Terminal open button (bottom-right floating) */
 .ssh-terminal-open-btn {
-  position: fixed;
+  position: absolute;
   bottom: 16px;
   right: 16px;
   z-index: 9998;
