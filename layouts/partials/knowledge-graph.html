@@ -20,7 +20,7 @@
       {{ range . }}
         {{ $tagText := replaceRE "^\\s+|\\s+$" "" (printf "%v" .) }}
         {{ if $tagText }}
-          {{ $graphTagLinks = merge $graphTagLinks (dict $tagText (printf "%s%s/" ("/tags/" | relURL) ($tagText | urlize))) }}
+          {{ $graphTagLinks = merge $graphTagLinks (dict $tagText (printf "%s%s/" ("/tags/" | relLangURL) ($tagText | urlize))) }}
         {{ end }}
       {{ end }}
     {{ end }}
