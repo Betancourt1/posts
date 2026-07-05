@@ -1088,6 +1088,8 @@ sup, sub { line-height: 0; }
 
   .site-header-actions {
     position: relative;
+    top: auto;
+    right: auto;
     margin: 10px auto 0;
     display: flex;
     justify-content: center;
