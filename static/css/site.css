@@ -1472,6 +1472,12 @@ html.infra-mode .post-body { display: none; }
   word-wrap: break-word;
   color: var(--ink);
 }
+.infra-raw-content code {
+  color: var(--ink) !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
 
 /* ── SSH Terminal ── */
 .ssh-terminal-overlay {
