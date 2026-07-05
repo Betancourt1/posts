@@ -1099,17 +1099,9 @@ sup, sub { line-height: 0; }
     position: static;
   }
 
-  .ssh-terminal-open-btn {
-    position: relative !important;
-    bottom: auto !important;
-    right: auto !important;
-    margin: 24px auto 32px !important;
-    display: none;
-    width: fit-content;
-    justify-content: center;
-  }
+  .ssh-terminal-open-btn,
   html.infra-mode .ssh-terminal-open-btn {
-    display: flex !important;
+    display: none !important;
   }
 }
 
