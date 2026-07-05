@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
 :root{
   color-scheme: dark;
   --bg: #000000;
@@ -33,6 +35,12 @@
   --badge-zettel-text: #a86bff;
   --badge-lit-border: rgba(255, 107, 107, 0.45);
   --badge-lit-text: #ff6b6b;
+
+  /* Article custom styling variables (Dark Mode) */
+  --article-ink: #c8c8c8;
+  --article-heading: #f2f2f2;
+  --article-blockquote-bg: #111111;
+  --article-blockquote-border: #aaaaaa;
 }
 
 :root[data-theme="light"] {
@@ -70,6 +78,12 @@
   --badge-zettel-text: #5a27ad;
   --badge-lit-border: rgba(186, 37, 37, 0.45);
   --badge-lit-text: #ba2525;
+
+  /* Article custom styling variables (Light Mode) */
+  --article-ink: var(--ink);
+  --article-heading: var(--heading);
+  --article-blockquote-bg: var(--bg-soft);
+  --article-blockquote-border: var(--line);
 }
 
 * { box-sizing: border-box; }
@@ -78,8 +92,8 @@ html, body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Cascadia Mono",
-               "Fira Code", "IBM Plex Mono", "Liberation Mono", monospace;
+  font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, "Cascadia Mono",
+               "Fira Code", "Liberation Mono", monospace;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -302,7 +316,7 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   --pagefind-ui-tag: var(--code-bg);
   --pagefind-ui-border-width: 1px;
   --pagefind-ui-border-radius: 10px;
-  --pagefind-ui-font: ui-monospace, SFMono-Regular, Menlo, Monaco, "Cascadia Mono",
+  --pagefind-ui-font: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, "Cascadia Mono",
                       "Fira Code", "IBM Plex Mono", "Liberation Mono", monospace;
 }
 
@@ -741,29 +755,30 @@ body.graph-maximized {
   border: 0;
 }
 
-.post-body p,
-.post-body li,
-.post-body blockquote,
-.post-body table,
-.post-summary,
-.lead {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+/* -- Article Content Styles -- */
+.article, .post-body {
+  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
+  font-size: 0.98rem;
+  line-height: 1.75;
+  max-width: 68ch;
+  color: var(--article-ink, #c8c8c8);
 }
 
-html.infra-mode .post-body p,
-html.infra-mode .post-body li,
-html.infra-mode .post-body blockquote,
-html.infra-mode .post-body table,
-html.infra-mode .post-summary,
-html.infra-mode .lead {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Cascadia Mono",
-               "Fira Code", "IBM Plex Mono", "Liberation Mono", monospace;
+.article p, .post-body p {
+  margin-bottom: 1.35rem;
 }
 
-.post-body code,
-.post-body pre {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Cascadia Mono",
-               "Fira Code", "IBM Plex Mono", "Liberation Mono", monospace;
+.article blockquote, .post-body blockquote {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  background: var(--article-blockquote-bg, #111);
+  border-left: 4px solid var(--article-blockquote-border, #aaa);
+  color: var(--article-ink, #c8c8c8);
+}
+
+.article h1, .post-body h1 {
+  color: var(--article-heading, #f2f2f2);
+  letter-spacing: -0.02em;
 }
 
 .tag-list {
@@ -1637,7 +1652,7 @@ html.infra-mode .post-header .post-summary { display: none; }
   flex-direction: column;
   background: #0a0a0a;
   border-top: 2px solid var(--accent);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Cascadia Mono", monospace;
+  font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, "Cascadia Mono", monospace;
   font-size: 0.82rem;
 }
 .ssh-terminal-titlebar {
