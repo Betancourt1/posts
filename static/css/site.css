@@ -1891,7 +1891,7 @@ html:not(.infra-mode) .post-body {
   border: 1px solid var(--line);
   border-radius: 0.625rem;
   padding: 0.75rem;
-  width: 12.5rem;
+  width: 13.5rem;
   box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.35);
   animation: typoFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -1974,9 +1974,9 @@ html:not(.infra-mode) .post-body {
   background: var(--bg);
   color: var(--ink);
   padding: 0.375rem 0;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  width: 100%;
   font-weight: 600;
 }
 
@@ -1999,17 +1999,14 @@ html:not(.infra-mode) .post-body {
 /* Font preview text family helpers */
 .font-preview-mono {
   font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
-  font-size: 0.8rem;
 }
 
 .font-preview-sans {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 0.8rem;
 }
 
 .font-preview-serif {
   font-family: Georgia, serif;
-  font-size: 0.8rem;
 }
 
 
