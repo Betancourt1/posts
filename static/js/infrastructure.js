@@ -360,11 +360,14 @@
     }
 
     if (closeBtn) {
-      closeBtn.addEventListener("click", function (e) {
+      var handleClose = function (e) {
         e.preventDefault();
         e.stopPropagation();
         toggleTerminal(false);
-      });
+      };
+      closeBtn.addEventListener("click", handleClose);
+      closeBtn.addEventListener("touchstart", handleClose);
+      closeBtn.addEventListener("mousedown", handleClose);
     }
 
     /* Keyboard shortcut: Ctrl+` to toggle terminal */
