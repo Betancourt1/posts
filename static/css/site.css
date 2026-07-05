@@ -741,6 +741,21 @@ body.graph-maximized {
   border: 0;
 }
 
+.post-body p,
+.post-body li,
+.post-body blockquote,
+.post-body table,
+.post-summary,
+.lead {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.post-body code,
+.post-body pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Cascadia Mono",
+               "Fira Code", "IBM Plex Mono", "Liberation Mono", monospace;
+}
+
 .tag-list {
   margin: 8px 0 0;
   display: flex;
