@@ -33,6 +33,30 @@
     }
 
     document.documentElement.setAttribute("data-theme", theme);
+
+    // Apply saved typography size & font type
+    try {
+      if (window.localStorage) {
+        var savedFontSize = localStorage.getItem("site_font_size");
+        if (savedFontSize) {
+          document.documentElement.style.setProperty("--site-font-size", savedFontSize + "%");
+        }
+        var savedFontType = localStorage.getItem("site_font_type");
+        if (savedFontType) {
+          var fontStack = "";
+          if (savedFontType === "mono") {
+            fontStack = '"JetBrains Mono", "IBM Plex Mono", monospace';
+          } else if (savedFontType === "sans") {
+            fontStack = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+          } else if (savedFontType === "serif") {
+            fontStack = 'Georgia, Cambria, "Times New Roman", Times, serif';
+          }
+          if (fontStack) {
+            document.documentElement.style.setProperty("--article-font-family", fontStack);
+          }
+        }
+      }
+    } catch (e) {}
   })();
 </script>
 <title>{{ $pageTitle }}</title>

@@ -121,6 +121,7 @@ body {
 }
 
 html {
+  font-size: var(--site-font-size, 100%);
   transition: filter 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -749,6 +750,11 @@ body.graph-maximized {
   color: var(--ink-dim);
 }
 
+.post-summary,
+.lead {
+  font-family: var(--article-font-family, inherit);
+}
+
 .post-body {
   background: transparent;
   padding: 0;
@@ -757,7 +763,7 @@ body.graph-maximized {
 
 /* -- Article Content Styles -- */
 .article, .post-body {
-  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
+  font-family: var(--article-font-family, "JetBrains Mono", "IBM Plex Mono", monospace);
   font-size: 0.98rem;
   line-height: 1.75;
   max-width: 68ch;
@@ -1838,5 +1844,155 @@ html:not(.infra-mode) .post-body {
 @keyframes mainContentSlideRight {
   from { transform: translateX(16px); }
 }
+
+/* ── Typography Settings Dropdown ── */
+.typo-container {
+  position: relative;
+  display: inline-block;
+}
+
+.typo-toggle {
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--ink-dim) !important;
+  padding: 0 !important;
+  width: 32px;
+  height: 32px;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer;
+  box-shadow: none !important;
+  transition: color 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none !important;
+}
+
+.typo-toggle:hover {
+  color: var(--accent) !important;
+  transform: scale(1.08) !important;
+}
+
+.typo-toggle:active {
+  transform: scale(0.88) !important;
+}
+
+.typo-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 10px;
+  z-index: 1001;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+  width: 220px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  animation: typoFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes typoFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.typo-dropdown.is-active {
+  display: block;
+}
+
+.typo-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.typo-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  font-weight: 700;
+  text-align: left;
+}
+
+.typo-control-row {
+  display: flex;
+  gap: 6px;
+}
+
+.typo-control-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.typo-btn {
+  flex: 1;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--ink);
+  padding: 6px 0;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.typo-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(78,204,163,.05);
+}
+
+.typo-btn:active {
+  transform: scale(0.95);
+}
+
+.typo-btn-choice {
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--ink);
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.typo-btn-choice:hover {
+  border-color: var(--accent);
+  background: rgba(78,204,163,.05);
+}
+
+.typo-btn-choice.is-active {
+  border-color: var(--accent);
+  background: rgba(78,204,163,.1);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* Font preview text family helpers */
+.font-preview-mono {
+  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+}
+
+.font-preview-sans {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.8rem;
+}
+
+.font-preview-serif {
+  font-family: Georgia, serif;
+  font-size: 0.8rem;
+}
+
 
 
