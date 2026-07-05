@@ -403,12 +403,19 @@
     if (!overlay) return;
     if (open) {
       overlay.classList.add("is-open");
+      var savedHeight = localStorage.getItem("infra_terminal_height");
+      if (savedHeight) {
+        overlay.style.height = savedHeight + "px";
+      } else {
+        overlay.style.height = "";
+      }
       if (input) input.focus();
       localStorage.setItem(TERMINAL_STORAGE_KEY, "true");
       /* Wait for transition then set margin */
       setTimeout(function () { updateContentMargin(overlay.offsetHeight); }, 260);
     } else {
       overlay.classList.remove("is-open");
+      overlay.style.height = "0px";
       localStorage.setItem(TERMINAL_STORAGE_KEY, "false");
       updateContentMargin(0);
     }
@@ -458,6 +465,7 @@
       var maxH = window.innerHeight - 60;
       h = Math.max(minH, Math.min(maxH, h));
       overlay.style.height = h + "px";
+      localStorage.setItem("infra_terminal_height", h);
       updateContentMargin(h);
     }
 
