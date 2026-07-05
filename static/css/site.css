@@ -1192,7 +1192,8 @@ body.search-active {
 .zen-toggle-btn.is-active .zen-icon-active { display: block; }
 
 body.zen-mode .nav-column,
-body.zen-mode .sidebar-column {
+body.zen-mode .sidebar-column,
+body.zen-mode .ssh-terminal-open-btn {
   display: none !important;
 }
 
