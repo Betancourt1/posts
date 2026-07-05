@@ -1438,7 +1438,7 @@ body.zen-mode .content-column {
 html.infra-mode .infra-raw-block { display: block; }
 html.infra-mode .post-body { display: none; }
 
-/* Metadata table */
+/* Metadata block */
 .infra-section-label {
   font-size: 0.75rem;
   color: var(--ink-muted);
@@ -1448,26 +1448,16 @@ html.infra-mode .post-body { display: none; }
   border-bottom: 1px dashed var(--line);
   padding-bottom: 4px;
 }
-.infra-meta-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.82rem;
-  margin-bottom: 16px;
-}
-.infra-meta-table td {
-  padding: 3px 8px;
-  border-bottom: 1px solid var(--line);
-  vertical-align: top;
-}
-.infra-key {
-  color: var(--accent);
-  white-space: nowrap;
-  width: 120px;
-  font-weight: bold;
-}
-.infra-meta-table td:last-child {
+.infra-meta-raw {
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  padding: 12px 16px;
+  font-size: 0.8rem;
+  line-height: 1.6;
   color: var(--ink);
-  word-break: break-all;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin-bottom: 16px;
 }
 
 /* Raw source */
@@ -1480,7 +1470,7 @@ html.infra-mode .post-body { display: none; }
   line-height: 1.6;
   white-space: pre-wrap;
   word-wrap: break-word;
-  color: var(--ink-dim);
+  color: var(--ink);
 }
 
 /* ── SSH Terminal ── */
@@ -1496,6 +1486,15 @@ html.infra-mode .post-body { display: none; }
 }
 .ssh-terminal-overlay.is-open {
   height: 340px;
+}
+.ssh-terminal-drag-handle {
+  position: absolute;
+  top: -4px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  cursor: ns-resize;
+  z-index: 10;
 }
 .ssh-terminal {
   height: 100%;
@@ -1612,10 +1611,10 @@ html.infra-mode .ssh-terminal-open-btn {
   border-color: var(--accent);
 }
 
-/* Adjust main content when terminal is open */
-.ssh-terminal-overlay.is-open ~ .layout,
-.ssh-terminal-overlay.is-open ~ .site-footer {
-  margin-bottom: 340px;
+/* Adjust main content when terminal is open — handled dynamically by JS */
+body.terminal-resizing {
+  user-select: none;
+  cursor: ns-resize;
 }
 
 /* Scrollbar for terminal */

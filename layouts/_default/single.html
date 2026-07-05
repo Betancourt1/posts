@@ -54,18 +54,16 @@
     <div class="infra-raw-block">
       <div class="infra-metadata">
         <h3 class="infra-section-label">// metadata</h3>
-        <table class="infra-meta-table">
-          <tr><td class="infra-key">file</td><td>{{ .File.Path }}</td></tr>
-          <tr><td class="infra-key">title</td><td>{{ .Title }}</td></tr>
-          <tr><td class="infra-key">date</td><td>{{ .Date.Format "2006-01-02T15:04:05-07:00" }}</td></tr>
-          <tr><td class="infra-key">section</td><td>{{ .Section }}</td></tr>
-          <tr><td class="infra-key">slug</td><td>{{ .Slug | default .File.BaseFileName }}</td></tr>
-          {{ with .Params.tags }}<tr><td class="infra-key">tags</td><td>[{{ delimit . ", " }}]</td></tr>{{ end }}
-          <tr><td class="infra-key">wordcount</td><td>{{ .WordCount }}</td></tr>
-          <tr><td class="infra-key">reading_time</td><td>{{ .ReadingTime }}min</td></tr>
-          <tr><td class="infra-key">permalink</td><td>{{ .Permalink }}</td></tr>
-          {{ with .Params.summary }}<tr><td class="infra-key">summary</td><td>{{ . }}</td></tr>{{ end }}
-        </table>
+        <pre class="infra-meta-raw">file:         {{ .File.Path }}
+title:        {{ .Title }}
+date:         {{ .Date.Format "2006-01-02T15:04:05-07:00" }}
+section:      {{ .Section }}
+slug:         {{ .Slug | default .File.BaseFileName }}{{ with .Params.tags }}
+tags:         [{{ delimit . ", " }}]{{ end }}
+wordcount:    {{ .WordCount }}
+reading_time: {{ .ReadingTime }}min
+permalink:    {{ .Permalink }}{{ with .Params.summary }}
+summary:      {{ . }}{{ end }}</pre>
       </div>
       <div class="infra-raw-source">
         <h3 class="infra-section-label">// raw source</h3>
