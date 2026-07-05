@@ -1404,3 +1404,221 @@ body.zen-mode .content-column {
   align-items: center;
 }
 
+
+
+/* ═══════════════════════════════════════════════════════════════
+   Infrastructure Mode — exposed raw content + SSH terminal
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Toggle button */
+.infra-toggle {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink-dim);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, border-color 0.15s;
+}
+.infra-toggle:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.infra-toggle.is-active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(78, 204, 163, 0.08);
+}
+
+/* ── Hide raw blocks by default, show in infra mode ── */
+.infra-raw-block { display: none; }
+html.infra-mode .infra-raw-block { display: block; }
+html.infra-mode .post-body { display: none; }
+
+/* Metadata table */
+.infra-section-label {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 24px 0 8px;
+  border-bottom: 1px dashed var(--line);
+  padding-bottom: 4px;
+}
+.infra-meta-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  margin-bottom: 16px;
+}
+.infra-meta-table td {
+  padding: 3px 8px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.infra-key {
+  color: var(--accent);
+  white-space: nowrap;
+  width: 120px;
+  font-weight: bold;
+}
+.infra-meta-table td:last-child {
+  color: var(--ink);
+  word-break: break-all;
+}
+
+/* Raw source */
+.infra-raw-content {
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  padding: 16px;
+  overflow-x: auto;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: var(--ink-dim);
+}
+
+/* ── SSH Terminal ── */
+.ssh-terminal-overlay {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0;
+  z-index: 9999;
+  transition: height 0.25s ease;
+  overflow: hidden;
+}
+.ssh-terminal-overlay.is-open {
+  height: 340px;
+}
+.ssh-terminal {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #0a0a0a;
+  border-top: 2px solid var(--accent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Cascadia Mono", monospace;
+  font-size: 0.82rem;
+}
+.ssh-terminal-titlebar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  background: #111;
+  border-bottom: 1px solid #222;
+  flex-shrink: 0;
+}
+.ssh-terminal-title {
+  color: #888;
+  font-size: 0.75rem;
+}
+.ssh-terminal-close {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+.ssh-terminal-close:hover {
+  color: #fff;
+}
+.ssh-terminal-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  overflow: hidden;
+}
+.ssh-terminal-output {
+  flex: 1;
+  overflow-y: auto;
+  color: #ccc;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.ssh-terminal-input-line {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+.ssh-terminal-prompt {
+  white-space: nowrap;
+  color: #ccc;
+}
+.ssh-terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-family: inherit;
+  font-size: inherit;
+  caret-color: var(--accent);
+  padding: 0;
+  margin: 0;
+}
+
+/* Terminal text colors */
+.term-user { color: #4ecca3; }
+.term-path { color: #55acee; }
+.term-dir { color: #55acee; font-weight: bold; }
+.term-welcome { color: #888; font-style: italic; }
+.term-line { color: #ccc; }
+.term-result { color: #ccc; margin-bottom: 2px; }
+.term-file-content {
+  margin: 4px 0;
+  padding: 8px;
+  background: #111;
+  border-left: 2px solid var(--accent);
+  color: #aaa;
+  white-space: pre-wrap;
+  font-size: 0.78rem;
+}
+
+/* Terminal open button (bottom-right floating) */
+.ssh-terminal-open-btn {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 9998;
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  color: var(--ink-dim);
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  border-radius: 4px;
+}
+html.infra-mode .ssh-terminal-open-btn {
+  display: inline-flex;
+}
+.ssh-terminal-open-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Adjust main content when terminal is open */
+.ssh-terminal-overlay.is-open ~ .layout,
+.ssh-terminal-overlay.is-open ~ .site-footer {
+  margin-bottom: 340px;
+}
+
+/* Scrollbar for terminal */
+.ssh-terminal-output::-webkit-scrollbar { width: 6px; }
+.ssh-terminal-output::-webkit-scrollbar-track { background: transparent; }
+.ssh-terminal-output::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
