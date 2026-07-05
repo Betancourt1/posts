@@ -1591,26 +1591,27 @@ html.infra-mode .post-body { display: none; }
   bottom: 16px;
   right: 16px;
   z-index: 9998;
-  background: transparent;
-  border: none;
-  color: var(--ink-dim);
-  padding: 4px 8px;
+  background: transparent !important;
+  border: none !important;
+  color: var(--ink-dim) !important;
+  padding: 4px 8px !important;
   font-family: inherit;
   font-size: 0.78rem;
   cursor: pointer;
   display: none;
   align-items: center;
   gap: 6px;
-  border-radius: 0;
+  border-radius: 0 !important;
   transition: color 0.25s ease, transform 0.25s ease;
+  box-shadow: none !important;
 }
 html.infra-mode .ssh-terminal-open-btn {
   display: inline-flex;
 }
 .ssh-terminal-open-btn:hover {
-  color: var(--accent);
-  background: transparent;
-  border: none;
+  color: var(--accent) !important;
+  background: transparent !important;
+  border: none !important;
   transform: scale(1.05);
 }
 .ssh-terminal-open-btn kbd {
