@@ -11,25 +11,49 @@
   }
 
   /* ── Infrastructure mode toggle ── */
+  function updateInfraToggleState(btn, active) {
+    var lang = document.documentElement.lang || "es";
+    if (active) {
+      btn.classList.add("is-active");
+      if (lang === "en") {
+        btn.setAttribute("aria-label", "Disable infrastructure mode");
+        btn.setAttribute("title", "Disable infrastructure mode");
+      } else {
+        btn.setAttribute("aria-label", "Desactivar modo infraestructura");
+        btn.setAttribute("title", "Desactivar modo infraestructura");
+      }
+    } else {
+      btn.classList.remove("is-active");
+      if (lang === "en") {
+        btn.setAttribute("aria-label", "Enable infrastructure mode");
+        btn.setAttribute("title", "Enable infrastructure mode");
+      } else {
+        btn.setAttribute("aria-label", "Activar modo infraestructura");
+        btn.setAttribute("title", "Activar modo infraestructura");
+      }
+    }
+  }
+
   function initInfraToggle() {
     var btn = document.getElementById("infra-toggle");
     if (!btn) return;
 
-    if (localStorage.getItem(STORAGE_KEY) === "true") {
+    var isActive = localStorage.getItem(STORAGE_KEY) === "true";
+    if (isActive) {
       enableInfra();
-      btn.classList.add("is-active");
     }
+    updateInfraToggleState(btn, isActive);
 
     btn.addEventListener("click", function () {
-      if (isInfraMode()) {
-        disableInfra();
-        btn.classList.remove("is-active");
-        localStorage.setItem(STORAGE_KEY, "false");
-      } else {
+      var active = !isInfraMode();
+      if (active) {
         enableInfra();
-        btn.classList.add("is-active");
         localStorage.setItem(STORAGE_KEY, "true");
+      } else {
+        disableInfra();
+        localStorage.setItem(STORAGE_KEY, "false");
       }
+      updateInfraToggleState(btn, active);
     });
   }
 

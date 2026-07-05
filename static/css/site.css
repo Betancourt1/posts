@@ -126,7 +126,8 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 
 .theme-toggle,
 .grayscale-toggle,
-.lang-toggle {
+.lang-toggle,
+.infra-toggle {
   border: none !important;
   border-radius: 0 !important;
   background: transparent !important;
@@ -144,11 +145,13 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   font-size: 0.82rem;
   font-weight: 700;
   text-decoration: none !important;
+  position: relative;
 }
 
 .theme-toggle:hover,
 .grayscale-toggle:hover,
-.lang-toggle:hover {
+.lang-toggle:hover,
+.infra-toggle:hover {
   background: transparent !important;
   color: var(--accent) !important;
   border: none !important;
@@ -157,10 +160,28 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   text-decoration: none !important;
 }
 
-.grayscale-toggle.is-active {
+.grayscale-toggle.is-active,
+.infra-toggle.is-active {
   color: var(--accent) !important;
   border: none !important;
   background: transparent !important;
+}
+
+.infra-toggle::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 4px;
+  height: 4px;
+  background-color: var(--accent);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.infra-toggle.is-active::after {
+  opacity: 1;
 }
 
 .grayscale-icon {
@@ -1410,28 +1431,7 @@ body.zen-mode .content-column {
    Infrastructure Mode — exposed raw content + SSH terminal
    ═══════════════════════════════════════════════════════════════ */
 
-/* Toggle button */
-.infra-toggle {
-  background: transparent;
-  border: 1px solid var(--line);
-  color: var(--ink-dim);
-  cursor: pointer;
-  padding: 4px 6px;
-  border-radius: 4px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.15s, border-color 0.15s;
-}
-.infra-toggle:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-}
-.infra-toggle.is-active {
-  color: var(--accent);
-  border-color: var(--accent);
-  background: rgba(78, 204, 163, 0.08);
-}
+/* Toggle button - styled under main header actions */
 
 /* ── Hide raw blocks by default, show in infra mode ── */
 .infra-raw-block { display: none; }
@@ -1591,24 +1591,27 @@ html.infra-mode .post-body { display: none; }
   bottom: 16px;
   right: 16px;
   z-index: 9998;
-  background: var(--code-bg);
-  border: 1px solid var(--line);
+  background: transparent;
+  border: none;
   color: var(--ink-dim);
-  padding: 8px 14px;
+  padding: 4px 8px;
   font-family: inherit;
   font-size: 0.78rem;
   cursor: pointer;
   display: none;
   align-items: center;
   gap: 6px;
-  border-radius: 4px;
+  border-radius: 0;
+  transition: color 0.25s ease, transform 0.25s ease;
 }
 html.infra-mode .ssh-terminal-open-btn {
   display: inline-flex;
 }
 .ssh-terminal-open-btn:hover {
   color: var(--accent);
-  border-color: var(--accent);
+  background: transparent;
+  border: none;
+  transform: scale(1.05);
 }
 
 /* Adjust main content when terminal is open — handled dynamically by JS */
