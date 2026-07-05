@@ -1713,4 +1713,41 @@ html:not(.infra-mode) .post-body {
   animation-name: slideUpFadeIn;
 }
 
+/* ── Cross-Document Page Transitions (View Transitions API) ── */
+@view-transition {
+  navigation: auto;
+}
+
+.content-inner {
+  view-transition-name: main-content;
+}
+
+/* Exiting content page (slides left slightly and fades out) */
+::view-transition-old(main-content) {
+  animation: 0.2s cubic-bezier(0.4, 0, 1, 1) both mainContentFadeOut,
+             0.2s cubic-bezier(0.4, 0, 0.2, 1) both mainContentSlideLeft;
+}
+
+/* Entering content page (slides in from right and fades in) */
+::view-transition-new(main-content) {
+  animation: 0.3s cubic-bezier(0, 0, 0.2, 1) both 0.08s mainContentFadeIn,
+             0.3s cubic-bezier(0.16, 1, 0.3, 1) both mainContentSlideRight;
+}
+
+@keyframes mainContentFadeOut {
+  to { opacity: 0; }
+}
+
+@keyframes mainContentFadeIn {
+  from { opacity: 0; }
+}
+
+@keyframes mainContentSlideLeft {
+  to { transform: translateX(-16px); }
+}
+
+@keyframes mainContentSlideRight {
+  from { transform: translateX(16px); }
+}
+
 
