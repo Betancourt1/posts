@@ -51,32 +51,7 @@
     </div>
 
     {{/* Infrastructure mode: raw markdown + visible metadata */}}
-    <div class="infra-raw-block">
-      <div class="infra-metadata">
-        <h3 class="infra-section-label">// metadata</h3>
-        <pre class="infra-meta-raw">file:         {{ .File.Path }}
-title:        {{ .Title }}
-date:         {{ .Date.Format "2006-01-02T15:04:05-07:00" }}
-section:      {{ .Section }}
-slug:         {{ .Slug | default .File.BaseFileName }}{{ with .Params.tags }}
-tags:         [{{ delimit . ", " }}]{{ end }}
-wordcount:    {{ .WordCount }}
-reading_time: {{ .ReadingTime }}min
-permalink:    {{ .Permalink }}{{ with .Params.summary }}
-summary:      {{ . }}{{ end }}</pre>
-      </div>
-      <div class="infra-raw-source">
-        <h3 class="infra-section-label">// raw source</h3>
-        <pre class="infra-raw-content"><code>---
-title: {{ .Title }}
-date: {{ .Date.Format "2006-01-02" }}
-{{ with .Params.tags }}tags: [{{ delimit . ", " }}]
-{{ end }}{{ with .Params.summary }}summary: {{ . }}
-{{ end }}---
-
-{{ .RawContent }}</code></pre>
-      </div>
-    </div>
+    {{ partial "infra_raw_block.html" . }}
     
     {{ if or (eq .Section "posts") (eq .Section "zettelkasten") }}
       {{ partial "backlinks.html" . }}

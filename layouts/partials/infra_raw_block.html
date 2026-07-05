@@ -1,0 +1,32 @@
+<div class="infra-raw-block">
+  <div class="infra-metadata">
+    <h3 class="infra-section-label">// metadata</h3>
+    <pre class="infra-meta-raw">{{ if .File }}file:         {{ .File.Path }}
+{{ end }}title:        {{ .Title }}
+{{ if and .Date (not .Date.IsZero) }}date:         {{ .Date.Format "2006-01-02T15:04:05-07:00" }}
+{{ end }}section:      {{ .Section }}
+{{ if .File }}slug:         {{ .Slug | default .File.BaseFileName }}
+{{ end }}{{ with .Params.tags }}tags:         [{{ delimit . ", " }}]
+{{ end }}wordcount:    {{ .WordCount }}
+reading_time: {{ .ReadingTime }}min
+permalink:    {{ .Permalink }}{{ with .Params.summary }}
+summary:      {{ . }}{{ end }}</pre>
+  </div>
+  <div class="infra-raw-source">
+    <h3 class="infra-section-label">// raw source</h3>
+    <pre class="infra-raw-content"><code>---
+title: {{ .Title }}
+{{- if and .Date (not .Date.IsZero) }}
+date: {{ .Date.Format "2006-01-02" }}
+{{- end }}
+{{- with .Params.tags }}
+tags: [{{ delimit . ", " }}]
+{{- end }}
+{{- with .Params.summary }}
+summary: {{ . }}
+{{- end }}
+---
+
+{{ .RawContent }}</code></pre>
+  </div>
+</div>

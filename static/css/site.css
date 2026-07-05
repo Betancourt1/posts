@@ -1613,6 +1613,14 @@ html.infra-mode .ssh-terminal-open-btn {
   border: none;
   transform: scale(1.05);
 }
+.ssh-terminal-open-btn kbd {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  font-weight: inherit !important;
+  font-size: inherit !important;
+}
 
 /* Adjust main content when terminal is open — handled dynamically by JS */
 body.terminal-resizing {
