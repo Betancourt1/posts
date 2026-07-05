@@ -1890,10 +1890,22 @@ html:not(.infra-mode) .post-body {
   background: var(--bg-soft);
   border: 1px solid var(--line);
   border-radius: 10px;
-  padding: 16px;
-  width: 220px;
+  padding: 12px;
+  width: 190px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   animation: typoFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.typo-title {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  font-weight: 800;
+  margin-bottom: 10px;
+  border-bottom: 1px dashed var(--line);
+  padding-bottom: 4px;
+  text-align: left;
 }
 
 @keyframes typoFadeIn {
@@ -1908,11 +1920,11 @@ html:not(.infra-mode) .post-body {
 .typo-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .typo-label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--ink-muted);
@@ -1955,15 +1967,17 @@ html:not(.infra-mode) .post-body {
 }
 
 .typo-btn-choice {
-  text-align: left;
+  flex: 1;
+  text-align: center;
   border: 1px solid var(--line);
   border-radius: 6px;
   background: var(--bg);
   color: var(--ink);
-  padding: 8px 12px;
+  padding: 6px 0;
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
+  font-weight: 600;
 }
 
 .typo-btn-choice:hover {
@@ -1973,9 +1987,13 @@ html:not(.infra-mode) .post-body {
 
 .typo-btn-choice.is-active {
   border-color: var(--accent);
-  background: rgba(78,204,163,.1);
-  color: var(--accent);
+  background: var(--accent);
+  color: var(--bg) !important;
   font-weight: 700;
+}
+
+.typo-btn-choice.is-active span {
+  color: var(--bg) !important;
 }
 
 /* Font preview text family helpers */

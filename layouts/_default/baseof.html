@@ -38,24 +38,25 @@
           </svg>
         </button>
         <div class="typo-dropdown" id="typo-dropdown">
+          <div class="typo-title">{{ if eq .Site.Language.Lang "en" }}TEXT{{ else }}TEXTO{{ end }}</div>
           <div class="typo-section">
-            <span class="typo-label">{{ if eq .Site.Language.Lang "en" }}Font Size{{ else }}Tamaño de letra{{ end }}</span>
+            <span class="typo-label">{{ if eq .Site.Language.Lang "en" }}Size{{ else }}Tamaño{{ end }}</span>
             <div class="typo-control-row">
               <button type="button" id="font-size-dec" class="typo-btn" title="{{ if eq .Site.Language.Lang "en" }}Decrease font size{{ else }}Disminuir tamaño{{ end }}">A-</button>
               <button type="button" id="font-size-reset" class="typo-btn" title="{{ if eq .Site.Language.Lang "en" }}Reset font size{{ else }}Restablecer tamaño{{ end }}">100%</button>
               <button type="button" id="font-size-inc" class="typo-btn" title="{{ if eq .Site.Language.Lang "en" }}Increase font size{{ else }}Aumentar tamaño{{ end }}">A+</button>
             </div>
           </div>
-          <div class="typo-section" style="margin-top: 14px;">
-            <span class="typo-label">{{ if eq .Site.Language.Lang "en" }}Font Type{{ else }}Tipo de letra{{ end }}</span>
-            <div class="typo-control-col">
-              <button type="button" class="typo-btn-choice" data-font="mono">
-                <span class="font-preview-mono">Monospace</span>
+          <div class="typo-section" style="margin-top: 12px;">
+            <span class="typo-label">{{ if eq .Site.Language.Lang "en" }}Font{{ else }}Fuente{{ end }}</span>
+            <div class="typo-control-row">
+              <button type="button" class="typo-btn-choice" data-font="mono" title="Monospace">
+                <span class="font-preview-mono">Mono</span>
               </button>
-              <button type="button" class="typo-btn-choice" data-font="sans">
-                <span class="font-preview-sans">Sans-Serif</span>
+              <button type="button" class="typo-btn-choice" data-font="sans" title="Sans-Serif">
+                <span class="font-preview-sans">Sans</span>
               </button>
-              <button type="button" class="typo-btn-choice" data-font="serif">
+              <button type="button" class="typo-btn-choice" data-font="serif" title="Serif">
                 <span class="font-preview-serif">Serif</span>
               </button>
             </div>
