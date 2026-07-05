@@ -1522,10 +1522,14 @@ html.infra-mode .post-body { display: none; }
   background: none;
   border: none;
   color: #888;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   cursor: pointer;
-  padding: 0 4px;
+  padding: 4px 10px;
   line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
 }
 .ssh-terminal-close:hover {
   color: #fff;

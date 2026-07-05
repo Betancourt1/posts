@@ -345,10 +345,13 @@
       }
     });
 
-    /* Focus input when clicking terminal */
-    overlay.addEventListener("click", function (e) {
-      if (e.target !== closeBtn) input.focus();
-    });
+    /* Focus input when clicking terminal body (not titlebar/drag handle) */
+    var termBody = overlay.querySelector(".ssh-terminal-body");
+    if (termBody) {
+      termBody.addEventListener("click", function () {
+        input.focus();
+      });
+    }
 
     if (openBtn) {
       openBtn.addEventListener("click", function () {
@@ -357,7 +360,9 @@
     }
 
     if (closeBtn) {
-      closeBtn.addEventListener("click", function () {
+      closeBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
         toggleTerminal(false);
       });
     }
