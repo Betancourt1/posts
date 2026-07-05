@@ -226,6 +226,7 @@
       "  open <file>    Navigate to page in browser",
       "  tree [path]    Show directory tree",
       "  clear          Clear terminal",
+      "  exit           Close the terminal",
       "  help           Show this help",
       "",
       "Navigation tips:",
@@ -384,7 +385,8 @@
     /* Show welcome message with root listing */
     var welcome = [
       "betancourt.work — infrastructure mode",
-      'Type "help" for available commands. Use Ctrl+` to toggle terminal.',
+      'Type "help" for available commands, or "exit" to close the terminal.',
+      'Use Ctrl+` to toggle terminal.',
       ""
     ].join("\n");
     appendOutput('<div class="term-result term-welcome">' + welcome + '</div>');
