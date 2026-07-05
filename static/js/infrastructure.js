@@ -54,7 +54,10 @@
     var el = document.getElementById("infra-sitemap");
     if (!el) return null;
     try {
-      return JSON.parse(el.textContent);
+      var data = JSON.parse(el.textContent);
+      /* Hugo jsonify may double-encode; unwrap if we got a string */
+      if (typeof data === "string") data = JSON.parse(data);
+      return data;
     } catch (e) {
       return null;
     }
@@ -79,10 +82,10 @@
     return "/" + resolved.join("/");
   }
 
-  function getNode(map, path) {
-    if (path === "/") return map["/"];
+  function getNode(root, path) {
+    if (path === "/") return root;
     var parts = path.split("/").filter(Boolean);
-    var node = map["/"];
+    var node = root;
     for (var i = 0; i < parts.length; i++) {
       if (!node || !node.children) return null;
       var found = null;
@@ -354,12 +357,6 @@
     ].join("\n");
     appendOutput('<div class="term-result term-welcome">' + welcome + '</div>');
 
-    /* Auto-run ls on cwd so user sees where they can go */
-    var autoLs = cmdLs([]);
-    if (autoLs) {
-      appendOutput('<div class="term-line">' + formatPrompt(terminal.cwd) + 'ls</div>');
-      appendOutput('<div class="term-result">' + autoLs + '</div>');
-    }
     updateInputPrompt();
 
     /* Restore terminal state */

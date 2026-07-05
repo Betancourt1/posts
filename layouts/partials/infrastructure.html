@@ -25,9 +25,8 @@
 {{ end }}
 
 {{ $root := dict "type" "dir" "name" "/" "children" $rootChildren }}
-{{ $finalMap := dict "/" $root }}
 
-<script type="application/json" id="infra-sitemap">{{ $finalMap | jsonify }}</script>
+<script type="application/json" id="infra-sitemap">{{ $root | jsonify }}</script>
 
 {{/* Floating terminal open button */}}
 <button class="ssh-terminal-open-btn" id="ssh-terminal-open" type="button" aria-label="Open terminal">
