@@ -346,13 +346,20 @@
       }
     });
 
-    /* Show welcome message */
+    /* Show welcome message with root listing */
     var welcome = [
       "betancourt.work — infrastructure mode",
       'Type "help" for available commands. Use Ctrl+` to toggle terminal.',
       ""
     ].join("\n");
     appendOutput('<div class="term-result term-welcome">' + welcome + '</div>');
+
+    /* Auto-run ls on cwd so user sees where they can go */
+    var autoLs = cmdLs([]);
+    if (autoLs) {
+      appendOutput('<div class="term-line">' + formatPrompt(terminal.cwd) + 'ls</div>');
+      appendOutput('<div class="term-result">' + autoLs + '</div>');
+    }
     updateInputPrompt();
 
     /* Restore terminal state */
