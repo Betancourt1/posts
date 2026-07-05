@@ -1855,7 +1855,9 @@ html:not(.infra-mode) .post-body {
 /* ── Typography Settings Dropdown ── */
 .typo-container {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
 }
 
 .typo-toggle {
