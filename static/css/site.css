@@ -1711,6 +1711,7 @@ html:not(.infra-mode) .post-body {
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+  filter: url(#ink-bleed);
 }
 
 ::view-transition-old(root) {
