@@ -1087,11 +1087,18 @@ sup, sub { line-height: 0; }
   }
 
   .site-header-actions {
-    position: static;
+    position: relative;
     margin: 10px auto 0;
     display: flex;
     justify-content: center;
     gap: 12px;
+  }
+
+  .typo-dropdown {
+    right: auto;
+    left: 50%;
+    transform: translate(-50%, 0);
+    animation: typoFadeInMobile 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   .site-search {
@@ -1911,6 +1918,11 @@ html:not(.infra-mode) .post-body {
 @keyframes typoFadeIn {
   from { opacity: 0; transform: translateY(-0.25rem); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes typoFadeInMobile {
+  from { opacity: 0; transform: translate(-50%, -0.25rem); }
+  to { opacity: 1; transform: translate(-50%, 0); }
 }
 
 .typo-dropdown.is-active {
