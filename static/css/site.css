@@ -1550,7 +1550,7 @@ body.zen-mode .content-column {
 .infra-raw-block { display: none; }
 html.infra-mode .infra-raw-block { display: block; }
 html.infra-mode .post-body { display: none; }
-html.infra-mode .post-summary { display: none; }
+html.infra-mode .post-header .post-summary { display: none; }
 
 /* Metadata block */
 .infra-section-label {
