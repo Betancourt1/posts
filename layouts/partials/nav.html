@@ -8,4 +8,11 @@
     </li>
     {{ end }}
   </ul>
+  {{ if and hugo.IsServer (eq hugo.Environment "author") }}
+    <div class="nav-author-actions">
+      <button type="button" class="author-action-button" data-author-action="add-notebook">
+        {{ if eq .Site.Language.Lang "en" }}New notebook{{ else }}Nuevo notebook{{ end }}
+      </button>
+    </div>
+  {{ end }}
 </nav>

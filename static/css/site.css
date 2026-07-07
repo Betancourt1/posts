@@ -276,6 +276,13 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   animation: cursorBlink 1s infinite step-end;
 }
 
+.infra-toggle {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 9998;
+}
+
 /* Icon Morphing styles */
 .theme-icon-wrapper {
   position: relative;
@@ -1173,9 +1180,9 @@ sup, sub { line-height: 0; }
     position: static;
   }
 
-  .ssh-terminal-open-btn,
-  html.infra-mode .ssh-terminal-open-btn {
-    display: none !important;
+  .ssh-terminal-open-btn {
+    right: 14px;
+    bottom: 54px;
   }
 }
 
@@ -1777,8 +1784,8 @@ html.infra-mode .post-header .post-summary { display: none; }
 
 /* Terminal open button (bottom-right floating) */
 .ssh-terminal-open-btn {
-  position: absolute;
-  bottom: 16px;
+  position: fixed;
+  bottom: 54px;
   right: 16px;
   z-index: 9998;
   background: transparent !important;
@@ -1796,7 +1803,7 @@ html.infra-mode .post-header .post-summary { display: none; }
   box-shadow: none !important;
 }
 html.infra-mode .ssh-terminal-open-btn {
-  display: inline-flex;
+  display: none;
 }
 .ssh-terminal-open-btn:hover {
   color: var(--accent) !important;
@@ -2129,7 +2136,7 @@ html:not(.infra-mode) .post-body {
   margin-left: 0.25rem;
 }
 
-.sidebar-author-actions {
+.nav-author-actions {
   margin-top: 0.75rem;
 }
 
