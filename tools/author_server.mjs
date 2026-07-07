@@ -28,6 +28,30 @@ const MONTHS_ES = [
   "diciembre",
 ];
 
+function iconSvg(paths) {
+  return `<svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${paths}</svg>`;
+}
+
+const ICONS = Object.freeze({
+  back: iconSvg(`<path d="m15 18-6-6 6-6" />`),
+  undo: iconSvg(`<path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5A5.5 5.5 0 0 1 14.5 20H11" />`),
+  redo: iconSvg(`<path d="m15 14 5-5-5-5" /><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5 5.5 5.5 0 0 0 9.5 20H13" />`),
+  bold: iconSvg(`<path d="M6 4h8a4 4 0 0 1 0 8H6z" /><path d="M6 12h9a4 4 0 0 1 0 8H6z" />`),
+  italic: iconSvg(`<path d="M19 4h-9" /><path d="M14 20H5" /><path d="m15 4-6 16" />`),
+  strike: iconSvg(`<path d="M16 4H9a3 3 0 0 0-2.83 4" /><path d="M14 12a4 4 0 0 1 0 8H6" /><path d="M4 12h16" />`),
+  code: iconSvg(`<path d="m18 16 4-4-4-4" /><path d="m6 8-4 4 4 4" /><path d="m14.5 4-5 16" />`),
+  link: iconSvg(`<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />`),
+  heading: iconSvg(`<path d="M4 12h8" /><path d="M4 18V6" /><path d="M12 18V6" /><path d="M17 12a2 2 0 1 1 4 0c0 3-4 3-4 6h4" />`),
+  quote: iconSvg(`<path d="M16 3a2 2 0 0 0-2 2v6h6V5a2 2 0 0 0-2-2z" /><path d="M8 3a2 2 0 0 0-2 2v6h6V5a2 2 0 0 0-2-2z" /><path d="M12 11c0 4-2 7-6 8" /><path d="M20 11c0 4-2 7-6 8" />`),
+  list: iconSvg(`<path d="M8 6h13" /><path d="M8 12h13" /><path d="M8 18h13" /><path d="M3 6h.01" /><path d="M3 12h.01" /><path d="M3 18h.01" />`),
+  orderedList: iconSvg(`<path d="M10 6h11" /><path d="M10 12h11" /><path d="M10 18h11" /><path d="M4 6h1v4" /><path d="M4 10h2" /><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" />`),
+  image: iconSvg(`<rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />`),
+  typewriter: iconSvg(`<path d="M12 3v18" /><path d="M8 7h8" /><path d="M8 17h8" /><path d="M4 12h16" />`),
+  history: iconSvg(`<path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l4 2" />`),
+  info: iconSvg(`<circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" />`),
+  settings: iconSvg(`<path d="M9.7 4.1a2.3 2.3 0 0 1 4.6 0 2.3 2.3 0 0 0 3.3 1.9 2.3 2.3 0 0 1 2.3 4 2.3 2.3 0 0 0 0 3.8 2.3 2.3 0 0 1-2.3 4 2.3 2.3 0 0 0-3.3 1.9 2.3 2.3 0 0 1-4.6 0 2.3 2.3 0 0 0-3.3-1.9 2.3 2.3 0 0 1-2.3-4 2.3 2.3 0 0 0 0-3.8 2.3 2.3 0 0 1 2.3-4 2.3 2.3 0 0 0 3.3-1.9" /><circle cx="12" cy="12" r="3" />`),
+});
+
 function sendJson(res, status, payload) {
   res.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
@@ -524,6 +548,7 @@ function authorEditorHtml() {
       --editor-title-size: 2rem;
       --editor-subtitle-size: 1rem;
       --editor-body-size: 1rem;
+      --writer-width: 48rem;
     }
     * { box-sizing: border-box; }
     html, body {
@@ -596,6 +621,16 @@ function authorEditorHtml() {
       border-color: var(--accent);
       color: var(--accent);
     }
+    .button-icon {
+      width: 1.15rem;
+      height: 1.15rem;
+      flex: 0 0 auto;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
     .primary {
       background: var(--accent);
       border-color: var(--accent);
@@ -621,7 +656,7 @@ function authorEditorHtml() {
       overflow: auto;
     }
     .paper {
-      width: min(48rem, 100%);
+      width: min(var(--writer-width), 100%);
     }
     .title-input,
     .body-input {
@@ -728,12 +763,20 @@ function authorEditorHtml() {
       color: var(--danger);
     }
     .back-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       border: 0;
       background: transparent;
       color: #333333;
-      font-size: 1.4rem;
+      font-size: 1rem;
       min-width: 2.25rem;
       padding: 0;
+    }
+    .back-button .button-icon {
+      width: 1.3rem;
+      height: 1.3rem;
+      stroke-width: 2.2;
     }
     .saved-pill {
       display: inline-flex;
@@ -765,40 +808,61 @@ function authorEditorHtml() {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.45rem;
+      padding: 0 1.5rem;
       border-bottom: 1px solid #eeeeee;
       background: #ffffff;
       overflow-x: auto;
       overflow-y: hidden;
+    }
+    .formatbar-inner {
+      width: min(var(--writer-width), 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      min-width: 0;
+    }
+    .toolbar-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      flex: 0 0 auto;
     }
     .formatbar button {
       flex: 0 0 auto;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 2.2rem;
+      width: 2.15rem;
+      min-width: 2.15rem;
       border: 0;
+      border-radius: 0.35rem;
       background: transparent;
       color: #444444;
-      min-height: 2.2rem;
-      padding: 0.25rem 0.45rem;
+      min-height: 2.15rem;
+      padding: 0;
       font-size: 1rem;
       font-weight: 700;
     }
-    .formatbar button[data-format="undo"],
-    .formatbar button[data-format="redo"] {
-      font-size: 1.35rem;
-      line-height: 1;
+    .formatbar button .button-icon {
+      width: 1.12rem;
+      height: 1.12rem;
+      stroke-width: 2.05;
     }
     .formatbar button:hover {
       background: #f5f5f5;
       color: #1d1d1d;
     }
+    .formatbar button.is-active {
+      background: #fff1e9;
+      color: #ff671f;
+    }
     .divider {
       width: 1px;
       height: 2.2rem;
       background: #eeeeee;
-      margin: 0 0.35rem;
+      margin: 0 0.15rem;
+      flex: 0 0 auto;
     }
     .subtitle-input {
       width: 100%;
@@ -856,15 +920,29 @@ function authorEditorHtml() {
       right: 1.2rem;
     }
     .utility-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
       border: 0;
       border-radius: 0.45rem;
-      background: #efefef;
+      background: #f0f0f0;
       color: #4a4a4a;
-      min-height: 2.7rem;
-      padding: 0 0.85rem;
-      font-weight: 800;
+      min-height: 2.35rem;
+      padding: 0 0.7rem;
+      font-weight: 700;
+    }
+    .utility-button.icon-only {
+      width: 2.35rem;
+      padding: 0;
+    }
+    .utility-button .button-icon {
+      width: 1rem;
+      height: 1rem;
+      stroke-width: 2.1;
     }
     .reference-theme {
+      --writer-width: 43rem;
       --bg: #ffffff;
       --panel: #ffffff;
       --panel-2: #f2f2f2;
@@ -887,17 +965,16 @@ function authorEditorHtml() {
       display: none;
     }
     .reference-theme .status {
-      color: #505050;
-      font-size: 0;
+      display: none;
     }
     .reference-theme .top-actions button {
-      min-height: 3rem;
+      min-height: 2.7rem;
       border: 0;
-      border-radius: 0.55rem;
-      padding: 0 1.1rem;
-      background: #eeeeee;
+      border-radius: 0.45rem;
+      padding: 0 1rem;
+      background: #f0f0f0;
       color: #3d3d3d;
-      font-weight: 800;
+      font-weight: 700;
     }
     .reference-theme .top-actions .primary {
       background: #ff671f;
@@ -912,7 +989,7 @@ function authorEditorHtml() {
       padding: 2.4rem 1.5rem 7rem;
     }
     .reference-theme .paper {
-      width: min(43rem, 100%);
+      width: min(var(--writer-width), 100%);
       margin-left: auto;
       margin-right: auto;
     }
@@ -991,6 +1068,10 @@ function authorEditorHtml() {
       background: transparent;
     }
     .reference-theme[data-theme="dark"] .formatbar button:hover {
+      color: #e8e8ea;
+      background: #0b0c0f;
+    }
+    .reference-theme[data-theme="dark"] .formatbar button.is-active {
       color: #4ecca3;
       background: #0b0c0f;
     }
@@ -1065,7 +1146,11 @@ function authorEditorHtml() {
       }
       .formatbar {
         justify-content: flex-start;
-        padding: 0 1rem;
+        padding: 0 0.85rem;
+      }
+      .formatbar-inner {
+        width: max-content;
+        justify-content: flex-start;
       }
       .topbar {
         align-items: flex-start;
@@ -1092,7 +1177,7 @@ function authorEditorHtml() {
 <body class="reference-theme" data-theme="dark">
   <header class="topbar">
     <div class="brand">
-      <button type="button" class="back-button" id="back" aria-label="Back">‹</button>
+      <button type="button" class="back-button" id="back" aria-label="Back">${ICONS.back}</button>
       <strong>Author Editor</strong>
       <span class="saved-pill" id="saved-pill">Saved</span>
       <span class="status" id="status">Loading</span>
@@ -1103,23 +1188,35 @@ function authorEditorHtml() {
     </div>
   </header>
   <nav class="formatbar" aria-label="Formatting">
-    <button type="button" data-format="undo" title="Undo" aria-label="Undo">↶</button>
-    <button type="button" data-format="redo" title="Redo" aria-label="Redo">↷</button>
-    <span class="divider"></span>
-    <button type="button" data-format="bold" title="Bold" aria-label="Bold">B</button>
-    <button type="button" data-format="italic" title="Italic" aria-label="Italic"><em>I</em></button>
-    <button type="button" data-format="strike" title="Strikethrough" aria-label="Strikethrough">S</button>
-    <button type="button" data-format="code" title="Code" aria-label="Code">&lt;&gt;</button>
-    <button type="button" data-format="link" title="Link" aria-label="Link">🔗</button>
-    <span class="divider"></span>
-    <button type="button" data-format="heading" title="Heading" aria-label="Heading">H</button>
-    <button type="button" data-format="quote" title="Quote" aria-label="Quote">❞</button>
-    <button type="button" data-format="ul" title="Bulleted list" aria-label="Bulleted list">•</button>
-    <button type="button" data-format="ol" title="Numbered list" aria-label="Numbered list">1.</button>
-    <span class="divider"></span>
-    <button type="button" id="toolbar-image" title="Image" aria-label="Image">▧</button>
-    <span class="divider"></span>
-    <button type="button" id="typewriter" class="typewriter-toggle" title="Typewriter" aria-label="Typewriter">T</button>
+    <div class="formatbar-inner">
+      <span class="toolbar-group" aria-label="History">
+        <button type="button" data-format="undo" title="Undo" aria-label="Undo">${ICONS.undo}</button>
+        <button type="button" data-format="redo" title="Redo" aria-label="Redo">${ICONS.redo}</button>
+      </span>
+      <span class="divider"></span>
+      <span class="toolbar-group" aria-label="Inline formatting">
+        <button type="button" data-format="bold" title="Bold" aria-label="Bold">${ICONS.bold}</button>
+        <button type="button" data-format="italic" title="Italic" aria-label="Italic">${ICONS.italic}</button>
+        <button type="button" data-format="strike" title="Strikethrough" aria-label="Strikethrough">${ICONS.strike}</button>
+        <button type="button" data-format="code" title="Code" aria-label="Code">${ICONS.code}</button>
+        <button type="button" data-format="link" title="Link" aria-label="Link">${ICONS.link}</button>
+      </span>
+      <span class="divider"></span>
+      <span class="toolbar-group" aria-label="Blocks">
+        <button type="button" data-format="heading" title="Heading" aria-label="Heading">${ICONS.heading}</button>
+        <button type="button" data-format="quote" title="Quote" aria-label="Quote">${ICONS.quote}</button>
+        <button type="button" data-format="ul" title="Bulleted list" aria-label="Bulleted list">${ICONS.list}</button>
+        <button type="button" data-format="ol" title="Numbered list" aria-label="Numbered list">${ICONS.orderedList}</button>
+      </span>
+      <span class="divider"></span>
+      <span class="toolbar-group" aria-label="Insert">
+        <button type="button" id="toolbar-image" title="Image" aria-label="Image">${ICONS.image}</button>
+      </span>
+      <span class="divider"></span>
+      <span class="toolbar-group" aria-label="View">
+        <button type="button" id="typewriter" class="typewriter-toggle" title="Typewriter" aria-label="Typewriter">${ICONS.typewriter}</button>
+      </span>
+    </div>
   </nav>
   <main class="shell">
     <section class="writer">
@@ -1175,11 +1272,11 @@ function authorEditorHtml() {
     </aside>
   </main>
   <div class="bottom-left">
-    <button type="button" class="utility-button" title="History">↺</button>
-    <button type="button" class="utility-button" title="Info">ⓘ</button>
+    <button type="button" class="utility-button icon-only" title="History" aria-label="History">${ICONS.history}</button>
+    <button type="button" class="utility-button icon-only" title="Info" aria-label="Info">${ICONS.info}</button>
   </div>
   <div class="bottom-right">
-    <button type="button" class="utility-button" id="settings-button">⚙ Settings</button>
+    <button type="button" class="utility-button" id="settings-button">${ICONS.settings}<span>Settings</span></button>
   </div>
   <script>
     (function () {
@@ -1607,7 +1704,13 @@ function authorEditorHtml() {
       function setStatus(message, error) {
         els.status.textContent = message;
         els.status.classList.toggle("error", Boolean(error));
-        els.savedPill.textContent = error ? "Error" : message;
+        els.savedPill.textContent = shortStatus(message, error);
+      }
+
+      function shortStatus(message, error) {
+        if (error) return "Error";
+        if (message === "Saving") return "Saving";
+        return "Saved";
       }
 
       function currentSeparator() {
