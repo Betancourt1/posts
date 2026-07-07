@@ -25,6 +25,9 @@ Desde la raiz del repo:
 # Desarrollo local, incluyendo borradores
 npm run dev
 
+# Desarrollo local con UI de autoria en navegador
+npm run author
+
 # Crear contenido sin recordar rutas internas
 npm run new:post -- "Titulo del texto"
 npm run new:zettel -- "Idea concreta"
@@ -42,6 +45,14 @@ Si tienes `hugo` en PATH, tambien puedes usar `hugo server -D` y `hugo --gc --mi
 ## Crear contenido
 
 La guia corta de autoria esta en `CONTENT.md`.
+
+Para escribir desde el navegador usa:
+
+```bash
+npm run author
+```
+
+Ese modo agrega un panel local `Author` para crear notebooks, abrir una pestaña de editor para posts/paginas, editar la pagina actual, subir imagenes y escribir con modo `Typewriter`. El build de produccion no incluye ese panel.
 
 ```bash
 # Nuevo post en espanol

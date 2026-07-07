@@ -7,6 +7,9 @@
 
 <body>
   {{ $showSearch := partial "search_enabled.html" . }}
+  {{ if and hugo.IsServer (eq hugo.Environment "author") }}
+    {{ partial "author_tools.html" . }}
+  {{ end }}
   <header class="site-header">
     <h1 class="site-title"><a href="{{ "/" | relURL }}">betancourt</a></h1>
     <p class="site-subtitle">{{ .Site.Params.subtitle | default "aquí escribo cosas" }}</p>
@@ -141,6 +144,9 @@
   <script src="{{ "js/knowledge-graph.js" | relURL }}" defer></script>
   <script src="{{ "js/infrastructure.js" | relURL }}" defer></script>
   <script src="{{ "js/typography.js" | relURL }}" defer></script>
+  {{ if and hugo.IsServer (eq hugo.Environment "author") }}
+    <script src="{{ "js/author-tools.js" | relURL }}" defer></script>
+  {{ end }}
 </body>
 
 </html>

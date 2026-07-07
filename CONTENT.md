@@ -7,6 +7,25 @@ Este sitio tiene dos raices de contenido:
 
 Para escribir, usa los comandos de autor antes de tocar rutas a mano.
 
+## Escribir desde el navegador
+
+```bash
+npm run author
+```
+
+Abre `http://localhost:3000`. En la esquina inferior derecha aparece el boton `Author`.
+
+Ese modo permite:
+
+- Crear notebooks, que son carpetas con `_index.md`.
+- Crear posts o paginas dentro de un notebook desde una pestaña de editor.
+- Editar el post o pagina actual desde esa pestaña de editor.
+- Editar el notebook actual desde esa pestaña de editor.
+- Subir imagenes a `static/uploads/` e insertar el Markdown correspondiente.
+- Activar `Typewriter` para escribir con la linea activa centrada.
+
+Este modo usa una API local en `127.0.0.1:3001`. La UI de autor solo se renderiza con `npm run author`; `npm run build` no incluye los botones ni la API.
+
 ## Crear piezas nuevas
 
 ```bash
@@ -49,7 +68,7 @@ rg -n "texto que recuerdas" content_es content_en
 npm run dev
 ```
 
-Ese comando muestra tambien borradores. Cuando el contenido ya este listo:
+Ese comando muestra tambien borradores, pero no levanta la API de escritura. Para editar desde el navegador usa `npm run author`. Cuando el contenido ya este listo:
 
 ```bash
 npm run build

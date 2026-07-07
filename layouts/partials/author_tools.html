@@ -1,0 +1,42 @@
+{{- $contentRoot := cond (eq .Site.Language.Lang "es") "content_es" "content_en" -}}
+{{- $sourcePath := "" -}}
+{{- with .File -}}
+  {{- $sourcePath = printf "%s/%s" $contentRoot .Path -}}
+{{- end -}}
+<div
+  class="author-tools"
+  id="author-tools"
+  data-api="http://127.0.0.1:3001"
+  data-source-path="{{ $sourcePath }}"
+  data-lang="{{ .Site.Language.Lang }}"
+  data-kind="{{ .Kind }}"
+  data-section="{{ .Section }}"
+>
+  <button class="author-toggle" id="author-toggle" type="button" aria-expanded="false" aria-controls="author-panel">
+    Author
+  </button>
+  <div class="author-panel" id="author-panel" hidden>
+    <div class="author-panel-header">
+      <span>Local Author</span>
+      <span class="author-status" id="author-status">checking</span>
+    </div>
+    <div class="author-actions">
+      <button type="button" id="author-add-notebook">Add Notebook</button>
+      <button type="button" id="author-add-post">Add Post</button>
+      <button type="button" id="author-edit-notebook">Edit Current Notebook</button>
+      <button type="button" id="author-edit-post">Edit Current Post</button>
+      <button type="button" id="author-add-image">Add Images</button>
+    </div>
+  </div>
+  <div class="author-modal" id="author-modal" hidden>
+    <div class="author-dialog" role="dialog" aria-modal="true" aria-labelledby="author-modal-title">
+      <div class="author-dialog-header">
+        <h2 id="author-modal-title">Author</h2>
+        <button class="author-close" id="author-close" type="button" aria-label="Close">&times;</button>
+      </div>
+      <div id="author-modal-body"></div>
+    </div>
+  </div>
+  <input id="author-image-input" type="file" accept="image/*" hidden />
+  <div class="author-toast" id="author-toast" role="status" hidden></div>
+</div>
