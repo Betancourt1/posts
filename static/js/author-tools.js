@@ -230,7 +230,7 @@
         ? state.currentNotebook.path
         : "content_es/posts";
 
-    openEditorTab({
+    openEditor({
       mode: "new",
       notebook: notebook,
     });
@@ -250,7 +250,7 @@
       return;
     }
 
-    openEditorTab({
+    openEditor({
       mode: "edit",
       kind: "notebook",
       path: notebook.indexPath,
@@ -270,14 +270,14 @@
       return;
     }
 
-    openEditorTab({
+    openEditor({
       mode: "edit",
       kind: "post",
       path: path,
     });
   }
 
-  function openEditorTab(params) {
+  function openEditor(params) {
     var theme = document.documentElement.getAttribute("data-theme") || "dark";
 
     try {
@@ -302,7 +302,7 @@
       query.set("notebook", params.notebook);
     }
 
-    window.open(apiBase + "/editor?" + query.toString(), "_blank", "noopener");
+    window.location.assign(apiBase + "/editor?" + query.toString());
   }
 
   function openExistingEditor(path, title, kind) {

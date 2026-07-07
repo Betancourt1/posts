@@ -1482,6 +1482,7 @@ function authorEditorHtml() {
           savedSnapshot = currentSaveSnapshot();
           setStatus("Saved");
           syncPreviewButton();
+          goToSavedPage();
         }).catch(function (error) {
           setStatus(error.message, true);
         }).finally(function () {
@@ -1859,6 +1860,14 @@ function authorEditorHtml() {
         var url = previewUrl();
         els.openSite.disabled = !url;
         els.openSite.title = url ? "" : "Save before preview";
+      }
+
+      function goToSavedPage() {
+        var url = previewUrl();
+        if (!url) {
+          return;
+        }
+        window.location.assign(url);
       }
 
       function currentSeparator() {
