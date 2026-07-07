@@ -2412,6 +2412,11 @@ body:has(.author-toast:not([hidden])) .ssh-terminal-open-btn {
     height: 40px !important;
   }
 
+  .nav-author-row .author-action-button {
+    width: 1em !important;
+    height: 1em !important;
+  }
+
   .typo-container {
     height: 40px;
   }

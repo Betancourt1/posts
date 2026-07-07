@@ -7,7 +7,7 @@
 
 <body>
   {{ $showSearch := partial "search_enabled.html" . }}
-  {{ if and hugo.IsServer (eq hugo.Environment "author") }}
+  {{ if partial "author_enabled.html" . }}
     {{ partial "author_tools.html" . }}
   {{ end }}
   <header class="site-header">
@@ -144,7 +144,7 @@
   <script src="{{ "js/knowledge-graph.js" | relURL }}" defer></script>
   <script src="{{ "js/infrastructure.js" | relURL }}" defer></script>
   <script src="{{ "js/typography.js" | relURL }}" defer></script>
-  {{ if and hugo.IsServer (eq hugo.Environment "author") }}
+  {{ if partial "author_enabled.html" . }}
     <script src="{{ "js/author-tools.js" | relURL }}" defer></script>
   {{ end }}
 </body>

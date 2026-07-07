@@ -6,7 +6,7 @@
       <div class="post-header-top" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 8px;">
         <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
         <div class="post-header-actions">
-          {{ if and hugo.IsServer (eq hugo.Environment "author") .File }}
+          {{ if and (partial "author_enabled.html" .) .File }}
             <button
               type="button"
               class="author-action-button"

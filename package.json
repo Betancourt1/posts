@@ -1,14 +1,14 @@
 {
   "private": true,
   "scripts": {
-    "dev": "hugo server -D --bind 0.0.0.0 --port 3000 --baseURL / --appendPort=false --disableFastRender",
-    "start": "hugo server -D --bind 0.0.0.0 --port 3000 --baseURL / --appendPort=false --disableFastRender",
+    "dev": "hugo server -D --renderToMemory --bind 0.0.0.0 --port 3010 --baseURL / --appendPort=false --disableFastRender",
+    "start": "hugo server -D --renderToMemory --bind 0.0.0.0 --port 3010 --baseURL / --appendPort=false --disableFastRender",
     "author": "node tools/author_dev.mjs",
     "author:api": "node tools/author_server.mjs",
     "new:post": "node tools/new_content.mjs post",
     "new:zettel": "node tools/new_content.mjs zettel",
     "new:page": "node tools/new_content.mjs page",
-    "build": "hugo --gc --minify && node tools/clean_pagefind_output.mjs && pagefind --site public",
+    "build": "node tools/check_author_ui_gate.mjs && hugo --gc --minify && node tools/clean_pagefind_output.mjs && pagefind --site public",
     "build:local": "npm run build && node tools/sync_pagefind_static.mjs"
   },
   "devDependencies": {

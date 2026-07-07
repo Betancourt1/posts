@@ -3,7 +3,7 @@
   <header class="page-header">
     <div class="page-header-row">
       <h1>{{ .Title }}</h1>
-      {{ if and hugo.IsServer (eq hugo.Environment "author") .File }}
+      {{ if and (partial "author_enabled.html" .) .File }}
         <div class="author-inline-actions">
           <button
             type="button"

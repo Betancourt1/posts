@@ -1,4 +1,4 @@
-{{ $isAuthor := and hugo.IsServer (eq hugo.Environment "author") }}
+{{ $isAuthor := partial "author_enabled.html" . }}
 <nav class="nav{{ if $isAuthor }} nav--author{{ end }}">
   {{ if $isAuthor }}
     <div class="nav-author-row">
