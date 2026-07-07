@@ -145,7 +145,11 @@
   <script src="{{ "js/infrastructure.js" | relURL }}" defer></script>
   <script src="{{ "js/typography.js" | relURL }}" defer></script>
   {{ if partial "author_enabled.html" . }}
-    <script src="{{ "js/author-tools.js" | relURL }}" defer></script>
+    {{ $authorToolsSrc := "js/author-tools.js" | relURL }}
+    {{ if hugo.IsServer }}
+      {{ $authorToolsSrc = printf "%s?v=%d" $authorToolsSrc now.Unix }}
+    {{ end }}
+    <script src="{{ $authorToolsSrc }}" defer></script>
   {{ end }}
 </body>
 

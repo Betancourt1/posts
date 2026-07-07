@@ -76,6 +76,10 @@ function redirect(res, location) {
   res.end();
 }
 
+function siteAssetUrl(assetPath) {
+  return `${SITE_ORIGIN.replace(/\/+$/, "")}/${assetPath.replace(/^\/+/, "")}`;
+}
+
 function readJson(req) {
   return new Promise((resolve, reject) => {
     let size = 0;
@@ -530,6 +534,10 @@ function authorEditorHtml() {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Author Editor</title>
+  <link rel="apple-touch-icon" href="${siteAssetUrl("favicon-32.png")}" />
+  <link rel="icon" type="image/png" sizes="32x32" href="${siteAssetUrl("favicon-32.png")}" />
+  <link rel="icon" type="image/png" sizes="16x16" href="${siteAssetUrl("favicon-16.png")}" />
+  <link rel="manifest" href="${siteAssetUrl("site.webmanifest")}" />
   <style>
     :root {
       color-scheme: dark;
