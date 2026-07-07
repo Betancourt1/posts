@@ -67,7 +67,7 @@
       var storageKey = "zen_mode_enabled";
       var body = document.body;
       var fadeDuration = 280;
-      var layoutDuration = 650;
+      var returnRevealDelay = 40;
       var zenTimer = null;
 
       function clearZenTimer() {
@@ -99,7 +99,7 @@
           zenTimer = setTimeout(function () {
             body.classList.remove("zen-mode-returning");
             zenTimer = null;
-          }, layoutDuration);
+          }, returnRevealDelay);
           return;
         }
 

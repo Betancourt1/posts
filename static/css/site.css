@@ -1332,16 +1332,14 @@ body.zen-mode-returning .layout {
     width: 220px;
     opacity: 1;
     overflow: hidden;
-    transition: width 0.65s cubic-bezier(0.25, 1, 0.5, 1),
-                opacity 0.28s ease;
+    transition: opacity 0.28s ease;
   }
 
   .sidebar-column {
     width: 260px;
     opacity: 1;
     overflow: hidden;
-    transition: width 0.65s cubic-bezier(0.25, 1, 0.5, 1),
-                opacity 0.28s ease;
+    transition: opacity 0.28s ease;
   }
 
   body.zen-mode-fading .nav-column,
@@ -1352,6 +1350,13 @@ body.zen-mode-returning .layout {
   body.zen-mode .sidebar-column {
     opacity: 0;
     pointer-events: none;
+  }
+
+  body.zen-mode-returning .nav-column,
+  body.zen-mode-returning .sidebar-column,
+  body.zen-mode .nav-column,
+  body.zen-mode .sidebar-column {
+    transition: none;
   }
 
   body.zen-mode .nav-column {
