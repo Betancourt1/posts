@@ -800,6 +800,15 @@ function authorEditorHtml() {
       border-radius: 999px;
       background: #26c281;
     }
+    .saved-pill[data-state="unsaved"]::before {
+      background: #f5a623;
+    }
+    .saved-pill[data-state="saving"]::before {
+      background: #8d949e;
+    }
+    .saved-pill[data-state="error"]::before {
+      background: var(--danger);
+    }
     .formatbar {
       max-width: 100vw;
       height: 4.75rem;
@@ -1257,6 +1266,9 @@ function authorEditorHtml() {
       var savedUrl = "";
       var slugTouched = false;
       var editorSizeStorageKey = "authorEditorFontSize";
+      var savedSnapshot = null;
+      var saveInProgress = false;
+      var saveFailed = false;
       var bodyHistory = [];
       var bodyHistoryIndex = -1;
       var restoringBodyHistory = false;
@@ -1318,14 +1330,17 @@ function authorEditorHtml() {
             els.slug.value = slugify(els.title.value, currentSeparator());
           }
           resizeTextarea(els.title);
+          markContentEdited();
         });
         els.slug.addEventListener("input", function () {
           slugTouched = true;
+          markContentEdited();
         });
         els.notebook.addEventListener("change", function () {
           if (mode === "new" && !slugTouched) {
             els.slug.value = slugify(els.title.value, currentSeparator());
           }
+          markContentEdited();
         });
         els.save.addEventListener("click", save);
         els.typewriter.addEventListener("click", toggleTypewriter);
@@ -1339,6 +1354,12 @@ function authorEditorHtml() {
           }
           resizeTextarea(els.body);
           centerTypewriterLine();
+        });
+        [els.summary, els.date, els.tags].forEach(function (input) {
+          input.addEventListener("input", markContentEdited);
+        });
+        [els.draft, els.hidden].forEach(function (input) {
+          input.addEventListener("change", markContentEdited);
         });
         els.body.addEventListener("click", centerTypewriterLine);
         els.body.addEventListener("keyup", centerTypewriterLine);
@@ -1407,8 +1428,12 @@ function authorEditorHtml() {
         els.date.value = today();
         els.draft.checked = true;
         els.hidden.checked = false;
+        savedSnapshot = null;
+        saveInProgress = false;
+        saveFailed = false;
         setStatus("New post");
         resetBodyHistory();
+        syncSavedState();
         syncPreviewButton();
         resizeEditorFields();
         els.title.focus();
@@ -1429,8 +1454,12 @@ function authorEditorHtml() {
           els.hidden.checked = frontMatter.hidden === true;
           els.body.value = payload.body || "";
           els.path.textContent = payload.path || "";
+          savedSnapshot = currentSaveSnapshot();
+          saveInProgress = false;
+          saveFailed = false;
           setStatus("Editing " + (payload.path || ""));
           resetBodyHistory();
+          syncSavedState();
           syncPreviewButton();
           resizeEditorFields();
           els.body.focus();
@@ -1450,6 +1479,7 @@ function authorEditorHtml() {
           mode = "edit";
           els.notebookField.hidden = true;
           els.slug.disabled = true;
+          savedSnapshot = currentSaveSnapshot();
           setStatus("Saved");
           syncPreviewButton();
         }).catch(function (error) {
@@ -1644,12 +1674,14 @@ function authorEditorHtml() {
         var current = bodyHistory[bodyHistoryIndex];
         if (current && current.value === snapshot.value && current.selectionStart === snapshot.selectionStart && current.selectionEnd === snapshot.selectionEnd) {
           updateHistoryButtons();
+          syncSavedState();
           return;
         }
         bodyHistory = bodyHistory.slice(0, bodyHistoryIndex + 1);
         bodyHistory.push(snapshot);
         bodyHistoryIndex = bodyHistory.length - 1;
         updateHistoryButtons();
+        markContentEdited();
       }
 
       function restoreBodySnapshot(snapshot) {
@@ -1662,6 +1694,7 @@ function authorEditorHtml() {
         resizeTextarea(els.body);
         centerTypewriterLine();
         updateHistoryButtons();
+        markContentEdited();
       }
 
       function undoBody() {
@@ -1752,13 +1785,64 @@ function authorEditorHtml() {
       function setStatus(message, error) {
         els.status.textContent = message;
         els.status.classList.toggle("error", Boolean(error));
-        els.savedPill.textContent = shortStatus(message, error);
+        if (error) {
+          saveInProgress = false;
+          saveFailed = true;
+          syncSavedState();
+          return;
+        }
+        if (message === "Saving") {
+          saveInProgress = true;
+          saveFailed = false;
+          syncSavedState();
+          return;
+        }
+        if (message === "Saved") {
+          saveInProgress = false;
+          saveFailed = false;
+        }
+        syncSavedState();
       }
 
-      function shortStatus(message, error) {
-        if (error) return "Error";
-        if (message === "Saving") return "Saving";
-        return "Saved";
+      function markContentEdited() {
+        saveFailed = false;
+        syncSavedState();
+      }
+
+      function currentSaveSnapshot() {
+        return JSON.stringify({
+          sourcePath: sourcePath,
+          notebook: els.notebook.value,
+          title: els.title.value,
+          summary: els.summary.value,
+          slug: els.slug.value,
+          date: els.date.value,
+          tags: els.tags.value,
+          draft: els.draft.checked,
+          hidden: els.hidden.checked,
+          body: els.body.value,
+        });
+      }
+
+      function syncSavedState() {
+        if (saveInProgress) {
+          setSavePill("saving", "Saving");
+          return;
+        }
+        if (saveFailed) {
+          setSavePill("error", "Error");
+          return;
+        }
+        if (savedSnapshot && currentSaveSnapshot() === savedSnapshot) {
+          setSavePill("saved", "Saved");
+          return;
+        }
+        setSavePill("unsaved", "Unsaved");
+      }
+
+      function setSavePill(state, label) {
+        els.savedPill.dataset.state = state;
+        els.savedPill.textContent = label;
       }
 
       function previewUrl() {
