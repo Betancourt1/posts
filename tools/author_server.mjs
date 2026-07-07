@@ -782,6 +782,12 @@ function authorEditorHtml() {
       font-size: 1rem;
       font-weight: 700;
     }
+    .formatbar button[data-format="undo"],
+    .formatbar button[data-format="redo"] {
+      min-width: 2.2rem;
+      font-size: 1.35rem;
+      line-height: 1;
+    }
     .formatbar select {
       width: 5.75rem;
       font-size: 0.9rem;
