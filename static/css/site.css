@@ -189,6 +189,18 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   position: relative;
 }
 
+.site-header-actions .lang-toggle,
+.site-header-actions .typo-toggle {
+  font-size: 0.76rem;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.infra-toggle svg {
+  width: 17px !important;
+  height: 17px !important;
+}
+
 .theme-toggle:hover,
 .grayscale-toggle:hover,
 .lang-toggle:hover,
@@ -1131,8 +1143,8 @@ sup, sub { line-height: 0; }
   }
 
   .graph-tool {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
   }
 
   .graph-range {
@@ -1820,6 +1832,15 @@ html.infra-mode .ssh-terminal-open-btn {
   display: block;
 }
 
+@media (max-width: 1000px) {
+  .ssh-terminal-open-btn {
+    right: 16px;
+    bottom: 18px;
+    width: 44px;
+    height: 44px;
+  }
+}
+
 /* Adjust main content when terminal is open — handled dynamically by JS */
 body.terminal-resizing {
   user-select: none;
@@ -2136,14 +2157,9 @@ html:not(.infra-mode) .post-body {
   transition: color 0.2s ease, transform 0.2s ease;
 }
 
-.author-action-button--compact {
-  width: 28px;
-  height: 28px;
-}
-
 .author-action-button svg {
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   display: block;
   fill: none;
   stroke: currentColor;
@@ -2153,14 +2169,10 @@ html:not(.infra-mode) .post-body {
   pointer-events: none;
 }
 
-.author-action-button--compact svg {
-  width: 14px;
-  height: 14px;
-}
-
-.archive-item .author-action-button {
-  flex: 0 0 auto;
-  margin-left: 0.25rem;
+.post-header-actions .author-action-button svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.1;
 }
 
 .nav-author-actions {
@@ -2343,7 +2355,26 @@ html:not(.infra-mode) .post-body {
   font-size: 0.78rem;
 }
 
+body:has(.author-toast:not([hidden])) .ssh-terminal-open-btn {
+  bottom: 4.75rem;
+}
+
 @media (max-width: 720px) {
+  .theme-toggle,
+  .grayscale-toggle,
+  .lang-toggle,
+  .infra-toggle,
+  .typo-toggle,
+  .author-action-button,
+  .zen-toggle-btn {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .typo-container {
+    height: 40px;
+  }
+
   .page-header-row {
     display: block;
   }

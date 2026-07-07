@@ -1,6 +1,4 @@
 {{ define "main" }}
-  {{ $isEnglish := eq .Site.Language.Lang "en" }}
-  {{ $contentRoot := cond $isEnglish "content_en" "content_es" }}
   <header class="page-header">
     <h1>{{ .Title }}</h1>
   </header>
@@ -10,18 +8,6 @@
         <article class="post-card">
           <div class="post-card-top">
             <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
-            {{ if and hugo.IsServer (eq hugo.Environment "author") .File }}
-              <button
-                type="button"
-                class="author-action-button author-action-button--compact"
-                data-author-action="edit-post"
-                data-source-path="{{ printf "%s/%s" $contentRoot .File.Path }}"
-                aria-label="{{ if $isEnglish }}Edit {{ .Title }}{{ else }}Editar {{ .Title }}{{ end }}"
-                title="{{ if $isEnglish }}Edit{{ else }}Editar{{ end }}"
-              >
-                {{ partial "author_icon.html" "pencil" }}
-              </button>
-            {{ end }}
           </div>
           <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
           <p>{{ .Summary }}</p>
