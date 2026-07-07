@@ -1,4 +1,4 @@
-import { requireAuthor } from "../_lib/auth.js";
+import { requireAuthor } from "../../_lib/auth.js";
 
 export async function onRequest(context) {
   try {
