@@ -7,8 +7,14 @@
         <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
         <div class="post-header-actions">
           {{ if and hugo.IsServer (eq hugo.Environment "author") .File }}
-            <button type="button" class="author-action-button" data-author-action="edit-post">
-              {{ if eq .Site.Language.Lang "en" }}Edit page{{ else }}Editar página{{ end }}
+            <button
+              type="button"
+              class="author-action-button"
+              data-author-action="edit-post"
+              aria-label="{{ if eq .Site.Language.Lang "en" }}Edit page{{ else }}Editar página{{ end }}"
+              title="{{ if eq .Site.Language.Lang "en" }}Edit page{{ else }}Editar página{{ end }}"
+            >
+              {{ partial "author_icon.html" "pencil" }}
             </button>
           {{ end }}
           <button type="button" class="zen-toggle-btn" id="zen-toggle-btn" aria-label="Modo lectura Zen" title="Modo lectura Zen" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0;">

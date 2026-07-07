@@ -10,8 +10,14 @@
   </ul>
   {{ if and hugo.IsServer (eq hugo.Environment "author") }}
     <div class="nav-author-actions">
-      <button type="button" class="author-action-button" data-author-action="add-notebook">
-        {{ if eq .Site.Language.Lang "en" }}New notebook{{ else }}Nuevo notebook{{ end }}
+      <button
+        type="button"
+        class="author-action-button"
+        data-author-action="add-notebook"
+        aria-label="{{ if eq .Site.Language.Lang "en" }}New notebook{{ else }}Nuevo notebook{{ end }}"
+        title="{{ if eq .Site.Language.Lang "en" }}New notebook{{ else }}Nuevo notebook{{ end }}"
+      >
+        {{ partial "author_icon.html" "folder-plus" }}
       </button>
     </div>
   {{ end }}

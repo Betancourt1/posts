@@ -24,12 +24,11 @@
   {{- $root := dict "type" "dir" "name" "/" "children" $rootChildren -}}
   <script type="application/json" id="infra-sitemap">{{ $root | jsonify }}</script>
   
-  <button class="ssh-terminal-open-btn" id="ssh-terminal-open" type="button" aria-label="Open terminal">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;">
+  <button class="ssh-terminal-open-btn" id="ssh-terminal-open" type="button" aria-label="Open terminal, Ctrl backtick" title="Terminal (Ctrl+`)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="4 17 10 11 4 5"></polyline>
       <line x1="12" y1="19" x2="20" y2="19"></line>
     </svg>
-    <span>terminal <kbd style="opacity:0.5;font-size:0.7rem;">Ctrl+`</kbd></span>
   </button>
   
   <div class="ssh-terminal-overlay" id="ssh-terminal-overlay">

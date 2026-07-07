@@ -6,11 +6,23 @@
       <h1>{{ .Title }}</h1>
       {{ if and hugo.IsServer (eq hugo.Environment "author") .File }}
         <div class="author-inline-actions">
-          <button type="button" class="author-action-button" data-author-action="add-post">
-            {{ if $isEnglish }}New post{{ else }}Nuevo post{{ end }}
+          <button
+            type="button"
+            class="author-action-button"
+            data-author-action="add-post"
+            aria-label="{{ if $isEnglish }}New post{{ else }}Nuevo post{{ end }}"
+            title="{{ if $isEnglish }}New post{{ else }}Nuevo post{{ end }}"
+          >
+            {{ partial "author_icon.html" "file-plus" }}
           </button>
-          <button type="button" class="author-action-button" data-author-action="edit-notebook">
-            {{ if $isEnglish }}Edit notebook{{ else }}Editar notebook{{ end }}
+          <button
+            type="button"
+            class="author-action-button"
+            data-author-action="edit-notebook"
+            aria-label="{{ if $isEnglish }}Edit notebook{{ else }}Editar notebook{{ end }}"
+            title="{{ if $isEnglish }}Edit notebook{{ else }}Editar notebook{{ end }}"
+          >
+            {{ partial "author_icon.html" "pencil" }}
           </button>
         </div>
       {{ end }}
@@ -37,8 +49,10 @@
                 class="author-action-button author-action-button--compact"
                 data-author-action="edit-post"
                 data-source-path="{{ printf "%s/%s" $contentRoot .File.Path }}"
+                aria-label="{{ if $isEnglish }}Edit {{ .Title }}{{ else }}Editar {{ .Title }}{{ end }}"
+                title="{{ if $isEnglish }}Edit{{ else }}Editar{{ end }}"
               >
-                {{ if $isEnglish }}Edit{{ else }}Editar{{ end }}
+                {{ partial "author_icon.html" "pencil" }}
               </button>
             {{ end }}
           </div>
