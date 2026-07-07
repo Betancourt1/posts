@@ -771,9 +771,12 @@ function authorEditorHtml() {
       overflow-x: auto;
       overflow-y: hidden;
     }
-    .formatbar button,
-    .formatbar select {
+    .formatbar button {
       flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2.2rem;
       border: 0;
       background: transparent;
       color: #444444;
@@ -784,16 +787,10 @@ function authorEditorHtml() {
     }
     .formatbar button[data-format="undo"],
     .formatbar button[data-format="redo"] {
-      min-width: 2.2rem;
       font-size: 1.35rem;
       line-height: 1;
     }
-    .formatbar select {
-      width: 5.75rem;
-      font-size: 0.9rem;
-    }
-    .formatbar button:hover,
-    .formatbar select:hover {
+    .formatbar button:hover {
       background: #f5f5f5;
       color: #1d1d1d;
     }
@@ -989,13 +986,11 @@ function authorEditorHtml() {
       border-bottom-color: #1c2025;
     }
     .reference-theme[data-theme="dark"] .formatbar button,
-    .reference-theme[data-theme="dark"] .formatbar select,
     .reference-theme[data-theme="dark"] .back-button {
       color: #cfcfd2;
       background: transparent;
     }
-    .reference-theme[data-theme="dark"] .formatbar button:hover,
-    .reference-theme[data-theme="dark"] .formatbar select:hover {
+    .reference-theme[data-theme="dark"] .formatbar button:hover {
       color: #4ecca3;
       background: #0b0c0f;
     }
@@ -1079,6 +1074,7 @@ function authorEditorHtml() {
         padding: 0.85rem 1rem;
       }
       .reference-theme .topbar {
+        height: auto;
         padding: 0.85rem 1rem;
       }
       .reference-theme .saved-pill {
@@ -1107,37 +1103,23 @@ function authorEditorHtml() {
     </div>
   </header>
   <nav class="formatbar" aria-label="Formatting">
-    <button type="button" data-format="undo" title="Undo">↶</button>
-    <button type="button" data-format="redo" title="Redo">↷</button>
+    <button type="button" data-format="undo" title="Undo" aria-label="Undo">↶</button>
+    <button type="button" data-format="redo" title="Redo" aria-label="Redo">↷</button>
     <span class="divider"></span>
-    <select id="style">
-      <option value="">Style</option>
-      <option value="heading">Heading</option>
-      <option value="quote">Quote</option>
-      <option value="code">Code</option>
-    </select>
+    <button type="button" data-format="bold" title="Bold" aria-label="Bold">B</button>
+    <button type="button" data-format="italic" title="Italic" aria-label="Italic"><em>I</em></button>
+    <button type="button" data-format="strike" title="Strikethrough" aria-label="Strikethrough">S</button>
+    <button type="button" data-format="code" title="Code" aria-label="Code">&lt;&gt;</button>
+    <button type="button" data-format="link" title="Link" aria-label="Link">🔗</button>
     <span class="divider"></span>
-    <button type="button" data-format="bold" title="Bold">B</button>
-    <button type="button" data-format="italic" title="Italic"><em>I</em></button>
-    <button type="button" data-format="strike" title="Strikethrough">S</button>
-    <button type="button" data-format="code" title="Code">&lt;&gt;</button>
-    <button type="button" id="typewriter" class="typewriter-toggle" title="Typewriter">T</button>
-    <button type="button" data-format="mark" title="Highlight">⌁</button>
-    <button type="button" data-format="heading" title="Heading">A⌄</button>
+    <button type="button" data-format="heading" title="Heading" aria-label="Heading">H</button>
+    <button type="button" data-format="quote" title="Quote" aria-label="Quote">❞</button>
+    <button type="button" data-format="ul" title="Bulleted list" aria-label="Bulleted list">•</button>
+    <button type="button" data-format="ol" title="Numbered list" aria-label="Numbered list">1.</button>
     <span class="divider"></span>
-    <button type="button" data-format="link" title="Link">🔗</button>
-    <button type="button" id="toolbar-image" title="Image">▧</button>
-    <button type="button" data-format="quote" title="Quote">❞</button>
+    <button type="button" id="toolbar-image" title="Image" aria-label="Image">▧</button>
     <span class="divider"></span>
-    <button type="button" data-format="ul" title="Bulleted list">☷</button>
-    <button type="button" data-format="ol" title="Numbered list">⑴</button>
-    <button type="button" data-format="align" title="Typewriter">☰⌄</button>
-    <span class="divider"></span>
-    <button type="button" data-format="button">Button⌄</button>
-    <span class="divider"></span>
-    <button type="button" data-format="template">Template⌄</button>
-    <span class="divider"></span>
-    <button type="button" data-format="more">More⌄</button>
+    <button type="button" id="typewriter" class="typewriter-toggle" title="Typewriter" aria-label="Typewriter">T</button>
   </nav>
   <main class="shell">
     <section class="writer">
@@ -1186,7 +1168,6 @@ function authorEditorHtml() {
         <span>Hidden</span>
       </label>
       <div class="utility">
-        <button type="button" id="image">Add Image</button>
         <button type="button" id="settings-typewriter">Toggle Typewriter</button>
         <input id="image-file" type="file" accept="image/*" hidden />
         <div class="path" id="path"></div>
@@ -1224,7 +1205,6 @@ function authorEditorHtml() {
         settingsButton: document.getElementById("settings-button"),
         toolbarImage: document.getElementById("toolbar-image"),
         settingsTypewriter: document.getElementById("settings-typewriter"),
-        style: document.getElementById("style"),
         notebookField: document.getElementById("notebook-field"),
         notebook: document.getElementById("notebook"),
         slug: document.getElementById("slug"),
@@ -1237,7 +1217,6 @@ function authorEditorHtml() {
         typewriter: document.getElementById("typewriter"),
         save: document.getElementById("save"),
         openSite: document.getElementById("open-site"),
-        image: document.getElementById("image"),
         imageFile: document.getElementById("image-file"),
         path: document.getElementById("path"),
       };
@@ -1307,16 +1286,7 @@ function authorEditorHtml() {
         els.toolbarImage.addEventListener("click", function () {
           els.imageFile.click();
         });
-        els.image.addEventListener("click", function () {
-          els.imageFile.click();
-        });
         els.imageFile.addEventListener("change", uploadImage);
-        els.style.addEventListener("change", function () {
-          if (els.style.value) {
-            applyFormat(els.style.value);
-            els.style.value = "";
-          }
-        });
         Array.from(document.querySelectorAll("[data-format]")).forEach(function (button) {
           button.addEventListener("click", function () {
             applyFormat(button.dataset.format);
