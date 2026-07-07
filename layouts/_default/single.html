@@ -66,7 +66,7 @@
 
       var storageKey = "zen_mode_enabled";
       var body = document.body;
-      var fadeDuration = 280;
+      var slideDuration = 280;
       var returnRevealDelay = 40;
       var zenTimer = null;
 
@@ -89,7 +89,7 @@
             body.classList.remove("zen-mode-fading");
             body.classList.add("zen-mode");
             zenTimer = null;
-          }, fadeDuration);
+          }, slideDuration);
           return;
         }
 
