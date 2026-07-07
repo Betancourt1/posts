@@ -1136,7 +1136,6 @@ function authorEditorHtml() {
   <main class="shell">
     <section class="writer">
       <article class="paper">
-        <div class="path" style="margin-bottom: 2.1rem;">▤ Email header / footer</div>
         <textarea class="title-input" id="title" rows="2" placeholder="Title"></textarea>
         <input class="subtitle-input" id="summary" type="text" placeholder="Add a subtitle..." />
         <div class="author-row">
