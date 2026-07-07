@@ -8,6 +8,7 @@
   var apiBase = root.dataset.api || "http://127.0.0.1:3001";
   var state = {
     notebooks: [],
+    notebooksLoaded: false,
     currentPath: root.dataset.sourcePath || "",
     currentNotebook: null,
     editorPath: "",
@@ -15,8 +16,6 @@
     editorKind: "post",
   };
   var elements = {
-    toggle: document.getElementById("author-toggle"),
-    panel: document.getElementById("author-panel"),
     status: document.getElementById("author-status"),
     modal: document.getElementById("author-modal"),
     modalTitle: document.getElementById("author-modal-title"),
@@ -30,39 +29,67 @@
   boot();
 
   function bind() {
-    elements.toggle.addEventListener("click", function () {
-      var isOpen = !elements.panel.hidden;
-      elements.panel.hidden = isOpen;
-      elements.toggle.setAttribute("aria-expanded", String(!isOpen));
+    document.querySelectorAll("[data-author-action]").forEach(function (button) {
+      button.addEventListener("click", handleAuthorAction);
     });
 
-    elements.close.addEventListener("click", closeModal);
-    elements.modal.addEventListener("click", function (event) {
-      if (event.target === elements.modal) {
-        closeModal();
-      }
-    });
+    if (elements.close) {
+      elements.close.addEventListener("click", closeModal);
+    }
+    if (elements.modal) {
+      elements.modal.addEventListener("click", function (event) {
+        if (event.target === elements.modal) {
+          closeModal();
+        }
+      });
+    }
     document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape" && !elements.modal.hidden) {
+      if (event.key === "Escape" && elements.modal && !elements.modal.hidden) {
         closeModal();
       }
     });
 
-    document.getElementById("author-add-notebook").addEventListener("click", openNotebookForm);
-    document.getElementById("author-add-post").addEventListener("click", openPostForm);
-    document.getElementById("author-edit-notebook").addEventListener("click", editCurrentNotebook);
-    document.getElementById("author-edit-post").addEventListener("click", editCurrentPost);
-    document.getElementById("author-add-image").addEventListener("click", function () {
-      elements.imageInput.click();
-    });
     elements.imageInput.addEventListener("change", uploadSelectedImage);
+  }
+
+  function handleAuthorAction(event) {
+    var button = event.currentTarget;
+    var action = button.dataset.authorAction;
+
+    if (action === "add-notebook") {
+      openNotebookForm();
+      return;
+    }
+
+    ensureNotebooks().then(function () {
+      if (action === "add-post") {
+        openPostForm(button);
+        return;
+      }
+
+      if (action === "edit-notebook") {
+        editCurrentNotebook(button);
+        return;
+      }
+
+      if (action === "edit-post") {
+        editPost(button);
+        return;
+      }
+
+      toast("Unknown author action.");
+    }).catch(function (error) {
+      toast(error.message);
+    });
   }
 
   function boot() {
     request("/api/health")
       .then(function () {
-        setStatus("ready", true);
         return loadNotebooks();
+      })
+      .then(function () {
+        setStatus("ready", true);
       })
       .catch(function () {
         setStatus("offline", false);
@@ -95,6 +122,10 @@
   }
 
   function setStatus(text, ready) {
+    if (!elements.status) {
+      return;
+    }
+
     elements.status.textContent = text;
     elements.status.classList.toggle("is-ready", ready);
   }
@@ -112,7 +143,16 @@
     return request("/api/notebooks").then(function (payload) {
       state.notebooks = payload.notebooks || [];
       state.currentNotebook = findCurrentNotebook();
+      state.notebooksLoaded = true;
     });
+  }
+
+  function ensureNotebooks() {
+    if (state.notebooksLoaded) {
+      return Promise.resolve();
+    }
+
+    return loadNotebooks();
   }
 
   function findCurrentNotebook() {
@@ -183,16 +223,23 @@
     });
   }
 
-  function openPostForm() {
-    var notebook = state.currentNotebook ? state.currentNotebook.path : "content_es/posts";
+  function openPostForm(trigger) {
+    var notebook = trigger && trigger.dataset.notebook
+      ? trigger.dataset.notebook
+      : state.currentNotebook
+        ? state.currentNotebook.path
+        : "content_es/posts";
+
     openEditorTab({
       mode: "new",
       notebook: notebook,
     });
   }
 
-  function editCurrentNotebook() {
-    var notebook = state.currentNotebook;
+  function editCurrentNotebook(trigger) {
+    var notebook = trigger && trigger.dataset.sourcePath
+      ? { indexPath: trigger.dataset.sourcePath }
+      : state.currentNotebook;
 
     if (!notebook && state.currentPath && state.currentPath.endsWith("_index.md")) {
       notebook = { indexPath: state.currentPath };
@@ -210,13 +257,15 @@
     });
   }
 
-  function editCurrentPost() {
-    if (!state.currentPath) {
+  function editPost(trigger) {
+    var path = trigger && trigger.dataset.sourcePath ? trigger.dataset.sourcePath : state.currentPath;
+
+    if (!path) {
       toast("No source file for this page.");
       return;
     }
 
-    if (state.currentPath.endsWith("_index.md")) {
+    if (path.endsWith("_index.md")) {
       toast("This is a notebook page. Use Edit Current Notebook.");
       return;
     }
@@ -224,7 +273,7 @@
     openEditorTab({
       mode: "edit",
       kind: "post",
-      path: state.currentPath,
+      path: path,
     });
   }
 

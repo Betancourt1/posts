@@ -12,22 +12,7 @@
   data-kind="{{ .Kind }}"
   data-section="{{ .Section }}"
 >
-  <button class="author-toggle" id="author-toggle" type="button" aria-expanded="false" aria-controls="author-panel">
-    Author
-  </button>
-  <div class="author-panel" id="author-panel" hidden>
-    <div class="author-panel-header">
-      <span>Local Author</span>
-      <span class="author-status" id="author-status">checking</span>
-    </div>
-    <div class="author-actions">
-      <button type="button" id="author-add-notebook">Add Notebook</button>
-      <button type="button" id="author-add-post">Add Post</button>
-      <button type="button" id="author-edit-notebook">Edit Current Notebook</button>
-      <button type="button" id="author-edit-post">Edit Current Post</button>
-      <button type="button" id="author-add-image">Add Images</button>
-    </div>
-  </div>
+  <span class="author-status" id="author-status" hidden>checking</span>
   <div class="author-modal" id="author-modal" hidden>
     <div class="author-dialog" role="dialog" aria-modal="true" aria-labelledby="author-modal-title">
       <div class="author-dialog-header">

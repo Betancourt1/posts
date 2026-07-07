@@ -1,4 +1,6 @@
 {{ define "main" }}
+  {{ $isEnglish := eq .Site.Language.Lang "en" }}
+  {{ $contentRoot := cond $isEnglish "content_en" "content_es" }}
   <header class="page-header">
     <h1>{{ .Title }}</h1>
   </header>
@@ -6,7 +8,19 @@
     {{ range .Pages.ByDate.Reverse }}
       {{ if not (partial "is_hidden.html" .) }}
         <article class="post-card">
-          <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
+          <div class="post-card-top">
+            <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
+            {{ if and hugo.IsServer (eq hugo.Environment "author") .File }}
+              <button
+                type="button"
+                class="author-action-button author-action-button--compact"
+                data-author-action="edit-post"
+                data-source-path="{{ printf "%s/%s" $contentRoot .File.Path }}"
+              >
+                {{ if $isEnglish }}Edit{{ else }}Editar{{ end }}
+              </button>
+            {{ end }}
+          </div>
           <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
           <p>{{ .Summary }}</p>
         </article>

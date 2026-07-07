@@ -26,4 +26,11 @@
     {{ end }}
   </ul>
   <a class="sidebar-more" href="{{ $archivesURL }}">{{ if eq .Site.Language.Lang "en" }}View all{{ else }}Ver todos{{ end }}</a>
+  {{ if and hugo.IsServer (eq hugo.Environment "author") }}
+    <div class="sidebar-author-actions">
+      <button type="button" class="author-action-button" data-author-action="add-notebook">
+        {{ if eq .Site.Language.Lang "en" }}New notebook{{ else }}Nuevo notebook{{ end }}
+      </button>
+    </div>
+  {{ end }}
 </div>

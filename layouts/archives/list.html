@@ -6,6 +6,7 @@
   {{ $filterAcademic := cond $isEnglish "Academic" "Académicos" }}
   {{ $filterZettelkasten := "Zettelkasten" }}
   {{ $filterReadings := cond $isEnglish "Readings" "Lecturas" }}
+  {{ $contentRoot := cond $isEnglish "content_en" "content_es" }}
   <header class="page-header">
     <h1>{{ .Title }}</h1>
   </header>
@@ -44,6 +45,16 @@
               <span class="archive-date">{{ .Date.Format "2006-01-02" }}</span>
               <a href="{{ .RelPermalink }}">{{ .Title }}</a>
               <span class="archive-badge archive-badge--{{ $section }}">{{ $label }}</span>
+              {{ if and hugo.IsServer (eq hugo.Environment "author") .File }}
+                <button
+                  type="button"
+                  class="author-action-button author-action-button--compact"
+                  data-author-action="edit-post"
+                  data-source-path="{{ printf "%s/%s" $contentRoot .File.Path }}"
+                >
+                  {{ if $isEnglish }}Edit{{ else }}Editar{{ end }}
+                </button>
+              {{ end }}
             </li>
           {{ end }}
         </ul>

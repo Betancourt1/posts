@@ -1,6 +1,20 @@
 {{ define "main" }}
+  {{ $isEnglish := eq .Site.Language.Lang "en" }}
+  {{ $contentRoot := cond $isEnglish "content_en" "content_es" }}
   <header class="page-header">
-    <h1>{{ .Title }}</h1>
+    <div class="page-header-row">
+      <h1>{{ .Title }}</h1>
+      {{ if and hugo.IsServer (eq hugo.Environment "author") .File }}
+        <div class="author-inline-actions">
+          <button type="button" class="author-action-button" data-author-action="add-post">
+            {{ if $isEnglish }}New post{{ else }}Nuevo post{{ end }}
+          </button>
+          <button type="button" class="author-action-button" data-author-action="edit-notebook">
+            {{ if $isEnglish }}Edit notebook{{ else }}Editar notebook{{ end }}
+          </button>
+        </div>
+      {{ end }}
+    </div>
     {{ with .Params.description }}
       <p class="lead">{{ . }}</p>
     {{ end }}
@@ -15,7 +29,19 @@
           {{ $summary = .Plain | truncate 220 }}
         {{ end }}
         <article class="post-card">
-          <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
+          <div class="post-card-top">
+            <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
+            {{ if and hugo.IsServer (eq hugo.Environment "author") .File }}
+              <button
+                type="button"
+                class="author-action-button author-action-button--compact"
+                data-author-action="edit-post"
+                data-source-path="{{ printf "%s/%s" $contentRoot .File.Path }}"
+              >
+                {{ if $isEnglish }}Edit{{ else }}Editar{{ end }}
+              </button>
+            {{ end }}
+          </div>
           <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
           {{ with .Params.tags }}
             <div class="tag-list">
