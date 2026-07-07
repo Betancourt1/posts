@@ -520,6 +520,7 @@ function authorEditorHtml() {
       --accent: #4ecca3;
       --danger: #ff6b6b;
       --field: #08090b;
+      --editor-font: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
     }
     * { box-sizing: border-box; }
     html, body {
@@ -618,6 +619,7 @@ function authorEditorHtml() {
       outline: none;
       overflow: hidden;
       resize: none;
+      font-family: var(--editor-font);
     }
     .title-input {
       min-height: 5rem;
@@ -633,7 +635,6 @@ function authorEditorHtml() {
     }
     .body-input {
       min-height: 58vh;
-      font-family: Georgia, Cambria, "Times New Roman", serif;
       font-size: 1.22rem;
       line-height: 1.75;
     }
@@ -725,6 +726,7 @@ function authorEditorHtml() {
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
+      max-width: min(32rem, calc(100vw - 8rem));
       min-height: 1.55rem;
       padding: 0 0.6rem;
       border: 1px solid #dedede;
@@ -733,6 +735,9 @@ function authorEditorHtml() {
       color: #4d4d4d;
       font-size: 0.78rem;
       font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .saved-pill::before {
       content: "";
@@ -742,6 +747,7 @@ function authorEditorHtml() {
       background: #26c281;
     }
     .formatbar {
+      max-width: 100vw;
       height: 4.75rem;
       display: flex;
       align-items: center;
@@ -749,9 +755,12 @@ function authorEditorHtml() {
       gap: 0.45rem;
       border-bottom: 1px solid #eeeeee;
       background: #ffffff;
+      overflow-x: auto;
+      overflow-y: hidden;
     }
     .formatbar button,
     .formatbar select {
+      flex: 0 0 auto;
       border: 0;
       background: transparent;
       color: #444444;
@@ -781,7 +790,7 @@ function authorEditorHtml() {
       background: transparent;
       color: #777777;
       outline: none;
-      font-family: Georgia, Cambria, "Times New Roman", serif;
+      font-family: var(--editor-font);
       font-size: 1.25rem;
       line-height: 1.5;
       margin-bottom: 1.7rem;
@@ -895,7 +904,7 @@ function authorEditorHtml() {
       min-height: 4.4rem;
       margin-bottom: 0.35rem;
       color: #696969;
-      font-family: Georgia, Cambria, "Times New Roman", serif;
+      font-family: var(--editor-font);
       font-size: 2.45rem;
       font-weight: 800;
       line-height: 1.15;
@@ -906,7 +915,7 @@ function authorEditorHtml() {
     .reference-theme .body-input {
       min-height: 45vh;
       color: #303030;
-      font-family: Georgia, Cambria, "Times New Roman", serif;
+      font-family: var(--editor-font);
       font-size: 1.32rem;
       line-height: 1.72;
     }
@@ -1025,11 +1034,21 @@ function authorEditorHtml() {
       .writer {
         padding: 2rem 1rem;
       }
+      .formatbar {
+        justify-content: flex-start;
+        padding: 0 1rem;
+      }
       .topbar {
         align-items: flex-start;
         height: auto;
         flex-direction: column;
         padding: 0.85rem 1rem;
+      }
+      .reference-theme .topbar {
+        padding: 0.85rem 1rem;
+      }
+      .reference-theme .saved-pill {
+        max-width: calc(100vw - 8rem);
       }
       .top-actions {
         width: 100%;
