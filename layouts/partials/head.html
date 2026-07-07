@@ -78,6 +78,7 @@
 <meta name="twitter:title" content="{{ $pageTitle }}" />
 <meta name="twitter:description" content="{{ $description }}" />
 <meta name="twitter:image" content="{{ $socialImage }}" />
+<link rel="preload" href="{{ "fonts/Jersey10-Regular.ttf" | relURL }}" as="font" type="font/ttf" crossorigin />
 <link rel="stylesheet" href="{{ "css/site.css" | relURL }}?v={{ $buildID }}" />
 {{ $showSearch := partial "search_enabled.html" . }}
 {{ if $showSearch }}
