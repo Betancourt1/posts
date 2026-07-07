@@ -1320,6 +1320,11 @@ body.zen-mode .layout {
   max-width: 72ch;
   margin: 0 auto;
   padding: 24px 20px 48px;
+  transition: none;
+}
+
+body.zen-mode-returning .layout {
+  transition: none;
 }
 
 @media (min-width: 1001px) {
