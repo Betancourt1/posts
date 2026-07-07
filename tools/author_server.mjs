@@ -47,8 +47,6 @@ const ICONS = Object.freeze({
   orderedList: iconSvg(`<path d="M10 6h11" /><path d="M10 12h11" /><path d="M10 18h11" /><path d="M4 6h1v4" /><path d="M4 10h2" /><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" />`),
   image: iconSvg(`<rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />`),
   typewriter: iconSvg(`<path d="M12 3v18" /><path d="M8 7h8" /><path d="M8 17h8" /><path d="M4 12h16" />`),
-  history: iconSvg(`<path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l4 2" />`),
-  info: iconSvg(`<circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" />`),
   settings: iconSvg(`<path d="M9.7 4.1a2.3 2.3 0 0 1 4.6 0 2.3 2.3 0 0 0 3.3 1.9 2.3 2.3 0 0 1 2.3 4 2.3 2.3 0 0 0 0 3.8 2.3 2.3 0 0 1-2.3 4 2.3 2.3 0 0 0-3.3 1.9 2.3 2.3 0 0 1-4.6 0 2.3 2.3 0 0 0-3.3-1.9 2.3 2.3 0 0 1-2.3-4 2.3 2.3 0 0 0 0-3.8 2.3 2.3 0 0 1 2.3-4 2.3 2.3 0 0 0 3.3-1.9" /><circle cx="12" cy="12" r="3" />`),
 });
 
@@ -878,43 +876,12 @@ function authorEditorHtml() {
     .subtitle-input::placeholder {
       color: #a3a3a3;
     }
-    .author-row {
-      display: flex;
-      align-items: center;
-      gap: 0.65rem;
-      margin-bottom: 2.1rem;
-    }
-    .author-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      min-height: 2rem;
-      padding: 0 0.75rem;
-      border-radius: 999px;
-      background: #eeeeee;
-      color: #4f4f4f;
-      font-size: 0.9rem;
-    }
-    .author-chip button,
-    .author-add {
-      border: 0;
-      background: transparent;
-      color: #8f8f8f;
-      min-height: 1.5rem;
-      padding: 0;
-      font-size: 1.35rem;
-      line-height: 1;
-    }
-    .bottom-left,
     .bottom-right {
       position: fixed;
       bottom: 1.2rem;
       z-index: 20;
       display: flex;
       gap: 0.55rem;
-    }
-    .bottom-left {
-      left: 1.2rem;
     }
     .bottom-right {
       right: 1.2rem;
@@ -940,6 +907,14 @@ function authorEditorHtml() {
       width: 1rem;
       height: 1rem;
       stroke-width: 2.1;
+    }
+    button:disabled {
+      cursor: default;
+      opacity: 0.42;
+    }
+    button:disabled:hover {
+      border-color: var(--line);
+      color: inherit;
     }
     .reference-theme {
       --writer-width: 43rem;
@@ -1103,7 +1078,6 @@ function authorEditorHtml() {
     .reference-theme[data-theme="dark"] .body-input::placeholder {
       color: #6e747d;
     }
-    .reference-theme[data-theme="dark"] .author-chip,
     .reference-theme[data-theme="dark"] .settings {
       border-color: #1c2025;
       background: #0b0c0f;
@@ -1223,10 +1197,6 @@ function authorEditorHtml() {
       <article class="paper">
         <textarea class="title-input" id="title" rows="2" placeholder="Title"></textarea>
         <input class="subtitle-input" id="summary" type="text" placeholder="Add a subtitle..." />
-        <div class="author-row">
-          <span class="author-chip">Fernando Betancourt Moreno <button type="button" aria-label="Remove author">×</button></span>
-          <button type="button" class="author-add" aria-label="Add author">+</button>
-        </div>
         <textarea class="body-input" id="body" placeholder="Start writing..."></textarea>
       </article>
     </section>
@@ -1271,10 +1241,6 @@ function authorEditorHtml() {
       </div>
     </aside>
   </main>
-  <div class="bottom-left">
-    <button type="button" class="utility-button icon-only" title="History" aria-label="History">${ICONS.history}</button>
-    <button type="button" class="utility-button icon-only" title="Info" aria-label="Info">${ICONS.info}</button>
-  </div>
   <div class="bottom-right">
     <button type="button" class="utility-button" id="settings-button">${ICONS.settings}<span>Settings</span></button>
   </div>
@@ -1291,6 +1257,9 @@ function authorEditorHtml() {
       var savedUrl = "";
       var slugTouched = false;
       var editorSizeStorageKey = "authorEditorFontSize";
+      var bodyHistory = [];
+      var bodyHistoryIndex = -1;
+      var restoringBodyHistory = false;
       var els = {
         status: document.getElementById("status"),
         savedPill: document.getElementById("saved-pill"),
@@ -1312,6 +1281,8 @@ function authorEditorHtml() {
         draft: document.getElementById("draft"),
         hidden: document.getElementById("hidden"),
         typewriter: document.getElementById("typewriter"),
+        undo: document.querySelector('[data-format="undo"]'),
+        redo: document.querySelector('[data-format="redo"]'),
         save: document.getElementById("save"),
         openSite: document.getElementById("open-site"),
         imageFile: document.getElementById("image-file"),
@@ -1324,6 +1295,7 @@ function authorEditorHtml() {
         document.body.dataset.theme = theme;
         applyEditorSize(readEditorSize());
         bind();
+        syncPreviewButton();
         loadNotebooks().then(function () {
           if (mode === "edit") {
             return loadExisting();
@@ -1362,6 +1334,9 @@ function authorEditorHtml() {
           applyEditorSize(els.editorFontSize.value);
         });
         els.body.addEventListener("input", function () {
+          if (!restoringBodyHistory) {
+            recordBodyHistory();
+          }
           resizeTextarea(els.body);
           centerTypewriterLine();
         });
@@ -1369,13 +1344,11 @@ function authorEditorHtml() {
         els.body.addEventListener("keyup", centerTypewriterLine);
         window.addEventListener("resize", resizeEditorFields);
         els.openSite.addEventListener("click", function () {
-          if (savedUrl) {
-            window.open(siteOrigin + savedUrl, "_blank", "noopener");
+          var url = previewUrl();
+          if (!url) {
             return;
           }
-          if (sourcePath) {
-            window.open(siteOrigin + contentPathToUrl(sourcePath), "_blank", "noopener");
-          }
+          window.open(url, "_blank", "noopener");
         });
         els.settingsButton.addEventListener("click", function () {
           els.settings.hidden = !els.settings.hidden;
@@ -1435,6 +1408,8 @@ function authorEditorHtml() {
         els.draft.checked = true;
         els.hidden.checked = false;
         setStatus("New post");
+        resetBodyHistory();
+        syncPreviewButton();
         resizeEditorFields();
         els.title.focus();
       }
@@ -1455,6 +1430,8 @@ function authorEditorHtml() {
           els.body.value = payload.body || "";
           els.path.textContent = payload.path || "";
           setStatus("Editing " + (payload.path || ""));
+          resetBodyHistory();
+          syncPreviewButton();
           resizeEditorFields();
           els.body.focus();
         });
@@ -1474,6 +1451,7 @@ function authorEditorHtml() {
           els.notebookField.hidden = true;
           els.slug.disabled = true;
           setStatus("Saved");
+          syncPreviewButton();
         }).catch(function (error) {
           setStatus(error.message, true);
         }).finally(function () {
@@ -1552,6 +1530,7 @@ function authorEditorHtml() {
       }
 
       function insertAtCursor(textarea, text) {
+        recordBodyHistory();
         var start = textarea.selectionStart || 0;
         var end = textarea.selectionEnd || 0;
         var value = textarea.value;
@@ -1563,12 +1542,16 @@ function authorEditorHtml() {
         textarea.selectionStart = textarea.selectionEnd = (prefix + insert).length;
         resizeTextarea(textarea);
         centerTypewriterLine();
+        recordBodyHistory();
       }
 
       function applyFormat(format) {
-        if (format === "undo" || format === "redo") {
-          els.body.focus();
-          document.execCommand(format);
+        if (format === "undo") {
+          undoBody();
+          return;
+        }
+        if (format === "redo") {
+          redoBody();
           return;
         }
         if (format === "bold") {
@@ -1615,26 +1598,91 @@ function authorEditorHtml() {
       }
 
       function wrapSelection(before, after) {
+        recordBodyHistory();
         var start = els.body.selectionStart || 0;
         var end = els.body.selectionEnd || 0;
         var selected = els.body.value.slice(start, end) || "text";
-        var next = before + selected + after;
-        els.body.value = els.body.value.slice(0, start) + next + els.body.value.slice(end);
-        els.body.focus();
-        els.body.selectionStart = start + before.length;
-        els.body.selectionEnd = start + before.length + selected.length;
+        replaceBodyRange(start, end, before + selected + after, start + before.length, start + before.length + selected.length);
         resizeTextarea(els.body);
         centerTypewriterLine();
+        recordBodyHistory();
       }
 
       function prefixCurrentLine(prefix) {
+        recordBodyHistory();
         var cursor = els.body.selectionStart || 0;
         var lineStart = els.body.value.lastIndexOf("\\n", cursor - 1) + 1;
-        els.body.value = els.body.value.slice(0, lineStart) + prefix + els.body.value.slice(lineStart);
-        els.body.focus();
-        els.body.selectionStart = els.body.selectionEnd = cursor + prefix.length;
+        replaceBodyRange(lineStart, lineStart, prefix, cursor + prefix.length, cursor + prefix.length);
         resizeTextarea(els.body);
         centerTypewriterLine();
+        recordBodyHistory();
+      }
+
+      function replaceBodyRange(start, end, text, selectionStart, selectionEnd) {
+        els.body.value = els.body.value.slice(0, start) + text + els.body.value.slice(end);
+        els.body.focus();
+        els.body.selectionStart = selectionStart;
+        els.body.selectionEnd = selectionEnd;
+      }
+
+      function resetBodyHistory() {
+        bodyHistory = [bodySnapshot()];
+        bodyHistoryIndex = 0;
+        updateHistoryButtons();
+      }
+
+      function bodySnapshot() {
+        return {
+          value: els.body.value,
+          selectionStart: els.body.selectionStart || 0,
+          selectionEnd: els.body.selectionEnd || 0,
+        };
+      }
+
+      function recordBodyHistory() {
+        var snapshot = bodySnapshot();
+        var current = bodyHistory[bodyHistoryIndex];
+        if (current && current.value === snapshot.value && current.selectionStart === snapshot.selectionStart && current.selectionEnd === snapshot.selectionEnd) {
+          updateHistoryButtons();
+          return;
+        }
+        bodyHistory = bodyHistory.slice(0, bodyHistoryIndex + 1);
+        bodyHistory.push(snapshot);
+        bodyHistoryIndex = bodyHistory.length - 1;
+        updateHistoryButtons();
+      }
+
+      function restoreBodySnapshot(snapshot) {
+        restoringBodyHistory = true;
+        els.body.value = snapshot.value;
+        els.body.focus();
+        els.body.selectionStart = snapshot.selectionStart;
+        els.body.selectionEnd = snapshot.selectionEnd;
+        restoringBodyHistory = false;
+        resizeTextarea(els.body);
+        centerTypewriterLine();
+        updateHistoryButtons();
+      }
+
+      function undoBody() {
+        if (bodyHistoryIndex <= 0) {
+          return;
+        }
+        bodyHistoryIndex -= 1;
+        restoreBodySnapshot(bodyHistory[bodyHistoryIndex]);
+      }
+
+      function redoBody() {
+        if (bodyHistoryIndex >= bodyHistory.length - 1) {
+          return;
+        }
+        bodyHistoryIndex += 1;
+        restoreBodySnapshot(bodyHistory[bodyHistoryIndex]);
+      }
+
+      function updateHistoryButtons() {
+        els.undo.disabled = bodyHistoryIndex <= 0;
+        els.redo.disabled = bodyHistoryIndex >= bodyHistory.length - 1;
       }
 
       function toggleTypewriter() {
@@ -1711,6 +1759,22 @@ function authorEditorHtml() {
         if (error) return "Error";
         if (message === "Saving") return "Saving";
         return "Saved";
+      }
+
+      function previewUrl() {
+        if (savedUrl) {
+          return siteOrigin + savedUrl;
+        }
+        if (sourcePath) {
+          return siteOrigin + contentPathToUrl(sourcePath);
+        }
+        return "";
+      }
+
+      function syncPreviewButton() {
+        var url = previewUrl();
+        els.openSite.disabled = !url;
+        els.openSite.title = url ? "" : "Save before preview";
       }
 
       function currentSeparator() {
