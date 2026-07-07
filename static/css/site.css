@@ -402,7 +402,7 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 .nav-author-row {
   display: flex;
   align-items: center;
-  gap: 0.42rem;
+  gap: calc(0.22rem + 5px);
   width: max-content;
   margin-bottom: 12px;
 }
@@ -412,15 +412,26 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 }
 
 .nav-author-row .author-action-button {
-  width: 1.45em;
-  height: 1.45em;
+  width: 1.05em;
+  height: 1.05em;
   flex: 0 0 auto;
+  color: var(--accent);
   font-size: var(--nav-title-size);
+  overflow: visible;
+  position: relative;
+  transform: translateY(calc(0.08em - 1px));
 }
 
 .nav-author-row .author-action-button svg {
-  width: 0.86em;
-  height: 0.86em;
+  width: 0.9em;
+  height: 0.9em;
+  stroke-width: 2.25;
+}
+
+.nav-author-row .author-action-button::before {
+  content: "";
+  position: absolute;
+  inset: -0.35em;
 }
 
 .nav-list {
@@ -2399,8 +2410,8 @@ body:has(.author-toast:not([hidden])) .ssh-terminal-open-btn {
   }
 
   .nav-author-row .author-action-button {
-    width: 1.45em !important;
-    height: 1.45em !important;
+    width: 1.05em !important;
+    height: 1.05em !important;
   }
 
   .typo-container {
