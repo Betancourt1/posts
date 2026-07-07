@@ -1,15 +1,7 @@
 <nav class="nav">
-  <ul class="nav-list">
-    {{ range .Site.Menus.main }}
-    <li>
-      <a href="{{ .URL }}" {{ if $.IsMenuCurrent "main" . }} class="active" {{ end }}>
-        {{ .Name }}
-      </a>
-    </li>
-    {{ end }}
-  </ul>
   {{ if and hugo.IsServer (eq hugo.Environment "author") }}
-    <div class="nav-author-actions">
+    <div class="nav-author-row">
+      <span class="nav-title">{{ if eq .Site.Language.Lang "en" }}Notebooks{{ else }}Notebooks{{ end }}</span>
       <button
         type="button"
         class="author-action-button"
@@ -21,4 +13,13 @@
       </button>
     </div>
   {{ end }}
+  <ul class="nav-list">
+    {{ range .Site.Menus.main }}
+    <li>
+      <a href="{{ .URL }}" {{ if $.IsMenuCurrent "main" . }} class="active" {{ end }}>
+        {{ .Name }}
+      </a>
+    </li>
+    {{ end }}
+  </ul>
 </nav>

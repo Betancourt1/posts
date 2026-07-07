@@ -392,6 +392,18 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   color: var(--heading);
 }
 
+.nav-author-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 12px;
+}
+
+.nav-author-row .nav-title {
+  margin-bottom: 0;
+}
+
 .nav-list {
   list-style: none;
   padding: 0;
@@ -2173,10 +2185,6 @@ html:not(.infra-mode) .post-body {
   width: 18px;
   height: 18px;
   stroke-width: 2.1;
-}
-
-.nav-author-actions {
-  margin-top: 0.6rem;
 }
 
 .author-action-button:hover,
