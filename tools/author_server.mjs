@@ -521,6 +521,9 @@ function authorEditorHtml() {
       --danger: #ff6b6b;
       --field: #08090b;
       --editor-font: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      --editor-title-size: 2rem;
+      --editor-subtitle-size: 1rem;
+      --editor-body-size: 1rem;
     }
     * { box-sizing: border-box; }
     html, body {
@@ -533,6 +536,16 @@ function authorEditorHtml() {
     body {
       display: grid;
       grid-template-rows: auto 1fr;
+    }
+    body[data-editor-size="medium"] {
+      --editor-title-size: 2.25rem;
+      --editor-subtitle-size: 1.1rem;
+      --editor-body-size: 1.12rem;
+    }
+    body[data-editor-size="large"] {
+      --editor-title-size: 2.45rem;
+      --editor-subtitle-size: 1.25rem;
+      --editor-body-size: 1.32rem;
     }
     .topbar {
       height: 3.5rem;
@@ -624,7 +637,7 @@ function authorEditorHtml() {
     .title-input {
       min-height: 5rem;
       margin-bottom: 1.25rem;
-      font-size: clamp(2rem, 5vw, 4.4rem);
+      font-size: var(--editor-title-size);
       font-weight: 800;
       line-height: 1.02;
       letter-spacing: 0;
@@ -635,7 +648,7 @@ function authorEditorHtml() {
     }
     .body-input {
       min-height: 58vh;
-      font-size: 1.22rem;
+      font-size: var(--editor-body-size);
       line-height: 1.75;
     }
     .writer.is-typewriter {
@@ -791,7 +804,7 @@ function authorEditorHtml() {
       color: #777777;
       outline: none;
       font-family: var(--editor-font);
-      font-size: 1.25rem;
+      font-size: var(--editor-subtitle-size);
       line-height: 1.5;
       margin-bottom: 1.7rem;
     }
@@ -905,7 +918,7 @@ function authorEditorHtml() {
       margin-bottom: 0.35rem;
       color: #696969;
       font-family: var(--editor-font);
-      font-size: 2.45rem;
+      font-size: var(--editor-title-size);
       font-weight: 800;
       line-height: 1.15;
     }
@@ -916,7 +929,7 @@ function authorEditorHtml() {
       min-height: 45vh;
       color: #303030;
       font-family: var(--editor-font);
-      font-size: 1.32rem;
+      font-size: var(--editor-body-size);
       line-height: 1.72;
     }
     .reference-theme .body-input::placeholder {
@@ -1027,6 +1040,21 @@ function authorEditorHtml() {
       .shell {
         grid-template-columns: 1fr;
       }
+      body[data-editor-size="small"] {
+        --editor-title-size: 1.75rem;
+        --editor-subtitle-size: 0.95rem;
+        --editor-body-size: 0.95rem;
+      }
+      body[data-editor-size="medium"] {
+        --editor-title-size: 2rem;
+        --editor-subtitle-size: 1rem;
+        --editor-body-size: 1.05rem;
+      }
+      body[data-editor-size="large"] {
+        --editor-title-size: 2.25rem;
+        --editor-subtitle-size: 1.1rem;
+        --editor-body-size: 1.15rem;
+      }
       .settings {
         border-left: 0;
         border-top: 1px solid var(--line);
@@ -1136,6 +1164,14 @@ function authorEditorHtml() {
         <span>Tags</span>
         <input id="tags" type="text" placeholder="ensayo, politica" />
       </label>
+      <label class="field">
+        <span>Editor font size</span>
+        <select id="editor-font-size">
+          <option value="small">Small</option>
+          <option value="medium">Medium</option>
+          <option value="large">Large</option>
+        </select>
+      </label>
       <label class="check">
         <input id="draft" type="checkbox" />
         <span>Draft</span>
@@ -1171,6 +1207,7 @@ function authorEditorHtml() {
       var frontMatter = {};
       var savedUrl = "";
       var slugTouched = false;
+      var editorSizeStorageKey = "authorEditorFontSize";
       var els = {
         status: document.getElementById("status"),
         savedPill: document.getElementById("saved-pill"),
@@ -1188,6 +1225,7 @@ function authorEditorHtml() {
         slug: document.getElementById("slug"),
         date: document.getElementById("date"),
         tags: document.getElementById("tags"),
+        editorFontSize: document.getElementById("editor-font-size"),
         summary: document.getElementById("summary"),
         draft: document.getElementById("draft"),
         hidden: document.getElementById("hidden"),
@@ -1203,6 +1241,7 @@ function authorEditorHtml() {
 
       function boot() {
         document.body.dataset.theme = theme;
+        applyEditorSize(readEditorSize());
         bind();
         loadNotebooks().then(function () {
           if (mode === "edit") {
@@ -1238,6 +1277,9 @@ function authorEditorHtml() {
         els.save.addEventListener("click", save);
         els.typewriter.addEventListener("click", toggleTypewriter);
         els.settingsTypewriter.addEventListener("click", toggleTypewriter);
+        els.editorFontSize.addEventListener("change", function () {
+          applyEditorSize(els.editorFontSize.value);
+        });
         els.body.addEventListener("input", function () {
           resizeTextarea(els.body);
           centerTypewriterLine();
@@ -1529,6 +1571,30 @@ function authorEditorHtml() {
         els.typewriter.classList.toggle("is-active", active);
         resizeEditorFields();
         centerTypewriterLine();
+      }
+
+      function readEditorSize() {
+        try {
+          return normalizeEditorSize(window.localStorage.getItem(editorSizeStorageKey));
+        } catch (error) {
+          return "small";
+        }
+      }
+
+      function normalizeEditorSize(value) {
+        return ["small", "medium", "large"].indexOf(value) === -1 ? "small" : value;
+      }
+
+      function applyEditorSize(value) {
+        var size = normalizeEditorSize(value);
+        document.body.dataset.editorSize = size;
+        els.editorFontSize.value = size;
+        try {
+          window.localStorage.setItem(editorSizeStorageKey, size);
+        } catch (error) {
+          // localStorage can be unavailable in private or restricted contexts.
+        }
+        resizeEditorFields();
       }
 
       function resizeEditorFields() {
