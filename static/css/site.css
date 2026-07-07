@@ -1316,10 +1316,6 @@ body.zen-mode .sidebar-column {
 }
 
 body.zen-mode .layout {
-  grid-template-columns: 1fr;
-  max-width: 72ch;
-  margin: 0 auto;
-  padding: 24px 20px 48px;
   transition: none;
 }
 
@@ -1361,24 +1357,20 @@ body.zen-mode-returning .layout {
 
   body.zen-mode .nav-column {
     display: block !important;
-    width: 0;
+    width: 220px;
     overflow: hidden;
   }
 
   body.zen-mode .sidebar-column {
     display: block !important;
-    width: 0;
+    width: 260px;
     overflow: hidden;
   }
 
   body.zen-mode .layout {
     grid-template-columns: auto minmax(0, 1fr) auto !important;
-    gap: 0;
+    gap: 28px;
   }
-}
-
-body.zen-mode .content-column {
-  padding: 0;
 }
 
 /* 3. Enlaces entrantes (Backlinks) */
