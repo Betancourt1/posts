@@ -14,5 +14,8 @@
   "devDependencies": {
     "hugo-extended": "^0.163.3",
     "pagefind": "1.5.2"
+  },
+  "dependencies": {
+    "@cloudflare/pages-plugin-cloudflare-access": "^1.0.5"
   }
 }
