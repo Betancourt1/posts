@@ -22,8 +22,13 @@ Sitio personal estatico construido con [Hugo](https://gohugo.io/), busqueda loca
 Desde la raiz del repo:
 
 ```bash
-# Desarrollo local
+# Desarrollo local, incluyendo borradores
 npm run dev
+
+# Crear contenido sin recordar rutas internas
+npm run new:post -- "Titulo del texto"
+npm run new:zettel -- "Idea concreta"
+npm run new:page -- "Nombre de la pagina" --lang es
 
 # Build de produccion con indice de busqueda en public/pagefind
 npm run build
@@ -36,15 +41,20 @@ Si tienes `hugo` en PATH, tambien puedes usar `hugo server -D` y `hugo --gc --mi
 
 ## Crear contenido
 
+La guia corta de autoria esta en `CONTENT.md`.
+
 ```bash
 # Nuevo post en espanol
-hugo new content_es/posts/2026/febrero/mi_post.md
+npm run new:post -- "Mi post"
 
 # Nueva nota zettelkasten
-hugo new --kind zettel content_es/zettelkasten/mi_nota.md
+npm run new:zettel -- "Mi nota"
+
+# Nueva pagina independiente
+npm run new:page -- "Mi pagina" --lang es
 ```
 
-Usa nombres de archivo en minusculas y con guiones bajos para posts, por ejemplo `politica_como_identidad.md`. Para ocultar una pagina de listados, archivos, grafo de conocimiento, infraestructura y busqueda, usa `hidden: true` en el front matter. Los archivos `no_post*` siguen funcionando como convencion heredada.
+Los comandos crean archivos con `draft: true` para evitar publicar por accidente. Usa nombres de archivo en minusculas y con guiones bajos para posts, por ejemplo `politica_como_identidad.md`. Para ocultar una pagina de listados, archivos, grafo de conocimiento, infraestructura y busqueda, usa `hidden: true` en el front matter o `--hidden` al crearla. Los archivos `no_post*` siguen funcionando como convencion heredada.
 
 ## Busqueda (Pagefind)
 
