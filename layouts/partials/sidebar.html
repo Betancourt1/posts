@@ -4,6 +4,10 @@
   </div>
 {{ end }}
 <div class="sidebar-block">
+  {{ $archivesURL := "/archives/" | relLangURL }}
+  {{ with .Site.GetPage "archives" }}
+    {{ $archivesURL = .RelPermalink }}
+  {{ end }}
   <h3>{{ if eq .Site.Language.Lang "en" }}Archives{{ else }}Archivos{{ end }}</h3>
   <ul class="sidebar-list">
     {{ $allPages := where .Site.RegularPages "Section" "in" (slice "posts" "proyectos-profesionales" "proyectos-academicos" "zettelkasten" "lit") }}
@@ -16,10 +20,10 @@
     {{ $pages := $scratch.Get "pages" | default (slice) }}
     {{ range first 12 ($pages.GroupByDate "2006-01") }}
       <li>
-        <a href="{{ "/archives/" | relURL }}#{{ .Key }}">{{ .Key }}</a>
+        <a href="{{ $archivesURL }}#{{ .Key }}">{{ .Key }}</a>
         <span class="count">{{ len .Pages }}</span>
       </li>
     {{ end }}
   </ul>
-  <a class="sidebar-more" href="{{ "/archives/" | relURL }}">{{ if eq .Site.Language.Lang "en" }}View all{{ else }}Ver todos{{ end }}</a>
+  <a class="sidebar-more" href="{{ $archivesURL }}">{{ if eq .Site.Language.Lang "en" }}View all{{ else }}Ver todos{{ end }}</a>
 </div>
