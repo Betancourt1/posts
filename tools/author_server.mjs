@@ -885,7 +885,7 @@ function authorEditorHtml() {
     }
     .reference-theme .paper {
       width: min(43rem, 100%);
-      margin-left: min(13vw, 12rem);
+      margin-left: auto;
       margin-right: auto;
     }
     .reference-theme .title-input {
