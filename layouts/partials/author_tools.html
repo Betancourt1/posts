@@ -1,4 +1,5 @@
 {{- $contentRoot := cond (eq .Site.Language.Lang "es") "content_es" "content_en" -}}
+{{- $apiBase := cond hugo.IsServer "http://127.0.0.1:3001" "/admin" -}}
 {{- $sourcePath := "" -}}
 {{- with .File -}}
   {{- $sourcePath = printf "%s/%s" $contentRoot .Path -}}
@@ -6,7 +7,7 @@
 <div
   class="author-tools"
   id="author-tools"
-  data-api="http://127.0.0.1:3001"
+  data-api="{{ $apiBase }}"
   data-source-path="{{ $sourcePath }}"
   data-lang="{{ .Site.Language.Lang }}"
   data-kind="{{ .Kind }}"

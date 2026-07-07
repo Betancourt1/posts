@@ -189,6 +189,43 @@ export async function createPost(env, payload) {
   return { path, url: contentPathToUrl(path) };
 }
 
+export async function createNotebook(env, payload) {
+  const lang = payload.lang === "en" ? "en" : "es";
+  const root = lang === "en" ? "content_en" : "content_es";
+  const title = String(payload.title || "").trim();
+
+  if (!title) {
+    throw new Error("El notebook necesita titulo.");
+  }
+
+  const slug = ensureSlug(payload.slug || title);
+  const path = `${root}/${slug}/_index.md`;
+  const existing = await readGitHubFile(env, path);
+
+  if (existing) {
+    throw new Error("Ya existe un notebook con esa ruta.");
+  }
+
+  const frontMatter = {
+    title,
+    description: String(payload.description || ""),
+    date: ensureDate(payload.date),
+    draft: payload.draft !== false,
+  };
+
+  if (payload.hidden) {
+    frontMatter.hidden = true;
+  }
+
+  await writeGitHubFile(env, {
+    path,
+    content: formatMarkdown(frontMatter, String(payload.body || "")),
+    message: commitMessage("Crea", path),
+  });
+
+  return { path, url: contentPathToUrl(path) };
+}
+
 export async function savePage(env, payload) {
   const path = safeContentPath(payload.path);
   const current = await readGitHubFile(env, path);

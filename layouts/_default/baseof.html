@@ -11,7 +11,7 @@
     {{ partial "author_tools.html" . }}
   {{ end }}
   <header class="site-header">
-    <h1 class="site-title"><a href="{{ "/" | relURL }}">betancourt</a></h1>
+    <h1 class="site-title"><a href="{{ .Site.Home.RelPermalink }}">betancourt</a></h1>
     <p class="site-subtitle">{{ .Site.Params.subtitle | default "aquí escribo cosas" }}</p>
     <div class="site-header-actions">
       {{ if .IsTranslated }}
@@ -24,11 +24,11 @@
         {{ end }}
       {{ else }}
         {{ if eq .Site.Language.Lang "es" }}
-          <a class="lang-toggle" href="/" title="Switch to English">
+          <a class="lang-toggle" href="{{ "/" | relURL }}" title="Switch to English">
             EN
           </a>
         {{ else }}
-          <a class="lang-toggle" href="/es/" title="Cambiar a Español">
+          <a class="lang-toggle" href="{{ "/es/" | relURL }}" title="Cambiar a Español">
             ES
           </a>
         {{ end }}
