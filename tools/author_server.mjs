@@ -616,6 +616,8 @@ function authorEditorHtml() {
       background: transparent;
       color: var(--ink);
       outline: none;
+      overflow: hidden;
+      resize: none;
     }
     .title-input {
       min-height: 5rem;
@@ -631,7 +633,6 @@ function authorEditorHtml() {
     }
     .body-input {
       min-height: 58vh;
-      resize: vertical;
       font-family: Georgia, Cambria, "Times New Roman", serif;
       font-size: 1.22rem;
       line-height: 1.75;
@@ -648,6 +649,8 @@ function authorEditorHtml() {
       padding-top: 34vh;
       padding-bottom: 42vh;
       border-left: 1px solid transparent;
+      overflow: auto;
+      resize: vertical;
     }
     .settings {
       border-left: 1px solid var(--line);
@@ -1203,6 +1206,7 @@ function authorEditorHtml() {
           if (mode === "new" && !slugTouched) {
             els.slug.value = slugify(els.title.value, currentSeparator());
           }
+          resizeTextarea(els.title);
         });
         els.slug.addEventListener("input", function () {
           slugTouched = true;
@@ -1215,9 +1219,13 @@ function authorEditorHtml() {
         els.save.addEventListener("click", save);
         els.typewriter.addEventListener("click", toggleTypewriter);
         els.settingsTypewriter.addEventListener("click", toggleTypewriter);
-        els.body.addEventListener("input", centerTypewriterLine);
+        els.body.addEventListener("input", function () {
+          resizeTextarea(els.body);
+          centerTypewriterLine();
+        });
         els.body.addEventListener("click", centerTypewriterLine);
         els.body.addEventListener("keyup", centerTypewriterLine);
+        window.addEventListener("resize", resizeEditorFields);
         els.openSite.addEventListener("click", function () {
           if (savedUrl) {
             window.open(siteOrigin + savedUrl, "_blank", "noopener");
@@ -1294,6 +1302,7 @@ function authorEditorHtml() {
         els.draft.checked = true;
         els.hidden.checked = false;
         setStatus("New post");
+        resizeEditorFields();
         els.title.focus();
       }
 
@@ -1313,6 +1322,7 @@ function authorEditorHtml() {
           els.body.value = payload.body || "";
           els.path.textContent = payload.path || "";
           setStatus("Editing " + (payload.path || ""));
+          resizeEditorFields();
           els.body.focus();
         });
       }
@@ -1418,6 +1428,7 @@ function authorEditorHtml() {
         textarea.value = prefix + insert + suffix;
         textarea.focus();
         textarea.selectionStart = textarea.selectionEnd = (prefix + insert).length;
+        resizeTextarea(textarea);
         centerTypewriterLine();
       }
 
@@ -1479,6 +1490,7 @@ function authorEditorHtml() {
         els.body.focus();
         els.body.selectionStart = start + before.length;
         els.body.selectionEnd = start + before.length + selected.length;
+        resizeTextarea(els.body);
         centerTypewriterLine();
       }
 
@@ -1488,6 +1500,7 @@ function authorEditorHtml() {
         els.body.value = els.body.value.slice(0, lineStart) + prefix + els.body.value.slice(lineStart);
         els.body.focus();
         els.body.selectionStart = els.body.selectionEnd = cursor + prefix.length;
+        resizeTextarea(els.body);
         centerTypewriterLine();
       }
 
@@ -1495,7 +1508,25 @@ function authorEditorHtml() {
         var active = !els.writer.classList.contains("is-typewriter");
         els.writer.classList.toggle("is-typewriter", active);
         els.typewriter.classList.toggle("is-active", active);
+        resizeEditorFields();
         centerTypewriterLine();
+      }
+
+      function resizeEditorFields() {
+        window.requestAnimationFrame(function () {
+          resizeTextarea(els.title);
+          resizeTextarea(els.body);
+        });
+      }
+
+      function resizeTextarea(textarea) {
+        if (textarea === els.body && els.writer.classList.contains("is-typewriter")) {
+          textarea.style.height = "";
+          return;
+        }
+
+        textarea.style.height = "auto";
+        textarea.style.height = textarea.scrollHeight + "px";
       }
 
       function centerTypewriterLine() {
