@@ -63,10 +63,49 @@
     document.addEventListener("DOMContentLoaded", function () {
       var toggleBtn = document.getElementById("zen-toggle-btn");
       if (!toggleBtn) return;
-      
+
       var storageKey = "zen_mode_enabled";
       var body = document.body;
-      
+      var fadeDuration = 280;
+      var layoutDuration = 650;
+      var zenTimer = null;
+
+      function clearZenTimer() {
+        if (zenTimer) {
+          clearTimeout(zenTimer);
+          zenTimer = null;
+        }
+      }
+
+      function setZenMode(enabled) {
+        clearZenTimer();
+        body.classList.remove("zen-mode-fading", "zen-mode-returning");
+        toggleBtn.classList.toggle("is-active", enabled);
+        localStorage.setItem(storageKey, enabled ? "true" : "false");
+
+        if (enabled) {
+          body.classList.add("zen-mode-fading");
+          zenTimer = setTimeout(function () {
+            body.classList.remove("zen-mode-fading");
+            body.classList.add("zen-mode");
+            zenTimer = null;
+          }, fadeDuration);
+          return;
+        }
+
+        if (body.classList.contains("zen-mode")) {
+          body.classList.add("zen-mode-returning");
+          body.classList.remove("zen-mode");
+          zenTimer = setTimeout(function () {
+            body.classList.remove("zen-mode-returning");
+            zenTimer = null;
+          }, layoutDuration);
+          return;
+        }
+
+        body.classList.remove("zen-mode");
+      }
+
       // Apply initial state
       if (localStorage.getItem(storageKey) === "true") {
         body.classList.add("zen-mode");
@@ -74,9 +113,8 @@
       }
       
       toggleBtn.addEventListener("click", function () {
-        var isZen = body.classList.toggle("zen-mode");
-        toggleBtn.classList.toggle("is-active", isZen);
-        localStorage.setItem(storageKey, isZen ? "true" : "false");
+        var isZen = body.classList.contains("zen-mode") || body.classList.contains("zen-mode-fading");
+        setZenMode(!isZen);
       });
     });
   </script>

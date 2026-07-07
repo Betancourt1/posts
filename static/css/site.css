@@ -1327,32 +1327,38 @@ body.zen-mode .layout {
     width: 220px;
     opacity: 1;
     overflow: hidden;
-    transition: width 0.85s cubic-bezier(0.25, 1, 0.5, 1),
-                opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: width 0.65s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.28s ease;
   }
 
   .sidebar-column {
     width: 260px;
     opacity: 1;
     overflow: hidden;
-    transition: width 0.85s cubic-bezier(0.25, 1, 0.5, 1),
-                opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: width 0.65s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.28s ease;
+  }
+
+  body.zen-mode-fading .nav-column,
+  body.zen-mode-fading .sidebar-column,
+  body.zen-mode-returning .nav-column,
+  body.zen-mode-returning .sidebar-column,
+  body.zen-mode .nav-column,
+  body.zen-mode .sidebar-column {
+    opacity: 0;
+    pointer-events: none;
   }
 
   body.zen-mode .nav-column {
     display: block !important;
     width: 0;
-    opacity: 0;
     overflow: hidden;
-    pointer-events: none;
   }
 
   body.zen-mode .sidebar-column {
     display: block !important;
     width: 0;
-    opacity: 0;
     overflow: hidden;
-    pointer-events: none;
   }
 
   body.zen-mode .layout {
@@ -2018,5 +2024,3 @@ html:not(.infra-mode) .post-body {
 .font-preview-serif {
   font-family: Georgia, serif;
 }
-
-
