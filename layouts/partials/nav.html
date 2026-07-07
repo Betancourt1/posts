@@ -1,5 +1,6 @@
-<nav class="nav">
-  {{ if and hugo.IsServer (eq hugo.Environment "author") }}
+{{ $isAuthor := and hugo.IsServer (eq hugo.Environment "author") }}
+<nav class="nav{{ if $isAuthor }} nav--author{{ end }}">
+  {{ if $isAuthor }}
     <div class="nav-author-row">
       <span class="nav-title">{{ if eq .Site.Language.Lang "en" }}Notebooks{{ else }}Notebooks{{ end }}</span>
       <button

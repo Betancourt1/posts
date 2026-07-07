@@ -386,22 +386,43 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 }
 
 .nav-title {
-  font-size: 1.2rem;
+  font-size: var(--nav-title-size, 1.2rem);
   font-weight: 700;
   margin-bottom: 12px;
   color: var(--heading);
 }
 
+.nav--author {
+  --nav-title-size: 1.2rem;
+  display: grid;
+  grid-template-columns: max-content max-content;
+  column-gap: 0;
+  width: max-content;
+  max-width: 100%;
+  justify-content: start;
+  align-items: start;
+}
+
 .nav-author-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 12px;
+  display: contents;
 }
 
 .nav-author-row .nav-title {
-  margin-bottom: 0;
+  grid-column: 1;
+  margin-bottom: 12px;
+}
+
+.nav-author-row .author-action-button {
+  grid-column: 2;
+  width: 1em;
+  height: 1em;
+  align-self: center;
+  font-size: var(--nav-title-size);
+}
+
+.nav-author-row .author-action-button svg {
+  width: 0.72em;
+  height: 0.72em;
 }
 
 .nav-list {
@@ -410,14 +431,26 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   margin: 0;
 }
 
+.nav--author .nav-list {
+  display: contents;
+}
+
 .nav-list li {
   margin-bottom: 10px;
+}
+
+.nav--author .nav-list li {
+  grid-column: 1;
 }
 
 .nav-list a {
   color: var(--ink-muted);
   border-radius: 6px;
   padding: 0.2rem 0.4rem;
+}
+
+.nav--author .nav-list a {
+  padding-right: 0;
 }
 
 .nav-list a:hover {
