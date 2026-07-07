@@ -5,6 +5,7 @@ import { spawn } from "node:child_process";
 const children = [];
 const sitePort = "3010";
 const authorPort = "3001";
+const siteOrigin = `http://127.0.0.1:${sitePort}`;
 
 function start(command, args, options = {}) {
   const child = spawn(command, args, {
@@ -56,6 +57,8 @@ async function main() {
     start(process.execPath, ["tools/author_server.mjs"], {
       env: {
         AUTHOR_PORT: authorPort,
+        SITE_PORT: sitePort,
+        SITE_ORIGIN: siteOrigin,
       },
     });
   }
@@ -71,10 +74,13 @@ async function main() {
     "--port",
     sitePort,
     "--baseURL",
-    "/",
+    `${siteOrigin}/`,
     "--appendPort=false",
     "--disableFastRender",
   ]);
+
+  console.log(`\nSite: ${siteOrigin}/es/`);
+  console.log(`Author API: http://127.0.0.1:${authorPort}/api/health\n`);
 }
 
 main().catch((error) => {

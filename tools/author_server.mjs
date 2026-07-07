@@ -6,6 +6,8 @@ import path from "node:path";
 
 const PORT = Number(process.env.AUTHOR_PORT || 3001);
 const HOST = "127.0.0.1";
+const SITE_PORT = String(process.env.SITE_PORT || "3010");
+const SITE_ORIGIN = String(process.env.SITE_ORIGIN || `http://127.0.0.1:${SITE_PORT}`);
 const REPO_ROOT = process.cwd();
 const CONTENT_ROOTS = ["content_es", "content_en"];
 const UPLOAD_ROOT = "static/uploads";
@@ -42,6 +44,14 @@ function sendHtml(res, html) {
     "Access-Control-Allow-Origin": "*",
   });
   res.end(html);
+}
+
+function redirect(res, location) {
+  res.writeHead(302, {
+    Location: location,
+    "Access-Control-Allow-Origin": "*",
+  });
+  res.end();
 }
 
 function readJson(req) {
@@ -1133,7 +1143,7 @@ function authorEditorHtml() {
       var mode = params.get("mode") || "new";
       var kind = params.get("kind") || "post";
       var theme = params.get("theme") === "light" ? "light" : "dark";
-      var siteOrigin = params.get("site") || "http://127.0.0.1:3000";
+      var siteOrigin = params.get("site") || ${JSON.stringify(SITE_ORIGIN)};
       var sourcePath = params.get("path") || "";
       var preferredNotebook = params.get("notebook") || "";
       var frontMatter = {};
@@ -1559,6 +1569,11 @@ async function route(req, res) {
 
   if (req.method === "GET" && url.pathname === "/api/health") {
     sendJson(res, 200, { ok: true });
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/") {
+    redirect(res, SITE_ORIGIN + "/es/");
     return;
   }
 
