@@ -68,7 +68,7 @@
       }
 
       if (action === "add-image-post") {
-        openPostForm(button, "image");
+        openImagePostForm(button);
         return;
       }
 
@@ -260,6 +260,18 @@
     });
   }
 
+  function openImagePostForm(trigger) {
+    var notebook = trigger && trigger.dataset.notebook
+      ? trigger.dataset.notebook
+      : state.currentNotebook
+        ? state.currentNotebook.path
+        : "content_es/posts";
+
+    openImageEditor({
+      notebook: notebook,
+    });
+  }
+
   function editCurrentNotebook(trigger) {
     var notebook = trigger && trigger.dataset.sourcePath
       ? { indexPath: trigger.dataset.sourcePath }
@@ -330,6 +342,27 @@
     }
 
     window.location.assign(apiBase + "/editor?" + query.toString());
+  }
+
+  function openImageEditor(params) {
+    var theme = document.documentElement.getAttribute("data-theme") || "dark";
+
+    try {
+      theme = localStorage.getItem("site_theme") || theme;
+    } catch (error) {
+      theme = theme || "dark";
+    }
+
+    var query = new URLSearchParams({
+      site: contentOrigin(),
+      theme: theme === "light" ? "light" : "dark",
+    });
+
+    if (params.notebook) {
+      query.set("notebook", params.notebook);
+    }
+
+    window.location.assign(apiBase + "/image-editor?" + query.toString());
   }
 
   function openExistingEditor(path, title, kind) {

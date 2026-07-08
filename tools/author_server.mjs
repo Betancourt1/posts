@@ -4,6 +4,7 @@ import { createServer } from "node:http";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { authorEditorHtml } from "../functions/_lib/editor-template.js";
+import { imageEditorHtml } from "../functions/_lib/image-editor-template.js";
 
 const PORT = Number(process.env.AUTHOR_PORT || 3001);
 const HOST = "127.0.0.1";
@@ -567,6 +568,11 @@ async function route(req, res) {
 
   if (req.method === "GET" && url.pathname === "/editor") {
     sendHtml(res, authorEditorHtml({ siteOrigin: SITE_ORIGIN, assetOrigin: SITE_ORIGIN, apiBase: "/api" }));
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/image-editor") {
+    sendHtml(res, imageEditorHtml({ siteOrigin: SITE_ORIGIN, assetOrigin: SITE_ORIGIN, apiBase: "/api" }));
     return;
   }
 
