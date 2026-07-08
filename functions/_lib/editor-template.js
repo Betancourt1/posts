@@ -247,6 +247,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       font-size: 0.76rem;
       font-weight: 700;
     }
+    .field[hidden] {
+      display: none !important;
+    }
     .field input,
     .field select {
       width: 100%;
@@ -425,6 +428,11 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       align-items: center;
       gap: 0.2rem;
       flex: 0 0 auto;
+    }
+    .toolbar-group[hidden],
+    .formatbar button[hidden],
+    .divider[hidden] {
+      display: none !important;
     }
     .formatbar button {
       flex: 0 0 auto;
@@ -861,11 +869,11 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <button type="button" data-format="ul" title="Bulleted list" aria-label="Bulleted list">${ICONS.list}</button>
         <button type="button" data-format="ol" title="Numbered list" aria-label="Numbered list">${ICONS.orderedList}</button>
       </span>
-      <span class="divider"></span>
-      <span class="toolbar-group" aria-label="Insert">
+      <span class="divider" id="insert-divider-before"></span>
+      <span class="toolbar-group" id="insert-toolbar-group" aria-label="Insert">
         <button type="button" id="toolbar-image" title="Image" aria-label="Image">${ICONS.image}</button>
       </span>
-      <span class="divider"></span>
+      <span class="divider" id="insert-divider-after"></span>
       <span class="toolbar-group" aria-label="View">
         <button type="button" id="typewriter" class="typewriter-toggle" title="Typewriter" aria-label="Typewriter">${ICONS.typewriter}</button>
       </span>
@@ -881,7 +889,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     </section>
     <aside class="settings" id="settings" hidden>
       <div class="settings-header">
-        <h2>Post Settings</h2>
+        <h2 id="settings-title">Post Settings</h2>
         <button type="button" class="settings-close" id="settings-close" aria-label="Close settings">&times;</button>
       </div>
       <label class="field" id="notebook-field">
@@ -896,7 +904,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <span>Date</span>
         <input id="date" type="date" />
       </label>
-      <label class="field">
+      <label class="field" id="tags-field">
         <span>Tags</span>
         <input id="tags" type="text" placeholder="ensayo, politica" />
       </label>
@@ -908,11 +916,11 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <button type="button" class="image-delete-button" id="delete-image" hidden>${ICONS.trash}<span>Delete image file</span></button>
         <img class="photo-preview" id="photo-preview" alt="" />
       </div>
-      <label class="field">
+      <label class="field" id="image-alt-field">
         <span>Image alt</span>
         <input id="image-alt" type="text" placeholder="Describe the image" />
       </label>
-      <label class="field">
+      <label class="field" id="caption-field">
         <span>Image caption</span>
         <input id="caption" type="text" placeholder="Optional caption" />
       </label>
@@ -977,18 +985,25 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         title: document.getElementById("title"),
         body: document.getElementById("body"),
         settings: document.getElementById("settings"),
+        settingsTitle: document.getElementById("settings-title"),
         settingsButton: document.getElementById("settings-button"),
         settingsClose: document.getElementById("settings-close"),
+        insertDividerBefore: document.getElementById("insert-divider-before"),
+        insertToolbarGroup: document.getElementById("insert-toolbar-group"),
+        insertDividerAfter: document.getElementById("insert-divider-after"),
         toolbarImage: document.getElementById("toolbar-image"),
         notebookField: document.getElementById("notebook-field"),
         notebook: document.getElementById("notebook"),
         slug: document.getElementById("slug"),
         date: document.getElementById("date"),
+        tagsField: document.getElementById("tags-field"),
         tags: document.getElementById("tags"),
         photoFields: document.getElementById("photo-fields"),
         image: document.getElementById("image"),
         deleteImage: document.getElementById("delete-image"),
+        imageAltField: document.getElementById("image-alt-field"),
         imageAlt: document.getElementById("image-alt"),
+        captionField: document.getElementById("caption-field"),
         caption: document.getElementById("caption"),
         photoPreview: document.getElementById("photo-preview"),
         editorFontSize: document.getElementById("editor-font-size"),
@@ -1016,6 +1031,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         syncSettingsState();
         syncWritingState();
         syncPreviewButton();
+        syncEditorKind();
         loadNotebooks().then(function () {
           if (mode === "edit") {
             return loadExisting();
@@ -1705,6 +1721,19 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         }
         updatePhotoPreview();
         syncDeleteControls();
+      }
+
+      function syncEditorKind() {
+        var notebook = kind === "notebook";
+        els.settingsTitle.textContent = notebook ? "Notebook Settings" : "Post Settings";
+        els.tagsField.hidden = notebook;
+        els.imageAltField.hidden = notebook;
+        els.captionField.hidden = notebook;
+        els.insertDividerBefore.hidden = notebook;
+        els.insertToolbarGroup.hidden = notebook;
+        els.insertDividerAfter.hidden = notebook;
+        els.toolbarImage.hidden = notebook;
+        els.toolbarImage.disabled = notebook;
       }
 
       function updatePhotoPreview() {
