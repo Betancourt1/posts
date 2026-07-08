@@ -2392,6 +2392,10 @@ html:not(.infra-mode) .post-body {
   transform: scale(1.08);
 }
 
+.author-action-button--danger:hover {
+  color: #ff6b6b;
+}
+
 .author-action-button:active {
   background: transparent !important;
 }
@@ -2538,10 +2542,32 @@ html:not(.infra-mode) .post-body {
   justify-content: flex-end;
 }
 
+.author-form-actions--split {
+  justify-content: space-between;
+}
+
 .author-form-actions button,
 .author-editor-toolbar button {
   min-height: 2.35rem;
   padding: 0.45rem 0.75rem;
+}
+
+.author-danger-button {
+  border-color: #ff6b6b !important;
+  color: #ff6b6b !important;
+}
+
+.author-delete-copy {
+  margin: 0;
+  color: var(--ink);
+  line-height: 1.55;
+}
+
+.author-path {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
 }
 
 .author-toast {

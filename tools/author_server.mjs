@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { createServer } from "node:http";
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { authorEditorHtml } from "../functions/_lib/editor-template.js";
 import { imageEditorHtml } from "../functions/_lib/image-editor-template.js";
@@ -35,6 +35,7 @@ const MONTHS_ES = [
   "noviembre",
   "diciembre",
 ];
+const PROTECTED_NOTEBOOKS = new Set(["content_es/posts", "content_en/posts"]);
 
 function sendJson(res, status, payload) {
   res.writeHead(status, {
@@ -624,6 +625,185 @@ function uploadImage(payload) {
   };
 }
 
+function uploadPathFromValue(value) {
+  let raw = String(value || "").trim();
+
+  if (!raw) {
+    throw new Error("Ruta de imagen requerida.");
+  }
+
+  try {
+    if (/^https?:\/\//.test(raw)) {
+      raw = new URL(raw).pathname;
+    }
+  } catch {
+    throw new Error("Ruta de imagen invalida.");
+  }
+
+  raw = raw.replace(/^\/admin(?=\/uploads\/)/, "");
+  if (raw.startsWith("/uploads/")) {
+    raw = `static${raw}`;
+  }
+
+  const { relativePath } = safeUploadPath(raw.replace(/^\/+/, ""));
+  return relativePath;
+}
+
+function collectUploadReferences(frontMatter, body) {
+  const values = [];
+  const add = (value) => {
+    if (value) values.push(value);
+  };
+
+  add(frontMatter.image);
+  add(frontMatter.thumbnail);
+
+  if (Array.isArray(frontMatter.images)) {
+    frontMatter.images.forEach((item) => {
+      add(item?.src || item?.image || item?.url);
+      add(item?.thumb || item?.thumbnail);
+    });
+  }
+
+  for (const match of String(body || "").matchAll(/!\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g)) {
+    add(match[1]);
+  }
+
+  const paths = new Set();
+
+  values.forEach((value) => {
+    try {
+      paths.add(uploadPathFromValue(value));
+    } catch {
+      // Non-upload images or external URLs are not owned by this repo.
+    }
+  });
+
+  return [...paths];
+}
+
+function deleteImagePath(relativePath) {
+  const { absolutePath } = safeUploadPath(relativePath);
+
+  if (!existsSync(absolutePath)) {
+    return false;
+  }
+
+  unlinkSync(absolutePath);
+  return true;
+}
+
+function deleteImage(payload) {
+  const relativePath = uploadPathFromValue(payload.path || payload.url);
+
+  return {
+    path: relativePath,
+    deleted: deleteImagePath(relativePath),
+  };
+}
+
+function fallbackUrlForContent(relativePath) {
+  const [root, section] = relativePath.split("/");
+  const prefix = root === "content_es" ? "/es" : "";
+
+  return section ? `${prefix}/${section}/` : `${prefix || "/"}`;
+}
+
+function deletePage(payload) {
+  const { relativePath, absolutePath } = safeContentPath(payload.path);
+
+  if (!relativePath.endsWith(".md")) {
+    throw new Error("Ruta de pagina invalida.");
+  }
+  if (relativePath.endsWith("/_index.md")) {
+    throw new Error("Usa borrar notebook para eliminar una pagina indice.");
+  }
+  if (!existsSync(absolutePath)) {
+    throw new Error("El archivo no existe.");
+  }
+
+  const { frontMatter, body } = splitMarkdown(readFileSync(absolutePath, "utf8"));
+  const imagePaths = payload.deleteImages ? collectUploadReferences(frontMatter, body) : [];
+  const deletedImages = [];
+
+  unlinkSync(absolutePath);
+  imagePaths.forEach((imagePath) => {
+    if (deleteImagePath(imagePath)) {
+      deletedImages.push(imagePath);
+    }
+  });
+
+  return {
+    path: relativePath,
+    deletedImages,
+    url: fallbackUrlForContent(relativePath),
+  };
+}
+
+function walkFiles(absoluteDirectory, relativeDirectory) {
+  const files = [];
+
+  for (const entry of readdirSync(absoluteDirectory, { withFileTypes: true })) {
+    const absoluteEntry = path.join(absoluteDirectory, entry.name);
+    const relativeEntry = `${relativeDirectory}/${entry.name}`;
+
+    if (entry.isDirectory()) {
+      files.push(...walkFiles(absoluteEntry, relativeEntry));
+      continue;
+    }
+
+    if (entry.isFile()) {
+      files.push({ absolutePath: absoluteEntry, relativePath: relativeEntry });
+    }
+  }
+
+  return files;
+}
+
+function deleteNotebook(payload) {
+  const { relativePath, absolutePath } = safeContentPath(payload.path);
+
+  if (relativePath.endsWith(".md")) {
+    throw new Error("Ruta de notebook invalida.");
+  }
+  if (PROTECTED_NOTEBOOKS.has(relativePath)) {
+    throw new Error("Este notebook base no se borra desde el editor.");
+  }
+  if (!existsSync(absolutePath)) {
+    throw new Error("Notebook inexistente.");
+  }
+
+  const files = walkFiles(absolutePath, relativePath).sort((a, b) => b.relativePath.localeCompare(a.relativePath));
+  const imagePaths = new Set();
+
+  if (payload.deleteImages) {
+    files.forEach((file) => {
+      if (!file.relativePath.endsWith(".md")) return;
+      const { frontMatter, body } = splitMarkdown(readFileSync(file.absolutePath, "utf8"));
+      collectUploadReferences(frontMatter, body).forEach((imagePath) => imagePaths.add(imagePath));
+    });
+  }
+
+  files.forEach((file) => {
+    unlinkSync(file.absolutePath);
+  });
+  rmSync(absolutePath, { recursive: true, force: true });
+
+  const deletedImages = [];
+  imagePaths.forEach((imagePath) => {
+    if (deleteImagePath(imagePath)) {
+      deletedImages.push(imagePath);
+    }
+  });
+
+  return {
+    path: relativePath,
+    deletedFiles: files.map((file) => file.relativePath),
+    deletedImages,
+    url: relativePath.startsWith("content_es/") ? "/es/" : "/",
+  };
+}
+
 async function route(req, res) {
   const url = new URL(req.url, `http://${HOST}:${PORT}`);
 
@@ -684,6 +864,21 @@ async function route(req, res) {
 
   if (req.method === "POST" && url.pathname === "/api/upload-image") {
     sendJson(res, 200, uploadImage(await readJson(req)));
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/delete-image") {
+    sendJson(res, 200, deleteImage(await readJson(req)));
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/delete-page") {
+    sendJson(res, 200, deletePage(await readJson(req)));
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/delete-notebook") {
+    sendJson(res, 200, deleteNotebook(await readJson(req)));
     return;
   }
 

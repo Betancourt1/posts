@@ -1534,6 +1534,20 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       function removeSelectedImage() {
         var image = selectedImage();
         if (!image) return;
+        var uploadedUrls = uniqueUploadUrls(image);
+        if (uploadedUrls.length && !image.needsUpload && window.confirm("Eliminar tambien el archivo de imagen del repositorio?")) {
+          setStatus("Eliminando archivo de imagen.", false);
+          Promise.all(uploadedUrls.map(deleteUploadedImage)).then(function () {
+            removeImageFromPost(image);
+          }).catch(function (error) {
+            setStatus(error.message, true);
+          });
+          return;
+        }
+        removeImageFromPost(image);
+      }
+
+      function removeImageFromPost(image) {
         if (image.previewUrl) {
           URL.revokeObjectURL(image.previewUrl);
         }
@@ -1544,6 +1558,20 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         viewMode = images.length > 1 ? "lightbox" : images.length === 1 ? "detail" : "empty";
         render();
         markUnsaved(images.length ? "Imagen quitada." : "Elige una imagen para empezar.");
+      }
+
+      function uniqueUploadUrls(image) {
+        var urls = [];
+        [image.uploadedUrl, image.thumbnailUrl].forEach(function (url) {
+          if (url && urls.indexOf(url) === -1) {
+            urls.push(url);
+          }
+        });
+        return urls;
+      }
+
+      function deleteUploadedImage(url) {
+        return postJson("/delete-image", { url: url });
       }
 
       function render() {

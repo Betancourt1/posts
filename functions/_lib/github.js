@@ -119,6 +119,20 @@ export async function writeGitHubFileBase64(env, { path, contentBase64, message,
   });
 }
 
+export async function deleteGitHubFile(env, { path, message, sha }) {
+  const { branch } = githubConfig(env);
+  const encodedPath = path.split("/").map(encodeURIComponent).join("/");
+
+  return githubRequest(env, repoPath(env, `/contents/${encodedPath}`), {
+    method: "DELETE",
+    body: JSON.stringify({
+      message,
+      sha,
+      branch,
+    }),
+  });
+}
+
 export async function readRepositoryTree(env) {
   const { branch } = githubConfig(env);
   const ref = await githubRequest(env, repoPath(env, `/git/ref/heads/${encodeURIComponent(branch)}`));

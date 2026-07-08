@@ -82,6 +82,16 @@
         return;
       }
 
+      if (action === "delete-post") {
+        openDeletePostForm(button);
+        return;
+      }
+
+      if (action === "delete-notebook") {
+        openDeleteNotebookForm(button);
+        return;
+      }
+
       toast("Unknown author action.");
     }).catch(function (error) {
       toast(error.message);
@@ -310,6 +320,104 @@
       mode: "edit",
       kind: "post",
       path: path,
+    });
+  }
+
+  function openDeletePostForm(trigger) {
+    var path = trigger && trigger.dataset.sourcePath ? trigger.dataset.sourcePath : state.currentPath;
+
+    if (!path) {
+      toast("No source file for this page.");
+      return;
+    }
+
+    if (path.endsWith("_index.md")) {
+      toast("This is a notebook page. Use Delete Notebook.");
+      return;
+    }
+
+    request("/api/page?path=" + encodeURIComponent(path)).then(function (payload) {
+      var frontMatter = payload.frontMatter || {};
+      openDeleteForm({
+        type: "page",
+        endpoint: "/api/delete-page",
+        path: payload.path,
+        title: frontMatter.title || payload.path,
+        label: "post",
+        imageCopy: "Borrar tambien imagenes adjuntas a este post.",
+      });
+    }).catch(function (error) {
+      toast(error.message);
+    });
+  }
+
+  function openDeleteNotebookForm(trigger) {
+    var notebook = trigger && trigger.dataset.sourcePath
+      ? { indexPath: trigger.dataset.sourcePath, path: trigger.dataset.sourcePath.replace(/\/_index\.md$/, "") }
+      : state.currentNotebook;
+
+    if (!notebook && state.currentPath && state.currentPath.endsWith("_index.md")) {
+      notebook = {
+        indexPath: state.currentPath,
+        path: state.currentPath.replace(/\/_index\.md$/, ""),
+      };
+    }
+
+    if (!notebook) {
+      toast("No current notebook found.");
+      return;
+    }
+
+    request("/api/page?path=" + encodeURIComponent(notebook.indexPath)).then(function (payload) {
+      var frontMatter = payload.frontMatter || {};
+      openDeleteForm({
+        type: "notebook",
+        endpoint: "/api/delete-notebook",
+        path: notebook.path,
+        title: frontMatter.title || notebook.path,
+        label: "notebook",
+        imageCopy: "Borrar tambien imagenes referenciadas por sus paginas.",
+      });
+    }).catch(function (error) {
+      toast(error.message);
+    });
+  }
+
+  function openDeleteForm(options) {
+    openModal("Eliminar " + options.label, [
+      '<form class="author-form author-delete-form" id="author-delete-form">',
+      '<p class="author-delete-copy">Vas a eliminar <strong>' + escapeHtml(options.title) + '</strong>.</p>',
+      '<p class="author-path">' + escapeHtml(options.path) + '</p>',
+      checkbox("deleteImages", options.imageCopy, false),
+      label("Confirmacion", '<input name="confirm" type="text" autocomplete="off" placeholder="Escribe BORRAR" required />'),
+      '<div class="author-form-actions author-form-actions--split">',
+      '<button type="button" id="author-delete-cancel">Cancelar</button>',
+      '<button type="submit" class="author-danger-button">Eliminar</button>',
+      '</div>',
+      "</form>",
+    ].join(""));
+
+    var form = document.getElementById("author-delete-form");
+    var cancel = document.getElementById("author-delete-cancel");
+
+    cancel.addEventListener("click", closeModal);
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      if (form.elements.confirm.value.trim() !== "BORRAR") {
+        toast("Escribe BORRAR para confirmar.");
+        return;
+      }
+
+      postJson(options.endpoint, {
+        path: options.path,
+        deleteImages: form.elements.deleteImages.checked,
+      }).then(function (result) {
+        toast("Eliminado.");
+        closeModal();
+        window.location.href = contentUrl(result.url || fallbackContentUrl());
+      }).catch(function (error) {
+        toast(error.message);
+      });
     });
   }
 
@@ -588,6 +696,10 @@
     }
 
     check();
+  }
+
+  function fallbackContentUrl() {
+    return root.dataset.lang === "es" ? "/es/" : "/";
   }
 
   function label(text, control) {

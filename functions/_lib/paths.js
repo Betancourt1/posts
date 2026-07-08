@@ -1,7 +1,7 @@
 export const CONTENT_ROOTS = ["content_es", "content_en"];
 export const UPLOAD_ROOT = "static/uploads";
 
-const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp"]);
+const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"]);
 
 export function normalizeRepoPath(value) {
   const path = String(value || "").trim().replace(/\\/g, "/");

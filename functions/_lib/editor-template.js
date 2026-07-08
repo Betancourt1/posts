@@ -18,6 +18,7 @@ const ICONS = Object.freeze({
   image: iconSvg(`<rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />`),
   typewriter: iconSvg(`<path d="M12 3v18" /><path d="M8 7h8" /><path d="M8 17h8" /><path d="M4 12h16" />`),
   settings: iconSvg(`<path d="M9.7 4.1a2.3 2.3 0 0 1 4.6 0 2.3 2.3 0 0 0 3.3 1.9 2.3 2.3 0 0 1 2.3 4 2.3 2.3 0 0 0 0 3.8 2.3 2.3 0 0 1-2.3 4 2.3 2.3 0 0 0-3.3 1.9 2.3 2.3 0 0 1-4.6 0 2.3 2.3 0 0 0-3.3-1.9 2.3 2.3 0 0 1-2.3-4 2.3 2.3 0 0 0 0-3.8 2.3 2.3 0 0 1 2.3-4 2.3 2.3 0 0 0 3.3-1.9" /><circle cx="12" cy="12" r="3" />`),
+  trash: iconSvg(`<path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" />`),
 });
 
 export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "/api" } = {}) {
@@ -278,6 +279,43 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       margin-top: 1.25rem;
       padding-top: 1rem;
       border-top: 1px solid var(--line);
+    }
+    .danger-zone {
+      display: grid;
+      gap: 0.65rem;
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+    }
+    .danger-zone[hidden] {
+      display: none !important;
+    }
+    .danger-zone h3 {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .danger-button,
+    .image-delete-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.42rem;
+      border-color: var(--danger);
+      color: var(--danger);
+      background: transparent;
+    }
+    .image-delete-button {
+      min-height: 2rem;
+      justify-self: start;
+      padding: 0;
+      border: 0;
+      font-size: 0.78rem;
+    }
+    .image-delete-button[hidden] {
+      display: none !important;
     }
     .photo-fields {
       display: grid;
@@ -867,6 +905,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           <span>Post image</span>
           <input id="image" type="text" placeholder="/uploads/2026/07/photo.jpg" />
         </label>
+        <button type="button" class="image-delete-button" id="delete-image" hidden>${ICONS.trash}<span>Delete image file</span></button>
         <img class="photo-preview" id="photo-preview" alt="" />
       </div>
       <label class="field">
@@ -893,6 +932,14 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <input id="hidden" type="checkbox" />
         <span>Hidden</span>
       </label>
+      <div class="danger-zone" id="danger-zone" hidden>
+        <h3>Danger</h3>
+        <label class="check">
+          <input id="delete-attached-images" type="checkbox" />
+          <span>Delete attached images too</span>
+        </label>
+        <button type="button" class="danger-button" id="delete-page">${ICONS.trash}<span>Delete</span></button>
+      </div>
       <div class="utility">
         <input id="image-file" type="file" accept="image/*" hidden />
         <div class="path" id="path"></div>
@@ -940,6 +987,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         tags: document.getElementById("tags"),
         photoFields: document.getElementById("photo-fields"),
         image: document.getElementById("image"),
+        deleteImage: document.getElementById("delete-image"),
         imageAlt: document.getElementById("image-alt"),
         caption: document.getElementById("caption"),
         photoPreview: document.getElementById("photo-preview"),
@@ -947,6 +995,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         summary: document.getElementById("summary"),
         draft: document.getElementById("draft"),
         hidden: document.getElementById("hidden"),
+        dangerZone: document.getElementById("danger-zone"),
+        deleteAttachedImages: document.getElementById("delete-attached-images"),
+        deletePage: document.getElementById("delete-page"),
         typewriter: document.getElementById("typewriter"),
         undo: document.querySelector('[data-format="undo"]'),
         redo: document.querySelector('[data-format="redo"]'),
@@ -1021,7 +1072,12 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         [els.summary, els.date, els.tags, els.image, els.imageAlt, els.caption].forEach(function (input) {
           input.addEventListener("input", markContentEdited);
         });
-        els.image.addEventListener("input", updatePhotoPreview);
+        els.image.addEventListener("input", function () {
+          updatePhotoPreview();
+          syncDeleteControls();
+        });
+        els.deleteImage.addEventListener("click", deleteCurrentImage);
+        els.deletePage.addEventListener("click", deleteCurrentPage);
         [els.draft, els.hidden].forEach(function (input) {
           input.addEventListener("change", markContentEdited);
         });
@@ -1104,6 +1160,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         syncSavedState();
         syncPreviewButton();
         syncPhotoEditor();
+        syncDeleteControls();
         resizeEditorFields();
         els.title.focus();
       }
@@ -1134,6 +1191,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           syncSavedState();
           syncPreviewButton();
           syncPhotoEditor();
+          syncDeleteControls();
           resizeEditorFields();
           els.body.focus();
         });
@@ -1155,6 +1213,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           savedSnapshot = currentSaveSnapshot();
           setStatus("Saved");
           syncPreviewButton();
+          syncDeleteControls();
           goToSavedPage();
         }).catch(function (error) {
           setStatus(error.message, true);
@@ -1645,15 +1704,94 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           els.tags.value = "fotografia";
         }
         updatePhotoPreview();
+        syncDeleteControls();
       }
 
       function updatePhotoPreview() {
         var image = els.image.value.trim();
         if (!image) {
           els.photoPreview.removeAttribute("src");
+          syncDeleteControls();
           return;
         }
         els.photoPreview.src = image.charAt(0) === "/" ? siteOrigin + image : image;
+        syncDeleteControls();
+      }
+
+      function syncDeleteControls() {
+        var canDeletePage = mode === "edit" && Boolean(sourcePath);
+        var image = els.image.value.trim();
+        els.dangerZone.hidden = !canDeletePage;
+        els.deletePage.innerHTML = '${ICONS.trash}<span>' + (kind === "notebook" ? "Delete notebook" : "Delete post") + '</span>';
+        els.deleteImage.hidden = !image || !isUploadUrl(image);
+      }
+
+      function isUploadUrl(value) {
+        var raw = String(value || "").trim();
+        if (!raw) return false;
+        try {
+          if (/^https?:\\/\\//.test(raw)) {
+            raw = new URL(raw).pathname;
+          }
+        } catch (error) {
+          return false;
+        }
+        raw = raw.replace(/^\\/admin(?=\\/uploads\\/)/, "");
+        return raw.indexOf("/uploads/") === 0 || raw.indexOf("static/uploads/") === 0;
+      }
+
+      function notebookPathFromSource() {
+        return sourcePath.replace(/\\/_index\\.md$/, "");
+      }
+
+      function deleteCurrentPage() {
+        if (mode !== "edit" || !sourcePath) return;
+        var label = kind === "notebook" ? "notebook" : "post";
+        var confirmation = window.prompt("Escribe BORRAR para eliminar este " + label + ".");
+        if (confirmation !== "BORRAR") {
+          setStatus("Eliminacion cancelada.");
+          return;
+        }
+
+        var endpoint = kind === "notebook" ? "/api/delete-notebook" : "/api/delete-page";
+        var path = kind === "notebook" ? notebookPathFromSource() : sourcePath;
+        els.deletePage.disabled = true;
+        setStatus("Deleting");
+        postJson(endpoint, {
+          path: path,
+          deleteImages: els.deleteAttachedImages.checked,
+        }).then(function (result) {
+          var target = result.url || (kind === "notebook" ? "/es/" : "/es/");
+          window.location.assign(siteOrigin + target);
+        }).catch(function (error) {
+          setStatus(error.message, true);
+        }).finally(function () {
+          els.deletePage.disabled = false;
+        });
+      }
+
+      function deleteCurrentImage() {
+        var image = els.image.value.trim();
+        if (!isUploadUrl(image)) return;
+        if (!window.confirm("Eliminar el archivo de imagen del repositorio?")) {
+          return;
+        }
+        els.deleteImage.disabled = true;
+        setStatus("Deleting image");
+        postJson("/api/delete-image", {
+          url: image,
+        }).then(function () {
+          els.image.value = "";
+          els.imageAlt.value = "";
+          els.caption.value = "";
+          updatePhotoPreview();
+          markContentEdited();
+          setStatus("Image deleted");
+        }).catch(function (error) {
+          setStatus(error.message, true);
+        }).finally(function () {
+          els.deleteImage.disabled = false;
+        });
       }
 
       function photoPayload() {

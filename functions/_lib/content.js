@@ -1,4 +1,4 @@
-import { readGitHubFile, readRepositoryTree, writeGitHubFile, writeGitHubFileBase64 } from "./github.js";
+import { deleteGitHubFile, readGitHubFile, readRepositoryTree, writeGitHubFile, writeGitHubFileBase64 } from "./github.js";
 import { formatMarkdown, splitMarkdown, tagsFromValue } from "./markdown.js";
 import {
   CONTENT_ROOTS,
@@ -36,6 +36,7 @@ const IMAGE_MIME_BY_EXTENSION = new Map([
   [".webp", "image/webp"],
   [".svg", "image/svg+xml"],
 ]);
+const PROTECTED_NOTEBOOKS = new Set(["content_es/posts", "content_en/posts"]);
 
 function dateInMexico() {
   const parts = new Intl.DateTimeFormat("en", {
@@ -91,6 +92,86 @@ function notebookTitle(frontMatter, slug) {
 
 function commitMessage(action, path) {
   return `${action} ${path} desde editor`;
+}
+
+function fallbackUrlForContent(path) {
+  const [root, section] = path.split("/");
+  const prefix = root === "content_es" ? "/es" : "";
+
+  return section ? `${prefix}/${section}/` : `${prefix || "/"}`;
+}
+
+function uploadPathFromValue(value) {
+  let raw = String(value || "").trim();
+
+  if (!raw) {
+    throw new Error("Ruta de imagen requerida.");
+  }
+
+  try {
+    if (/^https?:\/\//.test(raw)) {
+      raw = new URL(raw).pathname;
+    }
+  } catch {
+    throw new Error("Ruta de imagen invalida.");
+  }
+
+  raw = raw.replace(/^\/admin(?=\/uploads\/)/, "");
+  if (raw.startsWith("/uploads/")) {
+    raw = `static${raw}`;
+  }
+
+  return safeUploadPath(raw.replace(/^\/+/, ""));
+}
+
+function collectUploadReferences(frontMatter, body) {
+  const values = [];
+  const add = (value) => {
+    if (value) values.push(value);
+  };
+
+  add(frontMatter.image);
+  add(frontMatter.thumbnail);
+
+  if (Array.isArray(frontMatter.images)) {
+    frontMatter.images.forEach((item) => {
+      add(item?.src || item?.image || item?.url);
+      add(item?.thumb || item?.thumbnail);
+    });
+  }
+
+  for (const match of String(body || "").matchAll(/!\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g)) {
+    add(match[1]);
+  }
+
+  const paths = new Set();
+
+  values.forEach((value) => {
+    try {
+      paths.add(uploadPathFromValue(value));
+    } catch {
+      // Non-upload images or external URLs are not owned by this repo.
+    }
+  });
+
+  return [...paths];
+}
+
+async function deleteUploadPath(env, path) {
+  const safePath = safeUploadPath(path);
+  const current = await readGitHubFile(env, safePath);
+
+  if (!current) {
+    return false;
+  }
+
+  await deleteGitHubFile(env, {
+    path: safePath,
+    message: commitMessage("Elimina", safePath),
+    sha: current.sha,
+  });
+
+  return true;
 }
 
 export async function readPage(env, path) {
@@ -297,6 +378,104 @@ export async function savePage(env, payload) {
   });
 
   return { path, url: contentPathToUrl(path) };
+}
+
+export async function deleteImage(env, payload) {
+  const path = uploadPathFromValue(payload.path || payload.url);
+  const deleted = await deleteUploadPath(env, path);
+
+  return {
+    path,
+    deleted,
+  };
+}
+
+export async function deletePage(env, payload) {
+  const path = safeContentPath(payload.path);
+
+  if (path.endsWith("/_index.md")) {
+    throw new Error("Usa borrar notebook para eliminar una pagina indice.");
+  }
+
+  const current = await readGitHubFile(env, path);
+
+  if (!current) {
+    throw new Error("El archivo no existe.");
+  }
+
+  const parsed = splitMarkdown(current.content);
+  const imagePaths = payload.deleteImages ? collectUploadReferences(parsed.frontMatter, parsed.body) : [];
+  const deletedImages = [];
+
+  await deleteGitHubFile(env, {
+    path,
+    message: commitMessage("Elimina", path),
+    sha: current.sha,
+  });
+
+  for (const imagePath of imagePaths) {
+    if (await deleteUploadPath(env, imagePath)) {
+      deletedImages.push(imagePath);
+    }
+  }
+
+  return {
+    path,
+    deletedImages,
+    url: fallbackUrlForContent(path),
+  };
+}
+
+export async function deleteNotebook(env, payload) {
+  const notebook = safeNotebookPath(payload.path);
+
+  if (PROTECTED_NOTEBOOKS.has(notebook)) {
+    throw new Error("Este notebook base no se borra desde el editor.");
+  }
+
+  const tree = await readRepositoryTree(env);
+  const files = tree
+    .filter((entry) => entry.type === "blob" && entry.path.startsWith(`${notebook}/`))
+    .sort((a, b) => b.path.localeCompare(a.path));
+
+  if (!files.length) {
+    throw new Error("Notebook vacio o inexistente.");
+  }
+
+  const imagePaths = new Set();
+
+  if (payload.deleteImages) {
+    for (const entry of files) {
+      if (!entry.path.endsWith(".md")) continue;
+      const current = await readGitHubFile(env, entry.path);
+      if (!current) continue;
+      const parsed = splitMarkdown(current.content);
+      collectUploadReferences(parsed.frontMatter, parsed.body).forEach((path) => imagePaths.add(path));
+    }
+  }
+
+  for (const entry of files) {
+    await deleteGitHubFile(env, {
+      path: entry.path,
+      message: commitMessage("Elimina", entry.path),
+      sha: entry.sha,
+    });
+  }
+
+  const deletedImages = [];
+
+  for (const imagePath of imagePaths) {
+    if (await deleteUploadPath(env, imagePath)) {
+      deletedImages.push(imagePath);
+    }
+  }
+
+  return {
+    path: notebook,
+    deletedFiles: files.map((entry) => entry.path),
+    deletedImages,
+    url: notebook.startsWith("content_es/") ? "/es/" : "/",
+  };
 }
 
 export async function uploadImage(env, payload) {

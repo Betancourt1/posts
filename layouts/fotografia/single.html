@@ -29,6 +29,15 @@
             >
               {{ partial "author_icon.html" "pencil" }}
             </button>
+            <button
+              type="button"
+              class="author-action-button author-action-button--danger"
+              data-author-action="delete-post"
+              aria-label="{{ if eq .Site.Language.Lang "en" }}Delete page{{ else }}Eliminar página{{ end }}"
+              title="{{ if eq .Site.Language.Lang "en" }}Delete page{{ else }}Eliminar página{{ end }}"
+            >
+              {{ partial "author_icon.html" "trash" }}
+            </button>
           </div>
         {{ end }}
       </div>

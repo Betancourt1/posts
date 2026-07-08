@@ -32,6 +32,15 @@
           >
             {{ partial "author_icon.html" "pencil" }}
           </button>
+          <button
+            type="button"
+            class="author-action-button author-action-button--danger"
+            data-author-action="delete-notebook"
+            aria-label="{{ if $isEnglish }}Delete notebook{{ else }}Eliminar notebook{{ end }}"
+            title="{{ if $isEnglish }}Delete notebook{{ else }}Eliminar notebook{{ end }}"
+          >
+            {{ partial "author_icon.html" "trash" }}
+          </button>
         </div>
       {{ end }}
     </div>
