@@ -53,6 +53,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       --editor-subtitle-size: 1rem;
       --editor-body-size: 1rem;
       --writer-width: 48rem;
+      --topbar-height: 4.55rem;
     }
     * { box-sizing: border-box; }
     html, body {
@@ -212,8 +213,30 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       overflow: auto;
     }
     .settings h2 {
-      margin: 0 0 1rem;
+      margin: 0;
       font-size: 0.88rem;
+    }
+    .settings-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .settings-close {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.75rem;
+      min-width: 2.75rem;
+      min-height: 2.75rem;
+      border: 0;
+      border-radius: 999px;
+      padding: 0;
+      background: var(--panel-2);
+      color: var(--ink);
+      font-size: 1.2rem;
+      line-height: 1;
     }
     .field {
       display: grid;
@@ -326,6 +349,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       background: #ffffff;
       overflow-x: auto;
       overflow-y: hidden;
+      position: relative;
     }
     .formatbar-inner {
       width: min(var(--writer-width), 100%);
@@ -534,6 +558,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       padding-bottom: 36vh;
     }
     .reference-theme[data-theme="dark"] {
+      --bg: #000000;
       background: #000000;
       color: #cfcfd2;
       --panel: #0b0c0f;
@@ -631,21 +656,43 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         border-top: 1px solid var(--line);
       }
       .writer {
-        padding: 2rem 1rem;
+        padding: 2rem 1rem calc(6rem + env(safe-area-inset-bottom));
+      }
+      .reference-theme .writer {
+        padding: 2.4rem 1.5rem calc(7rem + env(safe-area-inset-bottom));
       }
       .formatbar {
         justify-content: flex-start;
         padding: 0 0.85rem;
+        position: sticky;
+        top: var(--topbar-height);
+        z-index: 9;
+      }
+      .formatbar::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 2.25rem;
+        pointer-events: none;
+        background: linear-gradient(to right, rgba(0, 0, 0, 0), var(--bg));
       }
       .formatbar-inner {
         width: max-content;
         justify-content: flex-start;
+      }
+      .formatbar button {
+        width: 2.75rem;
+        min-width: 2.75rem;
+        min-height: 2.75rem;
       }
       .topbar {
         align-items: flex-start;
         height: auto;
         flex-direction: column;
         padding: 0.85rem 1rem;
+        z-index: 12;
       }
       .reference-theme .topbar {
         height: auto;
@@ -659,6 +706,62 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
       .top-actions button {
         flex: 1;
+      }
+      body.no-preview .topbar {
+        align-items: center;
+        flex-direction: row;
+        gap: 0.75rem;
+      }
+      body.no-preview .brand {
+        flex: 1 1 auto;
+      }
+      body.no-preview .top-actions {
+        flex: 0 0 auto;
+        width: auto;
+      }
+      body.no-preview .top-actions button {
+        min-width: min(10.5rem, 45vw);
+      }
+      .top-actions button[hidden] {
+        display: none;
+      }
+      .bottom-right {
+        right: 1rem;
+        bottom: calc(0.85rem + env(safe-area-inset-bottom));
+      }
+      .bottom-right .utility-button {
+        min-height: 2.75rem;
+      }
+      body.is-writing .bottom-right .utility-button {
+        width: 2.75rem;
+        padding: 0;
+        border-radius: 999px;
+        opacity: 0.86;
+      }
+      body.is-writing .bottom-right .utility-button span {
+        display: none;
+      }
+      body.settings-open .bottom-right {
+        display: none;
+      }
+      .reference-theme .settings {
+        inset: auto 0 0 0;
+        width: 100%;
+        max-height: min(72vh, 34rem);
+        border-right: 0;
+        border-bottom: 0;
+        border-left: 0;
+        border-radius: 1rem 1rem 0 0;
+        padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom));
+        box-shadow: 0 -1rem 3rem rgba(0, 0, 0, 0.24);
+      }
+      .reference-theme .writer.is-typewriter {
+        padding-top: 1rem;
+      }
+      .reference-theme .writer.is-typewriter .body-input {
+        min-height: calc(100vh - 13rem);
+        padding-top: 20vh;
+        padding-bottom: 28vh;
       }
     }
   </style>
@@ -716,7 +819,10 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       </article>
     </section>
     <aside class="settings" id="settings" hidden>
-      <h2>Post Settings</h2>
+      <div class="settings-header">
+        <h2>Post Settings</h2>
+        <button type="button" class="settings-close" id="settings-close" aria-label="Close settings">&times;</button>
+      </div>
       <label class="field" id="notebook-field">
         <span>Notebook</span>
         <select id="notebook"></select>
@@ -757,7 +863,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     </aside>
   </main>
   <div class="bottom-right">
-    <button type="button" class="utility-button" id="settings-button">${ICONS.settings}<span>Settings</span></button>
+    <button type="button" class="utility-button" id="settings-button" aria-controls="settings" aria-expanded="false" aria-label="Open settings">${ICONS.settings}<span>Settings</span></button>
   </div>
   <script>
     (function () {
@@ -787,6 +893,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         body: document.getElementById("body"),
         settings: document.getElementById("settings"),
         settingsButton: document.getElementById("settings-button"),
+        settingsClose: document.getElementById("settings-close"),
         toolbarImage: document.getElementById("toolbar-image"),
         settingsTypewriter: document.getElementById("settings-typewriter"),
         notebookField: document.getElementById("notebook-field"),
@@ -813,6 +920,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         document.body.dataset.theme = theme;
         applyEditorSize(readEditorSize());
         bind();
+        syncSettingsState();
+        syncWritingState();
         syncPreviewButton();
         loadNotebooks().then(function () {
           if (mode === "edit") {
@@ -861,6 +970,12 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           resizeTextarea(els.body);
           centerTypewriterLine();
         });
+        [els.title, els.summary, els.body].forEach(function (input) {
+          input.addEventListener("focus", syncWritingState);
+          input.addEventListener("blur", function () {
+            window.setTimeout(syncWritingState, 0);
+          });
+        });
         [els.summary, els.date, els.tags].forEach(function (input) {
           input.addEventListener("input", markContentEdited);
         });
@@ -878,8 +993,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           window.open(url, "_blank", "noopener");
         });
         els.settingsButton.addEventListener("click", function () {
-          els.settings.hidden = !els.settings.hidden;
+          toggleSettings();
         });
+        els.settingsClose.addEventListener("click", closeSettings);
         els.toolbarImage.addEventListener("click", function () {
           els.imageFile.click();
         });
@@ -1233,6 +1349,36 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         centerTypewriterLine();
       }
 
+      function toggleSettings() {
+        if (els.settings.hidden) {
+          openSettings();
+          return;
+        }
+        closeSettings();
+      }
+
+      function openSettings() {
+        els.settings.hidden = false;
+        syncSettingsState();
+      }
+
+      function closeSettings() {
+        els.settings.hidden = true;
+        syncSettingsState();
+      }
+
+      function syncSettingsState() {
+        var open = !els.settings.hidden;
+        document.body.classList.toggle("settings-open", open);
+        els.settingsButton.setAttribute("aria-expanded", String(open));
+        els.settingsButton.setAttribute("aria-label", open ? "Close settings" : "Open settings");
+      }
+
+      function syncWritingState() {
+        var active = document.activeElement;
+        document.body.classList.toggle("is-writing", active === els.title || active === els.summary || active === els.body);
+      }
+
       function readEditorSize() {
         try {
           return normalizeEditorSize(window.localStorage.getItem(editorSizeStorageKey));
@@ -1259,9 +1405,18 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
 
       function resizeEditorFields() {
         window.requestAnimationFrame(function () {
+          updateTopbarHeight();
           resizeTextarea(els.title);
           resizeTextarea(els.body);
         });
+      }
+
+      function updateTopbarHeight() {
+        var topbar = document.querySelector(".topbar");
+        if (!topbar) {
+          return;
+        }
+        document.documentElement.style.setProperty("--topbar-height", topbar.offsetHeight + "px");
       }
 
       function resizeTextarea(textarea) {
@@ -1365,7 +1520,10 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       function syncPreviewButton() {
         var url = previewUrl();
         els.openSite.disabled = !url;
+        els.openSite.hidden = !url;
         els.openSite.title = url ? "" : "Save before preview";
+        document.body.classList.toggle("no-preview", !url);
+        window.requestAnimationFrame(updateTopbarHeight);
       }
 
       function goToSavedPage() {
