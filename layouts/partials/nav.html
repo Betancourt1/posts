@@ -18,17 +18,20 @@
   {{ end }}
   <ul class="nav-list">
     {{ range .Site.Menus.main }}
-    {{ with .Page }}
-      {{ if .Section }}
-        {{ $menuSections = $menuSections | append .Section }}
+    {{ $menuPage := .Page }}
+    {{ if or $menuPage (hasPrefix .URL "http://") (hasPrefix .URL "https://") }}
+      {{ with $menuPage }}
+        {{ if .Section }}
+          {{ $menuSections = $menuSections | append .Section }}
+        {{ end }}
       {{ end }}
+      <li>
+        {{ $href := partial "admin_href.html" (dict "page" $ "href" .URL) }}
+        <a href="{{ $href }}" {{ if and $menuPage ($.IsMenuCurrent "main" .) }} class="active" {{ end }}>
+          {{ .Name }}
+        </a>
+      </li>
     {{ end }}
-    <li>
-      {{ $href := partial "admin_href.html" (dict "page" $ "href" .URL) }}
-      <a href="{{ $href }}" {{ if $.IsMenuCurrent "main" . }} class="active" {{ end }}>
-        {{ .Name }}
-      </a>
-    </li>
     {{ end }}
     {{ range .Site.Sections.ByTitle }}
       {{ $isHidden := partial "is_hidden.html" . }}
