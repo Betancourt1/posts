@@ -2356,6 +2356,8 @@ html:not(.infra-mode) .post-body {
   font-size: 0;
   line-height: 1;
   box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   transition: color 0.2s ease, transform 0.2s ease;
 }
 
@@ -2388,6 +2390,10 @@ html:not(.infra-mode) .post-body {
 
 .author-action-button:hover {
   transform: scale(1.08);
+}
+
+.author-action-button:active {
+  background: transparent !important;
 }
 
 .author-action-button:focus-visible {
