@@ -856,7 +856,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <span>Hidden</span>
       </label>
       <div class="utility">
-        <button type="button" id="settings-typewriter">Toggle Typewriter</button>
         <input id="image-file" type="file" accept="image/*" hidden />
         <div class="path" id="path"></div>
       </div>
@@ -895,7 +894,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         settingsButton: document.getElementById("settings-button"),
         settingsClose: document.getElementById("settings-close"),
         toolbarImage: document.getElementById("toolbar-image"),
-        settingsTypewriter: document.getElementById("settings-typewriter"),
         notebookField: document.getElementById("notebook-field"),
         notebook: document.getElementById("notebook"),
         slug: document.getElementById("slug"),
@@ -959,7 +957,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         });
         els.save.addEventListener("click", save);
         els.typewriter.addEventListener("click", toggleTypewriter);
-        els.settingsTypewriter.addEventListener("click", toggleTypewriter);
         els.editorFontSize.addEventListener("change", function () {
           applyEditorSize(els.editorFontSize.value);
         });
