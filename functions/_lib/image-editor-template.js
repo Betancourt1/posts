@@ -219,6 +219,10 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       display: grid;
       gap: 0.9rem;
     }
+    .notebook-rail {
+      display: grid;
+      gap: 0.9rem;
+    }
     .rail-heading {
       margin: 0;
       color: var(--dim);
@@ -227,13 +231,20 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       letter-spacing: 0.02em;
     }
     .rail-link {
+      border: 0;
+      background: transparent;
       color: var(--muted);
       text-decoration: none;
+      padding: 0;
+      text-align: left;
+      font: inherit;
     }
-    .rail-link.is-active {
+    .rail-link.is-active,
+    .rail-link[aria-current="true"] {
       color: var(--accent);
     }
-    .rail-link.is-active::before {
+    .rail-link.is-active::before,
+    .rail-link[aria-current="true"]::before {
       content: "";
       display: inline-block;
       width: 0.42rem;
@@ -560,6 +571,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     .panel.is-editing .property-editor.check {
       display: flex;
     }
+    .mobile-notebook-field {
+      display: none;
+    }
     .desktop-actions {
       display: none;
     }
@@ -603,6 +617,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
       .editor-rail {
         display: none;
+      }
+      .mobile-notebook-field {
+        display: grid;
       }
     }
     @media (max-width: 820px) {
@@ -710,22 +727,10 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
   </header>
 
   <main class="shell">
-    <nav class="editor-rail" aria-label="Notebooks">
+    <nav class="editor-rail" aria-label="Destino de la imagen">
       <div class="rail-group">
-        <p class="rail-heading">Notebooks</p>
-        <a class="rail-link" href="${SITE_ORIGIN}/es/">Inicio</a>
-        <a class="rail-link" href="${SITE_ORIGIN}/es/sobre-mi/">Sobre mi</a>
-        <a class="rail-link" href="${SITE_ORIGIN}/es/profesional/">Profesional</a>
-        <a class="rail-link" href="${SITE_ORIGIN}/es/academico/">Academico</a>
-        <a class="rail-link" href="${SITE_ORIGIN}/es/posts/">Escritos</a>
-        <a class="rail-link" href="${SITE_ORIGIN}/es/zettelkasten/">Zettelkasten</a>
-        <a class="rail-link" href="${SITE_ORIGIN}/es/lecturas/">Lecturas</a>
-        <a class="rail-link" href="${SITE_ORIGIN}/es/cv/">CV</a>
-        <a class="rail-link is-active" href="${SITE_ORIGIN}/es/fotografia/">Fotografia</a>
-      </div>
-      <div class="rail-group">
-        <span class="rail-link is-active">Nueva imagen</span>
-        <span>Ajustes</span>
+        <p class="rail-heading">Subir en</p>
+        <div class="notebook-rail" id="notebook-rail"></div>
       </div>
     </nav>
 
@@ -793,12 +798,11 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       </section>
 
       <section class="panel">
-        <h2>Notebook</h2>
+        <h2>Destino</h2>
         <div class="property-row">
           <span class="property-value" id="notebook-summary">Fotografia</span>
-          <button type="button" class="property-action" data-edit-panel="notebook-panel">cambiar</button>
         </div>
-        <label class="field property-editor" id="notebook-panel">
+        <label class="field mobile-notebook-field">
           <select id="notebook"></select>
         </label>
       </section>
@@ -876,6 +880,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         altAction: document.getElementById("alt-action"),
         body: document.getElementById("body"),
         notebook: document.getElementById("notebook"),
+        notebookRail: document.getElementById("notebook-rail"),
         notebookSummary: document.getElementById("notebook-summary"),
         date: document.getElementById("date"),
         tags: document.getElementById("tags"),
@@ -960,7 +965,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         });
         els.notebook.addEventListener("change", function () {
           syncDefaultTags();
-          closePropertyEditor(els.notebook);
+          updateNotebookRail();
           markUnsaved();
         });
         [els.title, els.caption, els.alt, els.body, els.date, els.tags].forEach(function (input) {
@@ -1020,8 +1025,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function loadNotebooks() {
         return request("/notebooks").then(function (payload) {
+          var notebooks = payload.notebooks || [];
           els.notebook.innerHTML = "";
-          (payload.notebooks || []).forEach(function (notebook) {
+          notebooks.forEach(function (notebook) {
             var option = document.createElement("option");
             option.value = notebook.path;
             option.textContent = notebook.title + " (" + notebook.lang + ")";
@@ -1030,11 +1036,44 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
             }
             els.notebook.appendChild(option);
           });
+          renderNotebookRail(notebooks);
           if (!els.notebook.value && els.notebook.options.length) {
             els.notebook.options[0].selected = true;
           }
           syncDefaultTags();
+          updateNotebookRail();
           updatePropertySummaries();
+        });
+      }
+
+      function renderNotebookRail(notebooks) {
+        els.notebookRail.innerHTML = "";
+        notebooks.forEach(function (notebook) {
+          var button = document.createElement("button");
+          button.type = "button";
+          button.className = "rail-link";
+          button.dataset.notebook = notebook.path;
+          button.textContent = notebook.title + " (" + notebook.lang + ")";
+          button.addEventListener("click", function () {
+            if (els.notebook.value === notebook.path) return;
+            els.notebook.value = notebook.path;
+            syncDefaultTags();
+            updateNotebookRail();
+            markUnsaved();
+          });
+          els.notebookRail.appendChild(button);
+        });
+      }
+
+      function updateNotebookRail() {
+        els.notebookRail.querySelectorAll("[data-notebook]").forEach(function (button) {
+          var isActive = button.dataset.notebook === els.notebook.value;
+          button.classList.toggle("is-active", isActive);
+          if (isActive) {
+            button.setAttribute("aria-current", "true");
+          } else {
+            button.removeAttribute("aria-current");
+          }
         });
       }
 
