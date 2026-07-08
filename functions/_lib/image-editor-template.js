@@ -32,12 +32,10 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
   <style>
     :root {
       color-scheme: dark;
-      --bg: #050506;
-      --panel: #0d0e11;
-      --panel-2: #12151a;
-      --field: #08090b;
-      --line: #252932;
-      --line-soft: #171a20;
+      --bg: #000000;
+      --field: #050607;
+      --line: #24272e;
+      --line-soft: #14161a;
       --ink: #f1f2f3;
       --muted: #8f96a3;
       --dim: #bcc1c8;
@@ -57,7 +55,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       font-family: var(--sans);
     }
     body {
-      padding-bottom: calc(5.8rem + env(safe-area-inset-bottom));
+      padding-bottom: 0;
     }
     button,
     input,
@@ -75,23 +73,44 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 0.75rem;
-      min-height: 4.45rem;
-      padding: 0.7rem clamp(1rem, 3vw, 2rem);
-      border-bottom: 1px solid var(--line-soft);
-      background: rgba(5, 5, 6, 0.96);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      gap: 1rem;
+      min-height: 4.1rem;
+      padding: 0.75rem clamp(1.2rem, 3vw, 2.4rem);
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
     .topbar-left {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.8rem;
+      min-width: 0;
+    }
+    .brand {
+      display: grid;
+      gap: 0.05rem;
+      text-decoration: none;
+    }
+    .brand strong {
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+    .brand span {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.68rem;
+    }
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: clamp(0.95rem, 2.4vw, 2rem);
       min-width: 0;
     }
     .icon-button {
-      width: 2.65rem;
-      height: 2.65rem;
+      width: 2rem;
+      height: 2rem;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -102,6 +121,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     }
     .icon-button svg,
     .tool-button svg,
+    .text-action svg,
     .upload-mark svg {
       width: 1.15rem;
       height: 1.15rem;
@@ -112,28 +132,23 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       stroke-linejoin: round;
     }
     .icon-button:hover,
-    .tool-button:hover {
+    .tool-button:hover,
+    .text-action:hover {
       color: var(--accent);
     }
     .save-state {
-      display: inline-flex;
+      display: none;
       align-items: center;
-      gap: 0.45rem;
-      min-height: 2.2rem;
-      padding: 0 0.75rem;
-      border: 1px solid var(--line);
-      background: var(--panel-2);
+      gap: 0.4rem;
       color: var(--dim);
-      border-radius: 0.5rem;
       font-family: var(--mono);
-      font-size: 0.82rem;
-      font-weight: 700;
+      font-size: 0.74rem;
       white-space: nowrap;
     }
     .save-state::before {
       content: "";
-      width: 0.5rem;
-      height: 0.5rem;
+      width: 0.42rem;
+      height: 0.42rem;
       border-radius: 999px;
       background: var(--warning);
     }
@@ -144,52 +159,149 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       background: var(--danger);
     }
     .primary-button,
-    .secondary-button {
-      min-height: 3rem;
-      border-radius: 0.45rem;
-      padding: 0 1.1rem;
+    .secondary-button,
+    .text-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.42rem;
+      border: 0;
+      background: transparent;
+      color: var(--dim);
+      padding: 0;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      line-height: 1.2;
+    }
+    .primary-button,
+    .text-action.is-primary {
+      color: var(--accent);
       font-weight: 800;
-      border: 1px solid transparent;
     }
-    .primary-button {
-      background: var(--accent);
-      color: var(--accent-ink);
-    }
-    .secondary-button {
-      background: var(--panel-2);
-      color: var(--ink);
-      border-color: var(--line);
+    .topbar-actions .secondary-button {
+      color: var(--muted);
+      font-size: 0.74rem;
     }
     .primary-button:disabled,
     .secondary-button:disabled,
-    .tool-button:disabled {
+    .tool-button:disabled,
+    .text-action:disabled {
       cursor: not-allowed;
       opacity: 0.45;
     }
     .shell {
-      width: min(100%, 1180px);
+      width: min(100%, 1440px);
       margin: 0 auto;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(19rem, 25rem);
-      gap: clamp(1rem, 3vw, 2rem);
-      padding: clamp(1.25rem, 4vw, 2.5rem);
+      grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr) minmax(14rem, 22rem);
+      gap: clamp(1.2rem, 3vw, 3.2rem);
+      padding: clamp(1.2rem, 3vw, 2.4rem);
     }
     .workspace,
-    .panel {
+    .inspector,
+    .editor-rail {
       min-width: 0;
     }
-    .workspace-head {
-      display: grid;
-      justify-items: center;
-      gap: 0.35rem;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-    .eyebrow {
-      margin: 0;
-      font-family: var(--mono);
+    .editor-rail {
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+      padding-top: 3.5rem;
       color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.82rem;
+    }
+    .rail-group {
+      display: grid;
+      gap: 0.9rem;
+    }
+    .rail-heading {
+      margin: 0;
+      color: var(--dim);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .rail-link {
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .rail-link.is-active {
+      color: var(--accent);
+    }
+    .rail-link.is-active::before {
+      content: "";
+      display: inline-block;
+      width: 0.42rem;
+      height: 0.42rem;
+      margin-right: 0.55rem;
+      border-radius: 999px;
+      background: var(--accent);
+      vertical-align: 0.05em;
+    }
+    .workspace {
+      padding-top: 2.6rem;
+    }
+    .post-head {
+      display: grid;
+      gap: 0.7rem;
+      margin: 0 0 1.35rem;
+    }
+    .post-kicker {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      color: var(--muted);
+      font-family: var(--mono);
       font-size: 0.78rem;
+    }
+    .inline-date {
+      width: auto;
+      min-height: 0;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      padding: 0;
+      font-family: var(--mono);
+      font-size: inherit;
+    }
+    .title-line,
+    .tags-line,
+    .caption-line {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+      outline: none;
+      font-family: var(--mono);
+      padding: 0;
+    }
+    .title-line {
+      min-height: 2.4rem;
+      font-size: clamp(1.45rem, 3vw, 2rem);
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .tags-line,
+    .caption-line {
+      min-height: 1.8rem;
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+    .tags-line {
+      color: var(--accent);
+    }
+    .caption-line {
+      margin-top: 1rem;
+      color: var(--ink);
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 0.45rem;
+    }
+    .title-line:focus,
+    .tags-line:focus,
+    .caption-line:focus,
+    .property-control:focus {
+      border-color: var(--accent);
+      box-shadow: none;
     }
     h1,
     h2 {
@@ -197,50 +309,43 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       font-family: var(--mono);
       letter-spacing: 0;
     }
-    h1 {
-      font-size: clamp(2.1rem, 7vw, 3.3rem);
-      line-height: 0.95;
-      color: var(--accent);
-    }
     h2 {
       font-size: 1rem;
       color: var(--ink);
     }
     .dropzone {
-      min-height: min(72vh, 44rem);
-      border: 1px dashed var(--line);
-      border-radius: 0.75rem;
-      background: linear-gradient(180deg, rgba(18, 21, 26, 0.9), rgba(9, 10, 12, 0.94));
-      display: grid;
-      place-items: center;
+      min-height: min(66vh, 45rem);
       overflow: hidden;
+      position: relative;
     }
     .dropzone.is-dragging {
-      border-color: var(--accent);
-      background: rgba(78, 204, 163, 0.06);
+      outline: 1px dashed var(--accent);
+      outline-offset: 0.7rem;
     }
     .empty-state {
-      width: min(100%, 28rem);
+      width: 100%;
+      min-height: min(58vh, 38rem);
       display: grid;
       justify-items: center;
+      align-content: center;
       gap: 0.85rem;
       padding: 2rem;
       text-align: center;
+      background: #020203;
     }
     .upload-mark {
-      width: 5.5rem;
-      height: 5.5rem;
+      width: 7rem;
+      height: 7rem;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       color: var(--accent);
-      border: 1px solid var(--line);
       background: var(--field);
       position: relative;
     }
     .pixel-image-mark {
-      width: 3.4rem;
-      height: 3.4rem;
+      width: 4.5rem;
+      height: 4.5rem;
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       grid-template-rows: repeat(7, 1fr);
@@ -300,20 +405,30 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     .preview-state {
       width: 100%;
       height: 100%;
+      display: block;
+    }
+    .image-object {
+      position: relative;
       display: grid;
-      grid-template-rows: minmax(20rem, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: stretch;
+      gap: 1rem;
+      width: 100%;
+    }
+    .image-surface {
+      min-height: min(58vh, 38rem);
+      display: grid;
     }
     .image-stage {
-      min-height: min(60vh, 34rem);
+      min-height: min(58vh, 38rem);
       display: grid;
       place-items: center;
-      background: #020203;
       overflow: hidden;
     }
     .image-stage img {
       display: block;
       max-width: 100%;
-      max-height: min(70vh, 42rem);
+      max-height: min(68vh, 44rem);
       object-fit: contain;
       transition: transform 0.2s ease;
     }
@@ -327,65 +442,65 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       object-fit: cover;
     }
     .image-tools {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      border-top: 1px solid var(--line-soft);
-      background: var(--panel);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1.15rem;
+      align-items: flex-start;
     }
     .tool-button {
-      min-height: 3.7rem;
       border: 0;
-      border-right: 1px solid var(--line-soft);
       background: transparent;
       color: var(--dim);
       display: inline-flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: 0.35rem;
+      gap: 0.42rem;
       font-family: var(--mono);
-      font-size: 0.78rem;
-    }
-    .tool-button:last-child {
-      border-right: 0;
+      font-size: 0.72rem;
+      padding: 0;
     }
     .tool-button.is-active {
       color: var(--accent);
-      background: rgba(78, 204, 163, 0.07);
     }
     .inspector {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 1.25rem;
+      padding-top: 5.9rem;
+      border-left: 1px solid var(--line-soft);
+      padding-left: clamp(0.8rem, 2vw, 1.35rem);
+      opacity: 0.88;
     }
     .panel {
-      border: 1px solid var(--line-soft);
-      background: var(--panel);
-      padding: 1rem;
+      display: grid;
+      gap: 1.35rem;
     }
     .panel h2 {
-      margin-bottom: 0.9rem;
+      color: var(--muted);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
     }
     .preview-panel {
       display: grid;
-      gap: 0.75rem;
+      gap: 0.8rem;
     }
     .preview-box {
-      min-height: 8rem;
-      border: 1px dashed var(--line);
-      border-radius: 0.55rem;
-      background: var(--field);
-      display: grid;
-      place-items: center;
-      overflow: hidden;
+      display: none;
+    }
+    .property-row {
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.55rem;
       color: var(--muted);
       font-family: var(--mono);
       font-size: 0.8rem;
     }
     .preview-box img {
-      width: 100%;
-      height: 100%;
-      max-height: 12rem;
+      width: 2.5rem;
+      height: 2.5rem;
       object-fit: cover;
       display: block;
     }
@@ -396,31 +511,65 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       font-size: 0.76rem;
       line-height: 1.45;
     }
+    .property-row,
     .field {
       display: grid;
-      gap: 0.45rem;
-      margin-bottom: 0.9rem;
+      gap: 0.35rem;
     }
-    .field:last-child {
-      margin-bottom: 0;
+    .property-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
     }
+    .property-label,
     .field span,
     .check span {
       color: var(--muted);
-      font-size: 0.78rem;
+      font-family: var(--mono);
+      font-size: 0.74rem;
       font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .property-value {
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .property-action {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      padding: 0;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      white-space: nowrap;
+    }
+    .property-editor {
+      display: none;
+      margin-top: -0.5rem;
+    }
+    .panel.is-editing .property-editor {
+      display: grid;
+    }
+    .panel.is-editing .property-row {
+      align-items: center;
     }
     input,
     select,
     textarea {
       width: 100%;
-      min-height: 3rem;
-      border: 1px solid var(--line);
-      border-radius: 0.4rem;
-      background: var(--field);
+      min-height: 2rem;
+      border: 0;
+      border-bottom: 1px solid var(--line-soft);
+      border-radius: 0;
+      background: transparent;
       color: var(--ink);
-      padding: 0.75rem 0.85rem;
+      padding: 0 0 0.35rem;
       outline: none;
+      font-family: var(--mono);
     }
     textarea {
       min-height: 6rem;
@@ -431,24 +580,28 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     select:focus,
     textarea:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(78, 204, 163, 0.12);
+      box-shadow: none;
     }
     .check {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
-      min-height: 2.3rem;
+      gap: 0.5rem;
+      min-height: 1.7rem;
     }
     .check input {
-      width: 1.15rem;
-      height: 1.15rem;
+      width: 0.9rem;
+      height: 0.9rem;
       min-height: 0;
       accent-color: var(--accent);
     }
+    .property-editor.check {
+      display: none;
+    }
+    .panel.is-editing .property-editor.check {
+      display: flex;
+    }
     .desktop-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
+      display: none;
     }
     .status-line {
       min-height: 1.4rem;
@@ -477,61 +630,103 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       bottom: 0;
       z-index: 30;
       display: none;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-      padding: 0.85rem 1rem calc(0.85rem + env(safe-area-inset-bottom));
-      border-top: 1px solid var(--line-soft);
-      background: rgba(5, 5, 6, 0.96);
+      justify-content: flex-start;
+      gap: 1rem;
+      padding: 1rem 1.1rem calc(1rem + env(safe-area-inset-bottom));
+      background: rgba(0, 0, 0, 0.92);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
     }
+    @media (max-width: 1040px) {
+      .shell {
+        grid-template-columns: minmax(0, 1fr) minmax(13rem, 18rem);
+      }
+      .editor-rail {
+        display: none;
+      }
+    }
     @media (max-width: 820px) {
       body {
-        padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
       }
       .topbar {
-        min-height: 4rem;
+        min-height: 3.6rem;
+      }
+      .brand {
+        display: none;
+      }
+      #save-draft {
+        display: none;
       }
       .shell {
         display: block;
-        padding: 1.2rem 1rem 2rem;
+        padding: 0 1rem 2rem;
       }
-      .workspace-head {
-        margin-bottom: 0.85rem;
+      .workspace {
+        display: flex;
+        flex-direction: column;
+        padding-top: 0.8rem;
+      }
+      .post-head {
+        order: 2;
+        margin-top: 0.65rem;
+        margin-bottom: 0.8rem;
       }
       .dropzone {
-        min-height: 24rem;
+        order: 1;
+        min-height: 23rem;
+      }
+      .caption-line {
+        order: 3;
+      }
+      .empty-state {
+        min-height: 22rem;
+        padding: 1.5rem;
+      }
+      .image-object {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.85rem;
       }
       .image-stage {
-        min-height: 20rem;
+        min-height: 22rem;
       }
       .image-tools {
-        grid-template-columns: repeat(4, 1fr);
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 0.75rem;
+        margin-top: 0;
+        overflow-x: auto;
       }
       .inspector {
         margin-top: 1rem;
-      }
-      .panel {
-        padding: 0.9rem;
+        padding-top: 1rem;
+        padding-left: 0;
+        border-left: 0;
+        border-top: 1px solid var(--line);
       }
       .desktop-actions {
         display: none;
       }
       .mobile-actions {
-        display: grid;
+        display: none;
+      }
+      #mobile-publish {
+        display: none;
       }
     }
     @media (max-width: 440px) {
-      .save-state {
-        max-width: 9.5rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
+      .topbar-actions {
+        gap: 0.8rem;
       }
       .dropzone {
-        min-height: 21rem;
+        min-height: 20rem;
+      }
+      .empty-state,
+      .image-stage {
+        min-height: 19rem;
       }
       .tool-button {
-        min-height: 3.45rem;
         font-size: 0.68rem;
       }
     }
@@ -541,108 +736,150 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
   <header class="topbar">
     <div class="topbar-left">
       <button type="button" class="icon-button" id="back" aria-label="Back" title="Back">${ICONS.back}</button>
+      <a class="brand" href="${SITE_ORIGIN}/es/" aria-label="betancourt">
+        <strong>betancourt</strong>
+        <span>aqui escribo cosas</span>
+      </a>
+    </div>
+    <div class="topbar-actions">
       <span class="save-state" id="save-state">Unsaved</span>
+      <button type="button" class="text-action" id="preview-image">${ICONS.preview}<span>Vista previa</span></button>
+      <button type="button" class="secondary-button" id="save-draft">Guardar</button>
+      <button type="button" class="primary-button" id="publish">Publicar ↑</button>
     </div>
   </header>
 
   <main class="shell">
+    <nav class="editor-rail" aria-label="Notebooks">
+      <div class="rail-group">
+        <p class="rail-heading">Notebooks</p>
+        <a class="rail-link" href="${SITE_ORIGIN}/es/">Inicio</a>
+        <a class="rail-link" href="${SITE_ORIGIN}/es/sobre-mi/">Sobre mi</a>
+        <a class="rail-link" href="${SITE_ORIGIN}/es/profesional/">Profesional</a>
+        <a class="rail-link" href="${SITE_ORIGIN}/es/academico/">Academico</a>
+        <a class="rail-link" href="${SITE_ORIGIN}/es/posts/">Escritos</a>
+        <a class="rail-link" href="${SITE_ORIGIN}/es/zettelkasten/">Zettelkasten</a>
+        <a class="rail-link" href="${SITE_ORIGIN}/es/lecturas/">Lecturas</a>
+        <a class="rail-link" href="${SITE_ORIGIN}/es/cv/">CV</a>
+        <a class="rail-link is-active" href="${SITE_ORIGIN}/es/fotografia/">Fotografia</a>
+      </div>
+      <div class="rail-group">
+        <button type="button" class="text-action is-primary" id="choose-image">+ Nueva imagen</button>
+        <span>Ajustes</span>
+      </div>
+    </nav>
+
     <section class="workspace">
-      <div class="workspace-head">
-        <div>
-          <p class="eyebrow">New image</p>
-          <h1>Image post</h1>
+      <div class="post-head">
+        <div class="post-kicker">
+          <input class="inline-date" id="date" type="date" aria-label="Fecha" />
+          <span>imagen</span>
         </div>
+        <input class="title-line" id="title" type="text" placeholder="Titulo" autocomplete="off" aria-label="Titulo" />
+        <input class="tags-line" id="tags" type="text" placeholder="#fotografia  #naturaleza  #insecto" aria-label="Tags" />
       </div>
 
       <div class="dropzone" id="dropzone" aria-label="Image upload area">
-        <div class="empty-state" id="empty-state">
-          <span class="upload-mark" aria-hidden="true">
-            <span class="pixel-image-mark">
-              ${Array.from({ length: 49 }, () => "<span></span>").join("")}
-            </span>
-          </span>
-          <h2>Drop image here</h2>
-          <p>Start with the image. Details come after the preview looks right.</p>
-          <p class="helper-copy">JPG, PNG, GIF, WebP, or SVG. Max 12 MB.</p>
-          <button type="button" class="primary-button" id="choose-image">Choose image</button>
-        </div>
+        <div class="image-object">
+          <div class="image-surface">
+            <div class="empty-state" id="empty-state">
+              <span class="upload-mark" aria-hidden="true">
+                <span class="pixel-image-mark">
+                  ${Array.from({ length: 49 }, () => "<span></span>").join("")}
+                </span>
+              </span>
+              <h2>Imagen pendiente</h2>
+              <p>Suelta o elige una foto.</p>
+              <p class="helper-copy">JPG, PNG, GIF, WebP, SVG. Max 12 MB.</p>
+              <button type="button" class="primary-button" id="choose-image-empty">Elegir imagen</button>
+            </div>
 
-        <div class="preview-state" id="preview-state" hidden>
-          <div class="image-stage" id="image-stage">
-            <img id="image-preview" alt="" />
+            <div class="preview-state" id="preview-state" hidden>
+              <div class="image-stage" id="image-stage">
+                <img id="image-preview" alt="" />
+              </div>
+            </div>
           </div>
-          <div class="image-tools">
-            <button type="button" class="tool-button" id="replace-image">${ICONS.replace}<span>Replace</span></button>
-            <button type="button" class="tool-button" id="crop-image">${ICONS.crop}<span>Crop</span></button>
-            <button type="button" class="tool-button" id="rotate-image">${ICONS.rotate}<span>Rotate</span></button>
-            <button type="button" class="tool-button" id="preview-image">${ICONS.preview}<span>Preview</span></button>
+          <div class="image-tools" aria-label="Herramientas de imagen">
+            <button type="button" class="tool-button" id="crop-image">${ICONS.crop}<span>Recortar</span></button>
+            <button type="button" class="tool-button" id="rotate-image">${ICONS.rotate}<span>Girar</span></button>
+            <button type="button" class="tool-button" id="replace-image">${ICONS.replace}<span>Reemplazar</span></button>
           </div>
         </div>
 
         <input id="image-file" type="file" accept="image/*" hidden />
       </div>
+
+      <input class="caption-line" id="caption" type="text" placeholder="La paciencia antes del salto." aria-label="Caption" />
     </section>
 
     <aside class="inspector">
       <section class="panel preview-panel">
-        <h2>Image preview</h2>
-        <div class="preview-box" id="preview-box">
-          <span id="preview-empty">No image selected</span>
-          <img id="preview-thumb" alt="" hidden />
+        <h2>Imagen</h2>
+        <div class="property-row">
+          <span class="property-value" id="preview-empty">sin imagen</span>
+          <button type="button" class="property-action" id="image-change">+ añadir</button>
         </div>
-        <p class="preview-meta" id="preview-meta">Choose an image to see file details.</p>
+        <img id="preview-thumb" alt="" hidden />
+        <p class="preview-meta" id="preview-meta">pendiente</p>
       </section>
 
       <section class="panel">
-        <h2>Details</h2>
-        <label class="field">
-          <span>Title</span>
-          <input id="title" type="text" placeholder="Title" autocomplete="off" />
-        </label>
-        <label class="field">
-          <span>Caption</span>
-          <input id="caption" type="text" placeholder="Optional caption" />
-        </label>
-        <label class="field">
-          <span>Alt text</span>
+        <h2>Caption</h2>
+        <div class="property-row">
+          <span class="property-value" id="caption-summary">falta</span>
+          <button type="button" class="property-action" data-focus-target="caption">editar</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Alt</h2>
+        <div class="property-row">
+          <span class="property-value" id="alt-summary">falta</span>
+          <button type="button" class="property-action" id="alt-action" data-edit-panel="alt-panel">+ añadir</button>
+        </div>
+        <label class="field property-editor" id="alt-panel">
           <input id="alt" type="text" placeholder="Describe the image" />
         </label>
         <textarea id="body" hidden></textarea>
       </section>
 
       <section class="panel">
-        <h2>Publishing</h2>
-        <label class="field">
-          <span>Notebook</span>
+        <h2>Notebook</h2>
+        <div class="property-row">
+          <span class="property-value" id="notebook-summary">Fotografia</span>
+          <button type="button" class="property-action" data-edit-panel="notebook-panel">cambiar</button>
+        </div>
+        <label class="field property-editor" id="notebook-panel">
           <select id="notebook"></select>
         </label>
-        <label class="field">
-          <span>Date</span>
-          <input id="date" type="date" />
-        </label>
-        <label class="field">
-          <span>Tags</span>
-          <input id="tags" type="text" placeholder="fotografia" />
-        </label>
-        <label class="check">
+      </section>
+
+      <section class="panel">
+        <h2>Estado</h2>
+        <div class="property-row">
+          <span class="property-value" id="status-summary">• borrador</span>
+          <button type="button" class="property-action" data-edit-panel="status-panel">cambiar</button>
+        </div>
+        <label class="check property-value property-editor" id="status-panel">
           <input id="draft" type="checkbox" checked />
-          <span>Draft</span>
+          <span>borrador</span>
         </label>
       </section>
 
       <section class="panel desktop-actions">
-        <button type="button" class="secondary-button" id="save-draft">Save draft</button>
-        <button type="button" class="primary-button" id="publish">Publish</button>
+        <button type="button" class="secondary-button" id="panel-save-draft">Guardar</button>
+        <button type="button" class="primary-button" id="panel-publish">Publicar ↑</button>
       </section>
 
-      <p class="status-line" id="status">Choose an image to start.</p>
-      <a class="saved-link" id="saved-link" href="#" hidden>Open saved post</a>
+      <p class="status-line" id="status">Elige una imagen para empezar.</p>
+      <a class="saved-link" id="saved-link" href="#" hidden>Abrir publicacion guardada</a>
     </aside>
   </main>
 
   <footer class="mobile-actions">
-    <button type="button" class="secondary-button" id="mobile-save-draft">Save draft</button>
-    <button type="button" class="primary-button" id="mobile-publish">Publish</button>
+    <button type="button" class="secondary-button" id="mobile-save-draft">Guardar</button>
+    <button type="button" class="primary-button" id="mobile-publish">Publicar ↑</button>
   </footer>
 
   <script>
@@ -678,20 +915,29 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         previewEmpty: document.getElementById("preview-empty"),
         previewThumb: document.getElementById("preview-thumb"),
         previewMeta: document.getElementById("preview-meta"),
+        imageChange: document.getElementById("image-change"),
         imageFile: document.getElementById("image-file"),
         chooseImage: document.getElementById("choose-image"),
+        chooseImageEmpty: document.getElementById("choose-image-empty"),
         replaceImage: document.getElementById("replace-image"),
         cropImage: document.getElementById("crop-image"),
         rotateImage: document.getElementById("rotate-image"),
         previewImage: document.getElementById("preview-image"),
+        panelSaveDraft: document.getElementById("panel-save-draft"),
+        panelPublish: document.getElementById("panel-publish"),
         title: document.getElementById("title"),
         caption: document.getElementById("caption"),
+        captionSummary: document.getElementById("caption-summary"),
         alt: document.getElementById("alt"),
+        altSummary: document.getElementById("alt-summary"),
+        altAction: document.getElementById("alt-action"),
         body: document.getElementById("body"),
         notebook: document.getElementById("notebook"),
+        notebookSummary: document.getElementById("notebook-summary"),
         date: document.getElementById("date"),
         tags: document.getElementById("tags"),
         draft: document.getElementById("draft"),
+        statusSummary: document.getElementById("status-summary"),
         status: document.getElementById("status"),
         savedLink: document.getElementById("saved-link"),
       };
@@ -702,6 +948,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         document.body.dataset.theme = theme;
         els.date.value = today();
         bind();
+        syncPreview();
+        updatePropertySummaries();
         loadNotebooks().catch(function (error) {
           setStatus(error.message, true);
         });
@@ -713,7 +961,29 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           window.history.back();
         });
         els.chooseImage.addEventListener("click", chooseImage);
+        els.chooseImageEmpty.addEventListener("click", chooseImage);
+        els.imageChange.addEventListener("click", chooseImage);
         els.replaceImage.addEventListener("click", chooseImage);
+        document.querySelectorAll("[data-edit-panel]").forEach(function (button) {
+          button.addEventListener("click", function () {
+            var editor = document.getElementById(button.getAttribute("data-edit-panel"));
+            if (!editor) return;
+            var panel = editor.closest(".panel");
+            panel.classList.toggle("is-editing");
+            var control = editor.querySelector("input, select, textarea");
+            if (panel.classList.contains("is-editing") && control) {
+              control.focus();
+            }
+          });
+        });
+        document.querySelectorAll("[data-focus-target]").forEach(function (button) {
+          button.addEventListener("click", function () {
+            var control = document.getElementById(button.getAttribute("data-focus-target"));
+            if (control) {
+              control.focus();
+            }
+          });
+        });
         els.imageFile.addEventListener("change", function () {
           var file = els.imageFile.files && els.imageFile.files[0];
           if (file) {
@@ -757,14 +1027,21 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         });
         els.notebook.addEventListener("change", function () {
           syncDefaultTags();
+          closePropertyEditor(els.notebook);
           markUnsaved();
         });
         [els.title, els.caption, els.alt, els.body, els.date, els.tags].forEach(function (input) {
           input.addEventListener("input", function () {
+            updatePropertySummaries();
             markUnsaved();
           });
         });
+        els.alt.addEventListener("blur", function () {
+          closePropertyEditor(els.alt);
+        });
         els.draft.addEventListener("change", function () {
+          closePropertyEditor(els.draft);
+          updatePropertySummaries();
           markUnsaved();
         });
         els.saveDraft.addEventListener("click", function () {
@@ -773,10 +1050,16 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.mobileSaveDraft.addEventListener("click", function () {
           savePost(true, false);
         });
+        els.panelSaveDraft.addEventListener("click", function () {
+          savePost(true, false);
+        });
         els.publish.addEventListener("click", function () {
           savePost(false, true);
         });
         els.mobilePublish.addEventListener("click", function () {
+          savePost(false, true);
+        });
+        els.panelPublish.addEventListener("click", function () {
           savePost(false, true);
         });
       }
@@ -818,6 +1101,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
             els.notebook.options[0].selected = true;
           }
           syncDefaultTags();
+          updatePropertySummaries();
         });
       }
 
@@ -841,27 +1125,30 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         needsUpload = true;
         els.imagePreview.src = previewUrl;
         els.previewThumb.src = previewUrl;
-        els.previewThumb.hidden = false;
-        els.previewEmpty.hidden = true;
-        els.previewMeta.textContent = file.name + " - " + (file.type || "image") + " - " + formatBytes(file.size);
+        els.previewThumb.hidden = true;
+        els.previewEmpty.hidden = false;
+        els.previewEmpty.textContent = file.name;
+        els.previewMeta.textContent = (file.type || "image") + " - " + formatBytes(file.size);
+        els.imageChange.textContent = "cambiar";
         els.imagePreview.alt = els.alt.value || els.title.value || filenameTitle(file.name);
         els.previewThumb.alt = els.imagePreview.alt;
         if (!els.title.value.trim()) {
           els.title.value = filenameTitle(file.name);
         }
-        if (!els.alt.value.trim()) {
-          els.alt.value = filenameTitle(file.name);
-        }
         syncPreview();
+        updatePropertySummaries();
         markUnsaved("Image ready.");
       }
 
       function syncPreview() {
         var hasImage = Boolean(imageFile || uploadedImageUrl);
+        document.body.classList.toggle("has-image", hasImage);
         els.emptyState.hidden = hasImage;
         els.previewState.hidden = !hasImage;
         els.imageStage.classList.toggle("is-cropped", cropMode);
         els.cropImage.classList.toggle("is-active", cropMode);
+        els.cropImage.disabled = !hasImage;
+        els.rotateImage.disabled = !hasImage;
         els.imagePreview.style.transform = "rotate(" + rotation + "deg)";
       }
 
@@ -869,9 +1156,40 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         if (els.notebook.value === "content_es/fotografia" && !els.tags.value.trim()) {
           els.tags.value = "fotografia";
         }
+        updatePropertySummaries();
+      }
+
+      function closePropertyEditor(control) {
+        var panel = control.closest(".panel");
+        if (panel) {
+          panel.classList.remove("is-editing");
+        }
+      }
+
+      function updatePropertySummaries() {
+        if (!els.captionSummary) return;
+        els.captionSummary.textContent = els.caption.value.trim() ? "escrito" : "falta";
+        var altWritten = Boolean(els.alt.value.trim());
+        els.altSummary.textContent = altWritten ? "escrito" : "falta";
+        els.altAction.textContent = altWritten ? "editar" : "+ añadir";
+        els.notebookSummary.textContent = selectedNotebookLabel();
+        els.statusSummary.textContent = els.draft.checked ? "• borrador" : "• publico";
+        if (!imageFile && !uploadedImageUrl) {
+          els.previewEmpty.hidden = false;
+          els.previewEmpty.textContent = "sin imagen";
+          els.previewMeta.textContent = "pendiente";
+          els.imageChange.textContent = "+ añadir";
+        }
+      }
+
+      function selectedNotebookLabel() {
+        var option = els.notebook.options[els.notebook.selectedIndex];
+        if (!option) return "Fotografia";
+        return option.textContent.replace(/ \\([^)]*\\)$/, "");
       }
 
       function markUnsaved(message) {
+        updatePropertySummaries();
         setSaveState("Unsaved", "");
         if (message) {
           setStatus(message, false);
@@ -894,7 +1212,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function setBusy(isBusy) {
         saveBusy = isBusy;
-        [els.saveDraft, els.publish, els.mobileSaveDraft, els.mobilePublish].forEach(function (button) {
+        [els.saveDraft, els.publish, els.mobileSaveDraft, els.mobilePublish, els.panelSaveDraft, els.panelPublish].forEach(function (button) {
           button.disabled = isBusy;
         });
       }
@@ -1121,8 +1439,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function splitTags(value) {
         return String(value || "")
-          .split(",")
-          .map(function (tag) { return tag.trim(); })
+          .split(/[,\s]+/)
+          .map(function (tag) { return tag.trim().replace(/^#/, ""); })
           .filter(Boolean);
       }
 
