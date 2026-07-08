@@ -70,7 +70,7 @@ async function main() {
     "--environment",
     "author",
     "--bind",
-    "0.0.0.0",
+    "127.0.0.1",
     "--port",
     sitePort,
     "--baseURL",

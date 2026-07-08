@@ -9,6 +9,12 @@ const PORT = Number(process.env.AUTHOR_PORT || 3001);
 const HOST = "127.0.0.1";
 const SITE_PORT = String(process.env.SITE_PORT || "3010");
 const SITE_ORIGIN = String(process.env.SITE_ORIGIN || `http://127.0.0.1:${SITE_PORT}`);
+const AUTHOR_ORIGINS = new Set([
+  `http://${HOST}:${PORT}`,
+  `http://localhost:${PORT}`,
+  SITE_ORIGIN,
+  `http://localhost:${SITE_PORT}`,
+]);
 const REPO_ROOT = process.cwd();
 const CONTENT_ROOTS = ["content_es", "content_en"];
 const UPLOAD_ROOT = "static/uploads";
@@ -32,9 +38,6 @@ const MONTHS_ES = [
 function sendJson(res, status, payload) {
   res.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
   });
   res.end(JSON.stringify(payload));
 }
@@ -42,7 +45,6 @@ function sendJson(res, status, payload) {
 function sendHtml(res, html) {
   res.writeHead(200, {
     "Content-Type": "text/html; charset=utf-8",
-    "Access-Control-Allow-Origin": "*",
   });
   res.end(html);
 }
@@ -50,9 +52,26 @@ function sendHtml(res, html) {
 function redirect(res, location) {
   res.writeHead(302, {
     Location: location,
-    "Access-Control-Allow-Origin": "*",
   });
   res.end();
+}
+
+function applyCors(req, res) {
+  const origin = req.headers.origin;
+
+  if (!origin) {
+    return true;
+  }
+
+  if (!AUTHOR_ORIGINS.has(origin)) {
+    return false;
+  }
+
+  res.setHeader("Access-Control-Allow-Origin", origin);
+  res.setHeader("Vary", "Origin");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  return true;
 }
 
 function readJson(req) {
@@ -504,6 +523,11 @@ function uploadImage(payload) {
 
 async function route(req, res) {
   const url = new URL(req.url, `http://${HOST}:${PORT}`);
+
+  if (!applyCors(req, res)) {
+    sendJson(res, 403, { error: "Origen no permitido." });
+    return;
+  }
 
   if (req.method === "OPTIONS") {
     sendJson(res, 200, { ok: true });

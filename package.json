@@ -1,8 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "dev": "hugo server -D --renderToMemory --bind 0.0.0.0 --port 3010 --baseURL http://127.0.0.1:3010/ --appendPort=false --disableFastRender",
-    "start": "hugo server -D --renderToMemory --bind 0.0.0.0 --port 3010 --baseURL http://127.0.0.1:3010/ --appendPort=false --disableFastRender",
+    "dev": "hugo server -D --renderToMemory --bind 127.0.0.1 --port 3010 --baseURL http://127.0.0.1:3010/ --appendPort=false --disableFastRender",
+    "start": "hugo server -D --renderToMemory --bind 127.0.0.1 --port 3010 --baseURL http://127.0.0.1:3010/ --appendPort=false --disableFastRender",
     "author": "node tools/author_dev.mjs",
     "author:api": "node tools/author_server.mjs",
     "new:post": "node tools/new_content.mjs post",
