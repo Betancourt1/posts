@@ -210,6 +210,10 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       gap: clamp(1.2rem, 3vw, 3.2rem);
       padding: clamp(1.2rem, 3vw, 2.4rem);
     }
+    body.mode-lightbox .shell,
+    body.mode-review .shell {
+      grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr);
+    }
     .workspace,
     .inspector,
     .editor-rail {
@@ -306,8 +310,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       font-size: inherit;
     }
     .title-line,
-    .tags-line,
-    .caption-line {
+    .tags-line {
       width: 100%;
       border: 0;
       background: transparent;
@@ -322,8 +325,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       font-weight: 800;
       line-height: 1.2;
     }
-    .tags-line,
-    .caption-line {
+    .tags-line {
       min-height: 1.8rem;
       font-size: 0.86rem;
       line-height: 1.5;
@@ -331,15 +333,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     .tags-line {
       color: var(--accent);
     }
-    .caption-line {
-      margin-top: 1rem;
-      color: var(--ink);
-      border-bottom: 1px solid var(--line);
-      padding-bottom: 0.45rem;
-    }
     .title-line:focus,
     .tags-line:focus,
-    .caption-line:focus,
     .property-control:focus {
       border-color: var(--accent);
       box-shadow: none;
@@ -403,6 +398,195 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       height: 100%;
       display: block;
     }
+    .view-head,
+    .detail-head,
+    .review-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+    .view-head h2,
+    .review-head h2 {
+      color: var(--ink);
+      font-size: 1rem;
+    }
+    .view-head p,
+    .review-head p {
+      margin: 0.3rem 0 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+    .lightbox-view,
+    .detail-view,
+    .review-view {
+      min-height: min(58vh, 38rem);
+      opacity: 1;
+    }
+    .lightbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
+      gap: clamp(0.7rem, 1.6vw, 1.1rem);
+      align-items: stretch;
+    }
+    .lightbox-item,
+    .add-tile,
+    .rail-thumb {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      padding: 0;
+      text-align: left;
+      font-family: var(--mono);
+    }
+    .lightbox-item {
+      position: relative;
+      display: grid;
+      gap: 0.45rem;
+      cursor: grab;
+    }
+    .lightbox-item:active {
+      cursor: grabbing;
+    }
+    .lightbox-item.is-selected img,
+    .rail-thumb.is-selected img {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+    .lightbox-item.is-over::before {
+      content: "";
+      position: absolute;
+      inset: -0.35rem auto -0.35rem -0.45rem;
+      width: 2px;
+      background: var(--accent);
+    }
+    .lightbox-item img,
+    .add-tile,
+    .rail-thumb img,
+    .review-cover img {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      object-fit: cover;
+      display: block;
+      background: var(--field);
+    }
+    .lightbox-item img {
+      transition: filter 0.16s ease, opacity 0.16s ease;
+    }
+    .lightbox-item:not(.is-selected) img {
+      filter: brightness(0.82);
+    }
+    .lightbox-meta,
+    .rail-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      min-height: 1.1rem;
+      color: var(--muted);
+      font-size: 0.68rem;
+    }
+    .cover-chip {
+      color: var(--accent);
+    }
+    .add-tile {
+      min-height: 100%;
+      aspect-ratio: 4 / 5;
+      display: grid;
+      place-items: center;
+      border: 1px dashed var(--line);
+      color: var(--accent);
+    }
+    .add-tile svg {
+      width: 2rem;
+      height: 2rem;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .detail-head {
+      align-items: center;
+      margin-bottom: 0.9rem;
+      font-size: 0.74rem;
+    }
+    .thumb-rail {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      padding-bottom: 0.4rem;
+      overflow-x: auto;
+    }
+    body.mode-detail.has-multiple .image-stage {
+      min-height: min(46vh, 30rem);
+    }
+    body.mode-detail.has-multiple .image-stage img {
+      max-height: min(48vh, 30rem);
+    }
+    .rail-thumb {
+      flex: 0 0 4.2rem;
+      display: grid;
+      gap: 0.35rem;
+    }
+    .rail-thumb img {
+      aspect-ratio: 1 / 1;
+    }
+    .review-view {
+      display: grid;
+      align-content: start;
+      gap: 1.4rem;
+    }
+    .review-summary {
+      display: grid;
+      grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr);
+      gap: clamp(1rem, 2vw, 1.6rem);
+      align-items: start;
+      border-top: 1px solid var(--line-soft);
+      padding-top: 1rem;
+    }
+    .review-cover {
+      display: grid;
+      gap: 0.45rem;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+    }
+    .review-list {
+      display: grid;
+      gap: 0.9rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-family: var(--mono);
+    }
+    .review-list li {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      border-bottom: 1px solid var(--line-soft);
+      padding-bottom: 0.65rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+    .review-list strong {
+      color: var(--ink);
+      font-weight: 700;
+    }
+    .review-warning {
+      color: var(--warning);
+    }
+    .review-actions {
+      display: flex;
+      justify-content: flex-end;
+      border-top: 1px solid var(--line-soft);
+      padding-top: 1rem;
+    }
     .image-object {
       position: relative;
       display: grid;
@@ -448,6 +632,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     body:not(.has-image) .image-tools {
       display: none;
     }
+    body:not(.mode-detail) .image-tools {
+      display: none;
+    }
     @keyframes reveal-tools {
       from {
         opacity: 0;
@@ -480,6 +667,15 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       border-left: 1px solid var(--line-soft);
       padding-left: clamp(0.8rem, 2vw, 1.35rem);
       opacity: 0.88;
+    }
+    body.mode-lightbox .inspector,
+    body.mode-review .inspector {
+      display: none;
+    }
+    body.mode-review #publish,
+    body.mode-review #panel-publish,
+    body.mode-review #mobile-publish {
+      display: none;
     }
     .panel {
       display: grid;
@@ -705,9 +901,6 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         order: 1;
         min-height: 23rem;
       }
-      .caption-line {
-        order: 3;
-      }
       .empty-state {
         min-height: 22rem;
         padding: 1.5rem;
@@ -719,6 +912,12 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
       .image-stage {
         min-height: 22rem;
+      }
+      .lightbox-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .review-summary {
+        grid-template-columns: minmax(0, 1fr);
       }
       .image-tools {
         flex-direction: row;
@@ -803,7 +1002,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       <div class="post-head">
         <div class="post-kicker">
           <input class="inline-date" id="date" type="date" aria-label="Fecha" />
-          <span>imagen</span>
+          <span id="media-count">imagen</span>
         </div>
         <input class="title-line" id="title" type="text" placeholder="Titulo" autocomplete="off" aria-label="Titulo" />
         <input class="tags-line" id="tags" type="text" placeholder="#fotografia  #naturaleza  #insecto" aria-label="Tags" />
@@ -817,14 +1016,57 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
                 ${ICONS.imagePlus}
               </span>
               <h2>Imagen pendiente</h2>
-              <p>Suelta o elige una foto.</p>
+              <p>Suelta o elige una o varias fotos.</p>
               <p class="helper-copy">JPG, PNG, GIF, WebP, SVG. Max 12 MB.</p>
-              <button type="button" class="primary-button" id="choose-image-empty">Elegir imagen</button>
+              <button type="button" class="primary-button" id="choose-image-empty">Elegir imagenes</button>
             </div>
 
             <div class="preview-state" id="preview-state" hidden>
-              <div class="image-stage" id="image-stage">
-                <img id="image-preview" alt="" />
+              <div class="lightbox-view" id="lightbox-view" hidden>
+                <div class="view-head">
+                  <div>
+                    <h2>Mesa de luz</h2>
+                    <p>Arrastra para ordenar. La primera imagen es la portada.</p>
+                  </div>
+                  <button type="button" class="text-action is-primary" id="add-images">${ICONS.imagePlus}<span>Agregar</span></button>
+                </div>
+                <div class="lightbox-grid" id="lightbox-grid"></div>
+              </div>
+
+              <div class="detail-view" id="detail-view" hidden>
+                <div class="detail-head" id="detail-head" hidden>
+                  <button type="button" class="text-action" id="back-to-lightbox">Mesa de luz</button>
+                  <span id="selected-counter">Imagen 1 de 1</span>
+                </div>
+                <div class="image-stage" id="image-stage">
+                  <img id="image-preview" alt="" />
+                </div>
+                <div class="thumb-rail" id="thumb-rail" aria-label="Imagenes de la publicacion"></div>
+              </div>
+
+              <div class="review-view" id="review-view" hidden>
+                <div class="review-head">
+                  <div>
+                    <h2>Listo para publicar</h2>
+                    <p>Revisa destino, portada y metadatos antes de publicar.</p>
+                  </div>
+                  <button type="button" class="text-action" id="review-edit">Editar</button>
+                </div>
+                <div class="review-summary">
+                  <div class="review-cover">
+                    <img id="review-cover-image" alt="" />
+                    <span>Portada</span>
+                  </div>
+                  <ul class="review-list">
+                    <li><span>Destino</span><strong id="review-destination">Fotografia</strong></li>
+                    <li><span>Imagenes</span><strong id="review-count">0 imagenes</strong></li>
+                    <li><span>Accesibilidad</span><strong id="review-alt">pendiente</strong></li>
+                    <li><span>Estado</span><strong id="review-status">borrador</strong></li>
+                  </ul>
+                </div>
+                <div class="review-actions">
+                  <button type="button" class="primary-button" id="review-publish">Publicar ↑</button>
+                </div>
               </div>
             </div>
           </div>
@@ -835,17 +1077,16 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           </div>
         </div>
 
-        <input id="image-file" type="file" accept="image/*" hidden />
+        <input id="image-file" type="file" accept="image/*" multiple hidden />
       </div>
-
-      <input class="caption-line" id="caption" type="text" placeholder="Pie de foto visible" aria-label="Pie de foto" />
     </section>
 
     <aside class="inspector">
       <section class="panel preview-panel">
-        <h2>Archivo</h2>
+        <h2 id="file-panel-title">Archivo</h2>
         <div class="property-row">
           <span class="property-value" id="preview-empty">sin archivo</span>
+          <button type="button" class="property-action" id="remove-image" hidden>quitar</button>
         </div>
         <p class="preview-meta" id="preview-meta">pendiente</p>
       </section>
@@ -860,6 +1101,17 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           <input id="alt" type="text" placeholder="Texto alternativo" />
         </label>
         <textarea id="body" hidden></textarea>
+      </section>
+
+      <section class="panel">
+        <h2>Pie</h2>
+        <div class="property-row">
+          <span class="property-value" id="caption-summary">opcional</span>
+          <button type="button" class="property-action" id="caption-action" data-edit-panel="caption-panel">+ añadir</button>
+        </div>
+        <label class="field property-editor" id="caption-panel">
+          <input id="caption" type="text" placeholder="Pie de foto visible" />
+        </label>
       </section>
 
       <section class="panel">
@@ -906,14 +1158,13 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       var params = new URLSearchParams(window.location.search);
       var preferredNotebook = params.get("notebook") || "content_es/posts";
       var theme = params.get("theme") === "light" ? "light" : "dark";
-      var imageFile = null;
-      var previewUrl = "";
-      var uploadedImageUrl = "";
+      var images = [];
+      var selectedImageId = "";
+      var viewMode = "empty";
+      var pendingFileMode = "add";
+      var draggedImageId = "";
       var savedPath = "";
       var savedUrl = "";
-      var rotation = 0;
-      var cropMode = false;
-      var needsUpload = false;
       var saveBusy = false;
 
       var els = {
@@ -926,10 +1177,29 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         dropzone: document.getElementById("dropzone"),
         emptyState: document.getElementById("empty-state"),
         previewState: document.getElementById("preview-state"),
+        lightboxView: document.getElementById("lightbox-view"),
+        lightboxGrid: document.getElementById("lightbox-grid"),
+        addImages: document.getElementById("add-images"),
+        detailView: document.getElementById("detail-view"),
+        detailHead: document.getElementById("detail-head"),
+        backToLightbox: document.getElementById("back-to-lightbox"),
+        selectedCounter: document.getElementById("selected-counter"),
         imageStage: document.getElementById("image-stage"),
         imagePreview: document.getElementById("image-preview"),
+        thumbRail: document.getElementById("thumb-rail"),
+        reviewView: document.getElementById("review-view"),
+        reviewEdit: document.getElementById("review-edit"),
+        reviewCoverImage: document.getElementById("review-cover-image"),
+        reviewDestination: document.getElementById("review-destination"),
+        reviewCount: document.getElementById("review-count"),
+        reviewAlt: document.getElementById("review-alt"),
+        reviewStatus: document.getElementById("review-status"),
+        reviewPublish: document.getElementById("review-publish"),
+        mediaCount: document.getElementById("media-count"),
         previewEmpty: document.getElementById("preview-empty"),
         previewMeta: document.getElementById("preview-meta"),
+        filePanelTitle: document.getElementById("file-panel-title"),
+        removeImage: document.getElementById("remove-image"),
         imageFile: document.getElementById("image-file"),
         chooseImageEmpty: document.getElementById("choose-image-empty"),
         replaceImage: document.getElementById("replace-image"),
@@ -940,6 +1210,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         panelPublish: document.getElementById("panel-publish"),
         title: document.getElementById("title"),
         caption: document.getElementById("caption"),
+        captionSummary: document.getElementById("caption-summary"),
+        captionAction: document.getElementById("caption-action"),
         alt: document.getElementById("alt"),
         altSummary: document.getElementById("alt-summary"),
         altAction: document.getElementById("alt-action"),
@@ -963,7 +1235,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.date.value = today();
         setSaveState("Sin guardar", "");
         bind();
-        syncPreview();
+        render();
         updatePropertySummaries();
         loadNotebooks().catch(function (error) {
           setStatus(error.message, true);
@@ -975,8 +1247,27 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           window.close();
           window.history.back();
         });
-        els.chooseImageEmpty.addEventListener("click", chooseImage);
-        els.replaceImage.addEventListener("click", chooseImage);
+        els.chooseImageEmpty.addEventListener("click", function () {
+          chooseImages("add");
+        });
+        els.addImages.addEventListener("click", function () {
+          chooseImages("add");
+        });
+        els.replaceImage.addEventListener("click", function () {
+          chooseImages(selectedImage() ? "replace" : "add");
+        });
+        els.backToLightbox.addEventListener("click", function () {
+          viewMode = "lightbox";
+          render();
+        });
+        els.reviewEdit.addEventListener("click", function () {
+          viewMode = images.length > 1 ? "lightbox" : "detail";
+          render();
+        });
+        els.reviewPublish.addEventListener("click", function () {
+          savePost(false, true);
+        });
+        els.removeImage.addEventListener("click", removeSelectedImage);
         document.querySelectorAll("[data-edit-panel]").forEach(function (button) {
           button.addEventListener("click", function () {
             var editor = document.getElementById(button.getAttribute("data-edit-panel"));
@@ -990,10 +1281,11 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           });
         });
         els.imageFile.addEventListener("change", function () {
-          var file = els.imageFile.files && els.imageFile.files[0];
-          if (file) {
-            setImageFile(file);
+          var files = Array.prototype.slice.call(els.imageFile.files || []);
+          if (files.length) {
+            addImageFiles(files, pendingFileMode === "replace");
           }
+          els.imageFile.value = "";
         });
         els.dropzone.addEventListener("dragover", function (event) {
           event.preventDefault();
@@ -1005,27 +1297,30 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.dropzone.addEventListener("drop", function (event) {
           event.preventDefault();
           els.dropzone.classList.remove("is-dragging");
-          var file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0];
-          if (file) {
-            setImageFile(file);
+          var files = Array.prototype.slice.call(event.dataTransfer && event.dataTransfer.files || []);
+          if (files.length) {
+            addImageFiles(files, false);
           }
         });
         els.cropImage.addEventListener("click", function () {
-          if (!imageFile) return;
-          cropMode = !cropMode;
-          needsUpload = true;
-          syncPreview();
-          markUnsaved(cropMode ? "Recorte cuadrado activado." : "Recorte cuadrado desactivado.");
+          var image = selectedImage();
+          if (!image) return;
+          image.cropMode = !image.cropMode;
+          image.needsUpload = true;
+          render();
+          markUnsaved(image.cropMode ? "Recorte cuadrado activado." : "Recorte cuadrado desactivado.");
         });
         els.rotateImage.addEventListener("click", function () {
-          if (!imageFile) return;
-          rotation = (rotation + 90) % 360;
-          needsUpload = true;
-          syncPreview();
-          markUnsaved("Imagen girada " + rotation + " grados.");
+          var image = selectedImage();
+          if (!image) return;
+          image.rotation = (image.rotation + 90) % 360;
+          image.needsUpload = true;
+          render();
+          markUnsaved("Imagen girada " + image.rotation + " grados.");
         });
         els.previewImage.addEventListener("click", function () {
-          var url = uploadedImageUrl ? siteUrl(uploadedImageUrl) : previewUrl;
+          var image = selectedImage() || images[0];
+          var url = image ? imageUrl(image) : "";
           if (url) {
             window.open(url, "_blank", "noopener");
           }
@@ -1035,14 +1330,33 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           updateNotebookRail();
           markUnsaved();
         });
-        [els.title, els.caption, els.alt, els.body, els.date, els.tags].forEach(function (input) {
+        [els.title, els.body, els.date, els.tags].forEach(function (input) {
           input.addEventListener("input", function () {
             updatePropertySummaries();
             markUnsaved();
           });
         });
+        els.alt.addEventListener("input", function () {
+          var image = selectedImage();
+          if (image) {
+            image.alt = els.alt.value;
+          }
+          updatePropertySummaries();
+          markUnsaved();
+        });
+        els.caption.addEventListener("input", function () {
+          var image = selectedImage();
+          if (image) {
+            image.caption = els.caption.value;
+          }
+          updatePropertySummaries();
+          markUnsaved();
+        });
         els.alt.addEventListener("blur", function () {
           closePropertyEditor(els.alt);
+        });
+        els.caption.addEventListener("blur", function () {
+          closePropertyEditor(els.caption);
         });
         els.draft.addEventListener("change", function () {
           closePropertyEditor(els.draft);
@@ -1059,13 +1373,13 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           savePost(true, false);
         });
         els.publish.addEventListener("click", function () {
-          savePost(false, true);
+          publishPost();
         });
         els.mobilePublish.addEventListener("click", function () {
-          savePost(false, true);
+          publishPost();
         });
         els.panelPublish.addEventListener("click", function () {
-          savePost(false, true);
+          publishPost();
         });
       }
 
@@ -1144,48 +1458,284 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         });
       }
 
-      function chooseImage() {
+      function chooseImages(mode) {
+        pendingFileMode = mode || "add";
         els.imageFile.click();
       }
 
-      function setImageFile(file) {
-        if (!file.type || file.type.indexOf("image/") !== 0) {
-          setStatus("Elige un archivo de imagen.", true);
+      function addImageFiles(files, replaceSelected) {
+        var validFiles = files.filter(function (file) {
+          return file && file.type && file.type.indexOf("image/") === 0;
+        });
+        if (!validFiles.length) {
+          setStatus("Elige archivos de imagen.", true);
           return;
         }
-        if (previewUrl) {
-          URL.revokeObjectURL(previewUrl);
+        if (replaceSelected && selectedImage()) {
+          replaceImageFile(selectedImage(), validFiles[0]);
+          viewMode = "detail";
+        } else {
+          var newImages = validFiles.map(createImage);
+          images = images.concat(newImages);
+          selectedImageId = newImages[0].id;
+          viewMode = images.length > 1 ? "lightbox" : "detail";
         }
-        imageFile = file;
-        previewUrl = URL.createObjectURL(file);
-        uploadedImageUrl = "";
-        rotation = 0;
-        cropMode = false;
-        needsUpload = true;
-        els.imagePreview.src = previewUrl;
-        els.previewEmpty.hidden = false;
-        els.previewEmpty.textContent = file.name;
-        els.previewMeta.textContent = (file.type || "image") + " - " + formatBytes(file.size);
-        els.imagePreview.alt = els.alt.value || els.title.value || filenameTitle(file.name);
         if (!els.title.value.trim()) {
-          els.title.value = filenameTitle(file.name);
+          els.title.value = validFiles.length === 1 ? filenameTitle(validFiles[0].name) : "Galeria " + today();
         }
-        syncPreview();
-        updatePropertySummaries();
-        markUnsaved("Imagen lista.");
+        render();
+        markUnsaved(validFiles.length === 1 ? "Imagen lista." : validFiles.length + " imagenes listas.");
       }
 
-      function syncPreview() {
-        var hasImage = Boolean(imageFile || uploadedImageUrl);
-        document.body.classList.toggle("has-image", hasImage);
-        els.emptyState.hidden = hasImage;
-        els.previewState.hidden = !hasImage;
-        els.imageStage.classList.toggle("is-cropped", cropMode);
-        els.cropImage.classList.toggle("is-active", cropMode);
+      function createImage(file) {
+        return {
+          id: "image-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
+          file: file,
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          previewUrl: URL.createObjectURL(file),
+          uploadedUrl: "",
+          alt: "",
+          caption: "",
+          rotation: 0,
+          cropMode: false,
+          needsUpload: true,
+        };
+      }
+
+      function replaceImageFile(image, file) {
+        if (image.previewUrl) {
+          URL.revokeObjectURL(image.previewUrl);
+        }
+        image.file = file;
+        image.name = file.name;
+        image.type = file.type;
+        image.size = file.size;
+        image.previewUrl = URL.createObjectURL(file);
+        image.uploadedUrl = "";
+        image.rotation = 0;
+        image.cropMode = false;
+        image.needsUpload = true;
+        selectedImageId = image.id;
+      }
+
+      function removeSelectedImage() {
+        var image = selectedImage();
+        if (!image) return;
+        if (image.previewUrl) {
+          URL.revokeObjectURL(image.previewUrl);
+        }
+        images = images.filter(function (item) {
+          return item.id !== image.id;
+        });
+        selectedImageId = images[0] ? images[0].id : "";
+        viewMode = images.length > 1 ? "lightbox" : images.length === 1 ? "detail" : "empty";
+        render();
+        markUnsaved(images.length ? "Imagen quitada." : "Elige una imagen para empezar.");
+      }
+
+      function render() {
+        var hasImages = images.length > 0;
+        if (!hasImages) {
+          viewMode = "empty";
+        } else if (viewMode === "empty") {
+          viewMode = images.length > 1 ? "lightbox" : "detail";
+        }
+        ensureSelectedImage();
+        document.body.classList.toggle("has-image", hasImages);
+        document.body.classList.toggle("has-multiple", images.length > 1);
+        document.body.classList.toggle("mode-lightbox", viewMode === "lightbox");
+        document.body.classList.toggle("mode-detail", viewMode === "detail");
+        document.body.classList.toggle("mode-review", viewMode === "review");
+        els.emptyState.hidden = hasImages;
+        els.previewState.hidden = !hasImages;
+        els.lightboxView.hidden = viewMode !== "lightbox";
+        els.detailView.hidden = viewMode !== "detail";
+        els.reviewView.hidden = viewMode !== "review";
+
+        renderLightbox();
+        renderDetail();
+        renderReview();
+        syncSelectedInputs();
+        updatePropertySummaries();
+        updateActionLabels();
+      }
+
+      function renderLightbox() {
+        els.lightboxGrid.innerHTML = "";
+        images.forEach(function (image, index) {
+          var button = document.createElement("button");
+          button.type = "button";
+          button.className = "lightbox-item";
+          button.draggable = true;
+          button.dataset.imageId = image.id;
+          button.classList.toggle("is-selected", image.id === selectedImageId);
+          button.innerHTML =
+            '<img src="' + imageUrl(image) + '" alt="">' +
+            '<span class="lightbox-meta">' +
+            '<span>' + (index + 1) + '</span>' +
+            '<span class="' + (index === 0 ? "cover-chip" : "") + '">' + (index === 0 ? "Portada" : imageStatusLabel(image)) + '</span>' +
+            '</span>';
+          button.addEventListener("click", function () {
+            selectedImageId = image.id;
+            viewMode = "detail";
+            render();
+          });
+          button.addEventListener("dragstart", function (event) {
+            draggedImageId = image.id;
+            event.dataTransfer.effectAllowed = "move";
+            event.dataTransfer.setData("text/plain", image.id);
+          });
+          button.addEventListener("dragover", function (event) {
+            event.preventDefault();
+            button.classList.add("is-over");
+          });
+          button.addEventListener("dragleave", function () {
+            button.classList.remove("is-over");
+          });
+          button.addEventListener("drop", function (event) {
+            event.preventDefault();
+            button.classList.remove("is-over");
+            reorderImage(draggedImageId || event.dataTransfer.getData("text/plain"), image.id);
+          });
+          els.lightboxGrid.appendChild(button);
+        });
+
+        var addButton = document.createElement("button");
+        addButton.type = "button";
+        addButton.className = "add-tile";
+        addButton.setAttribute("aria-label", "Agregar imagenes");
+        addButton.innerHTML = '${ICONS.imagePlus}';
+        addButton.addEventListener("click", function () {
+          chooseImages("add");
+        });
+        els.lightboxGrid.appendChild(addButton);
+      }
+
+      function renderDetail() {
+        var image = selectedImage();
+        var hasImage = Boolean(image);
+        els.detailHead.hidden = images.length < 2;
+        els.imagePreview.hidden = !hasImage;
+        els.imageStage.classList.toggle("is-cropped", Boolean(image && image.cropMode));
+        els.cropImage.classList.toggle("is-active", Boolean(image && image.cropMode));
         els.cropImage.disabled = !hasImage;
         els.rotateImage.disabled = !hasImage;
         els.replaceImage.disabled = !hasImage;
-        els.imagePreview.style.transform = "rotate(" + rotation + "deg)";
+        els.removeImage.hidden = !hasImage;
+
+        if (image) {
+          els.imagePreview.src = imageUrl(image);
+          els.imagePreview.alt = image.alt || els.title.value || filenameTitle(image.name);
+          els.imagePreview.style.transform = "rotate(" + image.rotation + "deg)";
+          els.selectedCounter.textContent = "Imagen " + (selectedIndex() + 1) + " de " + images.length;
+        }
+        renderThumbRail();
+      }
+
+      function renderThumbRail() {
+        els.thumbRail.innerHTML = "";
+        if (images.length < 2) return;
+        images.forEach(function (image, index) {
+          var button = document.createElement("button");
+          button.type = "button";
+          button.className = "rail-thumb";
+          button.classList.toggle("is-selected", image.id === selectedImageId);
+          button.innerHTML =
+            '<img src="' + imageUrl(image) + '" alt="">' +
+            '<span class="rail-meta">' + (index === 0 ? "Portada" : String(index + 1)) + '</span>';
+          button.addEventListener("click", function () {
+            selectedImageId = image.id;
+            render();
+          });
+          els.thumbRail.appendChild(button);
+        });
+      }
+
+      function renderReview() {
+        if (!images.length) return;
+        var cover = images[0];
+        var missingAlt = images.filter(function (image) {
+          return !image.alt.trim();
+        }).length;
+        els.reviewCoverImage.src = imageUrl(cover);
+        els.reviewCoverImage.alt = cover.alt || els.title.value || filenameTitle(cover.name);
+        els.reviewDestination.textContent = selectedNotebookLabel();
+        els.reviewCount.textContent = imageCountLabel();
+        els.reviewAlt.textContent = missingAlt ? missingAlt + " sin alt" : "completo";
+        els.reviewAlt.classList.toggle("review-warning", missingAlt > 0);
+        els.reviewStatus.textContent = els.draft.checked ? "borrador" : "publico";
+      }
+
+      function reorderImage(sourceId, targetId) {
+        if (!sourceId || !targetId || sourceId === targetId) return;
+        var sourceIndex = images.findIndex(function (image) { return image.id === sourceId; });
+        var targetIndex = images.findIndex(function (image) { return image.id === targetId; });
+        if (sourceIndex < 0 || targetIndex < 0) return;
+        var moved = images.splice(sourceIndex, 1)[0];
+        var insertIndex = images.findIndex(function (image) { return image.id === targetId; });
+        images.splice(insertIndex, 0, moved);
+        selectedImageId = moved.id;
+        draggedImageId = "";
+        render();
+        markUnsaved("Orden actualizado.");
+      }
+
+      function ensureSelectedImage() {
+        if (!images.length) {
+          selectedImageId = "";
+          return;
+        }
+        if (!selectedImage()) {
+          selectedImageId = images[0].id;
+        }
+      }
+
+      function selectedImage() {
+        return images.find(function (image) {
+          return image.id === selectedImageId;
+        }) || null;
+      }
+
+      function selectedIndex() {
+        return images.findIndex(function (image) {
+          return image.id === selectedImageId;
+        });
+      }
+
+      function syncSelectedInputs() {
+        var image = selectedImage();
+        els.alt.value = image ? image.alt : "";
+        els.caption.value = image ? image.caption : "";
+      }
+
+      function updateActionLabels() {
+        var publishLabel = images.length > 1 && viewMode !== "review" ? "Revisar ↑" : "Publicar ↑";
+        [els.publish, els.mobilePublish, els.panelPublish].forEach(function (button) {
+          button.textContent = publishLabel;
+        });
+      }
+
+      function imageUrl(image) {
+        if (!image) return "";
+        return image.uploadedUrl ? siteUrl(image.uploadedUrl) : image.previewUrl;
+      }
+
+      function imageCountLabel() {
+        if (images.length === 1) return "1 imagen";
+        return images.length + " imagenes";
+      }
+
+      function imageStatusLabel(image) {
+        if (!image) return "";
+        if (image.uploadedUrl && !image.needsUpload) return "subida";
+        return "pendiente";
+      }
+
+      function imageStatusSuffix(image) {
+        if (!image) return "";
+        return image.uploadedUrl && !image.needsUpload ? " - subida" : " - pendiente";
       }
 
       function syncDefaultTags() {
@@ -1203,14 +1753,24 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
 
       function updatePropertySummaries() {
-        if (!els.altSummary) return;
-        var altWritten = Boolean(els.alt.value.trim());
+        var image = selectedImage();
+        var altWritten = Boolean(image && image.alt.trim());
+        var captionWritten = Boolean(image && image.caption.trim());
         els.altSummary.textContent = altWritten ? "escrito" : "falta";
         els.altAction.textContent = altWritten ? "editar" : "+ añadir";
+        els.captionSummary.textContent = captionWritten ? "escrito" : "opcional";
+        els.captionAction.textContent = captionWritten ? "editar" : "+ añadir";
         els.notebookSummary.textContent = selectedNotebookLabel();
         els.notebookPath.textContent = els.notebook.value || "sin destino";
         els.statusSummary.textContent = els.draft.checked ? "• borrador" : "• publico";
-        if (!imageFile && !uploadedImageUrl) {
+        els.mediaCount.textContent = images.length ? imageCountLabel() : "imagen";
+        if (image) {
+          els.filePanelTitle.textContent = "Imagen " + (selectedIndex() + 1) + " de " + images.length;
+          els.previewEmpty.hidden = false;
+          els.previewEmpty.textContent = image.name;
+          els.previewMeta.textContent = (image.type || "image") + " - " + formatBytes(image.size) + imageStatusSuffix(image);
+        } else {
+          els.filePanelTitle.textContent = "Archivo";
           els.previewEmpty.hidden = false;
           els.previewEmpty.textContent = "sin archivo";
           els.previewMeta.textContent = "pendiente";
@@ -1225,6 +1785,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function markUnsaved(message) {
         updatePropertySummaries();
+        updateActionLabels();
         setSaveState("Sin guardar", "");
         if (message) {
           setStatus(message, false);
@@ -1248,9 +1809,22 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function setBusy(isBusy) {
         saveBusy = isBusy;
-        [els.saveDraft, els.publish, els.mobileSaveDraft, els.mobilePublish, els.panelSaveDraft, els.panelPublish].forEach(function (button) {
+        [els.saveDraft, els.publish, els.mobileSaveDraft, els.mobilePublish, els.panelSaveDraft, els.panelPublish, els.reviewPublish].forEach(function (button) {
           button.disabled = isBusy;
         });
+      }
+
+      function publishPost() {
+        if (saveBusy) return;
+        if (!validatePost()) return;
+        if (images.length > 1 && viewMode !== "review") {
+          els.draft.checked = false;
+          viewMode = "review";
+          render();
+          setStatus("Revisa la galeria y pulsa Publicar para confirmar.", false);
+          return;
+        }
+        savePost(false, true);
       }
 
       function savePost(saveAsDraft, redirectAfterSave) {
@@ -1258,11 +1832,11 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         if (!validatePost()) return;
         setBusy(true);
         setSaveState("Guardando...", "saving");
-        setStatus("Preparando imagen.", false);
-        ensureUploadedImage().then(function (imageUrl) {
+        setStatus(images.length > 1 ? "Preparando imagenes." : "Preparando imagen.", false);
+        ensureUploadedImages().then(function () {
           var draft = saveAsDraft ? true : false;
           els.draft.checked = draft;
-          var frontMatter = imageFrontMatter(imageUrl, draft);
+          var frontMatter = imageFrontMatter(draft);
           if (savedPath) {
             return postJson("/save-page", {
               path: savedPath,
@@ -1280,6 +1854,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
             image: frontMatter.image,
             imageAlt: frontMatter.image_alt,
             caption: frontMatter.caption || "",
+            images: frontMatter.images || [],
             body: els.body.value,
           });
         }).then(function (result) {
@@ -1303,7 +1878,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
 
       function validatePost() {
-        if (!imageFile && !uploadedImageUrl) {
+        if (!images.length) {
           setStatus("Elige una imagen antes de guardar.", true);
           els.chooseImageEmpty.focus();
           return false;
@@ -1321,66 +1896,88 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         return true;
       }
 
-      function imageFrontMatter(imageUrl, draft) {
-        var caption = els.caption.value.trim();
+      function imageFrontMatter(draft) {
+        var title = els.title.value.trim();
+        var items = images.map(function (image) {
+          return {
+            src: image.uploadedUrl,
+            alt: image.alt.trim() || title || filenameTitle(image.name),
+            caption: image.caption.trim(),
+          };
+        });
+        var cover = items[0];
+        var caption = cover.caption;
         var summary = caption;
+        if (!summary && items.length > 1) {
+          summary = items.length + " imagenes";
+        }
         return {
-          title: els.title.value.trim(),
+          title: title,
           date: els.date.value || today(),
           draft: draft,
           tags: splitTags(els.tags.value),
           summary: summary,
-          image: imageUrl,
-          image_alt: els.alt.value.trim() || els.title.value.trim(),
+          image: cover.src,
+          image_alt: cover.alt,
           caption: caption,
+          images: items.length > 1 ? items : [],
         };
       }
 
-      function ensureUploadedImage() {
-        if (uploadedImageUrl && !needsUpload) {
-          return Promise.resolve(uploadedImageUrl);
+      function ensureUploadedImages() {
+        return images.reduce(function (chain, image, index) {
+          return chain.then(function () {
+            return ensureUploadedImage(image, index);
+          });
+        }, Promise.resolve());
+      }
+
+      function ensureUploadedImage(image, index) {
+        if (image.uploadedUrl && !image.needsUpload) {
+          return Promise.resolve(image.uploadedUrl);
         }
-        setStatus("Subiendo imagen.", false);
-        return imagePayload().then(function (payload) {
+        setStatus("Subiendo imagen " + (index + 1) + " de " + images.length + ".", false);
+        return imagePayload(image).then(function (payload) {
           return postJson("/upload-image", payload);
         }).then(function (result) {
-          uploadedImageUrl = result.url;
-          needsUpload = false;
-          return uploadedImageUrl;
+          image.uploadedUrl = result.url;
+          image.needsUpload = false;
+          render();
+          return image.uploadedUrl;
         });
       }
 
-      function imagePayload() {
-        if (!imageFile) {
+      function imagePayload(image) {
+        if (!image || !image.file) {
           return Promise.reject(new Error("Elige una imagen antes de guardar."));
         }
-        return transformedFile().then(function (fileLike) {
+        return transformedFile(image).then(function (fileLike) {
           return fileToDataUrl(fileLike.blob).then(function (data) {
             return {
               name: fileLike.name,
-              alt: els.alt.value.trim() || els.title.value.trim() || filenameTitle(imageFile.name),
-              caption: els.caption.value.trim(),
+              alt: image.alt.trim() || els.title.value.trim() || filenameTitle(image.name),
+              caption: image.caption.trim(),
               data: data,
             };
           });
         });
       }
 
-      function transformedFile() {
-        var needsTransform = cropMode || rotation !== 0;
+      function transformedFile(image) {
+        var needsTransform = image.cropMode || image.rotation !== 0;
         if (!needsTransform) {
           return Promise.resolve({
-            blob: imageFile,
-            name: uniqueImageName(imageFile.name, imageFile.type),
+            blob: image.file,
+            name: uniqueImageName(image.name, image.type),
           });
         }
-        if (imageFile.type === "image/svg+xml" || imageFile.type === "image/gif") {
+        if (image.type === "image/svg+xml" || image.type === "image/gif") {
           return Promise.reject(new Error("Recortar y girar solo estan disponibles para imagenes fijas."));
         }
-        return drawTransformedImage(imageFile, rotation, cropMode).then(function (blob) {
+        return drawTransformedImage(image.file, image.rotation, image.cropMode).then(function (blob) {
           return {
             blob: blob,
-            name: uniqueImageName(imageFile.name, blob.type),
+            name: uniqueImageName(image.name, blob.type),
           };
         });
       }
@@ -1461,7 +2058,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       function uniqueImageName(name, mime) {
         var ext = extensionFor(mime, name);
         var base = slugify(name.replace(/\\.[^.]+$/, "")) || "image";
-        return base + "-" + Date.now() + ext;
+        return base + "-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7) + ext;
       }
 
       function extensionFor(mime, fallbackName) {

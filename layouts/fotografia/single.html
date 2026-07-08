@@ -8,6 +8,7 @@
   {{ end }}
   {{ $alt := or .Params.image_alt .Title }}
   {{ $caption := .Params.caption }}
+  {{ $images := .Params.images }}
   <article class="post photo-post" {{ if $excludeFromSearch }}data-pagefind-ignore="all"{{ else }}data-pagefind-body{{ end }}>
     <header class="post-header">
       <div class="post-header-top" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 8px;">
@@ -38,15 +39,38 @@
       {{ end }}
     </header>
 
-    {{ if $imageSrc }}
-      <figure class="photo-post-figure">
-        <a class="post-image-link" href="{{ $imageSrc | safeURL }}" target="_blank" rel="noopener">
-          <img src="{{ $imageSrc | safeURL }}" alt="{{ $alt }}" decoding="async" fetchpriority="high">
-        </a>
-        {{ with $caption }}
-          <figcaption>{{ . }}</figcaption>
+    {{ with $images }}
+      <div class="photo-post-gallery" aria-label="Galeria de imagenes">
+        {{ range $index, $item := . }}
+          {{ $itemSrc := index $item "src" }}
+          {{ if and $itemSrc (hasPrefix $itemSrc "/") }}
+            {{ $itemSrc = partial "admin_href.html" (dict "page" $ "href" $itemSrc) }}
+          {{ end }}
+          {{ $itemAlt := or (index $item "alt") $.Title }}
+          {{ $itemCaption := index $item "caption" }}
+          {{ if $itemSrc }}
+            <figure class="photo-post-figure">
+              <a class="post-image-link" href="{{ $itemSrc | safeURL }}" target="_blank" rel="noopener">
+                <img src="{{ $itemSrc | safeURL }}" alt="{{ $itemAlt }}" decoding="async" {{ if eq $index 0 }}fetchpriority="high"{{ else }}loading="lazy"{{ end }}>
+              </a>
+              {{ with $itemCaption }}
+                <figcaption>{{ . }}</figcaption>
+              {{ end }}
+            </figure>
+          {{ end }}
         {{ end }}
-      </figure>
+      </div>
+    {{ else }}
+      {{ if $imageSrc }}
+        <figure class="photo-post-figure">
+          <a class="post-image-link" href="{{ $imageSrc | safeURL }}" target="_blank" rel="noopener">
+            <img src="{{ $imageSrc | safeURL }}" alt="{{ $alt }}" decoding="async" fetchpriority="high">
+          </a>
+          {{ with $caption }}
+            <figcaption>{{ . }}</figcaption>
+          {{ end }}
+        </figure>
+      {{ end }}
     {{ end }}
 
     {{ with .Content }}

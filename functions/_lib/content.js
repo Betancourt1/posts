@@ -165,6 +165,7 @@ export async function createPost(env, payload) {
   const image = String(payload.image || "").trim();
   const imageAlt = String(payload.imageAlt || payload.image_alt || title).trim();
   const caption = String(payload.caption || "").trim();
+  const images = imageItemsFromPayload(payload.images);
   const body = String(payload.body || (image ? "" : `# ${title}\n`));
   const existing = await readGitHubFile(env, path);
 
@@ -200,6 +201,10 @@ export async function createPost(env, payload) {
     }
   }
 
+  if (images.length > 1) {
+    frontMatter.images = images;
+  }
+
   await writeGitHubFile(env, {
     path,
     content: formatMarkdown(frontMatter, body),
@@ -207,6 +212,24 @@ export async function createPost(env, payload) {
   });
 
   return { path, url: contentPathToUrl(path) };
+}
+
+function imageItemsFromPayload(value) {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .map((item) => {
+      const src = String(item?.src || item?.image || item?.url || "").trim();
+
+      if (!src) return null;
+
+      return {
+        src,
+        alt: String(item?.alt || item?.image_alt || "").trim(),
+        caption: String(item?.caption || "").trim(),
+      };
+    })
+    .filter(Boolean);
 }
 
 export async function createNotebook(env, payload) {

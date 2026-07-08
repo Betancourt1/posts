@@ -906,6 +906,7 @@ body.graph-maximized {
 
 .photo-card-image {
   display: block;
+  position: relative;
   aspect-ratio: 4 / 3;
   overflow: hidden;
   border: 1px solid var(--line);
@@ -934,6 +935,22 @@ body.graph-maximized {
   filter: brightness(1.08);
 }
 
+.photo-card-count {
+  position: absolute;
+  right: 0.55rem;
+  bottom: 0.5rem;
+  min-height: 0;
+  display: inline-flex;
+  place-items: initial;
+  padding: 0;
+  color: var(--accent);
+  background: transparent;
+  font-family: "IBM Plex Mono", "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  line-height: 1;
+  text-align: right;
+}
+
 .photo-card-meta {
   margin-top: 0.65rem;
   color: var(--ink-muted);
@@ -960,6 +977,16 @@ body.graph-maximized {
 
 .photo-post-figure {
   margin: 1rem 0 1.5rem;
+}
+
+.photo-post-gallery {
+  display: grid;
+  gap: clamp(1.2rem, 3vw, 2.5rem);
+  margin: 1rem 0 1.5rem;
+}
+
+.photo-post-gallery .photo-post-figure {
+  margin: 0;
 }
 
 .photo-post-figure img {

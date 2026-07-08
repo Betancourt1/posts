@@ -236,11 +236,46 @@ function splitMarkdown(text) {
   const body = normalized.slice(end + 4).replace(/^\n/, "");
   const frontMatter = {};
 
-  for (const line of rawFrontMatter.split("\n")) {
+  const frontMatterLines = rawFrontMatter.split("\n");
+
+  for (let index = 0; index < frontMatterLines.length; index += 1) {
+    const line = frontMatterLines[index];
     const match = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
 
     if (match) {
-      frontMatter[match[1]] = parseScalar(match[2]);
+      const [, key, value] = match;
+
+      if (value === "" && /^\s+-\s+/.test(frontMatterLines[index + 1] || "")) {
+        const items = [];
+        let current = null;
+
+        index += 1;
+
+        for (; index < frontMatterLines.length; index += 1) {
+          const itemMatch = frontMatterLines[index].match(/^\s+-\s+([A-Za-z0-9_-]+):\s*(.*)$/);
+          const propertyMatch = frontMatterLines[index].match(/^\s{4}([A-Za-z0-9_-]+):\s*(.*)$/);
+
+          if (itemMatch) {
+            current = {};
+            current[itemMatch[1]] = parseScalar(itemMatch[2]);
+            items.push(current);
+            continue;
+          }
+
+          if (propertyMatch && current) {
+            current[propertyMatch[1]] = parseScalar(propertyMatch[2]);
+            continue;
+          }
+
+          index -= 1;
+          break;
+        }
+
+        frontMatter[key] = items;
+        continue;
+      }
+
+      frontMatter[key] = parseScalar(value);
     }
   }
 
@@ -253,6 +288,23 @@ function quoteYaml(value) {
 
 function formatYamlValue(value, key) {
   if (Array.isArray(value)) {
+    if (value.some((item) => item && typeof item === "object" && !Array.isArray(item))) {
+      return [
+        "",
+        ...value.flatMap((item) => {
+          const entries = Object.entries(item || {}).filter(([, itemValue]) => itemValue !== undefined && itemValue !== null);
+
+          if (entries.length === 0) {
+            return ["  - {}"];
+          }
+
+          return entries.map(([itemKey, itemValue], index) => {
+            const prefix = index === 0 ? "  - " : "    ";
+            return `${prefix}${itemKey}: ${formatYamlValue(itemValue, itemKey)}`;
+          });
+        }),
+      ].join("\n");
+    }
     return `[${value.map(quoteYaml).join(", ")}]`;
   }
   if (typeof value === "boolean") {
@@ -269,7 +321,7 @@ function formatYamlValue(value, key) {
 }
 
 function formatMarkdown(frontMatter, body) {
-  const priority = ["title", "date", "draft", "tags", "summary", "description", "image", "image_alt", "caption", "hidden"];
+  const priority = ["title", "date", "draft", "tags", "summary", "description", "image", "image_alt", "caption", "images", "hidden"];
   const keys = [
     ...priority.filter((key) => Object.prototype.hasOwnProperty.call(frontMatter, key)),
     ...Object.keys(frontMatter)
@@ -285,7 +337,8 @@ function formatMarkdown(frontMatter, body) {
       continue;
     }
 
-    lines.push(`${key}: ${formatYamlValue(value, key)}`);
+    const formatted = formatYamlValue(value, key);
+    lines.push(formatted.startsWith("\n") ? `${key}:${formatted}` : `${key}: ${formatted}`);
   }
 
   lines.push("---", "", body.trimStart());
@@ -450,6 +503,7 @@ function createPost(payload) {
   const image = String(payload.image || "").trim();
   const imageAlt = String(payload.imageAlt || payload.image_alt || title).trim();
   const caption = String(payload.caption || "").trim();
+  const images = imageItemsFromPayload(payload.images);
   const body = String(payload.body || (image ? "" : `# ${title}\n`));
   const frontMatter = {
     title,
@@ -475,11 +529,33 @@ function createPost(payload) {
     }
   }
 
+  if (images.length > 1) {
+    frontMatter.images = images;
+  }
+
   if (payload.hidden) {
     frontMatter.hidden = true;
   }
 
   return writeContentFile(relativePath, frontMatter, body, false);
+}
+
+function imageItemsFromPayload(value) {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .map((item) => {
+      const src = String(item?.src || item?.image || item?.url || "").trim();
+
+      if (!src) return null;
+
+      return {
+        src,
+        alt: String(item?.alt || item?.image_alt || "").trim(),
+        caption: String(item?.caption || "").trim(),
+      };
+    })
+    .filter(Boolean);
 }
 
 function savePage(payload) {
