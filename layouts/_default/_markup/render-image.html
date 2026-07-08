@@ -7,13 +7,9 @@
 
 {{ if $caption }}
   <figure class="post-image">
-    <a class="post-image-link" href="{{ $src | safeURL }}" target="_blank" rel="noopener">
-      <img src="{{ $src | safeURL }}" alt="{{ $alt }}" loading="lazy" decoding="async">
-    </a>
+    <img src="{{ $src | safeURL }}" alt="{{ $alt }}" loading="lazy" decoding="async">
     <figcaption>{{ $caption }}</figcaption>
   </figure>
 {{ else }}
-  <a class="post-image-link" href="{{ $src | safeURL }}" target="_blank" rel="noopener">
-    <img class="post-image" src="{{ $src | safeURL }}" alt="{{ $alt }}" loading="lazy" decoding="async">
-  </a>
+  <img class="post-image" src="{{ $src | safeURL }}" alt="{{ $alt }}" loading="lazy" decoding="async">
 {{ end }}

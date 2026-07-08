@@ -78,9 +78,7 @@
     </header>
     {{ if $imageSrc }}
       <figure class="post-featured-image">
-        <a class="post-image-link" href="{{ $imageSrc | safeURL }}" target="_blank" rel="noopener">
-          <img src="{{ $imageSrc | safeURL }}" alt="{{ $alt }}" decoding="async" fetchpriority="high">
-        </a>
+        <img src="{{ $imageSrc | safeURL }}" alt="{{ $alt }}" decoding="async" fetchpriority="high">
         {{ with $caption }}
           <figcaption>{{ . }}</figcaption>
         {{ end }}
