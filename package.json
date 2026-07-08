@@ -8,6 +8,7 @@
     "new:post": "node tools/new_content.mjs post",
     "new:zettel": "node tools/new_content.mjs zettel",
     "new:page": "node tools/new_content.mjs page",
+    "site": "node tools/site_cli.mjs",
     "build": "node tools/build_site.mjs",
     "build:local": "npm run build && node tools/sync_pagefind_static.mjs"
   },

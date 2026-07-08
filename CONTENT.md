@@ -79,3 +79,28 @@ Si cambias contenido indexable y quieres actualizar el respaldo versionado de bu
 ```bash
 npm run build:local
 ```
+
+## Administrar el sitio desde CLI
+
+Para revisar, encontrar y administrar contenido sin recordar rutas:
+
+```bash
+npm run site -- status
+npm run site -- list posts
+npm run site -- find "texto que recuerdas"
+npm run site -- drafts
+```
+
+Acciones utiles:
+
+```bash
+npm run site -- publish content_es/posts/2026/julio/archivo.md
+npm run site -- hide content_es/posts/2026/julio/archivo.md
+npm run site -- update content_es/posts/2026/julio/archivo.md --tags "ensayo, politica"
+npm run site -- photo attach fotografia-slug ./foto.jpg --caption "Pie de foto"
+npm run site -- media orphans
+npm run site -- validate
+npm run site -- preflight
+```
+
+La CLI usa `--dry-run` en acciones de escritura compatibles y `--json` en listados o diagnosticos.
