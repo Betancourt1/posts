@@ -71,7 +71,7 @@
               <a class="post-image-link" href="{{ $itemSrc | safeURL }}" target="_blank" rel="noopener">
                 <img
                   src="{{ $itemSrc | safeURL }}"
-                  {{ if and $itemThumb (ne $itemThumb $itemSrc) }}srcset="{{ $itemThumb | safeURL }} 900w, {{ $itemSrc | safeURL }} 2400w" sizes="min(100vw, 72rem)"{{ end }}
+                  {{ if and $itemThumb (ne $itemThumb $itemSrc) }}srcset="{{ $itemThumb | safeURL }} 900w, {{ $itemSrc | safeURL }} 1920w" sizes="min(100vw, 72rem)"{{ end }}
                   {{ if and $itemThumb (ne $itemThumb $itemSrc) }}onerror="this.onerror=null;this.removeAttribute('srcset');this.src='{{ $itemSrc | safeURL }}';"{{ end }}
                   alt="{{ $itemAlt }}"
                   decoding="async"
@@ -91,7 +91,7 @@
           <a class="post-image-link" href="{{ $imageSrc | safeURL }}" target="_blank" rel="noopener">
             <img
               src="{{ $imageSrc | safeURL }}"
-              {{ if and $thumbSrc (ne $thumbSrc $imageSrc) }}srcset="{{ $thumbSrc | safeURL }} 900w, {{ $imageSrc | safeURL }} 2400w" sizes="min(100vw, 72rem)"{{ end }}
+              {{ if and $thumbSrc (ne $thumbSrc $imageSrc) }}srcset="{{ $thumbSrc | safeURL }} 900w, {{ $imageSrc | safeURL }} 1920w" sizes="min(100vw, 72rem)"{{ end }}
               {{ if and $thumbSrc (ne $thumbSrc $imageSrc) }}onerror="this.onerror=null;this.removeAttribute('srcset');this.src='{{ $imageSrc | safeURL }}';"{{ end }}
               alt="{{ $alt }}"
               decoding="async"

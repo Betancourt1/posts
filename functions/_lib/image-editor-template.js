@@ -1024,7 +1024,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
               </span>
               <h2>Imagen pendiente</h2>
               <p>Suelta o elige una o varias fotos.</p>
-              <p class="helper-copy">JPG, PNG, GIF, WebP, SVG. Max 8 MB al subir.</p>
+              <p class="helper-copy">JPG, PNG y WebP se guardan en HD. GIF/SVG max 12 MB.</p>
               <button type="button" class="primary-button" id="choose-image-empty">Elegir imagenes</button>
             </div>
 
@@ -1173,9 +1173,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       var savedPath = "";
       var savedUrl = "";
       var saveBusy = false;
-      var fullImageMaxEdge = 2400;
+      var fullImageMaxEdge = 1920;
       var thumbImageMaxEdge = 900;
-      var maxUploadBytes = 8 * 1024 * 1024;
+      var maxUploadBytes = 12 * 1024 * 1024;
       var allowedImageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
 
       var els = {
@@ -1521,7 +1521,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           previewUrl: URL.createObjectURL(file),
           uploadedUrl: "",
           thumbnailUrl: "",
-          alt: "",
+          alt: filenameTitle(file.name),
           caption: "",
           rotation: 0,
           cropMode: false,
@@ -1540,6 +1540,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         image.previewUrl = URL.createObjectURL(file);
         image.uploadedUrl = "";
         image.thumbnailUrl = "";
+        image.alt = filenameTitle(file.name);
         image.rotation = 0;
         image.cropMode = false;
         image.needsUpload = true;
@@ -1717,7 +1718,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.reviewCoverImage.alt = cover.alt || els.title.value || filenameTitle(cover.name);
         els.reviewDestination.textContent = selectedNotebookLabel();
         els.reviewCount.textContent = imageCountLabel();
-        els.reviewAlt.textContent = missingAlt ? missingAlt + " sin alt" : "completo";
+        els.reviewAlt.textContent = missingAlt ? "predeterminado" : "completo";
         els.reviewAlt.classList.toggle("review-warning", missingAlt > 0);
         els.reviewStatus.textContent = els.draft.checked ? "borrador" : "publico";
       }
@@ -1948,27 +1949,16 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           els.notebook.focus();
           return false;
         }
-        var missingAltIndex = images.findIndex(function (image) {
-          return !image.alt.trim();
-        });
-        if (missingAltIndex >= 0) {
-          selectedImageId = images[missingAltIndex].id;
-          viewMode = "detail";
-          render();
-          setStatus("Agrega texto alt para cada imagen antes de guardar.", true);
-          els.alt.focus();
-          return false;
-        }
         return true;
       }
 
       function imageFrontMatter(draft) {
         var title = els.title.value.trim();
-        var items = images.map(function (image) {
+        var items = images.map(function (image, index) {
           return {
             src: image.uploadedUrl,
             thumb: image.thumbnailUrl || image.uploadedUrl,
-            alt: image.alt.trim(),
+            alt: defaultImageAlt(image, index),
             caption: image.caption.trim(),
           };
         });
@@ -2043,7 +2033,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           return fileToDataUrl(fileLike.blob).then(function (data) {
             return {
               name: fileLike.name,
-              alt: image.alt.trim(),
+              alt: defaultImageAlt(image, images.indexOf(image)),
               caption: image.caption.trim(),
               data: data,
             };
@@ -2071,7 +2061,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function validateUploadBlob(blob) {
         if (blob.size > maxUploadBytes) {
-          throw new Error("La imagen preparada supera 8 MB.");
+          throw new Error("La imagen preparada supera 12 MB.");
         }
       }
 
@@ -2203,6 +2193,15 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           .replace(/[-_]+/g, " ")
           .replace(/\\s+/g, " ")
           .trim() || "Image";
+      }
+
+      function defaultImageAlt(image, index) {
+        var written = image && image.alt ? image.alt.trim() : "";
+        if (written) return written;
+        var title = els.title.value.trim();
+        var fallback = image && image.name ? filenameTitle(image.name) : title;
+        if (!fallback) fallback = "Imagen";
+        return images.length > 1 && index > 0 && fallback === title ? fallback + " " + (index + 1) : fallback;
       }
 
       function slugify(value) {

@@ -27,7 +27,7 @@ const MONTHS_ES = [
   "diciembre",
 ];
 const TIME_ZONE = "America/Mexico_City";
-const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 12 * 1024 * 1024;
 const IMAGE_MIME_BY_EXTENSION = new Map([
   [".jpg", "image/jpeg"],
   [".jpeg", "image/jpeg"],
@@ -202,20 +202,29 @@ function collectUploadReferences(frontMatter, body) {
   return [...paths];
 }
 
-function validatePhotoFrontMatter(path, frontMatter) {
+function normalizePhotoFrontMatter(path, frontMatter) {
   if (!path.startsWith("content_es/fotografia/") && !path.startsWith("content_en/fotografia/")) {
     return;
   }
 
+  const fallbackAlt = String(frontMatter.title || frontMatter.summary || "Imagen").trim() || "Imagen";
+  const firstGalleryAlt = Array.isArray(frontMatter.images)
+    ? String(frontMatter.images[0]?.alt || frontMatter.images[0]?.image_alt || "").trim()
+    : "";
+
   if (frontMatter.image && !String(frontMatter.image_alt || "").trim()) {
-    throw new Error("Texto alt requerido para fotografias.");
+    frontMatter.image_alt = firstGalleryAlt || fallbackAlt;
   }
 
   if (Array.isArray(frontMatter.images)) {
-    const missingAltIndex = frontMatter.images.findIndex((item) => !String(item?.alt || item?.image_alt || "").trim());
-    if (missingAltIndex >= 0) {
-      throw new Error(`Texto alt requerido para imagen ${missingAltIndex + 1}.`);
-    }
+    frontMatter.images = frontMatter.images.map((item, index) => {
+      const alt = String(item?.alt || item?.image_alt || "").trim();
+      if (alt) return { ...item, alt };
+      return {
+        ...item,
+        alt: index === 0 ? frontMatter.image_alt || fallbackAlt : `${fallbackAlt} ${index + 1}`,
+      };
+    });
   }
 }
 
@@ -355,7 +364,7 @@ export async function createPost(env, payload) {
     frontMatter.images = images;
   }
 
-  validatePhotoFrontMatter(path, frontMatter);
+  normalizePhotoFrontMatter(path, frontMatter);
 
   await writeGitHubFile(env, {
     path,
@@ -436,7 +445,7 @@ export async function savePage(env, payload) {
     ...(payload.frontMatter || {}),
   };
 
-  validatePhotoFrontMatter(path, frontMatter);
+  normalizePhotoFrontMatter(path, frontMatter);
 
   await writeGitHubFile(env, {
     path,
