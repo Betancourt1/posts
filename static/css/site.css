@@ -1227,10 +1227,6 @@ sup, sub { line-height: 0; }
     position: static;
   }
 
-  .ssh-terminal-open-btn {
-    right: 14px;
-    bottom: 14px;
-  }
 }
 
 /* ==========================================================================
@@ -1829,14 +1825,12 @@ html.infra-mode .post-header .post-summary { display: none; }
   font-size: 0.78rem;
 }
 
-/* Terminal open button (bottom-right floating) */
+/* Terminal open button (document bottom-right) */
 .ssh-terminal-open-btn {
-  position: fixed;
-  bottom: 16px;
-  right: 16px;
-  z-index: 9998;
+  position: static;
   width: 36px;
   height: 36px;
+  margin: 0 16px 16px auto;
   background: transparent !important;
   border: none !important;
   color: var(--ink-dim) !important;
@@ -1852,7 +1846,7 @@ html.infra-mode .post-header .post-summary { display: none; }
   box-shadow: none !important;
 }
 html.infra-mode .ssh-terminal-open-btn {
-  display: inline-flex;
+  display: flex;
 }
 .ssh-terminal-open-btn:hover {
   color: var(--accent) !important;
@@ -1872,15 +1866,6 @@ html.infra-mode .ssh-terminal-open-btn {
   width: 17px;
   height: 17px;
   display: block;
-}
-
-@media (max-width: 1000px) {
-  .ssh-terminal-open-btn {
-    right: 16px;
-    bottom: 18px;
-    width: 44px;
-    height: 44px;
-  }
 }
 
 /* Adjust main content when terminal is open — handled dynamically by JS */
@@ -2393,11 +2378,11 @@ html:not(.infra-mode) .post-body {
   font-size: 0.78rem;
 }
 
-body:has(.author-toast:not([hidden])) .ssh-terminal-open-btn {
-  bottom: 4.75rem;
-}
-
 @media (max-width: 720px) {
+  .ssh-terminal-open-btn {
+    display: none !important;
+  }
+
   .theme-toggle,
   .grayscale-toggle,
   .lang-toggle,
