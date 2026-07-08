@@ -142,13 +142,14 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       color: var(--accent);
     }
     .save-state {
-      display: none;
+      display: inline-flex;
       align-items: center;
       gap: 0.4rem;
       color: var(--dim);
       font-family: var(--mono);
       font-size: 0.74rem;
       white-space: nowrap;
+      transition: color 0.16s ease, opacity 0.16s ease;
     }
     .save-state::before {
       content: "";
@@ -162,6 +163,14 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     }
     .save-state.is-error::before {
       background: var(--danger);
+    }
+    .save-state.is-saving::before {
+      background: var(--warning);
+      animation: pulse-dot 0.9s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 1; }
     }
     .primary-button,
     .secondary-button,
@@ -238,10 +247,12 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       padding: 0;
       text-align: left;
       font: inherit;
+      transition: color 0.16s ease, transform 0.16s ease;
     }
     .rail-link.is-active,
     .rail-link[aria-current="true"] {
       color: var(--accent);
+      transform: translateX(0.15rem);
     }
     .rail-link.is-active::before,
     .rail-link[aria-current="true"]::before {
@@ -253,6 +264,20 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       border-radius: 999px;
       background: var(--accent);
       vertical-align: 0.05em;
+    }
+    .rail-destination {
+      display: grid;
+      gap: 0.3rem;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      line-height: 1.45;
+    }
+    .rail-destination strong {
+      color: var(--dim);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
     }
     .workspace {
       padding-top: 2.6rem;
@@ -418,6 +443,20 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       justify-content: center;
       gap: 1.15rem;
       align-items: flex-start;
+      animation: reveal-tools 0.16s ease-out;
+    }
+    body:not(.has-image) .image-tools {
+      display: none;
+    }
+    @keyframes reveal-tools {
+      from {
+        opacity: 0;
+        transform: translateY(0.25rem);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
     .tool-button {
       border: 0;
@@ -519,11 +558,21 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       white-space: nowrap;
     }
     .property-editor {
-      display: none;
+      display: grid;
+      max-height: 0;
       margin-top: -0.5rem;
+      opacity: 0;
+      overflow: hidden;
+      pointer-events: none;
+      transform: translateY(-0.25rem);
+      transition: max-height 0.18s ease, opacity 0.16s ease, transform 0.16s ease, margin-top 0.16s ease;
     }
     .panel.is-editing .property-editor {
-      display: grid;
+      max-height: 8rem;
+      margin-top: 0;
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
     }
     .panel.is-editing .property-row {
       align-items: center;
@@ -566,10 +615,10 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       accent-color: var(--accent);
     }
     .property-editor.check {
-      display: none;
+      display: flex;
     }
     .panel.is-editing .property-editor.check {
-      display: flex;
+      max-height: 2rem;
     }
     .mobile-notebook-field {
       display: none;
@@ -631,6 +680,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
       .brand {
         display: none;
+      }
+      .topbar-actions {
+        gap: 0.9rem;
       }
       #save-draft {
         display: none;
@@ -696,6 +748,15 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       .topbar-actions {
         gap: 0.8rem;
       }
+      #preview-image span {
+        display: none;
+      }
+      .save-state {
+        max-width: 6.2rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.68rem;
+      }
       .dropzone {
         min-height: 20rem;
       }
@@ -719,8 +780,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       </a>
     </div>
     <div class="topbar-actions">
-      <span class="save-state" id="save-state">Unsaved</span>
       <button type="button" class="text-action" id="preview-image">${ICONS.preview}<span>Vista previa</span></button>
+      <span class="save-state" id="save-state">Sin guardar</span>
       <button type="button" class="secondary-button" id="save-draft">Guardar</button>
       <button type="button" class="primary-button" id="publish">Publicar ↑</button>
     </div>
@@ -731,6 +792,10 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       <div class="rail-group">
         <p class="rail-heading">Subir en</p>
         <div class="notebook-rail" id="notebook-rail"></div>
+        <p class="rail-destination">
+          <strong>Destino actual</strong>
+          <span id="notebook-path">content_es/fotografia</span>
+        </p>
       </div>
     </nav>
 
@@ -881,6 +946,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         body: document.getElementById("body"),
         notebook: document.getElementById("notebook"),
         notebookRail: document.getElementById("notebook-rail"),
+        notebookPath: document.getElementById("notebook-path"),
         notebookSummary: document.getElementById("notebook-summary"),
         date: document.getElementById("date"),
         tags: document.getElementById("tags"),
@@ -895,6 +961,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       function boot() {
         document.body.dataset.theme = theme;
         els.date.value = today();
+        setSaveState("Sin guardar", "");
         bind();
         syncPreview();
         updatePropertySummaries();
@@ -948,14 +1015,14 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           cropMode = !cropMode;
           needsUpload = true;
           syncPreview();
-          markUnsaved(cropMode ? "Square crop enabled." : "Square crop disabled.");
+          markUnsaved(cropMode ? "Recorte cuadrado activado." : "Recorte cuadrado desactivado.");
         });
         els.rotateImage.addEventListener("click", function () {
           if (!imageFile) return;
           rotation = (rotation + 90) % 360;
           needsUpload = true;
           syncPreview();
-          markUnsaved("Image rotated " + rotation + " degrees.");
+          markUnsaved("Imagen girada " + rotation + " grados.");
         });
         els.previewImage.addEventListener("click", function () {
           var url = uploadedImageUrl ? siteUrl(uploadedImageUrl) : previewUrl;
@@ -1083,7 +1150,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function setImageFile(file) {
         if (!file.type || file.type.indexOf("image/") !== 0) {
-          setStatus("Choose an image file.", true);
+          setStatus("Elige un archivo de imagen.", true);
           return;
         }
         if (previewUrl) {
@@ -1105,7 +1172,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         }
         syncPreview();
         updatePropertySummaries();
-        markUnsaved("Image ready.");
+        markUnsaved("Imagen lista.");
       }
 
       function syncPreview() {
@@ -1141,6 +1208,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.altSummary.textContent = altWritten ? "escrito" : "falta";
         els.altAction.textContent = altWritten ? "editar" : "+ añadir";
         els.notebookSummary.textContent = selectedNotebookLabel();
+        els.notebookPath.textContent = els.notebook.value || "sin destino";
         els.statusSummary.textContent = els.draft.checked ? "• borrador" : "• publico";
         if (!imageFile && !uploadedImageUrl) {
           els.previewEmpty.hidden = false;
@@ -1157,7 +1225,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function markUnsaved(message) {
         updatePropertySummaries();
-        setSaveState("Unsaved", "");
+        setSaveState("Sin guardar", "");
         if (message) {
           setStatus(message, false);
         }
@@ -1167,13 +1235,14 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.saveState.textContent = text;
         els.saveState.classList.toggle("is-saved", state === "saved");
         els.saveState.classList.toggle("is-error", state === "error");
+        els.saveState.classList.toggle("is-saving", state === "saving");
       }
 
       function setStatus(message, isError) {
         els.status.textContent = message;
         els.status.classList.toggle("is-error", Boolean(isError));
         if (isError) {
-          setSaveState("Needs fix", "error");
+          setSaveState("Necesita ajuste", "error");
         }
       }
 
@@ -1188,8 +1257,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         if (saveBusy) return;
         if (!validatePost()) return;
         setBusy(true);
-        setSaveState("Saving", "");
-        setStatus("Preparing image.", false);
+        setSaveState("Guardando...", "saving");
+        setStatus("Preparando imagen.", false);
         ensureUploadedImage().then(function (imageUrl) {
           var draft = saveAsDraft ? true : false;
           els.draft.checked = draft;
@@ -1216,8 +1285,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         }).then(function (result) {
           savedPath = result.path || savedPath;
           savedUrl = result.url || savedUrl;
-          setSaveState("Saved", "saved");
-          setStatus(redirectAfterSave ? "Published." : "Draft saved.", false);
+          setSaveState("Guardado", "saved");
+          setStatus(redirectAfterSave ? "Publicado." : "Borrador guardado.", false);
           if (savedUrl) {
             els.savedLink.href = siteUrl(savedUrl);
             els.savedLink.hidden = false;
@@ -1226,6 +1295,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
             window.location.assign(siteUrl(savedUrl));
           }
         }).catch(function (error) {
+          setSaveState("Error al guardar", "error");
           setStatus(error.message, true);
         }).finally(function () {
           setBusy(false);
@@ -1234,17 +1304,17 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function validatePost() {
         if (!imageFile && !uploadedImageUrl) {
-          setStatus("Choose an image before saving.", true);
+          setStatus("Elige una imagen antes de guardar.", true);
           els.chooseImageEmpty.focus();
           return false;
         }
         if (!els.title.value.trim()) {
-          setStatus("Add a title.", true);
+          setStatus("Agrega un titulo.", true);
           els.title.focus();
           return false;
         }
         if (!els.notebook.value) {
-          setStatus("Choose a notebook.", true);
+          setStatus("Elige un destino.", true);
           els.notebook.focus();
           return false;
         }
@@ -1270,7 +1340,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         if (uploadedImageUrl && !needsUpload) {
           return Promise.resolve(uploadedImageUrl);
         }
-        setStatus("Uploading image.", false);
+        setStatus("Subiendo imagen.", false);
         return imagePayload().then(function (payload) {
           return postJson("/upload-image", payload);
         }).then(function (result) {
@@ -1282,7 +1352,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function imagePayload() {
         if (!imageFile) {
-          return Promise.reject(new Error("Choose an image before saving."));
+          return Promise.reject(new Error("Elige una imagen antes de guardar."));
         }
         return transformedFile().then(function (fileLike) {
           return fileToDataUrl(fileLike.blob).then(function (data) {
@@ -1305,7 +1375,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           });
         }
         if (imageFile.type === "image/svg+xml" || imageFile.type === "image/gif") {
-          return Promise.reject(new Error("Crop and rotate are only available for still raster images."));
+          return Promise.reject(new Error("Recortar y girar solo estan disponibles para imagenes fijas."));
         }
         return drawTransformedImage(imageFile, rotation, cropMode).then(function (blob) {
           return {
@@ -1344,7 +1414,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
             var type = file.type === "image/png" || file.type === "image/webp" ? file.type : "image/jpeg";
             canvas.toBlob(function (blob) {
               if (!blob) {
-                reject(new Error("Could not prepare image."));
+                reject(new Error("No se pudo preparar la imagen."));
                 return;
               }
               resolve(blob);
@@ -1361,7 +1431,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           };
           img.onerror = function () {
             URL.revokeObjectURL(img.src);
-            reject(new Error("Could not read image."));
+            reject(new Error("No se pudo leer la imagen."));
           };
           img.src = URL.createObjectURL(file);
         });
@@ -1374,7 +1444,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
             resolve(reader.result);
           };
           reader.onerror = function () {
-            reject(new Error("Could not read image."));
+            reject(new Error("No se pudo leer la imagen."));
           };
           reader.readAsDataURL(blob);
         });
