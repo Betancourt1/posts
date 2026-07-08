@@ -5,6 +5,7 @@ function iconSvg(paths) {
 const ICONS = Object.freeze({
   back: iconSvg(`<path d="m15 18-6-6 6-6" />`),
   upload: iconSvg(`<path d="M12 3v12" /><path d="m7 8 5-5 5 5" /><path d="M5 21h14" />`),
+  imagePlus: iconSvg(`<rect width="18" height="18" x="3" y="3" rx="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.2-3.2a2 2 0 0 0-2.8 0L6 21" /><path d="M16 5v6" /><path d="M13 8h6" />`),
   replace: iconSvg(`<path d="M21 12a9 9 0 0 0-15-6.7L3 8" /><path d="M3 3v5h5" /><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7" /><path d="M21 21v-5h-5" />`),
   crop: iconSvg(`<path d="M6 2v14a2 2 0 0 0 2 2h14" /><path d="M2 6h14a2 2 0 0 1 2 2v14" />`),
   rotate: iconSvg(`<path d="M21 12a9 9 0 1 1-3-6.7" /><path d="M21 3v6h-6" />`),
@@ -130,6 +131,10 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       stroke-width: 2;
       stroke-linecap: round;
       stroke-linejoin: round;
+    }
+    .upload-mark svg {
+      width: 4.6rem;
+      height: 4.6rem;
     }
     .icon-button:hover,
     .tool-button:hover,
@@ -342,51 +347,6 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       color: var(--accent);
       background: var(--field);
       position: relative;
-    }
-    .pixel-image-mark {
-      width: 4.5rem;
-      height: 4.5rem;
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      grid-template-rows: repeat(7, 1fr);
-      gap: 2px;
-    }
-    .pixel-image-mark span {
-      background: rgba(78, 204, 163, 0.16);
-    }
-    .pixel-image-mark span:nth-child(1),
-    .pixel-image-mark span:nth-child(2),
-    .pixel-image-mark span:nth-child(3),
-    .pixel-image-mark span:nth-child(4),
-    .pixel-image-mark span:nth-child(5),
-    .pixel-image-mark span:nth-child(6),
-    .pixel-image-mark span:nth-child(7),
-    .pixel-image-mark span:nth-child(8),
-    .pixel-image-mark span:nth-child(14),
-    .pixel-image-mark span:nth-child(15),
-    .pixel-image-mark span:nth-child(21),
-    .pixel-image-mark span:nth-child(22),
-    .pixel-image-mark span:nth-child(28),
-    .pixel-image-mark span:nth-child(29),
-    .pixel-image-mark span:nth-child(35),
-    .pixel-image-mark span:nth-child(36),
-    .pixel-image-mark span:nth-child(42),
-    .pixel-image-mark span:nth-child(43),
-    .pixel-image-mark span:nth-child(44),
-    .pixel-image-mark span:nth-child(45),
-    .pixel-image-mark span:nth-child(46),
-    .pixel-image-mark span:nth-child(47),
-    .pixel-image-mark span:nth-child(48),
-    .pixel-image-mark span:nth-child(49),
-    .pixel-image-mark span:nth-child(18),
-    .pixel-image-mark span:nth-child(19),
-    .pixel-image-mark span:nth-child(32),
-    .pixel-image-mark span:nth-child(33),
-    .pixel-image-mark span:nth-child(34),
-    .pixel-image-mark span:nth-child(39),
-    .pixel-image-mark span:nth-child(40),
-    .pixel-image-mark span:nth-child(41) {
-      background: var(--accent);
     }
     .empty-state h2 {
       font-size: 1.35rem;
@@ -764,7 +724,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         <a class="rail-link is-active" href="${SITE_ORIGIN}/es/fotografia/">Fotografia</a>
       </div>
       <div class="rail-group">
-        <button type="button" class="text-action is-primary" id="choose-image">+ Nueva imagen</button>
+        <span class="rail-link is-active">Nueva imagen</span>
         <span>Ajustes</span>
       </div>
     </nav>
@@ -784,9 +744,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           <div class="image-surface">
             <div class="empty-state" id="empty-state">
               <span class="upload-mark" aria-hidden="true">
-                <span class="pixel-image-mark">
-                  ${Array.from({ length: 49 }, () => "<span></span>").join("")}
-                </span>
+                ${ICONS.imagePlus}
               </span>
               <h2>Imagen pendiente</h2>
               <p>Suelta o elige una foto.</p>
@@ -810,36 +768,26 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         <input id="image-file" type="file" accept="image/*" hidden />
       </div>
 
-      <input class="caption-line" id="caption" type="text" placeholder="La paciencia antes del salto." aria-label="Caption" />
+      <input class="caption-line" id="caption" type="text" placeholder="Pie de foto visible" aria-label="Pie de foto" />
     </section>
 
     <aside class="inspector">
       <section class="panel preview-panel">
-        <h2>Imagen</h2>
+        <h2>Archivo</h2>
         <div class="property-row">
-          <span class="property-value" id="preview-empty">sin imagen</span>
-          <button type="button" class="property-action" id="image-change">+ añadir</button>
+          <span class="property-value" id="preview-empty">sin archivo</span>
         </div>
-        <img id="preview-thumb" alt="" hidden />
         <p class="preview-meta" id="preview-meta">pendiente</p>
       </section>
 
       <section class="panel">
-        <h2>Caption</h2>
-        <div class="property-row">
-          <span class="property-value" id="caption-summary">falta</span>
-          <button type="button" class="property-action" data-focus-target="caption">editar</button>
-        </div>
-      </section>
-
-      <section class="panel">
-        <h2>Alt</h2>
+        <h2>Texto alt</h2>
         <div class="property-row">
           <span class="property-value" id="alt-summary">falta</span>
           <button type="button" class="property-action" id="alt-action" data-edit-panel="alt-panel">+ añadir</button>
         </div>
         <label class="field property-editor" id="alt-panel">
-          <input id="alt" type="text" placeholder="Describe the image" />
+          <input id="alt" type="text" placeholder="Texto alternativo" />
         </label>
         <textarea id="body" hidden></textarea>
       </section>
@@ -911,13 +859,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         previewState: document.getElementById("preview-state"),
         imageStage: document.getElementById("image-stage"),
         imagePreview: document.getElementById("image-preview"),
-        previewBox: document.getElementById("preview-box"),
         previewEmpty: document.getElementById("preview-empty"),
-        previewThumb: document.getElementById("preview-thumb"),
         previewMeta: document.getElementById("preview-meta"),
-        imageChange: document.getElementById("image-change"),
         imageFile: document.getElementById("image-file"),
-        chooseImage: document.getElementById("choose-image"),
         chooseImageEmpty: document.getElementById("choose-image-empty"),
         replaceImage: document.getElementById("replace-image"),
         cropImage: document.getElementById("crop-image"),
@@ -927,7 +871,6 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         panelPublish: document.getElementById("panel-publish"),
         title: document.getElementById("title"),
         caption: document.getElementById("caption"),
-        captionSummary: document.getElementById("caption-summary"),
         alt: document.getElementById("alt"),
         altSummary: document.getElementById("alt-summary"),
         altAction: document.getElementById("alt-action"),
@@ -960,9 +903,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           window.close();
           window.history.back();
         });
-        els.chooseImage.addEventListener("click", chooseImage);
         els.chooseImageEmpty.addEventListener("click", chooseImage);
-        els.imageChange.addEventListener("click", chooseImage);
         els.replaceImage.addEventListener("click", chooseImage);
         document.querySelectorAll("[data-edit-panel]").forEach(function (button) {
           button.addEventListener("click", function () {
@@ -972,14 +913,6 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
             panel.classList.toggle("is-editing");
             var control = editor.querySelector("input, select, textarea");
             if (panel.classList.contains("is-editing") && control) {
-              control.focus();
-            }
-          });
-        });
-        document.querySelectorAll("[data-focus-target]").forEach(function (button) {
-          button.addEventListener("click", function () {
-            var control = document.getElementById(button.getAttribute("data-focus-target"));
-            if (control) {
               control.focus();
             }
           });
@@ -1124,14 +1057,10 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         cropMode = false;
         needsUpload = true;
         els.imagePreview.src = previewUrl;
-        els.previewThumb.src = previewUrl;
-        els.previewThumb.hidden = true;
         els.previewEmpty.hidden = false;
         els.previewEmpty.textContent = file.name;
         els.previewMeta.textContent = (file.type || "image") + " - " + formatBytes(file.size);
-        els.imageChange.textContent = "cambiar";
         els.imagePreview.alt = els.alt.value || els.title.value || filenameTitle(file.name);
-        els.previewThumb.alt = els.imagePreview.alt;
         if (!els.title.value.trim()) {
           els.title.value = filenameTitle(file.name);
         }
@@ -1149,6 +1078,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.cropImage.classList.toggle("is-active", cropMode);
         els.cropImage.disabled = !hasImage;
         els.rotateImage.disabled = !hasImage;
+        els.replaceImage.disabled = !hasImage;
         els.imagePreview.style.transform = "rotate(" + rotation + "deg)";
       }
 
@@ -1167,8 +1097,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
 
       function updatePropertySummaries() {
-        if (!els.captionSummary) return;
-        els.captionSummary.textContent = els.caption.value.trim() ? "escrito" : "falta";
+        if (!els.altSummary) return;
         var altWritten = Boolean(els.alt.value.trim());
         els.altSummary.textContent = altWritten ? "escrito" : "falta";
         els.altAction.textContent = altWritten ? "editar" : "+ añadir";
@@ -1176,9 +1105,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.statusSummary.textContent = els.draft.checked ? "• borrador" : "• publico";
         if (!imageFile && !uploadedImageUrl) {
           els.previewEmpty.hidden = false;
-          els.previewEmpty.textContent = "sin imagen";
+          els.previewEmpty.textContent = "sin archivo";
           els.previewMeta.textContent = "pendiente";
-          els.imageChange.textContent = "+ añadir";
         }
       }
 
@@ -1268,7 +1196,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       function validatePost() {
         if (!imageFile && !uploadedImageUrl) {
           setStatus("Choose an image before saving.", true);
-          els.chooseImage.focus();
+          els.chooseImageEmpty.focus();
           return false;
         }
         if (!els.title.value.trim()) {
