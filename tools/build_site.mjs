@@ -24,6 +24,7 @@ run("hugo", [
   "--minify",
   "--environment",
   "author",
+  "--buildDrafts",
   "--baseURL",
   adminBaseUrl,
   "--destination",

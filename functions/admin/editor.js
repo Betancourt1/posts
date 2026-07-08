@@ -5,7 +5,7 @@ export function onRequestGet({ request }) {
   const origin = new URL(request.url).origin;
 
   return htmlResponse(authorEditorHtml({
-    siteOrigin: origin,
+    siteOrigin: `${origin}/admin`,
     assetOrigin: origin,
     apiBase: "/admin/api",
   }));

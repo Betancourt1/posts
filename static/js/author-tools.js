@@ -121,6 +121,24 @@
     });
   }
 
+  function isAdminPath() {
+    return window.location.pathname === "/admin" || window.location.pathname.indexOf("/admin/") === 0;
+  }
+
+  function contentOrigin() {
+    return window.location.origin + (isAdminPath() ? "/admin" : "");
+  }
+
+  function contentUrl(url) {
+    if (!url || url.charAt(0) !== "/" || url.indexOf("//") === 0) {
+      return url;
+    }
+    if (isAdminPath() && url.indexOf("/admin/") !== 0) {
+      return "/admin" + url;
+    }
+    return url;
+  }
+
   function setStatus(text, ready) {
     if (!elements.status) {
       return;
@@ -288,7 +306,7 @@
 
     var query = new URLSearchParams({
       mode: params.mode || "new",
-      site: window.location.origin,
+      site: contentOrigin(),
       theme: theme === "light" ? "light" : "dark",
     });
 
@@ -495,6 +513,7 @@
   }
 
   function openWhenReady(url) {
+    var targetUrl = contentUrl(url);
     var deadline = Date.now() + 8000;
 
     function retry() {
@@ -502,10 +521,10 @@
     }
 
     function check() {
-      fetch(url, { cache: "no-store" })
+      fetch(targetUrl, { cache: "no-store" })
         .then(function (response) {
           if (response.ok) {
-            window.location.href = url;
+            window.location.href = targetUrl;
             return;
           }
 
@@ -514,7 +533,7 @@
             return;
           }
 
-          window.location.href = url;
+          window.location.href = targetUrl;
         })
         .catch(function () {
           if (Date.now() < deadline) {
@@ -522,7 +541,7 @@
             return;
           }
 
-          window.location.href = url;
+          window.location.href = targetUrl;
         });
     }
 
