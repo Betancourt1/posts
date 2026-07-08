@@ -1018,6 +1018,30 @@ body.graph-maximized {
   margin-top: 1.2rem;
 }
 
+@media (max-width: 640px) {
+  .photo-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .photo-card-meta {
+    margin-top: 0.45rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.02em;
+  }
+
+  .photo-card h2 {
+    min-height: 0;
+    font-size: 0.88rem;
+    line-height: 1.3;
+  }
+
+  .photo-card p {
+    display: none;
+  }
+}
+
 .article blockquote, .post-body blockquote {
   font-size: 0.95rem;
   line-height: 1.65;

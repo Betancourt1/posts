@@ -20,6 +20,7 @@ const REPO_ROOT = process.cwd();
 const CONTENT_ROOTS = ["content_es", "content_en"];
 const UPLOAD_ROOT = "static/uploads";
 const MAX_JSON_BYTES = 12 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
 const TIME_ZONE = "America/Mexico_City";
 const MONTHS_ES = [
   "enero",
@@ -79,21 +80,27 @@ function applyCors(req, res) {
 function readJson(req) {
   return new Promise((resolve, reject) => {
     let size = 0;
+    let tooLarge = false;
     const chunks = [];
 
     req.on("data", (chunk) => {
       size += chunk.length;
 
       if (size > MAX_JSON_BYTES) {
-        reject(new Error("La peticion es demasiado grande."));
-        req.destroy();
+        tooLarge = true;
+        chunks.length = 0;
         return;
       }
 
+      if (tooLarge) return;
       chunks.push(chunk);
     });
 
     req.on("end", () => {
+      if (tooLarge) {
+        reject(new Error("La peticion es demasiado grande."));
+        return;
+      }
       if (!chunks.length) {
         resolve({});
         return;
@@ -159,6 +166,37 @@ function dateInMexico() {
   const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
 
   return `${values.year}-${values.month}-${values.day}`;
+}
+
+function startsWithBytes(buffer, bytes) {
+  return bytes.every((byte, index) => buffer[index] === byte);
+}
+
+function assertImageSignature(extension, buffer) {
+  const typeError = new Error("El archivo no parece una imagen valida.");
+
+  if (extension === ".jpg" || extension === ".jpeg") {
+    if (startsWithBytes(buffer, [0xff, 0xd8, 0xff])) return;
+    throw typeError;
+  }
+  if (extension === ".png") {
+    if (startsWithBytes(buffer, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) return;
+    throw typeError;
+  }
+  if (extension === ".gif") {
+    const header = buffer.subarray(0, 6).toString("ascii");
+    if (header === "GIF87a" || header === "GIF89a") return;
+    throw typeError;
+  }
+  if (extension === ".webp") {
+    if (buffer.subarray(0, 4).toString("ascii") === "RIFF" && buffer.subarray(8, 12).toString("ascii") === "WEBP") return;
+    throw typeError;
+  }
+  if (extension === ".svg") {
+    const text = buffer.subarray(0, 512).toString("utf8").trimStart().replace(/^\uFEFF/, "");
+    if (/^<svg[\s>]/i.test(text) || /^<\?xml[\s\S]*<svg[\s>]/i.test(text)) return;
+    throw typeError;
+  }
 }
 
 function ensureDate(value) {
@@ -503,9 +541,11 @@ function createPost(payload) {
     : `${notebook.relativePath}/${slug}.md`;
   const image = String(payload.image || "").trim();
   const thumbnail = String(payload.thumbnail || payload.thumb || "").trim();
-  const imageAlt = String(payload.imageAlt || payload.image_alt || title).trim();
+  const explicitImageAlt = String(payload.imageAlt || payload.image_alt || "").trim();
   const caption = String(payload.caption || "").trim();
   const images = imageItemsFromPayload(payload.images);
+  const coverAlt = explicitImageAlt || images[0]?.alt || "";
+  const isPhotoNotebook = notebook.relativePath.endsWith("/fotografia");
   const body = String(payload.body || (image ? "" : `# ${title}\n`));
   const frontMatter = {
     title,
@@ -515,7 +555,7 @@ function createPost(payload) {
     summary: String(payload.summary || ""),
   };
 
-  if (notebook.relativePath.endsWith("/fotografia") && frontMatter.tags.length === 0) {
+  if (isPhotoNotebook && frontMatter.tags.length === 0) {
     frontMatter.tags = ["fotografia"];
   }
 
@@ -524,7 +564,7 @@ function createPost(payload) {
     if (thumbnail) {
       frontMatter.thumbnail = thumbnail;
     }
-    frontMatter.image_alt = imageAlt || title;
+    frontMatter.image_alt = isPhotoNotebook ? coverAlt : coverAlt || title;
 
     if (caption) {
       frontMatter.caption = caption;
@@ -537,6 +577,8 @@ function createPost(payload) {
   if (images.length > 1) {
     frontMatter.images = images;
   }
+
+  validatePhotoFrontMatter(relativePath, frontMatter);
 
   if (payload.hidden) {
     frontMatter.hidden = true;
@@ -573,18 +615,20 @@ function savePage(payload) {
   };
   const body = String(payload.body || "");
 
+  validatePhotoFrontMatter(relativePath, frontMatter);
   return writeContentFile(relativePath, frontMatter, body, true);
 }
 
 function uploadImage(payload) {
   const name = String(payload.name || "").trim();
-  const match = String(payload.data || "").match(/^data:([^;]+);base64,(.+)$/);
+  const match = String(payload.data || "").match(/^data:([^;]+);base64,([A-Za-z0-9+/=\s]+)$/);
 
   if (!name || !match) {
     throw new Error("Imagen invalida.");
   }
 
   const mime = match[1];
+  const base64 = match[2].replace(/\s/g, "");
   const extension = path.extname(name).toLowerCase();
   const allowed = new Map([
     [".jpg", "image/jpeg"],
@@ -602,13 +646,14 @@ function uploadImage(payload) {
   const date = dateInMexico();
   const [year, month] = date.split("-");
   const baseName = ensureSlug(path.basename(name, extension));
-  const relativePath = `${UPLOAD_ROOT}/${year}/${month}/${baseName}${extension}`;
+  const relativePath = `${UPLOAD_ROOT}/${year}/${month}/${baseName}-${Date.now()}${extension}`;
   const { absolutePath } = safeUploadPath(relativePath);
-  const buffer = Buffer.from(match[2], "base64");
+  const buffer = Buffer.from(base64, "base64");
 
-  if (buffer.length > MAX_JSON_BYTES) {
+  if (buffer.length > MAX_UPLOAD_BYTES) {
     throw new Error("La imagen es demasiado grande.");
   }
+  assertImageSignature(extension, buffer);
 
   mkdirSync(path.dirname(absolutePath), { recursive: true });
   writeFileSync(absolutePath, buffer);
@@ -680,6 +725,23 @@ function collectUploadReferences(frontMatter, body) {
   });
 
   return [...paths];
+}
+
+function validatePhotoFrontMatter(relativePath, frontMatter) {
+  if (!relativePath.startsWith("content_es/fotografia/") && !relativePath.startsWith("content_en/fotografia/")) {
+    return;
+  }
+
+  if (frontMatter.image && !String(frontMatter.image_alt || "").trim()) {
+    throw new Error("Texto alt requerido para fotografias.");
+  }
+
+  if (Array.isArray(frontMatter.images)) {
+    const missingAltIndex = frontMatter.images.findIndex((item) => !String(item?.alt || item?.image_alt || "").trim());
+    if (missingAltIndex >= 0) {
+      throw new Error(`Texto alt requerido para imagen ${missingAltIndex + 1}.`);
+    }
+  }
 }
 
 function deleteImagePath(relativePath) {

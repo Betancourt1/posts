@@ -1024,7 +1024,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
               </span>
               <h2>Imagen pendiente</h2>
               <p>Suelta o elige una o varias fotos.</p>
-              <p class="helper-copy">JPG, PNG, GIF, WebP, SVG. Max 12 MB.</p>
+              <p class="helper-copy">JPG, PNG, GIF, WebP, SVG. Max 8 MB al subir.</p>
               <button type="button" class="primary-button" id="choose-image-empty">Elegir imagenes</button>
             </div>
 
@@ -1175,6 +1175,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       var saveBusy = false;
       var fullImageMaxEdge = 2400;
       var thumbImageMaxEdge = 900;
+      var maxUploadBytes = 8 * 1024 * 1024;
+      var allowedImageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
 
       var els = {
         back: document.getElementById("back"),
@@ -1473,11 +1475,20 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
 
       function addImageFiles(files, replaceSelected) {
+        var rejectedFiles = [];
         var validFiles = files.filter(function (file) {
-          return file && file.type && file.type.indexOf("image/") === 0;
+          if (!file || allowedImageTypes.indexOf(file.type) === -1) {
+            rejectedFiles.push(file && file.name ? file.name : "archivo");
+            return false;
+          }
+          if (isPassthroughFile(file) && file.size > maxUploadBytes) {
+            rejectedFiles.push(file.name);
+            return false;
+          }
+          return true;
         });
         if (!validFiles.length) {
-          setStatus("Elige archivos de imagen.", true);
+          setStatus(rejectedFiles.length ? "Ningun archivo paso la validacion." : "Elige archivos de imagen.", true);
           return;
         }
         if (replaceSelected && selectedImage()) {
@@ -1493,7 +1504,11 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           els.title.value = validFiles.length === 1 ? filenameTitle(validFiles[0].name) : "Galeria " + today();
         }
         render();
-        markUnsaved(validFiles.length === 1 ? "Imagen lista." : validFiles.length + " imagenes listas.");
+        var message = validFiles.length === 1 ? "Imagen lista." : validFiles.length + " imagenes listas.";
+        if (rejectedFiles.length) {
+          message += " Se omitieron " + rejectedFiles.length + ".";
+        }
+        markUnsaved(message);
       }
 
       function createImage(file) {
@@ -1933,6 +1948,17 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           els.notebook.focus();
           return false;
         }
+        var missingAltIndex = images.findIndex(function (image) {
+          return !image.alt.trim();
+        });
+        if (missingAltIndex >= 0) {
+          selectedImageId = images[missingAltIndex].id;
+          viewMode = "detail";
+          render();
+          setStatus("Agrega texto alt para cada imagen antes de guardar.", true);
+          els.alt.focus();
+          return false;
+        }
         return true;
       }
 
@@ -1942,7 +1968,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           return {
             src: image.uploadedUrl,
             thumb: image.thumbnailUrl || image.uploadedUrl,
-            alt: image.alt.trim() || title || filenameTitle(image.name),
+            alt: image.alt.trim(),
             caption: image.caption.trim(),
           };
         });
@@ -1996,6 +2022,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           image.uploadedUrl = result.url;
           return imagePayload(image, thumbImageMaxEdge, "thumb").then(function (thumbPayload) {
             return postJson("/upload-image", thumbPayload);
+          }).catch(function () {
+            image.thumbnailUrl = image.uploadedUrl;
+            return { url: image.uploadedUrl };
           });
         }).then(function (thumbResult) {
           image.thumbnailUrl = thumbResult.url;
@@ -2010,10 +2039,11 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           return Promise.reject(new Error("Elige una imagen antes de guardar."));
         }
         return transformedFile(image, maxEdge, suffix).then(function (fileLike) {
+          validateUploadBlob(fileLike.blob);
           return fileToDataUrl(fileLike.blob).then(function (data) {
             return {
               name: fileLike.name,
-              alt: image.alt.trim() || els.title.value.trim() || filenameTitle(image.name),
+              alt: image.alt.trim(),
               caption: image.caption.trim(),
               data: data,
             };
@@ -2039,8 +2069,18 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         });
       }
 
+      function validateUploadBlob(blob) {
+        if (blob.size > maxUploadBytes) {
+          throw new Error("La imagen preparada supera 8 MB.");
+        }
+      }
+
       function isPassthroughImage(image) {
         return image.type === "image/svg+xml" || image.type === "image/gif";
+      }
+
+      function isPassthroughFile(file) {
+        return file.type === "image/svg+xml" || file.type === "image/gif";
       }
 
       function drawTransformedImage(file, angle, cropSquare, maxEdge) {
@@ -2141,7 +2181,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function splitTags(value) {
         return String(value || "")
-          .split(/[,\s]+/)
+          .split(/[,\\s]+/)
           .map(function (tag) { return tag.trim().replace(/^#/, ""); })
           .filter(Boolean);
       }

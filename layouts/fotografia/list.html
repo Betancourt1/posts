@@ -86,6 +86,7 @@
               <img
                 src="{{ $imageSrc | safeURL }}"
                 {{ if and $fullImageSrc (ne $fullImageSrc $imageSrc) }}srcset="{{ $imageSrc | safeURL }} 900w, {{ $fullImageSrc | safeURL }} 2400w" sizes="(min-width: 900px) 25vw, 50vw"{{ end }}
+                {{ if and $fullImageSrc (ne $fullImageSrc $imageSrc) }}onerror="this.onerror=null;this.removeAttribute('srcset');this.src='{{ $fullImageSrc | safeURL }}';"{{ end }}
                 alt="{{ $alt }}"
                 loading="lazy"
                 decoding="async"

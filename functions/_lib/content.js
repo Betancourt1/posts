@@ -38,6 +38,51 @@ const IMAGE_MIME_BY_EXTENSION = new Map([
 ]);
 const PROTECTED_NOTEBOOKS = new Set(["content_es/posts", "content_en/posts"]);
 
+function startsWithBytes(bytes, expected) {
+  return expected.every((byte, index) => bytes[index] === byte);
+}
+
+function base64HeaderBytes(base64, length = 64) {
+  const chunk = base64.slice(0, Math.ceil(length / 3) * 4);
+  const binary = atob(chunk);
+  return Array.from(binary, (char) => char.charCodeAt(0));
+}
+
+function base64HeaderText(base64, length = 512) {
+  const chunk = base64.slice(0, Math.ceil(length / 3) * 4);
+  return atob(chunk);
+}
+
+function assertImageSignature(extension, base64) {
+  const typeError = new Error("El archivo no parece una imagen valida.");
+  const bytes = base64HeaderBytes(base64);
+
+  if (extension === ".jpg" || extension === ".jpeg") {
+    if (startsWithBytes(bytes, [0xff, 0xd8, 0xff])) return;
+    throw typeError;
+  }
+  if (extension === ".png") {
+    if (startsWithBytes(bytes, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) return;
+    throw typeError;
+  }
+  if (extension === ".gif") {
+    const header = String.fromCharCode(...bytes.slice(0, 6));
+    if (header === "GIF87a" || header === "GIF89a") return;
+    throw typeError;
+  }
+  if (extension === ".webp") {
+    const riff = String.fromCharCode(...bytes.slice(0, 4));
+    const webp = String.fromCharCode(...bytes.slice(8, 12));
+    if (riff === "RIFF" && webp === "WEBP") return;
+    throw typeError;
+  }
+  if (extension === ".svg") {
+    const text = base64HeaderText(base64).trimStart().replace(/^\uFEFF/, "");
+    if (/^<svg[\s>]/i.test(text) || /^<\?xml[\s\S]*<svg[\s>]/i.test(text)) return;
+    throw typeError;
+  }
+}
+
 function dateInMexico() {
   const parts = new Intl.DateTimeFormat("en", {
     timeZone: TIME_ZONE,
@@ -157,6 +202,23 @@ function collectUploadReferences(frontMatter, body) {
   return [...paths];
 }
 
+function validatePhotoFrontMatter(path, frontMatter) {
+  if (!path.startsWith("content_es/fotografia/") && !path.startsWith("content_en/fotografia/")) {
+    return;
+  }
+
+  if (frontMatter.image && !String(frontMatter.image_alt || "").trim()) {
+    throw new Error("Texto alt requerido para fotografias.");
+  }
+
+  if (Array.isArray(frontMatter.images)) {
+    const missingAltIndex = frontMatter.images.findIndex((item) => !String(item?.alt || item?.image_alt || "").trim());
+    if (missingAltIndex >= 0) {
+      throw new Error(`Texto alt requerido para imagen ${missingAltIndex + 1}.`);
+    }
+  }
+}
+
 async function deleteUploadPath(env, path) {
   const safePath = safeUploadPath(path);
   const current = await readGitHubFile(env, safePath);
@@ -246,9 +308,11 @@ export async function createPost(env, payload) {
     : `${notebook}/${slug}.md`;
   const image = String(payload.image || "").trim();
   const thumbnail = String(payload.thumbnail || payload.thumb || "").trim();
-  const imageAlt = String(payload.imageAlt || payload.image_alt || title).trim();
+  const explicitImageAlt = String(payload.imageAlt || payload.image_alt || "").trim();
   const caption = String(payload.caption || "").trim();
   const images = imageItemsFromPayload(payload.images);
+  const coverAlt = explicitImageAlt || images[0]?.alt || "";
+  const isPhotoNotebook = notebook.endsWith("/fotografia");
   const body = String(payload.body || (image ? "" : `# ${title}\n`));
   const existing = await readGitHubFile(env, path);
 
@@ -268,7 +332,7 @@ export async function createPost(env, payload) {
     frontMatter.hidden = true;
   }
 
-  if (notebook.endsWith("/fotografia") && frontMatter.tags.length === 0) {
+  if (isPhotoNotebook && frontMatter.tags.length === 0) {
     frontMatter.tags = ["fotografia"];
   }
 
@@ -277,7 +341,7 @@ export async function createPost(env, payload) {
     if (thumbnail) {
       frontMatter.thumbnail = thumbnail;
     }
-    frontMatter.image_alt = imageAlt || title;
+    frontMatter.image_alt = isPhotoNotebook ? coverAlt : coverAlt || title;
 
     if (caption) {
       frontMatter.caption = caption;
@@ -290,6 +354,8 @@ export async function createPost(env, payload) {
   if (images.length > 1) {
     frontMatter.images = images;
   }
+
+  validatePhotoFrontMatter(path, frontMatter);
 
   await writeGitHubFile(env, {
     path,
@@ -369,6 +435,8 @@ export async function savePage(env, payload) {
     ...parsed.frontMatter,
     ...(payload.frontMatter || {}),
   };
+
+  validatePhotoFrontMatter(path, frontMatter);
 
   await writeGitHubFile(env, {
     path,
@@ -500,6 +568,7 @@ export async function uploadImage(env, payload) {
   if (approxBytes > MAX_UPLOAD_BYTES) {
     throw new Error("La imagen es demasiado grande.");
   }
+  assertImageSignature(extension, base64);
 
   const [year, month] = dateInMexico().split("-");
   const baseName = ensureSlug(name.replace(/\.[^.]+$/, ""));
