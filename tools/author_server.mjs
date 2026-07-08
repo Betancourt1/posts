@@ -268,7 +268,7 @@ function formatYamlValue(value, key) {
 }
 
 function formatMarkdown(frontMatter, body) {
-  const priority = ["title", "date", "draft", "tags", "summary", "description", "hidden"];
+  const priority = ["title", "date", "draft", "tags", "summary", "description", "image", "image_alt", "caption", "hidden"];
   const keys = [
     ...priority.filter((key) => Object.prototype.hasOwnProperty.call(frontMatter, key)),
     ...Object.keys(frontMatter)
@@ -446,7 +446,10 @@ function createPost(payload) {
   const relativePath = isWritingNotebook
     ? `${notebook.relativePath}/${year}/${MONTHS_ES[Number(month) - 1]}/${slug}.md`
     : `${notebook.relativePath}/${slug}.md`;
-  const body = String(payload.body || `# ${title}\n`);
+  const image = String(payload.image || "").trim();
+  const imageAlt = String(payload.imageAlt || payload.image_alt || title).trim();
+  const caption = String(payload.caption || "").trim();
+  const body = String(payload.body || (image ? "" : `# ${title}\n`));
   const frontMatter = {
     title,
     date,
@@ -454,6 +457,22 @@ function createPost(payload) {
     tags: tagsFromValue(payload.tags),
     summary: String(payload.summary || ""),
   };
+
+  if (notebook.relativePath.endsWith("/fotografia") && frontMatter.tags.length === 0) {
+    frontMatter.tags = ["fotografia"];
+  }
+
+  if (image) {
+    frontMatter.image = image;
+    frontMatter.image_alt = imageAlt || title;
+
+    if (caption) {
+      frontMatter.caption = caption;
+    }
+    if (!frontMatter.summary && caption) {
+      frontMatter.summary = caption;
+    }
+  }
 
   if (payload.hidden) {
     frontMatter.hidden = true;
@@ -513,11 +532,13 @@ function uploadImage(payload) {
 
   const url = `/${relativePath.replace(/^static\//, "")}`;
   const alt = String(payload.alt || path.basename(name, extension)).trim();
+  const caption = String(payload.caption || "").trim();
+  const markdownTitle = caption ? ` "${caption.replaceAll('"', '\\"')}"` : "";
 
   return {
     path: relativePath,
     url,
-    markdown: `![${alt}](${url})`,
+    markdown: `![${alt}](${url}${markdownTitle})`,
   };
 }
 

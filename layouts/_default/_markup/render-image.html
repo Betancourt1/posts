@@ -1,0 +1,19 @@
+{{ $src := .Destination }}
+{{ if hasPrefix $src "/" }}
+  {{ $src = partial "admin_href.html" (dict "page" .Page "href" $src) }}
+{{ end }}
+{{ $alt := .Text | plainify }}
+{{ $caption := .Title | plainify }}
+
+{{ if $caption }}
+  <figure class="post-image">
+    <a class="post-image-link" href="{{ $src | safeURL }}" target="_blank" rel="noopener">
+      <img src="{{ $src | safeURL }}" alt="{{ $alt }}" loading="lazy" decoding="async">
+    </a>
+    <figcaption>{{ $caption }}</figcaption>
+  </figure>
+{{ else }}
+  <a class="post-image-link" href="{{ $src | safeURL }}" target="_blank" rel="noopener">
+    <img class="post-image" src="{{ $src | safeURL }}" alt="{{ $alt }}" loading="lazy" decoding="async">
+  </a>
+{{ end }}

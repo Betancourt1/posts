@@ -850,6 +850,14 @@ body.graph-maximized {
   margin: 1.4rem auto;
 }
 
+.post-image-link {
+  display: block;
+}
+
+.post-image-link:hover {
+  text-decoration: none;
+}
+
 .article figure, .post-body figure {
   margin: 1.6rem 0;
 }
@@ -863,6 +871,95 @@ body.graph-maximized {
   color: var(--ink-muted);
   font-size: 0.85rem;
   text-align: center;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 1.25rem;
+  margin-top: 1.4rem;
+}
+
+.photo-card {
+  min-width: 0;
+}
+
+.photo-card-image {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--code-bg);
+}
+
+.photo-card-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.photo-card-image span {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  color: var(--ink-muted);
+  text-align: center;
+}
+
+.photo-card-image:hover img {
+  transform: scale(1.025);
+  filter: brightness(1.08);
+}
+
+.photo-card-meta {
+  margin-top: 0.65rem;
+  color: var(--ink-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+
+.photo-card h2 {
+  margin: 0.2rem 0 0;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.photo-card p {
+  margin: 0.35rem 0 0;
+  color: var(--ink-dim);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.photo-post .post-header {
+  margin-bottom: 1rem;
+}
+
+.photo-post-figure {
+  margin: 1rem 0 1.5rem;
+}
+
+.photo-post-figure img {
+  width: 100%;
+  max-height: min(72vh, 54rem);
+  display: block;
+  object-fit: contain;
+  background: var(--code-bg);
+}
+
+.photo-post-figure figcaption {
+  margin-top: 0.7rem;
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.photo-post-body {
+  margin-top: 1.2rem;
 }
 
 .article blockquote, .post-body blockquote {

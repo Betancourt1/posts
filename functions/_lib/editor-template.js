@@ -279,6 +279,29 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       padding-top: 1rem;
       border-top: 1px solid var(--line);
     }
+    .photo-fields {
+      display: grid;
+      gap: 0.85rem;
+      margin: 0.35rem 0 0.85rem;
+      padding: 0.85rem;
+      border: 1px solid var(--line);
+      border-radius: 0.5rem;
+      background: var(--field);
+    }
+    .photo-fields[hidden] {
+      display: none !important;
+    }
+    .photo-preview {
+      display: none;
+      width: 100%;
+      max-height: 12rem;
+      object-fit: cover;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+    }
+    .photo-preview[src] {
+      display: block;
+    }
     .path {
       color: var(--muted);
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -839,6 +862,21 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <span>Tags</span>
         <input id="tags" type="text" placeholder="ensayo, politica" />
       </label>
+      <div class="photo-fields" id="photo-fields" hidden>
+        <label class="field">
+          <span>Photo image</span>
+          <input id="image" type="text" placeholder="/uploads/2026/07/photo.jpg" />
+        </label>
+        <img class="photo-preview" id="photo-preview" alt="" />
+      </div>
+      <label class="field">
+        <span>Image alt</span>
+        <input id="image-alt" type="text" placeholder="Describe the image" />
+      </label>
+      <label class="field">
+        <span>Image caption</span>
+        <input id="caption" type="text" placeholder="Optional caption" />
+      </label>
       <label class="field">
         <span>Editor font size</span>
         <select id="editor-font-size">
@@ -899,6 +937,11 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         slug: document.getElementById("slug"),
         date: document.getElementById("date"),
         tags: document.getElementById("tags"),
+        photoFields: document.getElementById("photo-fields"),
+        image: document.getElementById("image"),
+        imageAlt: document.getElementById("image-alt"),
+        caption: document.getElementById("caption"),
+        photoPreview: document.getElementById("photo-preview"),
         editorFontSize: document.getElementById("editor-font-size"),
         summary: document.getElementById("summary"),
         draft: document.getElementById("draft"),
@@ -953,6 +996,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           if (mode === "new" && !slugTouched) {
             els.slug.value = slugify(els.title.value, currentSeparator());
           }
+          syncPhotoEditor();
           markContentEdited();
         });
         els.save.addEventListener("click", save);
@@ -973,9 +1017,10 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
             window.setTimeout(syncWritingState, 0);
           });
         });
-        [els.summary, els.date, els.tags].forEach(function (input) {
+        [els.summary, els.date, els.tags, els.image, els.imageAlt, els.caption].forEach(function (input) {
           input.addEventListener("input", markContentEdited);
         });
+        els.image.addEventListener("input", updatePhotoPreview);
         [els.draft, els.hidden].forEach(function (input) {
           input.addEventListener("change", markContentEdited);
         });
@@ -1045,6 +1090,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.title.value = "";
         els.body.value = "";
         els.date.value = today();
+        els.image.value = "";
+        els.imageAlt.value = "";
+        els.caption.value = "";
         els.draft.checked = true;
         els.hidden.checked = false;
         savedSnapshot = null;
@@ -1054,6 +1102,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         resetBodyHistory();
         syncSavedState();
         syncPreviewButton();
+        syncPhotoEditor();
         resizeEditorFields();
         els.title.focus();
       }
@@ -1069,6 +1118,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           els.date.value = frontMatter.date || today();
           els.tags.value = (frontMatter.tags || []).join(", ");
           els.summary.value = frontMatter.summary || frontMatter.description || "";
+          els.image.value = frontMatter.image || "";
+          els.imageAlt.value = frontMatter.image_alt || "";
+          els.caption.value = frontMatter.caption || "";
           els.draft.checked = frontMatter.draft === true;
           els.hidden.checked = frontMatter.hidden === true;
           els.body.value = payload.body || "";
@@ -1080,6 +1132,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           resetBodyHistory();
           syncSavedState();
           syncPreviewButton();
+          syncPhotoEditor();
           resizeEditorFields();
           els.body.focus();
         });
@@ -1110,7 +1163,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
 
       function createPost() {
-        return postJson("/api/create-post", {
+        var payload = {
           notebook: els.notebook.value,
           title: els.title.value,
           slug: els.slug.value,
@@ -1119,8 +1172,17 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           summary: els.summary.value,
           draft: els.draft.checked,
           hidden: els.hidden.checked,
-          body: els.body.value || "# " + els.title.value + "\\n",
-        });
+          body: isPhotoEditor() && els.image.value ? els.body.value : (els.body.value || "# " + els.title.value + "\\n"),
+        };
+
+        if (isPhotoEditor()) {
+          Object.assign(payload, photoPayload());
+          if (!payload.body && payload.image) {
+            payload.body = "";
+          }
+        }
+
+        return postJson("/api/create-post", payload);
       }
 
       function saveExisting() {
@@ -1148,6 +1210,22 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           nextFrontMatter.tags = splitTags(els.tags.value);
         }
 
+        if (isPhotoEditor()) {
+          var photo = photoPayload();
+          if (photo.image) {
+            nextFrontMatter.image = photo.image;
+            nextFrontMatter.image_alt = photo.imageAlt || els.title.value;
+          } else {
+            delete nextFrontMatter.image;
+            delete nextFrontMatter.image_alt;
+          }
+          if (photo.caption) {
+            nextFrontMatter.caption = photo.caption;
+          } else {
+            delete nextFrontMatter.caption;
+          }
+        }
+
         return postJson("/api/save-page", {
           path: sourcePath,
           frontMatter: nextFrontMatter,
@@ -1163,11 +1241,27 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         if (!file) return;
         var reader = new FileReader();
         reader.onload = function () {
+          var alt = els.imageAlt.value || els.title.value || file.name.replace(/\\.[^.]+$/, "");
           postJson("/api/upload-image", {
             name: file.name,
-            alt: file.name.replace(/\\.[^.]+$/, ""),
+            alt: alt,
+            caption: els.caption.value,
             data: reader.result,
           }).then(function (result) {
+            if (isPhotoEditor()) {
+              els.image.value = result.url;
+              if (!els.imageAlt.value) {
+                els.imageAlt.value = alt;
+              }
+              if (!els.summary.value && els.caption.value) {
+                els.summary.value = els.caption.value;
+              }
+              updatePhotoPreview();
+              markContentEdited();
+              setStatus("Photo image set " + result.url);
+              return;
+            }
+
             insertAtCursor(els.body, result.markdown + "\\n");
             setStatus("Image added " + result.url);
           }).catch(function (error) {
@@ -1477,6 +1571,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           slug: els.slug.value,
           date: els.date.value,
           tags: els.tags.value,
+          image: els.image.value,
+          imageAlt: els.imageAlt.value,
+          caption: els.caption.value,
           draft: els.draft.checked,
           hidden: els.hidden.checked,
           body: els.body.value,
@@ -1533,6 +1630,38 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
 
       function currentSeparator() {
         return els.notebook.value.endsWith("/posts") ? "_" : "-";
+      }
+
+      function isPhotoEditor() {
+        return kind !== "notebook" && (els.notebook.value === "content_es/fotografia" ||
+          sourcePath.indexOf("content_es/fotografia/") === 0 ||
+          Boolean(frontMatter.image));
+      }
+
+      function syncPhotoEditor() {
+        var photo = isPhotoEditor();
+        els.photoFields.hidden = !photo;
+        if (photo && mode === "new" && !els.tags.value.trim()) {
+          els.tags.value = "fotografia";
+        }
+        updatePhotoPreview();
+      }
+
+      function updatePhotoPreview() {
+        var image = els.image.value.trim();
+        if (!image) {
+          els.photoPreview.removeAttribute("src");
+          return;
+        }
+        els.photoPreview.src = image.charAt(0) === "/" ? siteOrigin + image : image;
+      }
+
+      function photoPayload() {
+        return {
+          image: els.image.value.trim(),
+          imageAlt: els.imageAlt.value.trim(),
+          caption: els.caption.value.trim(),
+        };
       }
 
       function slugify(value, separator) {
