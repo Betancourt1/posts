@@ -17,7 +17,8 @@
   <ul class="nav-list">
     {{ range .Site.Menus.main }}
     <li>
-      <a href="{{ .URL }}" {{ if $.IsMenuCurrent "main" . }} class="active" {{ end }}>
+      {{ $href := partial "admin_href.html" (dict "page" $ "href" .URL) }}
+      <a href="{{ $href }}" {{ if $.IsMenuCurrent "main" . }} class="active" {{ end }}>
         {{ .Name }}
       </a>
     </li>

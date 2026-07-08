@@ -17,18 +17,21 @@
       {{ if .IsTranslated }}
         {{ range .AllTranslations }}
           {{ if ne .Language.Lang $.Site.Language.Lang }}
-            <a class="lang-toggle" href="{{ .RelPermalink }}" title="{{ if eq .Language.Lang "en" }}Switch to English{{ else }}Cambiar a Español{{ end }}">
+            {{ $translationHref := partial "admin_href.html" (dict "page" $ "href" .RelPermalink) }}
+            <a class="lang-toggle" href="{{ $translationHref }}" title="{{ if eq .Language.Lang "en" }}Switch to English{{ else }}Cambiar a Español{{ end }}">
               {{ if eq .Language.Lang "en" }}EN{{ else }}ES{{ end }}
             </a>
           {{ end }}
         {{ end }}
       {{ else }}
         {{ if eq .Site.Language.Lang "es" }}
-          <a class="lang-toggle" href="{{ "/" | relURL }}" title="Switch to English">
+          {{ $englishHref := partial "admin_href.html" (dict "page" . "href" ("/" | relURL)) }}
+          <a class="lang-toggle" href="{{ $englishHref }}" title="Switch to English">
             EN
           </a>
         {{ else }}
-          <a class="lang-toggle" href="{{ "/es/" | relURL }}" title="Cambiar a Español">
+          {{ $spanishHref := partial "admin_href.html" (dict "page" . "href" ("/es/" | relURL)) }}
+          <a class="lang-toggle" href="{{ $spanishHref }}" title="Cambiar a Español">
             ES
           </a>
         {{ end }}

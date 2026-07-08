@@ -50,7 +50,7 @@
       {{ with .Params.tags }}
         <div class="tag-list" style="margin-top: 4px;">
           {{ range . }}
-            <a class="tag" href="{{ "/tags/" | relURL }}{{ . | urlize }}/">#{{ . }}</a>
+            <a class="tag" href="{{ printf "tags/%s/" (. | urlize) | relLangURL }}">#{{ . }}</a>
           {{ end }}
         </div>
       {{ end }}

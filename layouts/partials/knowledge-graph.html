@@ -12,11 +12,13 @@
   {{ end }}
   {{ if $includeInGraph }}
     {{ with $entryPage.Params.tags }}
-      {{ $graphEntries = $graphEntries | append (dict "title" $entryPage.Title "permalink" $entryPage.RelPermalink "tags" .) }}
+      {{ $entryPermalink := partial "admin_href.html" (dict "page" $page "href" $entryPage.RelPermalink) }}
+      {{ $graphEntries = $graphEntries | append (dict "title" $entryPage.Title "permalink" $entryPermalink "tags" .) }}
       {{ range . }}
         {{ $tagText := replaceRE "^\\s+|\\s+$" "" (printf "%v" .) }}
         {{ if $tagText }}
-          {{ $graphTagLinks = merge $graphTagLinks (dict $tagText (printf "%s%s/" ("/tags/" | relLangURL) ($tagText | urlize))) }}
+          {{ $tagLink := printf "tags/%s/" ($tagText | urlize) | relLangURL }}
+          {{ $graphTagLinks = merge $graphTagLinks (dict $tagText $tagLink) }}
         {{ end }}
       {{ end }}
     {{ end }}
