@@ -1005,7 +1005,14 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           <span id="media-count">imagen</span>
         </div>
         <input class="title-line" id="title" type="text" placeholder="Titulo" autocomplete="off" aria-label="Titulo" />
-        <input class="tags-line" id="tags" type="text" placeholder="#fotografia  #naturaleza  #insecto" aria-label="Tags" />
+        <input class="tags-line" id="tags" type="text" list="photo-tag-suggestions" placeholder="#fotografia  #macro  #mapas" aria-label="Tags" />
+        <datalist id="photo-tag-suggestions">
+          <option value="fotografia"></option>
+          <option value="macro"></option>
+          <option value="mapas"></option>
+          <option value="visualizacion"></option>
+          <option value="archivo"></option>
+        </datalist>
       </div>
 
       <div class="dropzone" id="dropzone" aria-label="Image upload area">
@@ -1166,6 +1173,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       var savedPath = "";
       var savedUrl = "";
       var saveBusy = false;
+      var fullImageMaxEdge = 2400;
+      var thumbImageMaxEdge = 900;
 
       var els = {
         back: document.getElementById("back"),
@@ -1496,6 +1505,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           size: file.size,
           previewUrl: URL.createObjectURL(file),
           uploadedUrl: "",
+          thumbnailUrl: "",
           alt: "",
           caption: "",
           rotation: 0,
@@ -1514,6 +1524,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         image.size = file.size;
         image.previewUrl = URL.createObjectURL(file);
         image.uploadedUrl = "";
+        image.thumbnailUrl = "";
         image.rotation = 0;
         image.cropMode = false;
         image.needsUpload = true;
@@ -1852,6 +1863,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
             summary: frontMatter.summary,
             draft: draft,
             image: frontMatter.image,
+            thumbnail: frontMatter.thumbnail,
             imageAlt: frontMatter.image_alt,
             caption: frontMatter.caption || "",
             images: frontMatter.images || [],
@@ -1901,6 +1913,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         var items = images.map(function (image) {
           return {
             src: image.uploadedUrl,
+            thumb: image.thumbnailUrl || image.uploadedUrl,
             alt: image.alt.trim() || title || filenameTitle(image.name),
             caption: image.caption.trim(),
           };
@@ -1918,6 +1931,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           tags: splitTags(els.tags.value),
           summary: summary,
           image: cover.src,
+          thumbnail: cover.thumb || cover.src,
           image_alt: cover.alt,
           caption: caption,
           images: items.length > 1 ? items : [],
@@ -1933,25 +1947,41 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
 
       function ensureUploadedImage(image, index) {
-        if (image.uploadedUrl && !image.needsUpload) {
+        if (image.uploadedUrl && image.thumbnailUrl && !image.needsUpload) {
           return Promise.resolve(image.uploadedUrl);
         }
         setStatus("Subiendo imagen " + (index + 1) + " de " + images.length + ".", false);
-        return imagePayload(image).then(function (payload) {
+        if (isPassthroughImage(image)) {
+          return imagePayload(image, fullImageMaxEdge, "").then(function (payload) {
+            return postJson("/upload-image", payload);
+          }).then(function (result) {
+            image.uploadedUrl = result.url;
+            image.thumbnailUrl = result.url;
+            image.needsUpload = false;
+            render();
+            return image.uploadedUrl;
+          });
+        }
+        return imagePayload(image, fullImageMaxEdge, "").then(function (payload) {
           return postJson("/upload-image", payload);
         }).then(function (result) {
           image.uploadedUrl = result.url;
+          return imagePayload(image, thumbImageMaxEdge, "thumb").then(function (thumbPayload) {
+            return postJson("/upload-image", thumbPayload);
+          });
+        }).then(function (thumbResult) {
+          image.thumbnailUrl = thumbResult.url;
           image.needsUpload = false;
           render();
           return image.uploadedUrl;
         });
       }
 
-      function imagePayload(image) {
+      function imagePayload(image, maxEdge, suffix) {
         if (!image || !image.file) {
           return Promise.reject(new Error("Elige una imagen antes de guardar."));
         }
-        return transformedFile(image).then(function (fileLike) {
+        return transformedFile(image, maxEdge, suffix).then(function (fileLike) {
           return fileToDataUrl(fileLike.blob).then(function (data) {
             return {
               name: fileLike.name,
@@ -1963,26 +1993,29 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         });
       }
 
-      function transformedFile(image) {
-        var needsTransform = image.cropMode || image.rotation !== 0;
-        if (!needsTransform) {
+      function transformedFile(image, maxEdge, suffix) {
+        if (isPassthroughImage(image)) {
+          if (image.cropMode || image.rotation !== 0) {
+            return Promise.reject(new Error("Recortar y girar solo estan disponibles para imagenes fijas."));
+          }
           return Promise.resolve({
             blob: image.file,
-            name: uniqueImageName(image.name, image.type),
+            name: uniqueImageName(image.name, image.type, suffix),
           });
         }
-        if (image.type === "image/svg+xml" || image.type === "image/gif") {
-          return Promise.reject(new Error("Recortar y girar solo estan disponibles para imagenes fijas."));
-        }
-        return drawTransformedImage(image.file, image.rotation, image.cropMode).then(function (blob) {
+        return drawTransformedImage(image.file, image.rotation, image.cropMode, maxEdge).then(function (blob) {
           return {
             blob: blob,
-            name: uniqueImageName(image.name, blob.type),
+            name: uniqueImageName(image.name, blob.type, suffix),
           };
         });
       }
 
-      function drawTransformedImage(file, angle, cropSquare) {
+      function isPassthroughImage(image) {
+        return image.type === "image/svg+xml" || image.type === "image/gif";
+      }
+
+      function drawTransformedImage(file, angle, cropSquare, maxEdge) {
         return loadImage(file).then(function (img) {
           var sourceWidth = img.naturalWidth || img.width;
           var sourceHeight = img.naturalHeight || img.height;
@@ -2000,10 +2033,14 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           var normalized = ((angle % 360) + 360) % 360;
           var swaps = normalized === 90 || normalized === 270;
           var canvas = document.createElement("canvas");
-          canvas.width = swaps ? sh : sw;
-          canvas.height = swaps ? sw : sh;
+          var targetWidth = swaps ? sh : sw;
+          var targetHeight = swaps ? sw : sh;
+          var scale = Math.min(1, Number(maxEdge || fullImageMaxEdge) / Math.max(targetWidth, targetHeight));
+          canvas.width = Math.max(1, Math.round(targetWidth * scale));
+          canvas.height = Math.max(1, Math.round(targetHeight * scale));
           var ctx = canvas.getContext("2d");
           ctx.translate(canvas.width / 2, canvas.height / 2);
+          ctx.scale(scale, scale);
           ctx.rotate(normalized * Math.PI / 180);
           ctx.drawImage(img, sx, sy, sw, sh, -sw / 2, -sh / 2, sw, sh);
           URL.revokeObjectURL(img.src);
@@ -2055,9 +2092,12 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         return siteOrigin + (url.charAt(0) === "/" ? url : "/" + url);
       }
 
-      function uniqueImageName(name, mime) {
+      function uniqueImageName(name, mime, suffix) {
         var ext = extensionFor(mime, name);
         var base = slugify(name.replace(/\\.[^.]+$/, "")) || "image";
+        if (suffix) {
+          base += "-" + slugify(suffix);
+        }
         return base + "-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7) + ext;
       }
 

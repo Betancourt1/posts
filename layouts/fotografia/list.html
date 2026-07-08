@@ -45,11 +45,13 @@
       {{ $isHidden := partial "is_hidden.html" . }}
       {{ if not $isHidden }}
         {{ $image := .Params.image }}
+        {{ $thumb := .Params.thumbnail }}
         {{ $imageCount := 0 }}
         {{ with .Params.images }}
           {{ $imageCount = len . }}
           {{ with index . 0 }}
             {{ $image = index . "src" }}
+            {{ $thumb = or (index . "thumb") (index . "thumbnail") $image }}
           {{ end }}
         {{ end }}
         {{ if not $image }}
@@ -58,16 +60,27 @@
             {{ $image = replaceRE `^!\[[^\]]*\]\(([^)\s]+).*` "$1" (index $matches 0) }}
           {{ end }}
         {{ end }}
-        {{ $imageSrc := $image }}
+        {{ $cardImage := or $thumb $image }}
+        {{ $imageSrc := $cardImage }}
         {{ if and $imageSrc (hasPrefix $imageSrc "/") }}
           {{ $imageSrc = partial "admin_href.html" (dict "page" . "href" $imageSrc) }}
+        {{ end }}
+        {{ $fullImageSrc := $image }}
+        {{ if and $fullImageSrc (hasPrefix $fullImageSrc "/") }}
+          {{ $fullImageSrc = partial "admin_href.html" (dict "page" . "href" $fullImageSrc) }}
         {{ end }}
         {{ $alt := or .Params.image_alt .Title }}
         {{ $caption := or .Params.caption .Params.summary }}
         <article class="photo-card">
           <a class="photo-card-image" href="{{ .RelPermalink }}" aria-label="{{ .Title }}">
             {{ if $imageSrc }}
-              <img src="{{ $imageSrc | safeURL }}" alt="{{ $alt }}" loading="lazy" decoding="async">
+              <img
+                src="{{ $imageSrc | safeURL }}"
+                {{ if and $fullImageSrc (ne $fullImageSrc $imageSrc) }}srcset="{{ $imageSrc | safeURL }} 900w, {{ $fullImageSrc | safeURL }} 2400w" sizes="(min-width: 900px) 25vw, 50vw"{{ end }}
+                alt="{{ $alt }}"
+                loading="lazy"
+                decoding="async"
+              >
               {{ if gt $imageCount 1 }}
                 <span class="photo-card-count">{{ $imageCount }} imagenes</span>
               {{ end }}

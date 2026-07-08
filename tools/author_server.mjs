@@ -321,7 +321,7 @@ function formatYamlValue(value, key) {
 }
 
 function formatMarkdown(frontMatter, body) {
-  const priority = ["title", "date", "draft", "tags", "summary", "description", "image", "image_alt", "caption", "images", "hidden"];
+  const priority = ["title", "date", "draft", "tags", "summary", "description", "image", "thumbnail", "image_alt", "caption", "images", "hidden"];
   const keys = [
     ...priority.filter((key) => Object.prototype.hasOwnProperty.call(frontMatter, key)),
     ...Object.keys(frontMatter)
@@ -501,6 +501,7 @@ function createPost(payload) {
     ? `${notebook.relativePath}/${year}/${MONTHS_ES[Number(month) - 1]}/${slug}.md`
     : `${notebook.relativePath}/${slug}.md`;
   const image = String(payload.image || "").trim();
+  const thumbnail = String(payload.thumbnail || payload.thumb || "").trim();
   const imageAlt = String(payload.imageAlt || payload.image_alt || title).trim();
   const caption = String(payload.caption || "").trim();
   const images = imageItemsFromPayload(payload.images);
@@ -519,6 +520,9 @@ function createPost(payload) {
 
   if (image) {
     frontMatter.image = image;
+    if (thumbnail) {
+      frontMatter.thumbnail = thumbnail;
+    }
     frontMatter.image_alt = imageAlt || title;
 
     if (caption) {
@@ -551,6 +555,7 @@ function imageItemsFromPayload(value) {
 
       return {
         src,
+        thumb: String(item?.thumb || item?.thumbnail || "").trim(),
         alt: String(item?.alt || item?.image_alt || "").trim(),
         caption: String(item?.caption || "").trim(),
       };

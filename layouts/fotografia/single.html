@@ -2,9 +2,14 @@
   {{ $isHidden := partial "is_hidden.html" . }}
   {{ $excludeFromSearch := or $isHidden (eq .Params.search false) }}
   {{ $image := .Params.image }}
+  {{ $thumb := .Params.thumbnail }}
   {{ $imageSrc := $image }}
   {{ if and $imageSrc (hasPrefix $imageSrc "/") }}
     {{ $imageSrc = partial "admin_href.html" (dict "page" . "href" $imageSrc) }}
+  {{ end }}
+  {{ $thumbSrc := $thumb }}
+  {{ if and $thumbSrc (hasPrefix $thumbSrc "/") }}
+    {{ $thumbSrc = partial "admin_href.html" (dict "page" . "href" $thumbSrc) }}
   {{ end }}
   {{ $alt := or .Params.image_alt .Title }}
   {{ $caption := .Params.caption }}
@@ -46,12 +51,22 @@
           {{ if and $itemSrc (hasPrefix $itemSrc "/") }}
             {{ $itemSrc = partial "admin_href.html" (dict "page" $ "href" $itemSrc) }}
           {{ end }}
+          {{ $itemThumb := or (index $item "thumb") (index $item "thumbnail") }}
+          {{ if and $itemThumb (hasPrefix $itemThumb "/") }}
+            {{ $itemThumb = partial "admin_href.html" (dict "page" $ "href" $itemThumb) }}
+          {{ end }}
           {{ $itemAlt := or (index $item "alt") $.Title }}
           {{ $itemCaption := index $item "caption" }}
           {{ if $itemSrc }}
             <figure class="photo-post-figure">
               <a class="post-image-link" href="{{ $itemSrc | safeURL }}" target="_blank" rel="noopener">
-                <img src="{{ $itemSrc | safeURL }}" alt="{{ $itemAlt }}" decoding="async" {{ if eq $index 0 }}fetchpriority="high"{{ else }}loading="lazy"{{ end }}>
+                <img
+                  src="{{ $itemSrc | safeURL }}"
+                  {{ if and $itemThumb (ne $itemThumb $itemSrc) }}srcset="{{ $itemThumb | safeURL }} 900w, {{ $itemSrc | safeURL }} 2400w" sizes="min(100vw, 72rem)"{{ end }}
+                  alt="{{ $itemAlt }}"
+                  decoding="async"
+                  {{ if eq $index 0 }}fetchpriority="high"{{ else }}loading="lazy"{{ end }}
+                >
               </a>
               {{ with $itemCaption }}
                 <figcaption>{{ . }}</figcaption>
@@ -64,7 +79,13 @@
       {{ if $imageSrc }}
         <figure class="photo-post-figure">
           <a class="post-image-link" href="{{ $imageSrc | safeURL }}" target="_blank" rel="noopener">
-            <img src="{{ $imageSrc | safeURL }}" alt="{{ $alt }}" decoding="async" fetchpriority="high">
+            <img
+              src="{{ $imageSrc | safeURL }}"
+              {{ if and $thumbSrc (ne $thumbSrc $imageSrc) }}srcset="{{ $thumbSrc | safeURL }} 900w, {{ $imageSrc | safeURL }} 2400w" sizes="min(100vw, 72rem)"{{ end }}
+              alt="{{ $alt }}"
+              decoding="async"
+              fetchpriority="high"
+            >
           </a>
           {{ with $caption }}
             <figcaption>{{ . }}</figcaption>

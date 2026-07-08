@@ -123,7 +123,7 @@ function formatYamlValue(value, key) {
 }
 
 export function formatMarkdown(frontMatter, body) {
-  const priority = ["title", "date", "draft", "tags", "summary", "description", "image", "image_alt", "caption", "images", "hidden"];
+  const priority = ["title", "date", "draft", "tags", "summary", "description", "image", "thumbnail", "image_alt", "caption", "images", "hidden"];
   const keys = [
     ...priority.filter((key) => Object.prototype.hasOwnProperty.call(frontMatter, key)),
     ...Object.keys(frontMatter)
