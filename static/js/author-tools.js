@@ -67,6 +67,11 @@
         return;
       }
 
+      if (action === "add-image-post") {
+        openPostForm(button, "image");
+        return;
+      }
+
       if (action === "edit-notebook") {
         editCurrentNotebook(button);
         return;
@@ -241,7 +246,7 @@
     });
   }
 
-  function openPostForm(trigger) {
+  function openPostForm(trigger, format) {
     var notebook = trigger && trigger.dataset.notebook
       ? trigger.dataset.notebook
       : state.currentNotebook
@@ -251,6 +256,7 @@
     openEditor({
       mode: "new",
       notebook: notebook,
+      format: format,
     });
   }
 
@@ -318,6 +324,9 @@
     }
     if (params.notebook) {
       query.set("notebook", params.notebook);
+    }
+    if (params.format) {
+      query.set("format", params.format);
     }
 
     window.location.assign(apiBase + "/editor?" + query.toString());

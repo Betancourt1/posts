@@ -9,10 +9,19 @@
             type="button"
             class="author-action-button"
             data-author-action="add-post"
-            aria-label="{{ if $isEnglish }}New photo post{{ else }}Nueva foto{{ end }}"
-            title="{{ if $isEnglish }}New photo post{{ else }}Nueva foto{{ end }}"
+            aria-label="{{ if $isEnglish }}New post{{ else }}Nuevo post{{ end }}"
+            title="{{ if $isEnglish }}New post{{ else }}Nuevo post{{ end }}"
           >
             {{ partial "author_icon.html" "file-plus" }}
+          </button>
+          <button
+            type="button"
+            class="author-action-button"
+            data-author-action="add-image-post"
+            aria-label="{{ if $isEnglish }}New image post{{ else }}Nueva publicación con imagen{{ end }}"
+            title="{{ if $isEnglish }}New image post{{ else }}Nueva publicación con imagen{{ end }}"
+          >
+            {{ partial "author_icon.html" "image-plus" }}
           </button>
           <button
             type="button"

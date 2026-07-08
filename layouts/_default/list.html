@@ -17,6 +17,15 @@
           <button
             type="button"
             class="author-action-button"
+            data-author-action="add-image-post"
+            aria-label="{{ if $isEnglish }}New image post{{ else }}Nueva publicación con imagen{{ end }}"
+            title="{{ if $isEnglish }}New image post{{ else }}Nueva publicación con imagen{{ end }}"
+          >
+            {{ partial "author_icon.html" "image-plus" }}
+          </button>
+          <button
+            type="button"
+            class="author-action-button"
             data-author-action="edit-notebook"
             aria-label="{{ if $isEnglish }}Edit notebook{{ else }}Editar notebook{{ end }}"
             title="{{ if $isEnglish }}Edit notebook{{ else }}Editar notebook{{ end }}"

@@ -162,6 +162,10 @@ export async function createPost(env, payload) {
   const path = isWritingNotebook
     ? `${notebook}/${year}/${MONTHS_ES[Number(month) - 1]}/${slug}.md`
     : `${notebook}/${slug}.md`;
+  const image = String(payload.image || "").trim();
+  const imageAlt = String(payload.imageAlt || payload.image_alt || title).trim();
+  const caption = String(payload.caption || "").trim();
+  const body = String(payload.body || (image ? "" : `# ${title}\n`));
   const existing = await readGitHubFile(env, path);
 
   if (existing) {
@@ -180,9 +184,25 @@ export async function createPost(env, payload) {
     frontMatter.hidden = true;
   }
 
+  if (notebook.endsWith("/fotografia") && frontMatter.tags.length === 0) {
+    frontMatter.tags = ["fotografia"];
+  }
+
+  if (image) {
+    frontMatter.image = image;
+    frontMatter.image_alt = imageAlt || title;
+
+    if (caption) {
+      frontMatter.caption = caption;
+    }
+    if (!frontMatter.summary && caption) {
+      frontMatter.summary = caption;
+    }
+  }
+
   await writeGitHubFile(env, {
     path,
-    content: formatMarkdown(frontMatter, String(payload.body || `# ${title}\n`)),
+    content: formatMarkdown(frontMatter, body),
     message: commitMessage("Crea", path),
   });
 

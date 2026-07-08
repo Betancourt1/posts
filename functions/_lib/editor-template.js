@@ -864,7 +864,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       </label>
       <div class="photo-fields" id="photo-fields" hidden>
         <label class="field">
-          <span>Photo image</span>
+          <span>Post image</span>
           <input id="image" type="text" placeholder="/uploads/2026/07/photo.jpg" />
         </label>
         <img class="photo-preview" id="photo-preview" alt="" />
@@ -907,6 +907,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       var params = new URLSearchParams(window.location.search);
       var mode = params.get("mode") || "new";
       var kind = params.get("kind") || "post";
+      var postFormat = params.get("format") || "";
       var theme = params.get("theme") === "light" ? "light" : "dark";
       var siteOrigin = params.get("site") || ${JSON.stringify(SITE_ORIGIN)};
       var sourcePath = params.get("path") || "";
@@ -1258,7 +1259,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
               }
               updatePhotoPreview();
               markContentEdited();
-              setStatus("Photo image set " + result.url);
+              setStatus("Post image set " + result.url);
               return;
             }
 
@@ -1633,15 +1634,14 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
 
       function isPhotoEditor() {
-        return kind !== "notebook" && (els.notebook.value === "content_es/fotografia" ||
-          sourcePath.indexOf("content_es/fotografia/") === 0 ||
+        return kind !== "notebook" && (postFormat === "image" ||
           Boolean(frontMatter.image));
       }
 
       function syncPhotoEditor() {
         var photo = isPhotoEditor();
         els.photoFields.hidden = !photo;
-        if (photo && mode === "new" && !els.tags.value.trim()) {
+        if (photo && mode === "new" && els.notebook.value === "content_es/fotografia" && !els.tags.value.trim()) {
           els.tags.value = "fotografia";
         }
         updatePhotoPreview();

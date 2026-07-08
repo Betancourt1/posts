@@ -1,6 +1,13 @@
 {{ define "main" }}
   {{ $isHidden := partial "is_hidden.html" . }}
   {{ $excludeFromSearch := or $isHidden (eq .Params.search false) }}
+  {{ $image := .Params.image }}
+  {{ $imageSrc := $image }}
+  {{ if and $imageSrc (hasPrefix $imageSrc "/") }}
+    {{ $imageSrc = partial "admin_href.html" (dict "page" . "href" $imageSrc) }}
+  {{ end }}
+  {{ $alt := or .Params.image_alt .Title }}
+  {{ $caption := .Params.caption }}
   <article class="post" {{ if $excludeFromSearch }}data-pagefind-ignore="all"{{ else }}data-pagefind-body{{ end }}>
     <header class="post-header">
       <div class="post-header-top" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 8px;">
@@ -60,6 +67,16 @@
         {{ end }}
       {{ end }}
     </header>
+    {{ if $imageSrc }}
+      <figure class="post-featured-image">
+        <a class="post-image-link" href="{{ $imageSrc | safeURL }}" target="_blank" rel="noopener">
+          <img src="{{ $imageSrc | safeURL }}" alt="{{ $alt }}" decoding="async" fetchpriority="high">
+        </a>
+        {{ with $caption }}
+          <figcaption>{{ . }}</figcaption>
+        {{ end }}
+      </figure>
+    {{ end }}
     <div class="post-body">
       {{ .Content }}
     </div>

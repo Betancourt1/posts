@@ -873,6 +873,26 @@ body.graph-maximized {
   text-align: center;
 }
 
+.post-featured-image {
+  margin: 1.2rem 0 1.6rem;
+  max-width: min(100%, 72rem);
+}
+
+.post-featured-image img {
+  display: block;
+  width: 100%;
+  max-height: min(78vh, 920px);
+  object-fit: contain;
+  background: var(--bg-soft);
+}
+
+.post-featured-image figcaption {
+  margin-top: 0.55rem;
+  color: var(--ink-muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
 .photo-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
