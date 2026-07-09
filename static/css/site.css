@@ -415,7 +415,6 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   width: 1.05em;
   height: 1.05em;
   flex: 0 0 auto;
-  color: var(--accent);
   font-size: var(--nav-title-size);
   overflow: visible;
   position: relative;
@@ -2374,7 +2373,7 @@ html:not(.infra-mode) .post-body {
   align-items: center;
   justify-content: center;
   background: transparent !important;
-  color: var(--ink-dim);
+  color: var(--ink-dim) !important;
   cursor: pointer;
   font: inherit;
   font-size: 0;
@@ -2405,7 +2404,7 @@ html:not(.infra-mode) .post-body {
 
 .author-action-button:hover,
 .author-form button:hover {
-  color: var(--accent);
+  color: var(--accent) !important;
 }
 
 .author-form button:hover {
@@ -2417,7 +2416,7 @@ html:not(.infra-mode) .post-body {
 }
 
 .author-action-button--danger:hover {
-  color: #ff6b6b;
+  color: var(--accent) !important;
 }
 
 .author-action-button:active {
