@@ -1070,7 +1070,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
       .check {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) auto 2.75rem;
+        grid-template-columns: minmax(0, 1fr) 2.75rem;
         column-gap: 0.75rem;
         align-items: center;
         min-height: 3.1rem;
@@ -1081,15 +1081,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         grid-column: 1;
         grid-row: 1;
       }
-      .check-state {
-        grid-column: 2;
-        grid-row: 1;
-        color: var(--muted);
-        font-size: 0.78rem;
-        font-weight: 800;
-      }
       .check input {
-        grid-column: 3;
+        grid-column: 2;
         grid-row: 1;
         justify-self: end;
         width: 2.75rem;
@@ -1216,8 +1209,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <input id="tags" type="text" placeholder="ensayo, politica" />
       </label>
       <label class="check">
-        <span class="check-label">Publicacion</span>
-        <span class="check-state" id="draft-state">Borrador</span>
+        <span class="check-label">Publicado</span>
         <input id="draft" type="checkbox" />
       </label>
       <div class="photo-fields" id="photo-fields" hidden>
@@ -1245,15 +1237,13 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         </select>
       </label>
       <label class="check">
-        <span class="check-label">Visibilidad</span>
-        <span class="check-state" id="hidden-state">Visible</span>
+        <span class="check-label">Visible</span>
         <input id="hidden" type="checkbox" />
       </label>
       <div class="danger-zone" id="danger-zone" hidden>
         <h3>Peligro</h3>
         <label class="check">
           <span class="check-label">Eliminar imagenes adjuntas</span>
-          <span class="check-state" id="delete-attached-images-state">No</span>
           <input id="delete-attached-images" type="checkbox" />
         </label>
         <button type="button" class="danger-button" id="delete-page">${ICONS.trash}<span>Delete</span></button>
@@ -1325,12 +1315,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         viewMarkdown: document.getElementById("view-markdown"),
         summary: document.getElementById("summary"),
         draft: document.getElementById("draft"),
-        draftState: document.getElementById("draft-state"),
         hidden: document.getElementById("hidden"),
-        hiddenState: document.getElementById("hidden-state"),
         dangerZone: document.getElementById("danger-zone"),
         deleteAttachedImages: document.getElementById("delete-attached-images"),
-        deleteAttachedImagesState: document.getElementById("delete-attached-images-state"),
         deletePage: document.getElementById("delete-page"),
         undo: document.querySelector('[data-format="undo"]'),
         redo: document.querySelector('[data-format="redo"]'),
@@ -1421,12 +1408,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.deletePage.addEventListener("click", deleteCurrentPage);
         [els.draft, els.hidden].forEach(function (input) {
           input.addEventListener("change", function () {
-            syncSwitchLabels();
             markContentEdited();
           });
-        });
-        els.deleteAttachedImages.addEventListener("change", function () {
-          syncSwitchLabels();
         });
         window.addEventListener("resize", resizeEditorFields);
         window.addEventListener("keydown", function (event) {
@@ -1505,8 +1488,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.image.value = "";
         els.imageAlt.value = "";
         els.caption.value = "";
-        els.draft.checked = true;
-        els.hidden.checked = false;
+        els.draft.checked = false;
+        els.hidden.checked = true;
         savedSnapshot = currentSaveSnapshot();
         saveInProgress = false;
         saveFailed = false;
@@ -1516,7 +1499,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         syncPreviewButton();
         syncPhotoEditor();
         syncDeleteControls();
-        syncSwitchLabels();
         resizeEditorFields();
         syncMarkdownFromFields();
         focusEditorStart();
@@ -1536,8 +1518,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           els.image.value = frontMatter.image || "";
           els.imageAlt.value = frontMatter.image_alt || "";
           els.caption.value = frontMatter.caption || "";
-          els.draft.checked = frontMatter.draft === true;
-          els.hidden.checked = frontMatter.hidden === true;
+          els.draft.checked = frontMatter.draft !== true;
+          els.hidden.checked = frontMatter.hidden !== true;
           els.body.value = payload.body || "";
           els.path.textContent = payload.path || "";
           savedSnapshot = currentSaveSnapshot();
@@ -1549,7 +1531,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           syncPreviewButton();
           syncPhotoEditor();
           syncDeleteControls();
-          syncSwitchLabels();
           resizeEditorFields();
           syncMarkdownFromFields();
           focusEditorStart();
@@ -1597,8 +1578,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           date: els.date.value,
           tags: els.tags.value,
           summary: els.summary.value,
-          draft: els.draft.checked,
-          hidden: els.hidden.checked,
+          draft: !els.draft.checked,
+          hidden: !els.hidden.checked,
           body: isPhotoEditor() && els.image.value ? els.body.value : (els.body.value || "# " + els.title.value + "\\n"),
         };
 
@@ -1618,13 +1599,13 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           date: els.date.value,
         });
 
-        if (els.draft.checked) {
+        if (!els.draft.checked) {
           nextFrontMatter.draft = true;
         } else {
           delete nextFrontMatter.draft;
         }
 
-        if (els.hidden.checked) {
+        if (!els.hidden.checked) {
           nextFrontMatter.hidden = true;
         } else {
           delete nextFrontMatter.hidden;
@@ -2158,8 +2139,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           image: els.image.value,
           imageAlt: els.imageAlt.value,
           caption: els.caption.value,
-          draft: els.draft.checked,
-          hidden: els.hidden.checked,
+          draft: !els.draft.checked,
+          hidden: !els.hidden.checked,
           body: els.body.value,
         });
       }
@@ -2285,12 +2266,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.dangerZone.hidden = !canDeletePage;
         els.deletePage.innerHTML = '${ICONS.trash}<span>' + (kind === "notebook" ? "Eliminar notebook" : "Eliminar post") + '</span>';
         els.deleteImage.hidden = !image || !isUploadUrl(image);
-      }
-
-      function syncSwitchLabels() {
-        els.draftState.textContent = els.draft.checked ? "Borrador" : "Publicado";
-        els.hiddenState.textContent = els.hidden.checked ? "Oculto" : "Visible";
-        els.deleteAttachedImagesState.textContent = els.deleteAttachedImages.checked ? "Si" : "No";
       }
 
       function syncRouteControls(hasRoute) {
