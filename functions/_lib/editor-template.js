@@ -131,10 +131,14 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       font: inherit;
       min-height: 2.35rem;
       padding: 0.4rem 0.72rem;
+      transition: border-color 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
     }
     button:hover {
       border-color: var(--accent);
       color: var(--accent);
+    }
+    button:active {
+      transform: scale(0.97);
     }
     .button-icon {
       width: 1.15rem;
@@ -407,6 +411,32 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       border-color: var(--danger);
       color: var(--danger);
       background: transparent;
+    }
+    .danger-button.is-pressed {
+      animation: editor-danger-press 220ms ease;
+    }
+    .danger-button.is-busy {
+      cursor: progress;
+      opacity: 0.88;
+      transform: scale(0.98);
+    }
+    @keyframes editor-danger-press {
+      0% { transform: scale(1); }
+      48% { transform: scale(0.97); }
+      100% { transform: scale(1); }
+    }
+    @media (hover: none), (pointer: coarse) {
+      .danger-button.is-pressed {
+        box-shadow: 0 0 0 0.38rem rgba(255, 107, 107, 0.12);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      button {
+        transition: none;
+      }
+      .danger-button.is-pressed {
+        animation: none;
+      }
     }
     .image-delete-button {
       min-height: 2rem;
@@ -2268,6 +2298,34 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.deleteImage.hidden = !image || !isUploadUrl(image);
       }
 
+      function pulseButton(button) {
+        if (!button) return;
+        button.classList.remove("is-pressed");
+        void button.offsetWidth;
+        button.classList.add("is-pressed");
+        window.setTimeout(function () {
+          button.classList.remove("is-pressed");
+        }, 220);
+      }
+
+      function setDeleteButtonBusy(label) {
+        var labelNode = els.deletePage.querySelector("span");
+        var oldText = labelNode ? labelNode.textContent : "";
+        els.deletePage.classList.add("is-busy");
+        els.deletePage.setAttribute("aria-busy", "true");
+        if (labelNode) {
+          labelNode.textContent = label;
+        }
+
+        return function () {
+          els.deletePage.classList.remove("is-busy");
+          els.deletePage.removeAttribute("aria-busy");
+          if (labelNode) {
+            labelNode.textContent = oldText;
+          }
+        };
+      }
+
       function syncRouteControls(hasRoute) {
         els.slug.readOnly = true;
         els.slugField.hidden = !hasRoute;
@@ -2330,6 +2388,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
 
       function deleteCurrentPage() {
         if (mode !== "edit" || !sourcePath) return;
+        pulseButton(els.deletePage);
         var label = kind === "notebook" ? "notebook" : "post";
         var confirmation = window.prompt("Escribe BORRAR para eliminar este " + label + ".");
         if (confirmation !== "BORRAR") {
@@ -2339,6 +2398,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
 
         var endpoint = kind === "notebook" ? "/api/delete-notebook" : "/api/delete-page";
         var path = kind === "notebook" ? notebookPathFromSource() : sourcePath;
+        var clearBusy = setDeleteButtonBusy("Eliminando...");
         els.deletePage.disabled = true;
         setStatus("Deleting");
         postJson(endpoint, {
@@ -2351,6 +2411,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           setStatus(error.message, true);
         }).finally(function () {
           els.deletePage.disabled = false;
+          clearBusy();
         });
       }
 

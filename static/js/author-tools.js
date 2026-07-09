@@ -24,6 +24,15 @@
     imageInput: document.getElementById("author-image-input"),
     toast: document.getElementById("author-toast"),
   };
+  var actionFeedback = {
+    "add-notebook": "Nuevo notebook",
+    "add-post": "Abriendo editor",
+    "add-image-post": "Abriendo imagen",
+    "edit-notebook": "Abriendo notebook",
+    "edit-post": "Abriendo post",
+    "delete-post": "Preparando eliminacion",
+    "delete-notebook": "Preparando eliminacion",
+  };
 
   bind();
   boot();
@@ -55,45 +64,52 @@
   function handleAuthorAction(event) {
     var button = event.currentTarget;
     var action = button.dataset.authorAction;
+    var clearBusy = null;
+
+    pulseButton(button);
 
     if (action === "add-notebook") {
       openNotebookForm();
       return;
     }
 
+    clearBusy = setIconBusy(button, actionFeedback[action]);
+
     ensureNotebooks().then(function () {
       if (action === "add-post") {
-        openPostForm(button);
-        return;
+        return openPostForm(button);
       }
 
       if (action === "add-image-post") {
-        openImagePostForm(button);
-        return;
+        return openImagePostForm(button);
       }
 
       if (action === "edit-notebook") {
-        editCurrentNotebook(button);
-        return;
+        return editCurrentNotebook(button);
       }
 
       if (action === "edit-post") {
-        editPost(button);
-        return;
+        return editPost(button);
       }
 
       if (action === "delete-post") {
-        openDeletePostForm(button);
-        return;
+        return openDeletePostForm(button);
       }
 
       if (action === "delete-notebook") {
-        openDeleteNotebookForm(button);
-        return;
+        return openDeleteNotebookForm(button);
       }
 
       toast("Unknown author action.");
+      return false;
+    }).then(function (keepBusy) {
+      if (!keepBusy && clearBusy) {
+        clearBusy();
+      }
     }).catch(function (error) {
+      if (clearBusy) {
+        clearBusy();
+      }
       toast(error.message);
     });
   }
@@ -172,6 +188,71 @@
     }, 3600);
   }
 
+  function pulseButton(button) {
+    if (!button) {
+      return;
+    }
+
+    button.classList.remove("is-pressed");
+    void button.offsetWidth;
+    button.classList.add("is-pressed");
+    window.setTimeout(function () {
+      button.classList.remove("is-pressed");
+    }, 220);
+  }
+
+  function setIconBusy(button, label) {
+    if (!button) {
+      return null;
+    }
+
+    var oldLabel = button.getAttribute("aria-label");
+    var oldTitle = button.getAttribute("title");
+    button.classList.add("is-busy");
+    button.setAttribute("aria-busy", "true");
+    if (label) {
+      button.setAttribute("aria-label", label);
+      button.setAttribute("title", label);
+    }
+
+    return function () {
+      button.classList.remove("is-busy");
+      button.removeAttribute("aria-busy");
+      if (oldLabel) {
+        button.setAttribute("aria-label", oldLabel);
+      } else {
+        button.removeAttribute("aria-label");
+      }
+      if (oldTitle) {
+        button.setAttribute("title", oldTitle);
+      } else {
+        button.removeAttribute("title");
+      }
+    };
+  }
+
+  function setSubmitBusy(form, label) {
+    var button = form && form.querySelector('button[type="submit"]');
+
+    if (!button) {
+      return function () {};
+    }
+
+    var oldText = button.textContent;
+    var wasDisabled = button.disabled;
+    button.disabled = true;
+    button.classList.add("is-busy");
+    button.setAttribute("aria-busy", "true");
+    button.textContent = label;
+
+    return function () {
+      button.disabled = wasDisabled;
+      button.classList.remove("is-busy");
+      button.removeAttribute("aria-busy");
+      button.textContent = oldText;
+    };
+  }
+
   function loadNotebooks() {
     return request("/api/notebooks").then(function (payload) {
       state.notebooks = payload.notebooks || [];
@@ -238,6 +319,7 @@
     bindSlug(titleInput, slugInput, "-");
     form.addEventListener("submit", function (event) {
       event.preventDefault();
+      var clearBusy = setSubmitBusy(form, "Creando...");
       postJson("/api/create-notebook", {
         lang: form.elements.lang.value,
         title: titleInput.value,
@@ -252,6 +334,8 @@
         openWhenReady(result.url);
       }).catch(function (error) {
         toast(error.message);
+      }).finally(function () {
+        clearBusy();
       });
     });
   }
@@ -268,6 +352,7 @@
       notebook: notebook,
       format: format,
     });
+    return true;
   }
 
   function openImagePostForm(trigger) {
@@ -280,6 +365,7 @@
     openImageEditor({
       notebook: notebook,
     });
+    return true;
   }
 
   function editCurrentNotebook(trigger) {
@@ -293,7 +379,7 @@
 
     if (!notebook) {
       toast("No current notebook found.");
-      return;
+      return false;
     }
 
     openEditor({
@@ -301,6 +387,7 @@
       kind: "notebook",
       path: notebook.indexPath,
     });
+    return true;
   }
 
   function editPost(trigger) {
@@ -308,12 +395,12 @@
 
     if (!path) {
       toast("No source file for this page.");
-      return;
+      return false;
     }
 
     if (path.endsWith("_index.md")) {
       toast("This is a notebook page. Use Edit Current Notebook.");
-      return;
+      return false;
     }
 
     openEditor({
@@ -321,6 +408,7 @@
       kind: "post",
       path: path,
     });
+    return true;
   }
 
   function openDeletePostForm(trigger) {
@@ -328,15 +416,15 @@
 
     if (!path) {
       toast("No source file for this page.");
-      return;
+      return false;
     }
 
     if (path.endsWith("_index.md")) {
       toast("This is a notebook page. Use Delete Notebook.");
-      return;
+      return false;
     }
 
-    request("/api/page?path=" + encodeURIComponent(path)).then(function (payload) {
+    return request("/api/page?path=" + encodeURIComponent(path)).then(function (payload) {
       var frontMatter = payload.frontMatter || {};
       openDeleteForm({
         type: "page",
@@ -346,8 +434,6 @@
         label: "post",
         imageCopy: "Borrar tambien imagenes adjuntas a este post.",
       });
-    }).catch(function (error) {
-      toast(error.message);
     });
   }
 
@@ -365,10 +451,10 @@
 
     if (!notebook) {
       toast("No current notebook found.");
-      return;
+      return false;
     }
 
-    request("/api/page?path=" + encodeURIComponent(notebook.indexPath)).then(function (payload) {
+    return request("/api/page?path=" + encodeURIComponent(notebook.indexPath)).then(function (payload) {
       var frontMatter = payload.frontMatter || {};
       openDeleteForm({
         type: "notebook",
@@ -378,8 +464,6 @@
         label: "notebook",
         imageCopy: "Borrar tambien imagenes referenciadas por sus paginas.",
       });
-    }).catch(function (error) {
-      toast(error.message);
     });
   }
 
@@ -408,6 +492,7 @@
         return;
       }
 
+      var clearBusy = setSubmitBusy(form, "Eliminando...");
       postJson(options.endpoint, {
         path: options.path,
         deleteImages: form.elements.deleteImages.checked,
@@ -417,6 +502,8 @@
         window.location.href = contentUrl(result.url || fallbackContentUrl());
       }).catch(function (error) {
         toast(error.message);
+      }).finally(function () {
+        clearBusy();
       });
     });
   }
@@ -555,6 +642,7 @@
   }
 
   function saveNewPost(form) {
+    var clearBusy = setSubmitBusy(form, "Creando...");
     postJson("/api/create-post", {
       notebook: form.elements.notebook.value,
       title: form.elements.title.value,
@@ -571,6 +659,8 @@
       openWhenReady(result.url);
     }).catch(function (error) {
       toast(error.message);
+    }).finally(function () {
+      clearBusy();
     });
   }
 
