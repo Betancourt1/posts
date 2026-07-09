@@ -16,8 +16,8 @@
 
   var MIN_SCROLLABLE_DISTANCE = 16;
   var POINTER_SAMPLE_COUNT = 96;
-  var SEGMENT_LENGTH_DESKTOP = 140;
-  var SEGMENT_LENGTH_MOBILE = 112;
+  var SEGMENT_LENGTH_DESKTOP = 70;
+  var SEGMENT_LENGTH_MOBILE = 56;
 
   function clamp(value, min, max) {
     return Math.min(Math.max(value, min), max);
@@ -78,7 +78,7 @@
     var edge = isMobile ? 4 : 8;
     var radius = isMobile ? 26 : 40;
     var topRun = isMobile ? 260 : 420;
-    var right = getRightEdge(width, edge, isMobile);
+    var right = getRightEdge(width, edge);
     var top = edge;
     var bottom = height - edge;
     var startX = Math.max(edge, right - topRun);
@@ -98,22 +98,8 @@
     };
   }
 
-  function getRightEdge(width, edge, isMobile) {
-    if (isMobile) {
-      return width - edge;
-    }
-
-    var layout = document.querySelector(".layout");
-    if (!layout) {
-      return width - edge;
-    }
-
-    var rect = layout.getBoundingClientRect();
-    var style = window.getComputedStyle(layout);
-    var paddingRight = Number(String(style.paddingRight).replace("px", "")) || 0;
-    var layoutRight = rect.right - paddingRight;
-
-    return clamp(Math.round(layoutRight), Math.round(width * 0.55), width - edge);
+  function getRightEdge(width, edge) {
+    return width - edge;
   }
 
   function pathFor(geometry) {
