@@ -451,13 +451,13 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 .nav-toggle {
   display: none;
   align-items: center;
-  justify-content: space-between;
-  flex: 1 1 auto;
+  justify-content: flex-start;
+  gap: 0.45rem;
+  flex: 0 1 auto;
   min-width: 0;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 0.45rem 0.6rem;
-  background: transparent;
+  border: 0;
+  padding: 0.25rem 0;
+  background: none;
   color: var(--heading);
   font: inherit;
   font-size: 1.05rem;
@@ -482,12 +482,14 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 }
 
 .nav-toggle:hover {
-  background: rgba(78,204,163,.08);
+  color: var(--accent);
 }
 
 .nav-toggle:focus-visible {
-  outline: 2px dashed var(--accent);
-  outline-offset: 2px;
+  outline: none;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
 }
 
 .nav-list {
@@ -1263,7 +1265,7 @@ tr:nth-child(even) { background: var(--table-stripe); }
   font-size: 0.9rem;
 }
 
-button:not(.graph-tool), .button:not(.graph-tool), a.button {
+button:not(.graph-tool):not(.nav-toggle), .button:not(.graph-tool), a.button {
   display: inline-block;
   border: 1px solid var(--accent);
   border-radius: 8px;
@@ -1274,12 +1276,12 @@ button:not(.graph-tool), .button:not(.graph-tool), a.button {
   cursor: pointer;
 }
 
-button:not(.graph-tool):hover, .button:not(.graph-tool):hover, a.button:hover {
+button:not(.graph-tool):not(.nav-toggle):hover, .button:not(.graph-tool):hover, a.button:hover {
   background: rgba(78,204,163,.08);
   color: var(--accent-2);
 }
 
-button:not(.graph-tool):focus-visible, .button:not(.graph-tool):focus-visible, a.button:focus-visible {
+button:not(.graph-tool):not(.nav-toggle):focus-visible, .button:not(.graph-tool):focus-visible, a.button:focus-visible {
   outline: 2px dashed var(--accent);
   outline-offset: 3px;
 }
