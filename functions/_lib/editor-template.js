@@ -18,6 +18,7 @@ const ICONS = Object.freeze({
   image: iconSvg(`<rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />`),
   settings: iconSvg(`<path d="M9.7 4.1a2.3 2.3 0 0 1 4.6 0 2.3 2.3 0 0 0 3.3 1.9 2.3 2.3 0 0 1 2.3 4 2.3 2.3 0 0 0 0 3.8 2.3 2.3 0 0 1-2.3 4 2.3 2.3 0 0 0-3.3 1.9 2.3 2.3 0 0 1-4.6 0 2.3 2.3 0 0 0-3.3-1.9 2.3 2.3 0 0 1-2.3-4 2.3 2.3 0 0 0 0-3.8 2.3 2.3 0 0 1 2.3-4 2.3 2.3 0 0 0 3.3-1.9" /><circle cx="12" cy="12" r="3" />`),
   trash: iconSvg(`<path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" />`),
+  copy: iconSvg(`<rect width="14" height="14" x="8" y="8" rx="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />`),
 });
 
 export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "/api" } = {}) {
@@ -168,41 +169,70 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     .paper {
       width: min(var(--writer-width), 100%);
     }
-    .view-toggle {
-      display: inline-grid;
-      grid-template-columns: auto auto auto;
+    .markdown-toggle {
+      position: relative;
+      display: inline-flex;
       align-items: center;
-      gap: 0.25rem;
-      margin-bottom: 1.2rem;
-      padding: 0.18rem;
-      border: 1px solid var(--line);
-      border-radius: 0.5rem;
-      background: var(--panel);
+      justify-content: center;
+      width: 2.35rem;
+      min-width: 2.35rem;
+      border: 0 !important;
+      background: transparent !important;
       color: var(--muted);
-      font-size: 0.78rem;
-      font-weight: 700;
+      padding: 0 !important;
+      transform: translateZ(0);
+      transition: color 0.16s ease, transform 0.16s ease;
     }
-    .view-toggle span {
-      padding: 0 0.45rem;
+    .markdown-toggle::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 0.22rem;
+      width: 0.28rem;
+      height: 0.28rem;
+      border-radius: 999px;
+      background: currentColor;
+      opacity: 0;
+      transform: translateX(-50%) scale(0.45);
+      transition: opacity 0.16s ease, transform 0.16s ease;
     }
-    .view-toggle button {
-      min-height: 2rem;
+    .markdown-toggle:hover,
+    .markdown-toggle[aria-pressed="true"] {
+      color: var(--accent);
+    }
+    .markdown-toggle[aria-pressed="true"] {
+      animation: markdown-toggle-pop 0.18s ease;
+    }
+    .markdown-toggle[aria-pressed="true"]::after {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+    }
+    @keyframes markdown-toggle-pop {
+      0% { transform: scale(0.94) rotate(-6deg); }
+      55% { transform: scale(1.08) rotate(4deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+    .markdown-input {
+      display: none;
+      width: 100%;
+      min-height: 64vh;
       border: 0;
-      border-radius: 0.35rem;
       background: transparent;
-      color: var(--muted);
-      padding: 0 0.65rem;
-      font-size: 0.78rem;
-      font-weight: 800;
-    }
-    .view-toggle button[aria-pressed="true"] {
-      background: var(--panel-2);
       color: var(--ink);
-    }
-    .paper.markdown-mode .body-input {
+      outline: none;
+      resize: none;
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: var(--editor-body-size);
       line-height: 1.65;
       white-space: pre-wrap;
+    }
+    .paper.markdown-mode .title-input,
+    .paper.markdown-mode .subtitle-input,
+    .paper.markdown-mode .body-input {
+      display: none;
+    }
+    .paper.markdown-mode .markdown-input {
+      display: block;
     }
     .title-input,
     .body-input {
@@ -304,6 +334,36 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     .field select:focus {
       border-color: var(--accent);
       outline: none;
+    }
+    .field input[readonly] {
+      color: var(--muted);
+      cursor: default;
+    }
+    .slug-field {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .slug-control {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .slug-copy {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.2rem;
+      min-width: 2.2rem;
+      min-height: 2.2rem;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      padding: 0;
+    }
+    .slug-copy:hover {
+      color: var(--accent);
+    }
+    .slug-copy[hidden] {
+      display: none !important;
     }
     .check {
       display: flex;
@@ -439,9 +499,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     }
     .saved-pill[data-state="error"]::before {
       background: var(--danger);
-    }
-    .sheet-grabber {
-      display: none;
     }
     .save-label-mobile {
       display: none;
@@ -593,6 +650,15 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       color: #3d3d3d;
       font-weight: 700;
     }
+    .reference-theme .top-actions .markdown-toggle {
+      border: 0 !important;
+      background: transparent !important;
+      color: var(--muted);
+      padding: 0 !important;
+    }
+    .reference-theme .top-actions .markdown-toggle[aria-pressed="true"] {
+      color: var(--accent);
+    }
     .reference-theme .top-actions .primary {
       background: #ff671f;
       color: #ffffff;
@@ -705,6 +771,14 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     .reference-theme[data-theme="dark"] .top-actions .primary {
       background: #4ecca3;
       color: #001b14;
+    }
+    .reference-theme[data-theme="dark"] .top-actions .markdown-toggle {
+      border: 0 !important;
+      background: transparent !important;
+      color: var(--muted);
+    }
+    .reference-theme[data-theme="dark"] .top-actions .markdown-toggle[aria-pressed="true"] {
+      color: var(--accent);
     }
     .reference-theme[data-theme="dark"] .title-input {
       color: #f2f2f2;
@@ -859,6 +933,19 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         padding: 0 0.75rem;
         color: var(--ink);
       }
+      .top-actions .markdown-toggle,
+      .reference-theme .top-actions .markdown-toggle {
+        width: 2.2rem;
+        min-width: 2.2rem !important;
+        border: 0 !important;
+        background: transparent !important;
+        color: var(--muted);
+        padding: 0 !important;
+      }
+      .top-actions .markdown-toggle[aria-pressed="true"],
+      .reference-theme .top-actions .markdown-toggle[aria-pressed="true"] {
+        color: var(--accent);
+      }
       .reference-theme[data-theme="dark"] .top-actions .primary {
         border-color: rgba(255, 255, 255, 0.68);
         background: transparent;
@@ -914,14 +1001,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       .reference-theme[data-theme="dark"] .settings {
         background: rgba(7, 8, 10, 0.98);
       }
-      .sheet-grabber {
-        display: block;
-        width: 3.4rem;
-        height: 0.28rem;
-        margin: 0 auto 1rem;
-        border-radius: 999px;
-        background: var(--line);
-      }
     .settings-header {
       margin-bottom: 0.8rem;
     }
@@ -970,6 +1049,28 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         padding-right: 0;
         text-align: right;
         font-weight: 700;
+      }
+      .slug-field {
+        grid-template-columns: minmax(0, 1fr) minmax(5rem, auto) auto;
+      }
+      .slug-field::after {
+        content: none;
+      }
+      .slug-control {
+        grid-column: 2 / 4;
+        grid-row: 1;
+        justify-content: flex-end;
+        min-width: 0;
+      }
+      .slug-control input {
+        min-width: 0;
+      }
+      .slug-copy {
+        grid-column: auto;
+        grid-row: auto;
+        width: 2rem;
+        min-width: 2rem;
+        min-height: 2rem;
       }
       .check {
         display: grid;
@@ -1048,6 +1149,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       <span class="status" id="status">Loading</span>
     </div>
     <div class="top-actions">
+      <button type="button" class="markdown-toggle" id="view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">${ICONS.code}</button>
       <button type="button" class="mobile-settings-button" id="top-settings-button" aria-controls="settings" aria-expanded="false" aria-label="Configuracion">...</button>
       <button type="button" id="open-site">Abrir sitio</button>
       <button type="button" class="primary" id="save"><span class="save-label-desktop">Guardar</span><span class="save-label-mobile">Guardar</span></button>
@@ -1085,18 +1187,13 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
   <main class="shell">
     <section class="writer">
       <article class="paper">
-        <div class="view-toggle" role="group" aria-label="Vista del contenido">
-          <span>Vista</span>
-          <button type="button" id="view-rendered" data-view-mode="render" aria-pressed="true">Render</button>
-          <button type="button" id="view-markdown" data-view-mode="markdown" aria-pressed="false">Markdown</button>
-        </div>
         <textarea class="title-input" id="title" rows="2" placeholder="Titulo (Obligatorio)"></textarea>
         <input class="subtitle-input" id="summary" type="text" placeholder="Agregar un subtitulo..." />
         <textarea class="body-input" id="body" placeholder="Comienza a escribir un articulo..."></textarea>
+        <textarea class="markdown-input" id="markdown-canvas" aria-label="Markdown del documento" spellcheck="false" hidden></textarea>
       </article>
     </section>
     <aside class="settings" id="settings" hidden>
-      <span class="sheet-grabber" aria-hidden="true"></span>
       <div class="settings-header">
         <h2 id="settings-title">Propiedades</h2>
         <div class="settings-header-actions">
@@ -1108,9 +1205,12 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <span>Destino</span>
         <select id="notebook"></select>
       </label>
-      <label class="field">
+      <label class="field slug-field" id="slug-field">
         <span>Slug</span>
-        <input id="slug" type="text" />
+        <span class="slug-control">
+          <input id="slug" type="text" />
+          <button type="button" class="slug-copy" id="copy-slug" aria-label="Copiar slug" title="Copiar slug" hidden>${ICONS.copy}</button>
+        </span>
       </label>
       <label class="field">
         <span>Fecha</span>
@@ -1184,6 +1284,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       var slugTouched = false;
       var editorSizeStorageKey = "authorEditorFontSize";
       var viewModeStorageKey = "authorEditorViewMode";
+      var activeViewMode = "render";
       var savedSnapshot = null;
       var saveInProgress = false;
       var saveFailed = false;
@@ -1199,6 +1300,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         back: document.getElementById("back"),
         title: document.getElementById("title"),
         body: document.getElementById("body"),
+        markdownCanvas: document.getElementById("markdown-canvas"),
         settings: document.getElementById("settings"),
         settingsBackdrop: document.getElementById("settings-backdrop"),
         settingsTitle: document.getElementById("settings-title"),
@@ -1211,7 +1313,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         toolbarImage: document.getElementById("toolbar-image"),
         notebookField: document.getElementById("notebook-field"),
         notebook: document.getElementById("notebook"),
+        slugField: document.getElementById("slug-field"),
         slug: document.getElementById("slug"),
+        copySlug: document.getElementById("copy-slug"),
         date: document.getElementById("date"),
         tagsField: document.getElementById("tags-field"),
         tags: document.getElementById("tags"),
@@ -1224,7 +1328,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         caption: document.getElementById("caption"),
         photoPreview: document.getElementById("photo-preview"),
         editorFontSize: document.getElementById("editor-font-size"),
-        viewButtons: Array.from(document.querySelectorAll("[data-view-mode]")),
+        viewMarkdown: document.getElementById("view-markdown"),
         summary: document.getElementById("summary"),
         draft: document.getElementById("draft"),
         draftState: document.getElementById("draft-state"),
@@ -1281,6 +1385,10 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           slugTouched = true;
           markContentEdited();
         });
+        els.copySlug.addEventListener("click", function (event) {
+          event.preventDefault();
+          copySlug();
+        });
         els.notebook.addEventListener("change", function () {
           if (mode === "new" && !slugTouched) {
             els.slug.value = slugify(els.title.value, currentSeparator());
@@ -1298,10 +1406,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.editorFontSize.addEventListener("change", function () {
           applyEditorSize(els.editorFontSize.value);
         });
-        els.viewButtons.forEach(function (button) {
-          button.addEventListener("click", function () {
-            applyViewMode(button.dataset.viewMode);
-          });
+        els.viewMarkdown.addEventListener("click", function () {
+          applyViewMode(activeViewMode === "markdown" ? "render" : "markdown", true);
         });
         els.body.addEventListener("input", function () {
           if (!restoringBodyHistory) {
@@ -1309,7 +1415,12 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           }
           resizeTextarea(els.body);
         });
-        [els.title, els.summary, els.body].forEach(function (input) {
+        els.markdownCanvas.addEventListener("input", function () {
+          syncFieldsFromMarkdown();
+          resizeTextarea(els.markdownCanvas);
+          markContentEdited();
+        });
+        [els.title, els.summary, els.body, els.markdownCanvas].forEach(function (input) {
           input.addEventListener("focus", syncWritingState);
           input.addEventListener("blur", function () {
             window.setTimeout(syncWritingState, 0);
@@ -1402,7 +1513,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.notebookField.hidden = false;
         els.title.value = "";
         els.body.value = "";
-        els.slug.readOnly = false;
+        syncSlugControls(false);
         els.date.value = today();
         els.image.value = "";
         els.imageAlt.value = "";
@@ -1420,7 +1531,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         syncDeleteControls();
         syncSwitchLabels();
         resizeEditorFields();
-        els.title.focus();
+        syncMarkdownFromFields();
+        focusEditorStart();
       }
 
       function loadExisting() {
@@ -1430,7 +1542,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           els.notebookField.hidden = true;
           els.title.value = frontMatter.title || "";
           els.slug.value = slugFromPath(payload.path || sourcePath);
-          els.slug.readOnly = true;
+          syncSlugControls(true);
           els.date.value = frontMatter.date || today();
           els.tags.value = (frontMatter.tags || []).join(", ");
           els.summary.value = frontMatter.summary || frontMatter.description || "";
@@ -1452,11 +1564,15 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           syncDeleteControls();
           syncSwitchLabels();
           resizeEditorFields();
-          els.body.focus();
+          syncMarkdownFromFields();
+          focusEditorStart();
         });
       }
 
       function save() {
+        if (activeViewMode === "markdown") {
+          syncFieldsFromMarkdown();
+        }
         els.save.disabled = true;
         setStatus("Saving");
 
@@ -1469,7 +1585,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           mode = "edit";
           els.notebookField.hidden = true;
           els.slug.value = slugFromPath(sourcePath) || els.slug.value;
-          els.slug.readOnly = true;
+          syncSlugControls(true);
           savedSnapshot = currentSaveSnapshot();
           setStatus("Saved");
           syncPreviewButton();
@@ -1582,7 +1698,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
               return;
             }
 
-            insertAtCursor(els.body, result.markdown + "\\n");
+            insertAtCursor(activeTextArea(), result.markdown + "\\n");
             setStatus("Image added " + result.url);
           }).catch(function (error) {
             setStatus(error.message, true);
@@ -1594,7 +1710,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
 
       function insertAtCursor(textarea, text) {
-        recordBodyHistory();
+        if (textarea === els.body) {
+          recordBodyHistory();
+        }
         var start = textarea.selectionStart || 0;
         var end = textarea.selectionEnd || 0;
         var value = textarea.value;
@@ -1605,15 +1723,34 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         textarea.focus();
         textarea.selectionStart = textarea.selectionEnd = (prefix + insert).length;
         resizeTextarea(textarea);
+        if (textarea === els.markdownCanvas) {
+          syncFieldsFromMarkdown();
+          markContentEdited();
+          return;
+        }
         recordBodyHistory();
+      }
+
+      function activeTextArea() {
+        return activeViewMode === "markdown" ? els.markdownCanvas : els.body;
       }
 
       function applyFormat(format) {
         if (format === "undo") {
+          if (activeViewMode === "markdown") {
+            document.execCommand("undo");
+            syncFieldsFromMarkdown();
+            return;
+          }
           undoBody();
           return;
         }
         if (format === "redo") {
+          if (activeViewMode === "markdown") {
+            document.execCommand("redo");
+            syncFieldsFromMarkdown();
+            return;
+          }
           redoBody();
           return;
         }
@@ -1657,29 +1794,45 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
 
       function wrapSelection(before, after) {
-        recordBodyHistory();
-        var start = els.body.selectionStart || 0;
-        var end = els.body.selectionEnd || 0;
-        var selected = els.body.value.slice(start, end) || "text";
-        replaceBodyRange(start, end, before + selected + after, start + before.length, start + before.length + selected.length);
-        resizeTextarea(els.body);
+        var textarea = activeTextArea();
+        if (textarea === els.body) {
+          recordBodyHistory();
+        }
+        var start = textarea.selectionStart || 0;
+        var end = textarea.selectionEnd || 0;
+        var selected = textarea.value.slice(start, end) || "text";
+        replaceTextRange(textarea, start, end, before + selected + after, start + before.length, start + before.length + selected.length);
+        resizeTextarea(textarea);
+        if (textarea === els.markdownCanvas) {
+          syncFieldsFromMarkdown();
+          markContentEdited();
+          return;
+        }
         recordBodyHistory();
       }
 
       function prefixCurrentLine(prefix) {
-        recordBodyHistory();
-        var cursor = els.body.selectionStart || 0;
-        var lineStart = els.body.value.lastIndexOf("\\n", cursor - 1) + 1;
-        replaceBodyRange(lineStart, lineStart, prefix, cursor + prefix.length, cursor + prefix.length);
-        resizeTextarea(els.body);
+        var textarea = activeTextArea();
+        if (textarea === els.body) {
+          recordBodyHistory();
+        }
+        var cursor = textarea.selectionStart || 0;
+        var lineStart = textarea.value.lastIndexOf("\\n", cursor - 1) + 1;
+        replaceTextRange(textarea, lineStart, lineStart, prefix, cursor + prefix.length, cursor + prefix.length);
+        resizeTextarea(textarea);
+        if (textarea === els.markdownCanvas) {
+          syncFieldsFromMarkdown();
+          markContentEdited();
+          return;
+        }
         recordBodyHistory();
       }
 
-      function replaceBodyRange(start, end, text, selectionStart, selectionEnd) {
-        els.body.value = els.body.value.slice(0, start) + text + els.body.value.slice(end);
-        els.body.focus();
-        els.body.selectionStart = selectionStart;
-        els.body.selectionEnd = selectionEnd;
+      function replaceTextRange(textarea, start, end, text, selectionStart, selectionEnd) {
+        textarea.value = textarea.value.slice(0, start) + text + textarea.value.slice(end);
+        textarea.focus();
+        textarea.selectionStart = selectionStart;
+        textarea.selectionEnd = selectionEnd;
       }
 
       function resetBodyHistory() {
@@ -1780,7 +1933,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
 
       function syncWritingState() {
         var active = document.activeElement;
-        document.body.classList.toggle("is-writing", active === els.title || active === els.summary || active === els.body);
+        document.body.classList.toggle("is-writing", active === els.title || active === els.summary || active === els.body || active === els.markdownCanvas);
       }
 
       function readViewMode() {
@@ -1795,17 +1948,141 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         return value === "markdown" ? "markdown" : "render";
       }
 
-      function applyViewMode(value) {
+      function applyViewMode(value, shouldFocus) {
         var viewMode = normalizeViewMode(value);
+        if (activeViewMode === "markdown" && viewMode !== "markdown") {
+          syncFieldsFromMarkdown();
+        }
+        activeViewMode = viewMode;
         els.paper.classList.toggle("markdown-mode", viewMode === "markdown");
-        els.viewButtons.forEach(function (button) {
-          button.setAttribute("aria-pressed", String(button.dataset.viewMode === viewMode));
-        });
+        els.title.hidden = viewMode === "markdown";
+        els.summary.hidden = viewMode === "markdown";
+        els.body.hidden = viewMode === "markdown";
+        els.markdownCanvas.hidden = viewMode !== "markdown";
+        els.viewMarkdown.setAttribute("aria-pressed", String(viewMode === "markdown"));
+        els.viewMarkdown.setAttribute("aria-label", viewMode === "markdown" ? "Desactivar Markdown" : "Activar Markdown");
+        if (viewMode === "markdown") {
+          syncMarkdownFromFields();
+          resizeTextarea(els.markdownCanvas);
+        } else {
+          resizeEditorFields();
+        }
         try {
           window.localStorage.setItem(viewModeStorageKey, viewMode);
         } catch (error) {
           // localStorage can be unavailable in private or restricted contexts.
         }
+        if (shouldFocus) {
+          focusEditorStart();
+        }
+      }
+
+      function focusEditorStart() {
+        window.setTimeout(function () {
+          if (activeViewMode === "markdown") {
+            els.markdownCanvas.focus();
+            return;
+          }
+          if (els.title.value.trim()) {
+            els.body.focus();
+            return;
+          }
+          els.title.focus();
+        }, 0);
+      }
+
+      function syncMarkdownFromFields() {
+        if (activeViewMode !== "markdown") {
+          return;
+        }
+        els.markdownCanvas.value = markdownFromFields();
+        resizeTextarea(els.markdownCanvas);
+      }
+
+      function markdownFromFields() {
+        var parts = [];
+        var title = els.title.value.trim();
+        var summary = els.summary.value.trim();
+        var body = stripMatchingTitle(els.body.value, title).trimStart();
+
+        if (title) {
+          parts.push("# " + title);
+        }
+        if (summary) {
+          parts.push(summary.split("\\n").map(function (line) {
+            return "> " + line;
+          }).join("\\n"));
+        }
+        if (body) {
+          parts.push(body);
+        }
+
+        return parts.join("\\n\\n");
+      }
+
+      function stripMatchingTitle(value, title) {
+        var body = String(value || "").replace(/\\r\\n/g, "\\n");
+        var cleanTitle = title.trim().toLowerCase();
+        if (!cleanTitle) return body;
+
+        var lines = body.split("\\n");
+        var first = (lines[0] || "").trim().replace(/^#\\s+/, "").trim().toLowerCase();
+        if (first !== cleanTitle) {
+          return body;
+        }
+
+        lines.shift();
+        while (lines[0] !== undefined && !lines[0].trim()) {
+          lines.shift();
+        }
+        return lines.join("\\n");
+      }
+
+      function syncFieldsFromMarkdown() {
+        var parsed = parseMarkdownCanvas(els.markdownCanvas.value);
+        els.title.value = parsed.title;
+        els.summary.value = parsed.summary;
+        els.body.value = parsed.body;
+        if (mode === "new" && !slugTouched) {
+          els.slug.value = slugify(els.title.value, currentSeparator());
+        }
+        resizeEditorFields();
+      }
+
+      function parseMarkdownCanvas(value) {
+        var lines = String(value || "").replace(/\\r\\n/g, "\\n").split("\\n");
+        var index = 0;
+        var title = "";
+        var summaryLines = [];
+
+        while (index < lines.length && !lines[index].trim()) {
+          index += 1;
+        }
+
+        var titleMatch = (lines[index] || "").match(/^#\\s+(.+)$/);
+        if (titleMatch) {
+          title = titleMatch[1].trim();
+          index += 1;
+        }
+
+        while (index < lines.length && !lines[index].trim()) {
+          index += 1;
+        }
+
+        while (index < lines.length && /^> ?/.test(lines[index])) {
+          summaryLines.push(lines[index].replace(/^> ?/, ""));
+          index += 1;
+        }
+
+        while (index < lines.length && !lines[index].trim()) {
+          index += 1;
+        }
+
+        return {
+          title: title,
+          summary: summaryLines.join("\\n").trim(),
+          body: lines.slice(index).join("\\n").trimStart(),
+        };
       }
 
       function readEditorSize() {
@@ -2001,6 +2278,43 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.draftState.textContent = els.draft.checked ? "Borrador" : "Publicado";
         els.hiddenState.textContent = els.hidden.checked ? "Oculto" : "Visible";
         els.deleteAttachedImagesState.textContent = els.deleteAttachedImages.checked ? "Si" : "No";
+      }
+
+      function syncSlugControls(readOnly) {
+        els.slug.readOnly = Boolean(readOnly);
+        els.slugField.classList.toggle("is-readonly", Boolean(readOnly));
+        els.copySlug.hidden = !readOnly;
+      }
+
+      function copySlug() {
+        var value = els.slug.value.trim();
+        if (!value) {
+          setStatus("Slug vacio");
+          return;
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(value).then(function () {
+            setStatus("Slug copiado");
+          }).catch(function () {
+            copySlugWithSelection(value);
+          });
+          return;
+        }
+
+        copySlugWithSelection(value);
+      }
+
+      function copySlugWithSelection(value) {
+        els.slug.focus();
+        els.slug.select();
+        try {
+          document.execCommand("copy");
+          setStatus("Slug copiado");
+        } catch (error) {
+          window.prompt("Copia el slug", value);
+        }
+        els.slug.blur();
       }
 
       function isUploadUrl(value) {
