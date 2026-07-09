@@ -1205,11 +1205,11 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <span>Destino</span>
         <select id="notebook"></select>
       </label>
-      <label class="field slug-field" id="slug-field">
-        <span>Slug</span>
+      <label class="field slug-field" id="slug-field" hidden>
+        <span>Ruta</span>
         <span class="slug-control">
-          <input id="slug" type="text" />
-          <button type="button" class="slug-copy" id="copy-slug" aria-label="Copiar slug" title="Copiar slug" hidden>${ICONS.copy}</button>
+          <input id="slug" type="text" readonly />
+          <button type="button" class="slug-copy" id="copy-slug" aria-label="Copiar ruta" title="Copiar ruta" hidden>${ICONS.copy}</button>
         </span>
       </label>
       <label class="field">
@@ -1375,9 +1375,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           window.history.back();
         });
         els.title.addEventListener("input", function () {
-          if (mode === "new" && !slugTouched) {
-            els.slug.value = slugify(els.title.value, currentSeparator());
-          }
+          syncGeneratedSlug();
           resizeTextarea(els.title);
           markContentEdited();
         });
@@ -1387,12 +1385,10 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         });
         els.copySlug.addEventListener("click", function (event) {
           event.preventDefault();
-          copySlug();
+          copyRoute();
         });
         els.notebook.addEventListener("change", function () {
-          if (mode === "new" && !slugTouched) {
-            els.slug.value = slugify(els.title.value, currentSeparator());
-          }
+          syncGeneratedSlug();
           syncPhotoEditor();
           markContentEdited();
         });
@@ -1513,7 +1509,10 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.notebookField.hidden = false;
         els.title.value = "";
         els.body.value = "";
-        syncSlugControls(false);
+        slugTouched = false;
+        els.slug.value = "";
+        syncGeneratedSlug();
+        syncRouteControls(false);
         els.date.value = today();
         els.image.value = "";
         els.imageAlt.value = "";
@@ -1541,8 +1540,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           savedUrl = payload.url || "";
           els.notebookField.hidden = true;
           els.title.value = frontMatter.title || "";
-          els.slug.value = slugFromPath(payload.path || sourcePath);
-          syncSlugControls(true);
+          els.slug.value = routeFromPath(payload.path || sourcePath);
+          syncRouteControls(true);
           els.date.value = frontMatter.date || today();
           els.tags.value = (frontMatter.tags || []).join(", ");
           els.summary.value = frontMatter.summary || frontMatter.description || "";
@@ -1573,6 +1572,10 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         if (activeViewMode === "markdown") {
           syncFieldsFromMarkdown();
         }
+        if (!ensureTitleBeforeSave()) {
+          return;
+        }
+        syncGeneratedSlug();
         els.save.disabled = true;
         setStatus("Saving");
 
@@ -1584,8 +1587,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           els.path.textContent = sourcePath;
           mode = "edit";
           els.notebookField.hidden = true;
-          els.slug.value = slugFromPath(sourcePath) || els.slug.value;
-          syncSlugControls(true);
+          els.slug.value = routeFromPath(sourcePath);
+          syncRouteControls(true);
           savedSnapshot = currentSaveSnapshot();
           setStatus("Saved");
           syncPreviewButton();
@@ -2043,9 +2046,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.title.value = parsed.title;
         els.summary.value = parsed.summary;
         els.body.value = parsed.body;
-        if (mode === "new" && !slugTouched) {
-          els.slug.value = slugify(els.title.value, currentSeparator());
-        }
+        syncGeneratedSlug();
         resizeEditorFields();
       }
 
@@ -2227,14 +2228,38 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         return els.notebook.value.endsWith("/posts") ? "_" : "-";
       }
 
+      function syncGeneratedSlug() {
+        if (mode === "new" && !slugTouched) {
+          els.slug.value = slugify(els.title.value, currentSeparator());
+        }
+      }
+
+      function ensureTitleBeforeSave() {
+        if (els.title.value.trim()) {
+          return true;
+        }
+
+        setStatus("Agrega un titulo para generar la ruta.", true);
+        closeSettings();
+        focusEditorStart();
+        return false;
+      }
+
       function isPhotoEditor() {
-        return kind !== "notebook" && (postFormat === "image" ||
-          Boolean(frontMatter.image));
+        if (kind === "notebook") {
+          return false;
+        }
+        return postFormat === "image" ||
+          Boolean(frontMatter.image) ||
+          els.notebook.value.endsWith("/fotografia") ||
+          preferredNotebook.endsWith("/fotografia");
       }
 
       function syncPhotoEditor() {
         var photo = isPhotoEditor();
         els.photoFields.hidden = !photo;
+        els.imageAltField.hidden = !photo;
+        els.captionField.hidden = !photo;
         if (photo && mode === "new" && els.notebook.value === "content_es/fotografia" && !els.tags.value.trim()) {
           els.tags.value = "fotografia";
         }
@@ -2246,8 +2271,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         var notebook = kind === "notebook";
         els.settingsTitle.textContent = notebook ? "Notebook" : "Propiedades";
         els.tagsField.hidden = notebook;
-        els.imageAltField.hidden = notebook;
-        els.captionField.hidden = notebook;
+        els.imageAltField.hidden = true;
+        els.captionField.hidden = true;
         els.insertDividerBefore.hidden = notebook;
         els.insertToolbarGroup.hidden = notebook;
         els.insertDividerAfter.hidden = notebook;
@@ -2280,39 +2305,40 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.deleteAttachedImagesState.textContent = els.deleteAttachedImages.checked ? "Si" : "No";
       }
 
-      function syncSlugControls(readOnly) {
-        els.slug.readOnly = Boolean(readOnly);
-        els.slugField.classList.toggle("is-readonly", Boolean(readOnly));
-        els.copySlug.hidden = !readOnly;
+      function syncRouteControls(hasRoute) {
+        els.slug.readOnly = true;
+        els.slugField.hidden = !hasRoute;
+        els.slugField.classList.toggle("is-readonly", Boolean(hasRoute));
+        els.copySlug.hidden = !hasRoute;
       }
 
-      function copySlug() {
+      function copyRoute() {
         var value = els.slug.value.trim();
         if (!value) {
-          setStatus("Slug vacio");
+          setStatus("Ruta vacia");
           return;
         }
 
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(value).then(function () {
-            setStatus("Slug copiado");
+            setStatus("Ruta copiada");
           }).catch(function () {
-            copySlugWithSelection(value);
+            copyRouteWithSelection(value);
           });
           return;
         }
 
-        copySlugWithSelection(value);
+        copyRouteWithSelection(value);
       }
 
-      function copySlugWithSelection(value) {
+      function copyRouteWithSelection(value) {
         els.slug.focus();
         els.slug.select();
         try {
           document.execCommand("copy");
-          setStatus("Slug copiado");
+          setStatus("Ruta copiada");
         } catch (error) {
-          window.prompt("Copia el slug", value);
+          window.prompt("Copia la ruta", value);
         }
         els.slug.blur();
       }
@@ -2335,10 +2361,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         return sourcePath.replace(/\\/_index\\.md$/, "");
       }
 
-      function slugFromPath(relativePath) {
-        var clean = String(relativePath || "").replace(/\\/index\\.md$/, "").replace(/\\/_index\\.md$/, "");
-        var fileName = clean.split("/").filter(Boolean).pop() || "";
-        return fileName.replace(/\\.md$/, "");
+      function routeFromPath(relativePath) {
+        return relativePath ? contentPathToUrl(relativePath) : "";
       }
 
       function deleteCurrentPage() {
