@@ -3,7 +3,7 @@ function iconSvg(paths) {
 }
 
 const ICONS = Object.freeze({
-  back: iconSvg(`<path d="m15 18-6-6 6-6" />`),
+  back: iconSvg(`<path d="M18 6 6 18" /><path d="m6 6 12 12" />`),
   upload: iconSvg(`<path d="M12 3v12" /><path d="m7 8 5-5 5 5" /><path d="M5 21h14" />`),
   imagePlus: iconSvg(`<rect width="18" height="18" x="3" y="3" rx="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.2-3.2a2 2 0 0 0-2.8 0L6 21" /><path d="M16 5v6" /><path d="M13 8h6" />`),
   replace: iconSvg(`<path d="M21 12a9 9 0 0 0-15-6.7L3 8" /><path d="M3 3v5h5" /><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7" /><path d="M21 21v-5h-5" />`),
@@ -108,6 +108,12 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       align-items: center;
       gap: clamp(0.95rem, 2.4vw, 2rem);
       min-width: 0;
+    }
+    .mobile-properties-toggle {
+      display: none;
+    }
+    .draft-label-mobile {
+      display: none;
     }
     .icon-button {
       width: 2rem;
@@ -310,6 +316,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       font-size: inherit;
     }
     .title-line,
+    .caption-line,
     .tags-line {
       width: 100%;
       border: 0;
@@ -330,10 +337,20 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       font-size: 0.86rem;
       line-height: 1.5;
     }
+    .caption-line {
+      min-height: 1.8rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    .caption-line::placeholder {
+      color: #555b64;
+    }
     .tags-line {
       color: var(--accent);
     }
     .title-line:focus,
+    .caption-line:focus,
     .tags-line:focus,
     .property-control:focus {
       border-color: var(--accent);
@@ -600,10 +617,27 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       display: grid;
     }
     .image-stage {
+      position: relative;
       min-height: min(58vh, 38rem);
       display: grid;
       place-items: center;
       overflow: hidden;
+    }
+    .cover-badge {
+      display: none;
+      position: absolute;
+      top: 0.8rem;
+      left: 0.8rem;
+      z-index: 2;
+      min-height: 1.6rem;
+      align-items: center;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.66);
+      color: var(--accent);
+      padding: 0 0.7rem;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      font-weight: 800;
     }
     .image-stage img {
       display: block;
@@ -675,6 +709,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     body.mode-review #publish,
     body.mode-review #panel-publish,
     body.mode-review #mobile-publish {
+      display: none;
+    }
+    .sheet-header {
       display: none;
     }
     .panel {
@@ -868,24 +905,81 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
     }
     @media (max-width: 820px) {
+      :root {
+        --mono: var(--sans);
+      }
       body {
-        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+        padding-bottom: calc(5.6rem + env(safe-area-inset-bottom));
       }
       .topbar {
-        min-height: 3.6rem;
+        position: fixed;
+        inset: 0 0 auto;
+        min-height: 4.75rem;
+        height: 4.75rem;
+        display: grid;
+        grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.85rem 1rem;
+      }
+      .topbar-left {
+        display: contents;
+      }
+      #back {
+        grid-column: 1;
+        width: 2.75rem;
+        height: 2.75rem;
       }
       .brand {
         display: none;
       }
       .topbar-actions {
-        gap: 0.9rem;
+        grid-column: 2 / 4;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        align-items: center;
+        gap: 0.45rem;
+      }
+      .save-state {
+        grid-column: 1;
+        justify-self: center;
+        max-width: min(9.8rem, 38vw);
+        min-height: 1.8rem;
+        padding: 0 0.65rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        font-size: 0.7rem;
+      }
+      #preview-image {
+        display: none;
+      }
+      .mobile-properties-toggle {
+        grid-column: 2;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.35rem;
+        min-width: 2.35rem;
+        height: 2.6rem;
+        color: var(--ink);
+        font-size: 1.25rem;
+        letter-spacing: 0.06em;
       }
       #save-draft {
+        grid-column: 3;
+        display: inline-flex;
+        min-height: 2.6rem;
+        padding: 0 0.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.68);
+        border-radius: 0.55rem;
+        color: var(--ink);
+      }
+      #publish {
         display: none;
       }
       .shell {
         display: block;
-        padding: 0 1rem 2rem;
+        padding: 4.9rem 1rem 2rem;
       }
       .workspace {
         display: flex;
@@ -894,15 +988,32 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
       .post-head {
         order: 2;
-        margin-top: 0.65rem;
-        margin-bottom: 0.8rem;
+        gap: 0.5rem;
+        margin-top: 0.8rem;
+        margin-bottom: 0.4rem;
+      }
+      .title-line,
+      .caption-line,
+      .tags-line {
+        border-bottom: 1px solid var(--line-soft);
+        padding-bottom: 0.46rem;
+      }
+      .title-line {
+        min-height: 2rem;
+        font-size: 1.42rem;
+        font-weight: 700;
+      }
+      .caption-line,
+      .tags-line {
+        min-height: 1.55rem;
+        font-size: 0.86rem;
       }
       .dropzone {
         order: 1;
-        min-height: 23rem;
+        min-height: min(50vh, 27rem);
       }
       .empty-state {
-        min-height: 22rem;
+        min-height: min(52vh, 28rem);
         padding: 1.5rem;
       }
       .image-object {
@@ -911,7 +1022,19 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         gap: 0.85rem;
       }
       .image-stage {
-        min-height: 22rem;
+        min-height: min(48vh, 26rem);
+        border-radius: 0.7rem;
+        background: #050607;
+      }
+      .image-stage img {
+        width: 100%;
+        height: min(50vh, 26rem);
+        max-height: min(50vh, 26rem);
+        object-fit: cover;
+        border-radius: 0.7rem;
+      }
+      body.has-image .cover-badge {
+        display: inline-flex;
       }
       .lightbox-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -921,37 +1044,192 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
       .image-tools {
         flex-direction: row;
-        justify-content: flex-start;
-        gap: 0.75rem;
+        justify-content: space-between;
+        gap: 0.45rem;
         margin-top: 0;
+        padding: 0.75rem 0 0;
         overflow-x: auto;
       }
+      .tool-button {
+        min-width: 2.8rem;
+        justify-content: center;
+        color: var(--dim);
+      }
+      .tool-button span {
+        display: none;
+      }
+      #edit-alt-image span {
+        display: inline;
+      }
       .inspector {
-        margin-top: 1rem;
-        padding-top: 1rem;
-        padding-left: 0;
+        position: fixed;
+        inset: auto 0 0 0;
+        z-index: 40;
+        max-height: min(76vh, 36rem);
+        margin-top: 0;
+        padding: 0.85rem 1.1rem calc(5.6rem + env(safe-area-inset-bottom));
+        border-radius: 1.1rem 1.1rem 0 0;
+        background: rgba(8, 9, 11, 0.98);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        overflow: auto;
+        transform: translateY(100%);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.18s ease, opacity 0.18s ease;
+        padding-left: 1.1rem;
         border-left: 0;
         border-top: 1px solid var(--line);
       }
-      .desktop-actions {
+      body.properties-open .inspector {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+      }
+      body.properties-open::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 35;
+        background: rgba(0, 0, 0, 0.36);
+      }
+      .sheet-header {
+        display: grid;
+        gap: 0.9rem;
+        margin-bottom: 0.15rem;
+      }
+      .sheet-grabber {
+        width: 3.4rem;
+        height: 0.28rem;
+        margin: 0 auto;
+        border-radius: 999px;
+        background: var(--line);
+      }
+      .sheet-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+      .sheet-title-row h2 {
+        font-size: 1.28rem;
+      }
+      .sheet-close {
+        width: 2.45rem;
+        height: 2.45rem;
+        border: 0;
+        background: transparent;
+        color: var(--dim);
+        font-size: 1.5rem;
+        padding: 0;
+      }
+      .panel {
+        display: grid;
+        grid-template-columns: 1.35rem minmax(0, 1fr) auto 0.8rem;
+        column-gap: 0.75rem;
+        align-items: center;
+        gap: 0;
+        padding: 0.9rem 0;
+        border-bottom: 1px solid var(--line-soft);
+      }
+      .panel:not(.desktop-actions)::before {
+        content: "";
+        grid-column: 1;
+        grid-row: 1 / span 2;
+        width: 1rem;
+        height: 1rem;
+        align-self: center;
+        border: 1.5px solid var(--muted);
+        border-radius: 999px;
+        opacity: 0.78;
+      }
+      .panel h2 {
+        grid-column: 2 / 4;
+        grid-row: 1;
+        font-size: 0.7rem;
+        margin-bottom: 0.15rem;
+      }
+      .property-row {
+        display: contents;
+        min-height: 1.8rem;
+        align-items: center;
+      }
+      .property-row::after {
+        content: ">";
+        grid-column: 4;
+        grid-row: 2;
+        justify-self: end;
+        color: var(--muted);
+      }
+      .property-value {
+        grid-column: 2;
+        grid-row: 2;
+      }
+      .property-action {
+        grid-column: 3;
+        grid-row: 2;
+        margin-left: auto;
+      }
+      .property-editor {
+        grid-column: 2 / 5;
+        margin-top: 0;
+      }
+      .mobile-notebook-field {
         display: none;
       }
+      .check.property-editor {
+        display: flex;
+        justify-content: flex-start;
+      }
+      .preview-meta {
+        display: none;
+      }
+      .desktop-actions {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 42;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        padding: 0.75rem 1.1rem calc(0.85rem + env(safe-area-inset-bottom));
+        border-bottom: 0;
+        background: linear-gradient(to top, rgba(7, 8, 10, 1) 78%, rgba(7, 8, 10, 0));
+      }
+      .desktop-actions button {
+        min-height: 3rem;
+        justify-content: center;
+      }
       .mobile-actions {
+        display: flex;
+        justify-content: space-between;
+      }
+      body.properties-open .mobile-actions {
+        display: none;
+      }
+      body.properties-open .status-line,
+      body.properties-open .saved-link {
         display: none;
       }
       #mobile-publish {
+        display: inline-flex;
+      }
+      .mobile-actions button {
+        flex: 1;
+        min-height: 3rem;
+        justify-content: center;
+      }
+      .draft-label-desktop {
         display: none;
+      }
+      .draft-label-mobile {
+        display: inline;
       }
     }
     @media (max-width: 440px) {
-      .topbar-actions {
-        gap: 0.8rem;
-      }
-      #preview-image span {
-        display: none;
-      }
       .save-state {
-        max-width: 6.2rem;
+        max-width: 6.8rem;
         overflow: hidden;
         text-overflow: ellipsis;
         font-size: 0.68rem;
@@ -980,8 +1258,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     </div>
     <div class="topbar-actions">
       <button type="button" class="text-action" id="preview-image">${ICONS.preview}<span>Vista previa</span></button>
-      <span class="save-state" id="save-state">Sin guardar</span>
-      <button type="button" class="secondary-button" id="save-draft">Guardar</button>
+      <span class="save-state" id="save-state">Sincronizado</span>
+      <button type="button" class="text-action mobile-properties-toggle" id="properties-toggle" aria-controls="properties-sheet" aria-expanded="false" aria-label="Propiedades">...</button>
+      <button type="button" class="secondary-button" id="save-draft"><span class="draft-label-desktop">Guardar</span><span class="draft-label-mobile">Borradores</span></button>
       <button type="button" class="primary-button" id="publish">Publicar ↑</button>
     </div>
   </header>
@@ -1004,7 +1283,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           <input class="inline-date" id="date" type="date" aria-label="Fecha" />
           <span id="media-count">imagen</span>
         </div>
-        <input class="title-line" id="title" type="text" placeholder="Titulo" autocomplete="off" aria-label="Titulo" />
+        <input class="title-line" id="title" type="text" placeholder="Titulo de la foto" autocomplete="off" aria-label="Titulo" />
+        <input class="caption-line" id="caption-inline" type="text" placeholder="Pie opcional..." autocomplete="off" aria-label="Pie" />
         <input class="tags-line" id="tags" type="text" list="photo-tag-suggestions" placeholder="#fotografia  #macro  #mapas" aria-label="Tags" />
         <datalist id="photo-tag-suggestions">
           <option value="fotografia"></option>
@@ -1046,6 +1326,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
                   <span id="selected-counter">Imagen 1 de 1</span>
                 </div>
                 <div class="image-stage" id="image-stage">
+                  <span class="cover-badge">Portada</span>
                   <img id="image-preview" alt="" />
                 </div>
                 <div class="thumb-rail" id="thumb-rail" aria-label="Imagenes de la publicacion"></div>
@@ -1081,6 +1362,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
             <button type="button" class="tool-button" id="crop-image">${ICONS.crop}<span>Recortar</span></button>
             <button type="button" class="tool-button" id="rotate-image">${ICONS.rotate}<span>Girar</span></button>
             <button type="button" class="tool-button" id="replace-image">${ICONS.replace}<span>Reemplazar</span></button>
+            <button type="button" class="tool-button" id="edit-alt-image"><span>ALT</span></button>
           </div>
         </div>
 
@@ -1088,7 +1370,14 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       </div>
     </section>
 
-    <aside class="inspector">
+    <aside class="inspector" id="properties-sheet">
+      <div class="sheet-header">
+        <span class="sheet-grabber" aria-hidden="true"></span>
+        <div class="sheet-title-row">
+          <h2>Propiedades</h2>
+          <button type="button" class="sheet-close" id="properties-close" aria-label="Cerrar propiedades">&times;</button>
+        </div>
+      </div>
       <section class="panel preview-panel">
         <h2 id="file-panel-title">Archivo</h2>
         <div class="property-row">
@@ -1183,6 +1472,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         saveState: document.getElementById("save-state"),
         saveDraft: document.getElementById("save-draft"),
         publish: document.getElementById("publish"),
+        propertiesToggle: document.getElementById("properties-toggle"),
+        propertiesClose: document.getElementById("properties-close"),
         mobileSaveDraft: document.getElementById("mobile-save-draft"),
         mobilePublish: document.getElementById("mobile-publish"),
         dropzone: document.getElementById("dropzone"),
@@ -1217,9 +1508,11 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         cropImage: document.getElementById("crop-image"),
         rotateImage: document.getElementById("rotate-image"),
         previewImage: document.getElementById("preview-image"),
+        editAltImage: document.getElementById("edit-alt-image"),
         panelSaveDraft: document.getElementById("panel-save-draft"),
         panelPublish: document.getElementById("panel-publish"),
         title: document.getElementById("title"),
+        captionInline: document.getElementById("caption-inline"),
         caption: document.getElementById("caption"),
         captionSummary: document.getElementById("caption-summary"),
         captionAction: document.getElementById("caption-action"),
@@ -1244,8 +1537,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       function boot() {
         document.body.dataset.theme = theme;
         els.date.value = today();
-        setSaveState("Sin guardar", "");
+        setSaveState("Sincronizado", "saved");
         bind();
+        seedImageFromParams();
         render();
         updatePropertySummaries();
         loadNotebooks().catch(function (error) {
@@ -1285,6 +1579,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
             if (!editor) return;
             var panel = editor.closest(".panel");
             panel.classList.toggle("is-editing");
+            if (panel.classList.contains("is-editing")) {
+              openProperties();
+            }
             var control = editor.querySelector("input, select, textarea");
             if (panel.classList.contains("is-editing") && control) {
               control.focus();
@@ -1336,6 +1633,12 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
             window.open(url, "_blank", "noopener");
           }
         });
+        els.propertiesToggle.addEventListener("click", toggleProperties);
+        els.propertiesClose.addEventListener("click", closeProperties);
+        els.editAltImage.addEventListener("click", function () {
+          openProperties();
+          openPanel("alt-panel");
+        });
         els.notebook.addEventListener("change", function () {
           syncDefaultTags();
           updateNotebookRail();
@@ -1346,6 +1649,15 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
             updatePropertySummaries();
             markUnsaved();
           });
+        });
+        els.captionInline.addEventListener("input", function () {
+          var image = selectedImage();
+          if (image) {
+            image.caption = els.captionInline.value;
+            els.caption.value = els.captionInline.value;
+          }
+          updatePropertySummaries();
+          markUnsaved();
         });
         els.alt.addEventListener("input", function () {
           var image = selectedImage();
@@ -1359,6 +1671,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           var image = selectedImage();
           if (image) {
             image.caption = els.caption.value;
+            els.captionInline.value = els.caption.value;
           }
           updatePropertySummaries();
           markUnsaved();
@@ -1527,6 +1840,41 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           cropMode: false,
           needsUpload: true,
         };
+      }
+
+      function seedImageFromParams() {
+        var imageParam = params.get("image") || "";
+        if (!imageParam) return;
+        var imageName = imageParam.split("?")[0].split("/").pop() || imageParam;
+        var titleParam = params.get("title") || "";
+        var captionParam = params.get("caption") || "";
+        var altParam = params.get("alt") || titleParam || filenameTitle(imageName);
+        var name = filenameTitle(imageName);
+        images = [{
+          id: "image-seed",
+          file: null,
+          name: name,
+          type: imageName.split(".").pop() ? "image/" + imageName.split(".").pop().replace("jpg", "jpeg") : "image",
+          size: 0,
+          previewUrl: "",
+          uploadedUrl: imageParam,
+          thumbnailUrl: params.get("thumbnail") || imageParam,
+          alt: altParam,
+          caption: captionParam,
+          rotation: 0,
+          cropMode: false,
+          needsUpload: false,
+        }];
+        selectedImageId = "image-seed";
+        viewMode = "detail";
+        if (titleParam) {
+          els.title.value = titleParam;
+        } else if (!els.title.value.trim()) {
+          els.title.value = name;
+        }
+        if (captionParam && !els.tags.value.trim()) {
+          els.tags.value = "fotografia";
+        }
       }
 
       function replaceImageFile(image, file) {
@@ -1763,6 +2111,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         var image = selectedImage();
         els.alt.value = image ? image.alt : "";
         els.caption.value = image ? image.caption : "";
+        els.captionInline.value = image ? image.caption : "";
       }
 
       function updateActionLabels() {
@@ -1807,6 +2156,36 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         }
       }
 
+      function openPanel(id) {
+        var editor = document.getElementById(id);
+        if (!editor) return;
+        var panel = editor.closest(".panel");
+        if (!panel) return;
+        panel.classList.add("is-editing");
+        var control = editor.querySelector("input, select, textarea");
+        if (control) {
+          control.focus();
+        }
+      }
+
+      function toggleProperties() {
+        if (document.body.classList.contains("properties-open")) {
+          closeProperties();
+          return;
+        }
+        openProperties();
+      }
+
+      function openProperties() {
+        document.body.classList.add("properties-open");
+        els.propertiesToggle.setAttribute("aria-expanded", "true");
+      }
+
+      function closeProperties() {
+        document.body.classList.remove("properties-open");
+        els.propertiesToggle.setAttribute("aria-expanded", "false");
+      }
+
       function updatePropertySummaries() {
         var image = selectedImage();
         var altWritten = Boolean(image && image.alt.trim());
@@ -1822,8 +2201,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         if (image) {
           els.filePanelTitle.textContent = "Imagen " + (selectedIndex() + 1) + " de " + images.length;
           els.previewEmpty.hidden = false;
-          els.previewEmpty.textContent = image.name;
-          els.previewMeta.textContent = (image.type || "image") + " - " + formatBytes(image.size) + imageStatusSuffix(image);
+          els.previewEmpty.textContent = selectedIndex() === 0 ? "Portada" : "Imagen " + (selectedIndex() + 1);
+          els.previewMeta.textContent = imageStatusLabel(image);
         } else {
           els.filePanelTitle.textContent = "Archivo";
           els.previewEmpty.hidden = false;

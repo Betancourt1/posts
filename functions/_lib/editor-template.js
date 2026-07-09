@@ -3,7 +3,7 @@ function iconSvg(paths) {
 }
 
 const ICONS = Object.freeze({
-  back: iconSvg(`<path d="m15 18-6-6 6-6" />`),
+  back: iconSvg(`<path d="M18 6 6 18" /><path d="m6 6 12 12" />`),
   undo: iconSvg(`<path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5A5.5 5.5 0 0 1 14.5 20H11" />`),
   redo: iconSvg(`<path d="m15 14 5-5-5-5" /><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5 5.5 5.5 0 0 0 9.5 20H13" />`),
   bold: iconSvg(`<path d="M6 4h8a4 4 0 0 1 0 8H6z" /><path d="M6 12h9a4 4 0 0 1 0 8H6z" />`),
@@ -16,7 +16,7 @@ const ICONS = Object.freeze({
   list: iconSvg(`<path d="M8 6h13" /><path d="M8 12h13" /><path d="M8 18h13" /><path d="M3 6h.01" /><path d="M3 12h.01" /><path d="M3 18h.01" />`),
   orderedList: iconSvg(`<path d="M10 6h11" /><path d="M10 12h11" /><path d="M10 18h11" /><path d="M4 6h1v4" /><path d="M4 10h2" /><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" />`),
   image: iconSvg(`<rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />`),
-  typewriter: iconSvg(`<path d="M12 3v18" /><path d="M8 7h8" /><path d="M8 17h8" /><path d="M4 12h16" />`),
+  keyboard: iconSvg(`<rect width="20" height="14" x="2" y="5" rx="2" /><path d="M6 9h.01" /><path d="M10 9h.01" /><path d="M14 9h.01" /><path d="M18 9h.01" /><path d="M6 13h.01" /><path d="M10 13h4" /><path d="M18 13h.01" />`),
   settings: iconSvg(`<path d="M9.7 4.1a2.3 2.3 0 0 1 4.6 0 2.3 2.3 0 0 0 3.3 1.9 2.3 2.3 0 0 1 2.3 4 2.3 2.3 0 0 0 0 3.8 2.3 2.3 0 0 1-2.3 4 2.3 2.3 0 0 0-3.3 1.9 2.3 2.3 0 0 1-4.6 0 2.3 2.3 0 0 0-3.3-1.9 2.3 2.3 0 0 1-2.3-4 2.3 2.3 0 0 0 0-3.8 2.3 2.3 0 0 1 2.3-4 2.3 2.3 0 0 0 3.3-1.9" /><circle cx="12" cy="12" r="3" />`),
   trash: iconSvg(`<path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" />`),
 });
@@ -112,6 +112,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       display: flex;
       align-items: center;
       gap: 0.55rem;
+    }
+    .mobile-settings-button {
+      display: none;
     }
     button {
       border: 1px solid var(--line);
@@ -402,6 +405,18 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     .saved-pill[data-state="error"]::before {
       background: var(--danger);
     }
+    .sheet-grabber {
+      display: none;
+    }
+    .mobile-sheet-actions {
+      display: none;
+    }
+    .settings-gear-row {
+      display: none;
+    }
+    .save-label-mobile {
+      display: none;
+    }
     .formatbar {
       max-width: 100vw;
       height: 4.75rem;
@@ -635,6 +650,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       --ink: #e8e8ea;
       --muted: #8a8f98;
       --line: #1c2025;
+      --accent: #4ecca3;
       --field: #07080a;
     }
     .reference-theme[data-theme="dark"] .topbar,
@@ -658,6 +674,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     .reference-theme[data-theme="dark"] .formatbar button.is-active {
       color: #4ecca3;
       background: #0b0c0f;
+    }
+    .reference-theme[data-theme="dark"] .mobile-settings-button {
+      color: #cfcfd2;
     }
     .reference-theme[data-theme="dark"] .divider {
       background: #1c2025;
@@ -702,6 +721,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       color: #7b7f88;
     }
     @media (max-width: 900px) {
+      .reference-theme {
+        --editor-font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
       .shell {
         grid-template-columns: 1fr;
       }
@@ -728,75 +750,145 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         padding: 2rem 1rem calc(6rem + env(safe-area-inset-bottom));
       }
       .reference-theme .writer {
-        padding: 2.4rem 1.5rem calc(7rem + env(safe-area-inset-bottom));
+        padding: 5.1rem 1.5rem calc(7rem + env(safe-area-inset-bottom));
       }
       .formatbar {
-        justify-content: flex-start;
-        padding: 0 0.85rem;
-        position: sticky;
-        top: var(--topbar-height);
-        z-index: 9;
+        position: fixed;
+        inset: auto 0 0 0;
+        z-index: 18;
+        height: calc(4.85rem + env(safe-area-inset-bottom));
+        justify-content: center;
+        padding: 0 1rem env(safe-area-inset-bottom);
+        border-top: 1px solid var(--line);
+        border-bottom: 0;
       }
       .formatbar::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 2.25rem;
-        pointer-events: none;
-        background: linear-gradient(to right, rgba(0, 0, 0, 0), var(--bg));
+        content: none;
       }
       .formatbar-inner {
-        width: max-content;
-        justify-content: flex-start;
+        width: 100%;
+        max-width: 26rem;
+        justify-content: space-between;
+        gap: 0.4rem;
       }
+      .toolbar-group {
+        display: contents;
+      }
+      .divider,
+      .formatbar button[data-format="redo"],
+      .formatbar button[data-format="bold"],
+      .formatbar button[data-format="italic"],
+      .formatbar button[data-format="strike"],
+      .formatbar button[data-format="code"],
+      .formatbar button[data-format="heading"],
+      .formatbar button[data-format="ol"] {
+        display: none !important;
+      }
+      #toolbar-image { order: 1; }
+      .formatbar button[data-format="link"] { order: 2; }
+      .formatbar button[data-format="ul"] { order: 3; }
+      .formatbar button[data-format="quote"] { order: 4; }
+      .formatbar button[data-format="undo"] { order: 5; }
+      #typewriter { order: 6; }
       .formatbar button {
         width: 2.75rem;
         min-width: 2.75rem;
         min-height: 2.75rem;
       }
-      .topbar {
-        align-items: flex-start;
-        height: auto;
-        flex-direction: column;
+      .topbar,
+      .reference-theme .topbar {
+        position: fixed;
+        inset: 0 0 auto;
+        min-height: 4.75rem;
+        height: 4.75rem;
+        display: grid;
+        grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.65rem;
         padding: 0.85rem 1rem;
         z-index: 12;
       }
-      .reference-theme .topbar {
-        height: auto;
-        padding: 0.85rem 1rem;
+      .brand {
+        display: contents;
       }
+      .back-button {
+        grid-column: 1;
+        width: 2.75rem;
+        min-width: 2.75rem;
+        min-height: 2.75rem;
+        color: var(--ink);
+      }
+      .saved-pill,
       .reference-theme .saved-pill {
-        max-width: calc(100vw - 8rem);
+        grid-column: 2;
+        justify-self: center;
+        max-width: min(9.8rem, 38vw);
+        min-height: 1.8rem;
+        border: 0;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 600;
       }
       .top-actions {
-        width: 100%;
+        grid-column: 3;
+        width: auto;
+        gap: 0.45rem;
       }
-      .top-actions button {
-        flex: 1;
+      .top-actions button,
+      .reference-theme .top-actions button {
+        flex: 0 0 auto;
+        min-height: 2.6rem;
+        border: 1px solid rgba(255, 255, 255, 0.68);
+        border-radius: 0.55rem;
+        background: transparent;
+        padding: 0 0.75rem;
+        color: var(--ink);
+      }
+      .reference-theme[data-theme="dark"] .top-actions .primary {
+        border-color: rgba(255, 255, 255, 0.68);
+        background: transparent;
+        color: var(--ink);
+      }
+      .mobile-settings-button {
+        display: inline-flex;
+        min-width: 2.25rem !important;
+        border-color: transparent !important;
+        background: transparent !important;
+        padding: 0 !important;
+        font-size: 1.25rem;
+        letter-spacing: 0.06em;
+      }
+      #toolbar-image .button-icon {
+        display: none;
+      }
+      #toolbar-image::before {
+        content: "+";
+        font-size: 1.75rem;
+        font-weight: 600;
+        line-height: 1;
+      }
+      .top-actions #open-site {
+        display: none !important;
       }
       body.no-preview .topbar {
-        align-items: center;
-        flex-direction: row;
-        gap: 0.75rem;
+        grid-template-columns: 2.75rem minmax(0, 1fr) auto;
       }
       body.no-preview .brand {
-        flex: 1 1 auto;
+        display: contents;
       }
       body.no-preview .top-actions {
-        flex: 0 0 auto;
         width: auto;
       }
       body.no-preview .top-actions button {
-        min-width: min(10.5rem, 45vw);
+        min-width: 0;
       }
       .top-actions button[hidden] {
         display: none;
       }
       .bottom-right {
-        right: 1rem;
-        bottom: calc(0.85rem + env(safe-area-inset-bottom));
+        display: none;
       }
       .bottom-right .utility-button {
         min-height: 2.75rem;
@@ -816,13 +908,167 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       .reference-theme .settings {
         inset: auto 0 0 0;
         width: 100%;
-        max-height: min(72vh, 34rem);
+        max-height: min(76vh, 36rem);
         border-right: 0;
         border-bottom: 0;
         border-left: 0;
-        border-radius: 1rem 1rem 0 0;
-        padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom));
+        border-radius: 1.1rem 1.1rem 0 0;
+        padding: 0.85rem 1.1rem calc(5.8rem + env(safe-area-inset-bottom));
         box-shadow: 0 -1rem 3rem rgba(0, 0, 0, 0.24);
+      }
+      .reference-theme[data-theme="dark"] .settings {
+        background: rgba(7, 8, 10, 0.98);
+      }
+      .sheet-grabber {
+        display: block;
+        width: 3.4rem;
+        height: 0.28rem;
+        margin: 0 auto 1rem;
+        border-radius: 999px;
+        background: var(--line);
+      }
+      .settings-header {
+        margin-bottom: 0.8rem;
+      }
+      .settings-header h2 {
+        font-size: 1.28rem;
+      }
+      .field {
+        grid-template-columns: 1.35rem minmax(0, 1fr) minmax(5rem, auto) 0.8rem;
+        column-gap: 0.75rem;
+        align-items: center;
+        margin-bottom: 0;
+        min-height: 3.75rem;
+        padding: 0.68rem 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .field::before,
+      .check::before {
+        content: "";
+        width: 1rem;
+        height: 1rem;
+        border: 1.5px solid var(--muted);
+        border-radius: 999px;
+        opacity: 0.78;
+      }
+      .field::after {
+        content: ">";
+        grid-column: 4;
+        grid-row: 1;
+        justify-self: end;
+        color: var(--muted);
+      }
+      .field span {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: center;
+        padding-right: 1.3rem;
+      }
+      .field input,
+      .field select {
+        grid-column: 3;
+        grid-row: 1;
+        border: 0 !important;
+        background: transparent !important;
+        color: var(--ink) !important;
+        padding-left: 0;
+        padding-right: 0;
+        text-align: right;
+        font-weight: 700;
+      }
+      .check {
+        display: grid;
+        grid-template-columns: 1.35rem minmax(0, 1fr) auto 0.8rem;
+        column-gap: 0.75rem;
+        align-items: center;
+        min-height: 3.1rem;
+        margin: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .check span {
+        grid-column: 2;
+        grid-row: 1;
+      }
+      .check input {
+        grid-column: 3;
+        grid-row: 1;
+        justify-self: end;
+        width: 2.75rem;
+        height: 1.55rem;
+        appearance: none;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #15171c;
+        position: relative;
+      }
+      .check input::before {
+        content: "";
+        position: absolute;
+        width: 1.08rem;
+        height: 1.08rem;
+        left: 0.17rem;
+        top: 0.17rem;
+        border-radius: 999px;
+        background: var(--muted);
+        transition: transform 0.16s ease, background 0.16s ease;
+      }
+      .check input:checked {
+        border-color: var(--accent);
+        background: rgba(78, 204, 163, 0.24);
+      }
+      .check input:checked::before {
+        transform: translateX(1.18rem);
+        background: var(--accent);
+      }
+      .photo-fields {
+        padding: 0;
+        border: 0;
+        background: transparent;
+      }
+      .utility {
+        border-top: 0;
+      }
+      .settings-gear-row {
+        min-height: 3.1rem;
+        display: grid;
+        grid-template-columns: 1.35rem minmax(0, 1fr) 0.8rem;
+        column-gap: 0.75rem;
+        align-items: center;
+        border-bottom: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.76rem;
+        font-weight: 800;
+      }
+      .settings-gear-row .button-icon {
+        width: 1rem;
+        height: 1rem;
+        color: var(--muted);
+      }
+      .settings-gear-row::after {
+        content: ">";
+        justify-self: end;
+      }
+      .mobile-sheet-actions {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 42;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        padding: 0.75rem 1.1rem calc(0.85rem + env(safe-area-inset-bottom));
+        background: linear-gradient(to top, rgba(7, 8, 10, 1) 78%, rgba(7, 8, 10, 0));
+      }
+      .mobile-sheet-actions button {
+        min-height: 2.9rem;
+        justify-content: center;
+      }
+      .save-label-desktop {
+        display: none;
+      }
+      .save-label-mobile {
+        display: inline;
       }
       .reference-theme .writer.is-typewriter {
         padding-top: 1rem;
@@ -844,8 +1090,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       <span class="status" id="status">Loading</span>
     </div>
     <div class="top-actions">
+      <button type="button" class="mobile-settings-button" id="top-settings-button" aria-controls="settings" aria-expanded="false" aria-label="Propiedades">...</button>
       <button type="button" id="open-site">Preview</button>
-      <button type="button" class="primary" id="save">Continue</button>
+      <button type="button" class="primary" id="save"><span class="save-label-desktop">Guardar</span><span class="save-label-mobile">Borradores</span></button>
     </div>
   </header>
   <nav class="formatbar" aria-label="Formatting">
@@ -875,25 +1122,26 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       </span>
       <span class="divider" id="insert-divider-after"></span>
       <span class="toolbar-group" aria-label="View">
-        <button type="button" id="typewriter" class="typewriter-toggle" title="Typewriter" aria-label="Typewriter">${ICONS.typewriter}</button>
+        <button type="button" id="typewriter" class="typewriter-toggle" title="Typewriter" aria-label="Typewriter">${ICONS.keyboard}</button>
       </span>
     </div>
   </nav>
   <main class="shell">
     <section class="writer">
       <article class="paper">
-        <textarea class="title-input" id="title" rows="2" placeholder="Title"></textarea>
-        <input class="subtitle-input" id="summary" type="text" placeholder="Add a subtitle..." />
-        <textarea class="body-input" id="body" placeholder="Start writing..."></textarea>
+        <textarea class="title-input" id="title" rows="2" placeholder="Titulo (Obligatorio)"></textarea>
+        <input class="subtitle-input" id="summary" type="text" placeholder="Agregar un subtitulo..." />
+        <textarea class="body-input" id="body" placeholder="Comienza a escribir un articulo..."></textarea>
       </article>
     </section>
     <aside class="settings" id="settings" hidden>
+      <span class="sheet-grabber" aria-hidden="true"></span>
       <div class="settings-header">
-        <h2 id="settings-title">Post Settings</h2>
+        <h2 id="settings-title">Propiedades</h2>
         <button type="button" class="settings-close" id="settings-close" aria-label="Close settings">&times;</button>
       </div>
       <label class="field" id="notebook-field">
-        <span>Notebook</span>
+        <span>Destino</span>
         <select id="notebook"></select>
       </label>
       <label class="field">
@@ -901,13 +1149,18 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <input id="slug" type="text" />
       </label>
       <label class="field">
-        <span>Date</span>
+        <span>Fecha</span>
         <input id="date" type="date" />
       </label>
       <label class="field" id="tags-field">
-        <span>Tags</span>
+        <span>Etiquetas</span>
         <input id="tags" type="text" placeholder="ensayo, politica" />
       </label>
+      <label class="check">
+        <input id="draft" type="checkbox" />
+        <span>Estado</span>
+      </label>
+      <div class="settings-gear-row">${ICONS.settings}<span>Configuracion</span></div>
       <div class="photo-fields" id="photo-fields" hidden>
         <label class="field">
           <span>Post image</span>
@@ -917,15 +1170,15 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <img class="photo-preview" id="photo-preview" alt="" />
       </div>
       <label class="field" id="image-alt-field">
-        <span>Image alt</span>
-        <input id="image-alt" type="text" placeholder="Describe the image" />
+        <span>Texto alt</span>
+        <input id="image-alt" type="text" placeholder="Describe la imagen" />
       </label>
       <label class="field" id="caption-field">
-        <span>Image caption</span>
-        <input id="caption" type="text" placeholder="Optional caption" />
+        <span>Pie</span>
+        <input id="caption" type="text" placeholder="Pie opcional" />
       </label>
       <label class="field">
-        <span>Editor font size</span>
+        <span>Tamano de texto</span>
         <select id="editor-font-size">
           <option value="small">Small</option>
           <option value="medium">Medium</option>
@@ -933,12 +1186,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         </select>
       </label>
       <label class="check">
-        <input id="draft" type="checkbox" />
-        <span>Draft</span>
-      </label>
-      <label class="check">
         <input id="hidden" type="checkbox" />
-        <span>Hidden</span>
+        <span>Oculto</span>
       </label>
       <div class="danger-zone" id="danger-zone" hidden>
         <h3>Danger</h3>
@@ -951,6 +1200,10 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       <div class="utility">
         <input id="image-file" type="file" accept="image/*" hidden />
         <div class="path" id="path"></div>
+      </div>
+      <div class="mobile-sheet-actions">
+        <button type="button" id="settings-save">Guardar</button>
+        <button type="button" class="primary" id="settings-publish">Publicar</button>
       </div>
     </aside>
   </main>
@@ -987,6 +1240,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         settings: document.getElementById("settings"),
         settingsTitle: document.getElementById("settings-title"),
         settingsButton: document.getElementById("settings-button"),
+        topSettingsButton: document.getElementById("top-settings-button"),
+        settingsSave: document.getElementById("settings-save"),
+        settingsPublish: document.getElementById("settings-publish"),
         settingsClose: document.getElementById("settings-close"),
         insertDividerBefore: document.getElementById("insert-divider-before"),
         insertToolbarGroup: document.getElementById("insert-toolbar-group"),
@@ -1068,6 +1324,12 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           markContentEdited();
         });
         els.save.addEventListener("click", save);
+        els.settingsSave.addEventListener("click", save);
+        els.settingsPublish.addEventListener("click", function () {
+          els.draft.checked = false;
+          els.hidden.checked = false;
+          save();
+        });
         els.typewriter.addEventListener("click", toggleTypewriter);
         els.editorFontSize.addEventListener("change", function () {
           applyEditorSize(els.editorFontSize.value);
@@ -1108,6 +1370,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           window.open(url, "_blank", "noopener");
         });
         els.settingsButton.addEventListener("click", function () {
+          toggleSettings();
+        });
+        els.topSettingsButton.addEventListener("click", function () {
           toggleSettings();
         });
         els.settingsClose.addEventListener("click", closeSettings);
@@ -1168,7 +1433,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.caption.value = "";
         els.draft.checked = true;
         els.hidden.checked = false;
-        savedSnapshot = null;
+        savedSnapshot = currentSaveSnapshot();
         saveInProgress = false;
         saveFailed = false;
         setStatus("New post");
@@ -1539,6 +1804,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         document.body.classList.toggle("settings-open", open);
         els.settingsButton.setAttribute("aria-expanded", String(open));
         els.settingsButton.setAttribute("aria-label", open ? "Close settings" : "Open settings");
+        els.topSettingsButton.setAttribute("aria-expanded", String(open));
+        els.topSettingsButton.setAttribute("aria-label", open ? "Cerrar propiedades" : "Propiedades");
       }
 
       function syncWritingState() {
@@ -1658,7 +1925,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
 
       function syncSavedState() {
         if (saveInProgress) {
-          setSavePill("saving", "Saving");
+          setSavePill("saving", "Guardando");
           return;
         }
         if (saveFailed) {
@@ -1666,10 +1933,10 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           return;
         }
         if (savedSnapshot && currentSaveSnapshot() === savedSnapshot) {
-          setSavePill("saved", "Saved");
+          setSavePill("saved", "Sincronizado");
           return;
         }
-        setSavePill("unsaved", "Unsaved");
+        setSavePill("unsaved", "Sin guardar");
       }
 
       function setSavePill(state, label) {
@@ -1725,7 +1992,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
 
       function syncEditorKind() {
         var notebook = kind === "notebook";
-        els.settingsTitle.textContent = notebook ? "Notebook Settings" : "Post Settings";
+        els.settingsTitle.textContent = notebook ? "Notebook" : "Propiedades";
         els.tagsField.hidden = notebook;
         els.imageAltField.hidden = notebook;
         els.captionField.hidden = notebook;
