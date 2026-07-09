@@ -34,6 +34,12 @@
 
     document.documentElement.setAttribute("data-theme", theme);
 
+    try {
+      if (window.localStorage && localStorage.getItem("grayscale_mode_enabled") === "true") {
+        document.documentElement.classList.add("grayscale-mode");
+      }
+    } catch (error) {}
+
     // Apply saved typography size & font type
     try {
       if (window.localStorage) {
