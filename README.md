@@ -38,6 +38,9 @@ npm run build
 
 # Build de produccion y sincronizacion de static/pagefind
 npm run build:local
+
+# Paquete de QA visual para subagente
+npm run visual:qa -- --feature "mobile author editor" --target editor=http://127.0.0.1:3001/editor?theme=dark
 ```
 
 Si tienes `hugo` en PATH, tambien puedes usar `hugo server -D` y `hugo --gc --minify`.
@@ -53,6 +56,21 @@ npm run author
 ```
 
 Abre el sitio en `http://127.0.0.1:3010/es/`. El puerto `3001` es solo la API local de autoria; no es la pagina que debes abrir. Ese modo agrega un panel local `Author` para crear notebooks, abrir una pestaña de editor para posts/paginas, editar la pagina actual, subir imagenes y escribir con modo `Typewriter`. El build de produccion no incluye ese panel.
+
+## QA visual
+
+Para features con UI, usa la CLI de QA visual antes del commit:
+
+```bash
+npm run visual:qa -- \
+  --feature "mobile author editor" \
+  --reference /tmp/mockup.png \
+  --target editor=http://127.0.0.1:3001/editor?theme=dark \
+  --target editor_props=http://127.0.0.1:3001/editor?theme=dark \
+  --click "editor_props=#top-settings-button"
+```
+
+La salida queda en `tmp/visual-qa/<fecha>-<feature>/` con screenshots, `manifest.json` y `subagent-prompt.md`. El subagente debe calificar 1/10 y dar luz verde solo con promedio `9+`; si no llega, se itera con los cambios minimos y se vuelve a correr la CLI.
 
 ```bash
 # Nuevo post en espanol
