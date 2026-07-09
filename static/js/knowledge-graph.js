@@ -436,10 +436,6 @@
       updateSearchStatus("Coincidencia " + (index + 1) + " de " + matches.length + "." + hint);
     }
 
-    function isGraphFullscreen() {
-      return !!homeGraphSection && document.fullscreenElement === homeGraphSection;
-    }
-
     function setFallbackMaximized(enabled) {
       state.fallbackMaximized = enabled;
       if (homeGraphSection) {
@@ -452,7 +448,7 @@
       if (!maximizeButton) {
         return;
       }
-      var active = state.fallbackMaximized || isGraphFullscreen();
+      var active = state.fallbackMaximized;
       var wasActive = state.maximized;
       state.maximized = active;
       var label = active ? "Restaurar vista" : "Maximizar vista";
@@ -485,36 +481,11 @@
         return;
       }
 
-      if (isGraphFullscreen()) {
-        if (typeof document.exitFullscreen === "function") {
-          var exitResult = document.exitFullscreen();
-          if (exitResult && typeof exitResult.catch === "function") {
-            exitResult.catch(function () {
-              return;
-            });
-          }
-        }
-        return;
-      }
-
       if (state.fallbackMaximized) {
         setFallbackMaximized(false);
         syncMaximizeButton();
         setCanvasSize();
         centerViewForCurrentFocus();
-        return;
-      }
-
-      if (typeof homeGraphSection.requestFullscreen === "function") {
-        var requestResult = homeGraphSection.requestFullscreen();
-        if (requestResult && typeof requestResult.catch === "function") {
-          requestResult.catch(function () {
-            setFallbackMaximized(true);
-            syncMaximizeButton();
-            setCanvasSize();
-            centerViewForCurrentFocus();
-          });
-        }
         return;
       }
 
@@ -901,14 +872,6 @@
     }
 
     window.addEventListener("resize", setCanvasSize);
-    document.addEventListener("fullscreenchange", function () {
-      if (state.fallbackMaximized && isGraphFullscreen()) {
-        setFallbackMaximized(false);
-      }
-      syncMaximizeButton();
-      setCanvasSize();
-      centerViewForCurrentFocus();
-    });
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && state.fallbackMaximized) {
         setFallbackMaximized(false);
