@@ -1,0 +1,41 @@
+{{ define "main" }}
+  {{ $isEnglish := eq .Site.Language.Lang "en" }}
+  <header class="page-header">
+    <h1 data-not-found-title>{{ if $isEnglish }}Page not found{{ else }}Pagina no encontrada{{ end }}</h1>
+    <p class="post-summary" data-not-found-summary>
+      {{ if $isEnglish }}
+        The page you are looking for does not exist or moved.
+      {{ else }}
+        La pagina que buscas no existe o cambio de lugar.
+      {{ end }}
+    </p>
+  </header>
+
+  <p>
+    <a class="button" data-not-found-home href="{{ .Site.Home.RelPermalink }}">
+      {{ if $isEnglish }}Go home{{ else }}Volver al inicio{{ end }}
+    </a>
+  </p>
+
+  <script>
+    (function () {
+      if (!window.location.pathname.startsWith("/es/")) return;
+
+      document.documentElement.lang = "es";
+      document.title = "Pagina no encontrada | betancourt";
+
+      var brandLink = document.querySelector(".site-title a");
+      var title = document.querySelector("[data-not-found-title]");
+      var summary = document.querySelector("[data-not-found-summary]");
+      var homeLink = document.querySelector("[data-not-found-home]");
+
+      if (brandLink) brandLink.setAttribute("href", "/es/");
+      if (title) title.textContent = "Pagina no encontrada";
+      if (summary) summary.textContent = "La pagina que buscas no existe o cambio de lugar.";
+      if (homeLink) {
+        homeLink.setAttribute("href", "/es/");
+        homeLink.textContent = "Volver al inicio";
+      }
+    })();
+  </script>
+{{ end }}

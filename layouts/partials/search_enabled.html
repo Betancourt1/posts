@@ -1,22 +1,4 @@
-{{ $showSearch := false }}
-
-{{ if .IsHome }}
-  {{ $showSearch = true }}
-{{ end }}
-
-{{ if and (eq .Kind "section") (eq .Section "posts") }}
-  {{ $showSearch = true }}
-{{ end }}
-
-{{ if and (eq .Kind "section") (eq .Section "archives") }}
-  {{ $showSearch = true }}
-{{ end }}
-
-{{ if or (eq .Kind "taxonomy") (eq .Kind "term") }}
-  {{ if eq .Data.Plural "tags" }}
-    {{ $showSearch = true }}
-  {{ end }}
-{{ end }}
+{{ $showSearch := not (partial "is_hidden.html" .) }}
 
 {{ if isset .Params "search" }}
   {{ $showSearch = .Params.search }}

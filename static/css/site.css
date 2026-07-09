@@ -1965,7 +1965,22 @@ html.infra-mode .post-header .post-summary { display: none; }
   font-size: 0.75rem;
 }
 .ssh-terminal-close {
-  display: none !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: transparent;
+  color: #ccc;
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+.ssh-terminal-close:hover {
+  border-color: var(--accent);
+  color: #fff;
 }
 .ssh-terminal-body {
   flex: 1;
