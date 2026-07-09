@@ -18,9 +18,18 @@
   var POINTER_SAMPLE_COUNT = 96;
   var SEGMENT_LENGTH_DESKTOP = 70;
   var SEGMENT_LENGTH_MOBILE = 56;
+  var CORNER_LEAD_DESKTOP = 30;
+  var CORNER_LEAD_MOBILE = 24;
+  var COMPRESSION_START = 0.82;
+  var COMPRESSED_LENGTH_SCALE = 0.58;
 
   function clamp(value, min, max) {
     return Math.min(Math.max(value, min), max);
+  }
+
+  function smoothStep(value) {
+    var progress = clamp(value, 0, 1);
+    return progress * progress * (3 - 2 * progress);
   }
 
   function createScrollbar() {
@@ -77,11 +86,11 @@
     var isMobile = mobileMedia.matches;
     var edge = isMobile ? 4 : 8;
     var radius = isMobile ? 26 : 40;
-    var topRun = isMobile ? 260 : 420;
+    var cornerLead = isMobile ? CORNER_LEAD_MOBILE : CORNER_LEAD_DESKTOP;
     var right = getRightEdge(width, edge);
     var top = edge;
     var bottom = height - edge;
-    var startX = Math.max(edge, right - topRun);
+    var startX = Math.max(edge, right - radius - cornerLead);
 
     startX = Math.min(startX, right - 16);
     radius = clamp(radius, 16, Math.max(16, Math.min(right - startX, bottom - top)));
@@ -92,6 +101,7 @@
       height: height,
       radius: radius,
       right: right,
+      cornerLead: cornerLead,
       startX: startX,
       top: top,
       width: width
@@ -103,11 +113,16 @@
   }
 
   function pathFor(geometry) {
+    var bottomCurveStart = Math.max(geometry.top + geometry.radius, geometry.bottom - geometry.radius);
+    var finishX = Math.max(geometry.edge, geometry.right - geometry.radius - geometry.cornerLead);
+
     return [
       "M", geometry.startX, geometry.top,
       "L", geometry.right - geometry.radius, geometry.top,
       "Q", geometry.right, geometry.top, geometry.right, geometry.top + geometry.radius,
-      "L", geometry.right, geometry.bottom
+      "L", geometry.right, bottomCurveStart,
+      "Q", geometry.right, geometry.bottom, geometry.right - geometry.radius, geometry.bottom,
+      "L", finishX, geometry.bottom
     ].join(" ");
   }
 
@@ -119,7 +134,9 @@
       geometry.right,
       geometry.startX,
       geometry.top,
-      geometry.bottom
+      geometry.bottom,
+      geometry.radius,
+      geometry.cornerLead
     ].join(":");
 
     if (nextGeometryKey === geometryKey && pathLength > 0) {
@@ -137,13 +154,15 @@
     elements.progress.setAttribute("d", path);
 
     pathLength = elements.track.getTotalLength();
-    var segmentLength = getSegmentLength();
+    var segmentLength = getSegmentLength(0);
     elements.progress.style.strokeDasharray = segmentLength + " " + pathLength;
   }
 
-  function getSegmentLength() {
+  function getSegmentLength(progress) {
     var preferredLength = mobileMedia.matches ? SEGMENT_LENGTH_MOBILE : SEGMENT_LENGTH_DESKTOP;
-    return Math.min(preferredLength, Math.max(24, pathLength * 0.42));
+    var baseLength = Math.min(preferredLength, Math.max(24, pathLength * 0.42));
+    var compression = smoothStep((progress - COMPRESSION_START) / (1 - COMPRESSION_START));
+    return Math.max(24, baseLength * (1 - (1 - COMPRESSED_LENGTH_SCALE) * compression));
   }
 
   function updateVisual(progress) {
@@ -151,8 +170,9 @@
       return;
     }
 
-    var segmentLength = getSegmentLength();
+    var segmentLength = getSegmentLength(progress);
     var travel = Math.max(0, pathLength - segmentLength);
+    elements.progress.style.strokeDasharray = segmentLength + " " + pathLength;
     elements.progress.style.strokeDashoffset = String(-travel * progress);
   }
 
