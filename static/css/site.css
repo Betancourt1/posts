@@ -569,7 +569,9 @@ body.graph-maximized {
 
 body.graph-maximized .nav-column,
 body.graph-maximized .sidebar-column,
-body.graph-maximized .author-toast {
+body.graph-maximized .author-toast,
+body.graph-maximized .ssh-terminal-open-btn,
+body.graph-maximized .ssh-terminal-overlay {
   visibility: hidden;
   pointer-events: none;
 }
