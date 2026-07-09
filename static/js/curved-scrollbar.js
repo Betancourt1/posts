@@ -2,19 +2,19 @@
   "use strict";
 
   var root = document.documentElement;
-  var desktopMedia = window.matchMedia("(min-width: 1001px) and (hover: hover) and (pointer: fine)");
+  var mobileMedia = window.matchMedia("(max-width: 720px)");
   var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   var frameRequested = false;
   var isDragging = false;
+  var capturedPointerElement = null;
   var scrollMax = 0;
   var pathLength = 0;
+  var viewportWidth = 0;
+  var viewportHeight = 0;
   var elements = null;
 
-  var VIEWBOX_HEIGHT = 220;
-  var PATH_START_Y = 8;
-  var PATH_END_Y = 212;
   var MIN_SCROLLABLE_DISTANCE = 120;
-  var PATH_D = "M28 8 C8 42 8 76 28 110 C48 144 48 178 28 212";
+  var POINTER_SAMPLE_COUNT = 96;
 
   function clamp(value, min, max) {
     return Math.min(Math.max(value, min), max);
@@ -26,10 +26,11 @@
     container.setAttribute("aria-hidden", "true");
 
     container.innerHTML = [
-      '<svg class="curved-scrollbar__svg" viewBox="0 0 56 220" focusable="false">',
-      '<path class="curved-scrollbar__track" d="' + PATH_D + '" />',
-      '<path class="curved-scrollbar__progress" d="' + PATH_D + '" />',
-      '<circle class="curved-scrollbar__thumb" cx="28" cy="8" r="4.5" />',
+      '<svg class="curved-scrollbar__svg" viewBox="0 0 1 1" focusable="false">',
+      '<path class="curved-scrollbar__hit-area" d="" />',
+      '<path class="curved-scrollbar__track" d="" />',
+      '<path class="curved-scrollbar__progress" d="" />',
+      '<circle class="curved-scrollbar__thumb" cx="0" cy="0" r="5" />',
       '</svg>'
     ].join("");
 
@@ -38,19 +39,19 @@
     elements = {
       container: container,
       svg: container.querySelector(".curved-scrollbar__svg"),
+      hitArea: container.querySelector(".curved-scrollbar__hit-area"),
       track: container.querySelector(".curved-scrollbar__track"),
       progress: container.querySelector(".curved-scrollbar__progress"),
       thumb: container.querySelector(".curved-scrollbar__thumb")
     };
 
-    pathLength = elements.track.getTotalLength();
-    elements.progress.style.strokeDasharray = pathLength;
-    elements.progress.style.strokeDashoffset = pathLength;
+    updateGeometry();
 
-    container.addEventListener("pointerdown", handlePointerDown);
-    container.addEventListener("pointermove", handlePointerMove);
-    container.addEventListener("pointerup", stopDragging);
-    container.addEventListener("pointercancel", stopDragging);
+    elements.hitArea.addEventListener("pointerdown", handlePointerDown);
+    elements.thumb.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("pointermove", handlePointerMove, { passive: false });
+    window.addEventListener("pointerup", stopDragging);
+    window.addEventListener("pointercancel", stopDragging);
   }
 
   function getScrollMax() {
@@ -66,10 +67,69 @@
 
   function shouldEnable() {
     scrollMax = getScrollMax();
-    return desktopMedia.matches && scrollMax > MIN_SCROLLABLE_DISTANCE;
+    return scrollMax > MIN_SCROLLABLE_DISTANCE;
+  }
+
+  function getGeometry() {
+    var rect = elements.svg.getBoundingClientRect();
+    var width = Math.max(1, Math.round(rect.width));
+    var height = Math.max(1, Math.round(rect.height));
+    var isMobile = mobileMedia.matches;
+    var edge = isMobile ? 4 : 8;
+    var radius = isMobile ? 26 : 40;
+    var topRun = isMobile ? 260 : 420;
+    var right = width - edge;
+    var top = edge;
+    var bottom = height - edge;
+    var startX = Math.max(edge, width - topRun);
+
+    radius = clamp(radius, 16, Math.max(16, Math.min(right - startX, bottom - top)));
+
+    return {
+      bottom: bottom,
+      edge: edge,
+      height: height,
+      radius: radius,
+      right: right,
+      startX: startX,
+      top: top,
+      width: width
+    };
+  }
+
+  function pathFor(geometry) {
+    return [
+      "M", geometry.startX, geometry.top,
+      "L", geometry.right - geometry.radius, geometry.top,
+      "Q", geometry.right, geometry.top, geometry.right, geometry.top + geometry.radius,
+      "L", geometry.right, geometry.bottom
+    ].join(" ");
+  }
+
+  function updateGeometry() {
+    var geometry = getGeometry();
+    if (geometry.width === viewportWidth && geometry.height === viewportHeight && pathLength > 0) {
+      return;
+    }
+
+    viewportWidth = geometry.width;
+    viewportHeight = geometry.height;
+
+    var path = pathFor(geometry);
+    elements.svg.setAttribute("viewBox", "0 0 " + geometry.width + " " + geometry.height);
+    elements.hitArea.setAttribute("d", path);
+    elements.track.setAttribute("d", path);
+    elements.progress.setAttribute("d", path);
+
+    pathLength = elements.track.getTotalLength();
+    elements.progress.style.strokeDasharray = pathLength;
   }
 
   function updateVisual(progress) {
+    if (!pathLength) {
+      return;
+    }
+
     var point = elements.track.getPointAtLength(pathLength * progress);
     elements.thumb.setAttribute("cx", point.x);
     elements.thumb.setAttribute("cy", point.y);
@@ -78,6 +138,8 @@
 
   function update() {
     frameRequested = false;
+    updateGeometry();
+
     var enabled = shouldEnable();
     root.classList.toggle("curved-scrollbar-active", enabled);
 
@@ -99,11 +161,26 @@
 
   function progressFromPointer(event) {
     var rect = elements.svg.getBoundingClientRect();
-    var localY = ((event.clientY - rect.top) / rect.height) * VIEWBOX_HEIGHT;
-    return clamp((localY - PATH_START_Y) / (PATH_END_Y - PATH_START_Y), 0, 1);
+    var x = clamp(event.clientX - rect.left, 0, viewportWidth);
+    var y = clamp(event.clientY - rect.top, 0, viewportHeight);
+    var bestLength = 0;
+    var bestDistance = Infinity;
+
+    for (var i = 0; i <= POINTER_SAMPLE_COUNT; i++) {
+      var length = (pathLength * i) / POINTER_SAMPLE_COUNT;
+      var point = elements.track.getPointAtLength(length);
+      var distance = Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestLength = length;
+      }
+    }
+
+    return pathLength === 0 ? 0 : bestLength / pathLength;
   }
 
   function scrollToProgress(progress, smooth) {
+    scrollMax = getScrollMax();
     window.scrollTo({
       top: scrollMax * progress,
       behavior: smooth && !reducedMotion.matches ? "smooth" : "auto"
@@ -117,10 +194,11 @@
 
     event.preventDefault();
     isDragging = true;
+    capturedPointerElement = event.currentTarget;
     elements.container.classList.add("is-dragging");
 
-    if (elements.container.setPointerCapture) {
-      elements.container.setPointerCapture(event.pointerId);
+    if (capturedPointerElement.setPointerCapture) {
+      capturedPointerElement.setPointerCapture(event.pointerId);
     }
 
     scrollToProgress(progressFromPointer(event), true);
@@ -143,9 +221,12 @@
     isDragging = false;
     elements.container.classList.remove("is-dragging");
 
-    if (event && elements.container.releasePointerCapture) {
-      elements.container.releasePointerCapture(event.pointerId);
+    if (event && capturedPointerElement && capturedPointerElement.releasePointerCapture) {
+      try {
+        capturedPointerElement.releasePointerCapture(event.pointerId);
+      } catch (error) {}
     }
+    capturedPointerElement = null;
   }
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -154,6 +235,9 @@
 
     window.addEventListener("scroll", requestUpdate, { passive: true });
     window.addEventListener("resize", requestUpdate);
-    desktopMedia.addEventListener("change", requestUpdate);
+    mobileMedia.addEventListener("change", requestUpdate);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", requestUpdate);
+    }
   });
 })();

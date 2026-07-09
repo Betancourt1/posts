@@ -1719,21 +1719,20 @@ body.zen-mode-returning .layout {
 
 .curved-scrollbar {
   position: fixed;
-  top: 50%;
-  right: max(12px, env(safe-area-inset-right));
+  top: 0;
+  right: 0;
   z-index: 1800;
-  width: 56px;
-  height: clamp(210px, 38vh, 320px);
+  width: min(34rem, 66vw);
+  height: 100vh;
+  height: 100dvh;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-50%);
   transition: opacity 0.2s ease;
   touch-action: none;
 }
 
 html.curved-scrollbar-active .curved-scrollbar {
-  opacity: 0.74;
-  pointer-events: auto;
+  opacity: 0.78;
 }
 
 html.curved-scrollbar-active .curved-scrollbar:hover,
@@ -1746,14 +1745,26 @@ html.curved-scrollbar-active .curved-scrollbar.is-dragging {
   height: 100%;
   display: block;
   overflow: visible;
+}
+
+.curved-scrollbar__hit-area,
+.curved-scrollbar__track,
+.curved-scrollbar__progress {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.curved-scrollbar__hit-area {
+  stroke: transparent;
+  stroke-width: 30;
+  pointer-events: stroke;
   cursor: pointer;
 }
 
 .curved-scrollbar__track,
 .curved-scrollbar__progress {
-  fill: none;
-  stroke-linecap: round;
-  stroke-width: 5;
+  pointer-events: none;
+  stroke-width: 4.5;
 }
 
 .curved-scrollbar__track {
@@ -1766,15 +1777,21 @@ html.curved-scrollbar-active .curved-scrollbar.is-dragging {
 
 .curved-scrollbar__thumb {
   fill: var(--accent);
+  pointer-events: auto;
   stroke: var(--bg);
   stroke-width: 2.4;
   transition: r 0.18s ease, stroke-width 0.18s ease;
+  cursor: grab;
 }
 
 .curved-scrollbar:hover .curved-scrollbar__thumb,
 .curved-scrollbar.is-dragging .curved-scrollbar__thumb {
   r: 6;
   stroke-width: 2.8;
+}
+
+.curved-scrollbar.is-dragging .curved-scrollbar__thumb {
+  cursor: grabbing;
 }
 
 body.search-active .curved-scrollbar,
@@ -2798,9 +2815,27 @@ html:not(.infra-mode) .post-body {
   }
 }
 
-@media (max-width: 1000px), (hover: none), (pointer: coarse) {
+@media (max-width: 720px) {
   .curved-scrollbar {
-    display: none !important;
+    width: min(19rem, 82vw);
+  }
+
+  html.curved-scrollbar-active .curved-scrollbar {
+    opacity: 0.86;
+  }
+
+  .curved-scrollbar__hit-area {
+    stroke-width: 22;
+  }
+
+  .curved-scrollbar__track,
+  .curved-scrollbar__progress {
+    stroke-width: 3.25;
+  }
+
+  .curved-scrollbar__thumb {
+    r: 4.5;
+    stroke-width: 2;
   }
 }
 
