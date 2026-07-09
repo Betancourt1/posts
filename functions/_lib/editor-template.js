@@ -1012,10 +1012,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         align-items: center;
         gap: 0.55rem;
       }
-      .settings-publish {
-        min-height: 2.65rem;
-        padding: 0 0.9rem;
-      }
       .field {
         grid-template-columns: minmax(0, 1fr) minmax(5rem, auto) 0.8rem;
         column-gap: 0.75rem;
@@ -1197,7 +1193,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       <div class="settings-header">
         <h2 id="settings-title">Propiedades</h2>
         <div class="settings-header-actions">
-          <button type="button" class="primary settings-publish" id="settings-publish">Publicar</button>
           <button type="button" class="settings-close" id="settings-close" aria-label="Cerrar configuracion">&times;</button>
         </div>
       </div>
@@ -1305,7 +1300,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         settingsBackdrop: document.getElementById("settings-backdrop"),
         settingsTitle: document.getElementById("settings-title"),
         topSettingsButton: document.getElementById("top-settings-button"),
-        settingsPublish: document.getElementById("settings-publish"),
         settingsClose: document.getElementById("settings-close"),
         insertDividerBefore: document.getElementById("insert-divider-before"),
         insertToolbarGroup: document.getElementById("insert-toolbar-group"),
@@ -1393,12 +1387,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           markContentEdited();
         });
         els.save.addEventListener("click", save);
-        els.settingsPublish.addEventListener("click", function () {
-          els.draft.checked = false;
-          els.hidden.checked = false;
-          syncSwitchLabels();
-          save();
-        });
         els.editorFontSize.addEventListener("change", function () {
           applyEditorSize(els.editorFontSize.value);
         });
