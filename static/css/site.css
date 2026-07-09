@@ -1764,33 +1764,19 @@ html.curved-scrollbar-active .curved-scrollbar.is-dragging {
 .curved-scrollbar__track,
 .curved-scrollbar__progress {
   pointer-events: none;
-  stroke-width: 4.5;
+  stroke-width: 3.6;
 }
 
 .curved-scrollbar__track {
-  stroke: rgba(123, 127, 136, 0.25);
+  stroke: transparent;
 }
 
 .curved-scrollbar__progress {
   stroke: var(--accent);
 }
 
-.curved-scrollbar__thumb {
-  fill: var(--accent);
-  pointer-events: auto;
-  stroke: var(--bg);
-  stroke-width: 2.4;
-  transition: r 0.18s ease, stroke-width 0.18s ease;
-  cursor: grab;
-}
-
-.curved-scrollbar:hover .curved-scrollbar__thumb,
-.curved-scrollbar.is-dragging .curved-scrollbar__thumb {
-  r: 6;
-  stroke-width: 2.8;
-}
-
-.curved-scrollbar.is-dragging .curved-scrollbar__thumb {
+html.curved-scrollbar-active .curved-scrollbar:hover,
+html.curved-scrollbar-active .curved-scrollbar.is-dragging {
   cursor: grabbing;
 }
 
@@ -2799,8 +2785,7 @@ html:not(.infra-mode) .post-body {
 @media (prefers-reduced-motion: reduce) {
   .author-action-button,
   .author-form button,
-  .curved-scrollbar,
-  .curved-scrollbar__thumb {
+  .curved-scrollbar {
     transition: none;
   }
 
@@ -2830,12 +2815,7 @@ html:not(.infra-mode) .post-body {
 
   .curved-scrollbar__track,
   .curved-scrollbar__progress {
-    stroke-width: 3.25;
-  }
-
-  .curved-scrollbar__thumb {
-    r: 4.5;
-    stroke-width: 2;
+    stroke-width: 2.6;
   }
 }
 

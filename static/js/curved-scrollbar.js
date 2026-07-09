@@ -16,6 +16,8 @@
 
   var MIN_SCROLLABLE_DISTANCE = 16;
   var POINTER_SAMPLE_COUNT = 96;
+  var SEGMENT_LENGTH_DESKTOP = 140;
+  var SEGMENT_LENGTH_MOBILE = 112;
 
   function clamp(value, min, max) {
     return Math.min(Math.max(value, min), max);
@@ -31,7 +33,6 @@
       '<path class="curved-scrollbar__hit-area" d="" />',
       '<path class="curved-scrollbar__track" d="" />',
       '<path class="curved-scrollbar__progress" d="" />',
-      '<circle class="curved-scrollbar__thumb" cx="0" cy="0" r="5" />',
       '</svg>'
     ].join("");
 
@@ -42,14 +43,12 @@
       svg: container.querySelector(".curved-scrollbar__svg"),
       hitArea: container.querySelector(".curved-scrollbar__hit-area"),
       track: container.querySelector(".curved-scrollbar__track"),
-      progress: container.querySelector(".curved-scrollbar__progress"),
-      thumb: container.querySelector(".curved-scrollbar__thumb")
+      progress: container.querySelector(".curved-scrollbar__progress")
     };
 
     updateGeometry();
 
     elements.hitArea.addEventListener("pointerdown", handlePointerDown);
-    elements.thumb.addEventListener("pointerdown", handlePointerDown);
     window.addEventListener("pointermove", handlePointerMove, { passive: false });
     window.addEventListener("pointerup", stopDragging);
     window.addEventListener("pointercancel", stopDragging);
@@ -152,7 +151,13 @@
     elements.progress.setAttribute("d", path);
 
     pathLength = elements.track.getTotalLength();
-    elements.progress.style.strokeDasharray = pathLength;
+    var segmentLength = getSegmentLength();
+    elements.progress.style.strokeDasharray = segmentLength + " " + pathLength;
+  }
+
+  function getSegmentLength() {
+    var preferredLength = mobileMedia.matches ? SEGMENT_LENGTH_MOBILE : SEGMENT_LENGTH_DESKTOP;
+    return Math.min(preferredLength, Math.max(24, pathLength * 0.42));
   }
 
   function updateVisual(progress) {
@@ -160,10 +165,9 @@
       return;
     }
 
-    var point = elements.track.getPointAtLength(pathLength * progress);
-    elements.thumb.setAttribute("cx", point.x);
-    elements.thumb.setAttribute("cy", point.y);
-    elements.progress.style.strokeDashoffset = String(pathLength * (1 - progress));
+    var segmentLength = getSegmentLength();
+    var travel = Math.max(0, pathLength - segmentLength);
+    elements.progress.style.strokeDashoffset = String(-travel * progress);
   }
 
   function update() {
