@@ -1773,6 +1773,7 @@ html.curved-scrollbar-active .curved-scrollbar.is-dragging {
 
 .curved-scrollbar__progress {
   stroke: var(--accent);
+  will-change: stroke-dasharray, stroke-dashoffset;
 }
 
 html.curved-scrollbar-active .curved-scrollbar:hover,

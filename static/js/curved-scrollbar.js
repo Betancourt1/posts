@@ -12,6 +12,11 @@
   var viewportWidth = 0;
   var viewportHeight = 0;
   var geometryKey = "";
+  var targetProgress = 0;
+  var visibleProgress = 0;
+  var visualFrameRequested = false;
+  var lastVisualFrameTime = 0;
+  var hasVisibleProgress = false;
   var elements = null;
 
   var MIN_SCROLLABLE_DISTANCE = 16;
@@ -20,8 +25,10 @@
   var SEGMENT_LENGTH_MOBILE = 56;
   var CORNER_LEAD_DESKTOP = 30;
   var CORNER_LEAD_MOBILE = 24;
-  var COMPRESSION_START = 0.82;
-  var COMPRESSED_LENGTH_SCALE = 0.58;
+  var EDGE_COMPRESSION_RANGE = 0.22;
+  var COMPRESSED_LENGTH_SCALE = 0.42;
+  var VISUAL_SETTLE_MS = 360;
+  var DIRECT_SETTLE_DISTANCE = 0.002;
 
   function clamp(value, min, max) {
     return Math.min(Math.max(value, min), max);
@@ -161,7 +168,9 @@
   function getSegmentLength(progress) {
     var preferredLength = mobileMedia.matches ? SEGMENT_LENGTH_MOBILE : SEGMENT_LENGTH_DESKTOP;
     var baseLength = Math.min(preferredLength, Math.max(24, pathLength * 0.42));
-    var compression = smoothStep((progress - COMPRESSION_START) / (1 - COMPRESSION_START));
+    var startCompression = 1 - smoothStep(progress / EDGE_COMPRESSION_RANGE);
+    var endCompression = smoothStep((progress - (1 - EDGE_COMPRESSION_RANGE)) / EDGE_COMPRESSION_RANGE);
+    var compression = Math.max(startCompression, endCompression);
     return Math.max(24, baseLength * (1 - (1 - COMPRESSED_LENGTH_SCALE) * compression));
   }
 
@@ -176,6 +185,64 @@
     elements.progress.style.strokeDashoffset = String(-travel * progress);
   }
 
+  function requestVisualFrame() {
+    if (visualFrameRequested) {
+      return;
+    }
+    visualFrameRequested = true;
+    window.requestAnimationFrame(animateVisual);
+  }
+
+  function animateVisual(timestamp) {
+    visualFrameRequested = false;
+
+    if (!pathLength || !root.classList.contains("curved-scrollbar-active")) {
+      lastVisualFrameTime = 0;
+      return;
+    }
+
+    if (reducedMotion.matches) {
+      visibleProgress = targetProgress;
+      lastVisualFrameTime = 0;
+      updateVisual(visibleProgress);
+      return;
+    }
+
+    var delta = lastVisualFrameTime ? timestamp - lastVisualFrameTime : 16;
+    var settleMs = isDragging ? 120 : VISUAL_SETTLE_MS;
+    var easing = 1 - Math.pow(0.001, clamp(delta, 0, 64) / settleMs);
+    var distance = targetProgress - visibleProgress;
+
+    lastVisualFrameTime = timestamp;
+    visibleProgress += distance * easing;
+
+    if (Math.abs(targetProgress - visibleProgress) < DIRECT_SETTLE_DISTANCE) {
+      visibleProgress = targetProgress;
+    }
+
+    updateVisual(visibleProgress);
+
+    if (visibleProgress !== targetProgress) {
+      requestVisualFrame();
+    } else {
+      lastVisualFrameTime = 0;
+    }
+  }
+
+  function setTargetProgress(progress) {
+    targetProgress = progress;
+
+    if (!hasVisibleProgress || reducedMotion.matches) {
+      visibleProgress = targetProgress;
+      hasVisibleProgress = true;
+      lastVisualFrameTime = 0;
+      updateVisual(visibleProgress);
+      return;
+    }
+
+    requestVisualFrame();
+  }
+
   function update() {
     frameRequested = false;
     updateGeometry();
@@ -184,11 +251,15 @@
     root.classList.toggle("curved-scrollbar-active", enabled);
 
     if (!enabled || !elements) {
+      targetProgress = 0;
+      visibleProgress = 0;
+      hasVisibleProgress = false;
+      lastVisualFrameTime = 0;
       return;
     }
 
     var progress = scrollMax === 0 ? 0 : clamp(window.scrollY / scrollMax, 0, 1);
-    updateVisual(progress);
+    setTargetProgress(progress);
   }
 
   function requestUpdate() {

@@ -18,7 +18,7 @@ rmSync("public", { recursive: true, force: true });
 run("node", ["tools/check_author_ui_gate.mjs"]);
 run("hugo", ["--gc", "--minify", "--destination", "public"]);
 run("node", ["tools/clean_pagefind_output.mjs"]);
-run("pagefind", ["--site", "public"]);
+run("node", ["node_modules/pagefind/lib/runner/bin.cjs", "--site", "public"]);
 run("hugo", [
   "--gc",
   "--minify",
