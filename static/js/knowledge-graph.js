@@ -23,9 +23,31 @@
     return normalized;
   }
 
+  function shouldSkipTag(tag) {
+    return tag === "nota" || tag === "zettelkasten" || tag === "cita";
+  }
+
+  function cleanTagList(tags) {
+    if (!Array.isArray(tags)) {
+      return [];
+    }
+
+    var seen = new Set();
+    var cleanTags = [];
+    tags.forEach(function (rawTag) {
+      var tag = toTagName(rawTag);
+      if (!tag || seen.has(tag) || shouldSkipTag(tag)) {
+        return;
+      }
+      seen.add(tag);
+      cleanTags.push(tag);
+    });
+    return cleanTags;
+  }
+
   function parsePayload(scriptEl) {
     if (!scriptEl) {
-      return { posts: [], tagLinks: {} };
+      return { posts: [], tagLinks: {}, focusTags: [] };
     }
 
     try {
@@ -35,10 +57,11 @@
       }
       return {
         posts: Array.isArray(parsed.posts) ? parsed.posts : [],
-        tagLinks: parsed.tagLinks && typeof parsed.tagLinks === "object" ? parsed.tagLinks : {}
+        tagLinks: parsed.tagLinks && typeof parsed.tagLinks === "object" ? parsed.tagLinks : {},
+        focusTags: Array.isArray(parsed.focusTags) ? parsed.focusTags : []
       };
     } catch (error) {
-      return { posts: [], tagLinks: {} };
+      return { posts: [], tagLinks: {}, focusTags: [] };
     }
   }
 
@@ -83,19 +106,7 @@
         return;
       }
 
-      var seen = new Set();
-      var cleanTags = [];
-      post.tags.forEach(function (rawTag) {
-        var tag = toTagName(rawTag);
-        if (!tag || seen.has(tag)) {
-          return;
-        }
-        if (tag === "nota" || tag === "zettelkasten" || tag === "cita") {
-          return;
-        }
-        seen.add(tag);
-        cleanTags.push(tag);
-      });
+      var cleanTags = cleanTagList(post.tags);
 
       if (cleanTags.length === 0) {
         return;
@@ -142,6 +153,50 @@
     };
   }
 
+  function filterGraphToEgoNetwork(graph, focusTags) {
+    var cleanFocusTags = cleanTagList(focusTags);
+    if (cleanFocusTags.length === 0) {
+      return graph;
+    }
+
+    var focusSet = new Set(cleanFocusTags);
+    var includedTags = new Set(cleanFocusTags);
+    var directLinks = graph.links.filter(function (link) {
+      var sourceIsFocus = focusSet.has(link.source.label);
+      var targetIsFocus = focusSet.has(link.target.label);
+      if (!sourceIsFocus && !targetIsFocus) {
+        return false;
+      }
+
+      includedTags.add(link.source.label);
+      includedTags.add(link.target.label);
+      return true;
+    });
+
+    var includedNodes = graph.nodes.filter(function (node) {
+      return includedTags.has(node.label);
+    });
+    var includedNodeSet = new Set(includedNodes);
+
+    includedNodes.forEach(function (node) {
+      node.isFocus = focusSet.has(node.label);
+      node.neighbors = new Set();
+    });
+
+    directLinks = directLinks.filter(function (link) {
+      return includedNodeSet.has(link.source) && includedNodeSet.has(link.target);
+    });
+    directLinks.forEach(function (link) {
+      link.source.neighbors.add(link.target);
+      link.target.neighbors.add(link.source);
+    });
+
+    return {
+      nodes: includedNodes,
+      links: directLinks
+    };
+  }
+
   function init() {
     var container = document.getElementById("knowledge-graph");
     var dataEl = document.getElementById("knowledge-graph-data");
@@ -158,7 +213,7 @@
     var homeGraphSection = container.closest(".home-graph");
 
     var payload = parsePayload(dataEl);
-    var graph = buildGraph(payload.posts, payload.tagLinks);
+    var graph = filterGraphToEgoNetwork(buildGraph(payload.posts, payload.tagLinks), payload.focusTags);
     var nodes = graph.nodes;
     var links = graph.links;
 
