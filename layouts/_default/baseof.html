@@ -11,7 +11,7 @@
     {{ partial "author_tools.html" . }}
   {{ end }}
   <header class="site-header">
-    <h1 class="site-title"><a href="{{ .Site.Home.RelPermalink }}">betancourt</a></h1>
+    <p class="site-title"><a href="{{ .Site.Home.RelPermalink }}">betancourt</a></p>
     <p class="site-subtitle">{{ .Site.Params.subtitle | default "aquí escribo cosas" }}</p>
     <div class="site-header-actions">
       {{ if .IsTranslated }}
@@ -99,7 +99,7 @@
     </div>
     <div class="site-header-controls" style="margin-top: 10px; display: flex; justify-content: center; gap: 10px; align-items: center;">
       {{ if $showSearch }}
-        <button class="search-trigger" id="search-trigger" type="button" aria-label="{{ if eq .Site.Language.Lang "en" }}Search (Ctrl+K){{ else }}Buscar (Ctrl+K){{ end }}" style="display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; padding: 0.35rem 0.65rem; background: transparent; color: var(--ink-dim); font-size: 0.8rem; cursor: pointer; line-height: 1.25;">
+        <button class="search-trigger" id="search-trigger" type="button" aria-label="{{ if eq .Site.Language.Lang "en" }}Search (Ctrl+K){{ else }}Buscar (Ctrl+K){{ end }}" aria-controls="search-modal" aria-expanded="false" style="display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; padding: 0.35rem 0.65rem; background: transparent; color: var(--ink-dim); font-size: 0.8rem; cursor: pointer; line-height: 1.25;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px; margin-right: 6px;">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -112,10 +112,10 @@
   </header>
 
   {{ if $showSearch }}
-    <div class="search-modal-overlay" id="search-modal-overlay">
-      <div class="search-modal">
+    <div class="search-modal-overlay" id="search-modal-overlay" aria-hidden="true" inert>
+      <div class="search-modal" id="search-modal" role="dialog" aria-modal="true" aria-labelledby="search-modal-title" tabindex="-1">
         <div class="search-modal-header">
-          <span class="search-modal-title">{{ if eq .Site.Language.Lang "en" }}Global Search{{ else }}Búsqueda Global{{ end }}</span>
+          <span class="search-modal-title" id="search-modal-title">{{ if eq .Site.Language.Lang "en" }}Global Search{{ else }}Búsqueda Global{{ end }}</span>
           <button class="search-modal-close" id="search-modal-close" type="button" aria-label="{{ if eq .Site.Language.Lang "en" }}Close search{{ else }}Cerrar búsqueda{{ end }}">&times;</button>
         </div>
         <div class="site-search" id="search">

@@ -66,6 +66,7 @@
   })();
 </script>
 <title>{{ $pageTitle }}</title>
+<meta data-pagefind-meta="title" content="{{ .Title | default $siteTitle }}" />
 <meta name="description" content="{{ $description }}" />
 <link rel="canonical" href="{{ .Permalink }}" />
 <meta property="og:locale" content="es_MX" />
@@ -97,13 +98,27 @@
         return;
       }
 
+      var searchCopy = {
+        loadError: {{ i18n "searchLoadError" | jsonify | safeJS }},
+        indexUnavailable: {{ i18n "searchIndexUnavailable" | jsonify | safeJS }},
+        indexLoadError: {{ i18n "searchIndexLoadError" | jsonify | safeJS }},
+        placeholder: {{ i18n "searchPlaceholder" | jsonify | safeJS }},
+        loadMore: {{ i18n "searchLoadMore" | jsonify | safeJS }},
+        label: {{ i18n "searchLabel" | jsonify | safeJS }},
+        filtersLabel: {{ i18n "searchFiltersLabel" | jsonify | safeJS }},
+        zeroResults: {{ i18n "searchZeroResults" | jsonify | safeJS }},
+        oneResult: {{ i18n "searchOneResult" | jsonify | safeJS }},
+        manyResults: {{ i18n "searchManyResults" | jsonify | safeJS }},
+        searching: {{ i18n "searchSearching" | jsonify | safeJS }}
+      };
+
       setupSearchModal();
 
       initSearch();
 
       function initSearch() {
         if (typeof window.PagefindUI === "undefined") {
-          showSearchMessage("No se pudo cargar el motor de búsqueda.");
+          showSearchMessage(searchCopy.loadError);
           return;
         }
 
@@ -114,7 +129,7 @@
           .then(function (response) {
             var contentType = response.headers.get("content-type") || "";
             if (!response.ok || contentType.indexOf("text/html") !== -1) {
-              showSearchMessage("El índice de búsqueda no está disponible.");
+              showSearchMessage(searchCopy.indexUnavailable);
               return;
             }
 
@@ -125,20 +140,21 @@
               resetStyles: false,
               showImages: false,
               showSubResults: true,
-              placeholder: "Buscar en el sitio",
+              pageSize: 5,
+              placeholder: searchCopy.placeholder,
               translations: {
-                load_more: "Ver más resultados",
-                search_label: "Buscar",
-                filters_label: "Filtros",
-                zero_results: "No hay resultados para [SEARCH_TERM]",
-                one_result: "[COUNT] resultado para [SEARCH_TERM]",
-                many_results: "[COUNT] resultados para [SEARCH_TERM]",
-                searching: "Buscando [SEARCH_TERM]..."
+                load_more: searchCopy.loadMore,
+                search_label: searchCopy.label,
+                filters_label: searchCopy.filtersLabel,
+                zero_results: searchCopy.zeroResults,
+                one_result: searchCopy.oneResult,
+                many_results: searchCopy.manyResults,
+                searching: searchCopy.searching
               }
             });
           })
           .catch(function () {
-            showSearchMessage("No se pudo cargar el índice de búsqueda.");
+            showSearchMessage(searchCopy.indexLoadError);
           });
       }
 
@@ -152,45 +168,97 @@
 
       function setupSearchModal() {
         var overlay = document.getElementById("search-modal-overlay");
+        var modal = document.getElementById("search-modal");
         var trigger = document.getElementById("search-trigger");
         var closeBtn = document.getElementById("search-modal-close");
-        
-        if (!overlay) return;
-        
+        var previouslyFocused = null;
+
+        if (!overlay || !modal) return;
+
+        function getFocusableElements() {
+          return Array.prototype.filter.call(
+            modal.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'),
+            function (element) {
+              return element.offsetWidth > 0 || element.offsetHeight > 0 || element.getClientRects().length > 0;
+            }
+          );
+        }
+
         function openModal() {
+          previouslyFocused = document.activeElement;
+          overlay.removeAttribute("inert");
+          overlay.setAttribute("aria-hidden", "false");
           overlay.classList.add("is-visible");
           document.body.classList.add("search-active");
+          if (trigger) {
+            trigger.setAttribute("aria-expanded", "true");
+          }
           setTimeout(function () {
             var input = overlay.querySelector(".pagefind-ui__search-input");
             if (input) {
               input.focus();
               input.select();
+            } else {
+              modal.focus();
             }
           }, 60);
         }
-        
+
         function closeModal() {
           overlay.classList.remove("is-visible");
           document.body.classList.remove("search-active");
+          if (trigger) {
+            trigger.setAttribute("aria-expanded", "false");
+          }
+
+          var focusTarget = previouslyFocused && previouslyFocused.isConnected ? previouslyFocused : trigger;
+          if (focusTarget && typeof focusTarget.focus === "function") {
+            focusTarget.focus();
+          }
+
+          overlay.setAttribute("aria-hidden", "true");
+          overlay.setAttribute("inert", "");
+          previouslyFocused = null;
         }
-        
+
         if (trigger) {
           trigger.addEventListener("click", function (e) {
             e.preventDefault();
             openModal();
           });
         }
-        
+
         if (closeBtn) {
           closeBtn.addEventListener("click", closeModal);
         }
-        
+
         overlay.addEventListener("click", function (e) {
           if (e.target === overlay) {
             closeModal();
           }
         });
-        
+
+        overlay.addEventListener("keydown", function (e) {
+          if (e.key !== "Tab") return;
+
+          var focusable = getFocusableElements();
+          if (focusable.length === 0) {
+            e.preventDefault();
+            modal.focus();
+            return;
+          }
+
+          var first = focusable[0];
+          var last = focusable[focusable.length - 1];
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        });
+
         document.addEventListener("keydown", function (e) {
           if ((e.ctrlKey || e.metaKey) && e.key === "k") {
             e.preventDefault();

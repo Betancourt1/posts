@@ -1,10 +1,6 @@
 ---
 title: "Inicio"
-description: "Perfil, proyectos y escritos recientes."
+description: "Un jardín digital de notas, proyectos, lecturas y cosas en proceso."
 date: 2026-02-22
 draft: false
 ---
-
-Soy ingeniero de datos con foco en automatización analítica, plataformas cloud-native y proyectos con IA aplicada.
-Este sitio reúne mi perfil personal, proyectos y escritos en un solo lugar.
-

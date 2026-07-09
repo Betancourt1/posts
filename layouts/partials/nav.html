@@ -1,10 +1,21 @@
 {{ $isAuthor := partial "author_enabled.html" . }}
 {{ $ignoredSections := slice "archives" "tags" }}
 {{ $menuSections := slice }}
-<nav class="nav{{ if $isAuthor }} nav--author{{ end }}">
-  {{ if $isAuthor }}
-    <div class="nav-author-row">
+<nav class="nav{{ if $isAuthor }} nav--author{{ end }}" id="site-navigation" data-collapsible-nav>
+  <div class="nav-author-row{{ if not $isAuthor }} nav-author-row--public{{ end }}">
+    {{ if $isAuthor }}
       <span class="nav-title">{{ if eq .Site.Language.Lang "en" }}Notebooks{{ else }}Notebooks{{ end }}</span>
+    {{ end }}
+    <button
+      type="button"
+      class="nav-toggle"
+      aria-controls="primary-navigation"
+      aria-expanded="false"
+      hidden
+    >
+      {{ if eq .Site.Language.Lang "en" }}Notebooks{{ else }}Notebooks{{ end }}
+    </button>
+    {{ if $isAuthor }}
       <button
         type="button"
         class="author-action-button"
@@ -14,9 +25,9 @@
       >
         {{ partial "author_icon.html" "folder-plus" }}
       </button>
-    </div>
-  {{ end }}
-  <ul class="nav-list">
+    {{ end }}
+  </div>
+  <ul class="nav-list" id="primary-navigation">
     {{ range .Site.Menus.main }}
     {{ $menuPage := .Page }}
     {{ if or $menuPage (hasPrefix .URL "http://") (hasPrefix .URL "https://") }}
@@ -46,3 +57,43 @@
     {{ end }}
   </ul>
 </nav>
+<script>
+  (function () {
+    var nav = document.getElementById("site-navigation");
+    if (!nav) return;
+
+    var toggle = nav.querySelector(".nav-toggle");
+    var list = document.getElementById("primary-navigation");
+    var mobileLayout = window.matchMedia("(max-width: 1000px)");
+    if (!toggle || !list) return;
+
+    function setExpanded(expanded) {
+      toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+      list.hidden = !expanded;
+    }
+
+    function syncLayout() {
+      if (mobileLayout.matches) {
+        toggle.hidden = false;
+        setExpanded(false);
+        return;
+      }
+
+      toggle.hidden = true;
+      toggle.setAttribute("aria-expanded", "false");
+      list.hidden = false;
+    }
+
+    toggle.addEventListener("click", function () {
+      setExpanded(toggle.getAttribute("aria-expanded") !== "true");
+    });
+
+    if (typeof mobileLayout.addEventListener === "function") {
+      mobileLayout.addEventListener("change", syncLayout);
+    } else if (typeof mobileLayout.addListener === "function") {
+      mobileLayout.addListener(syncLayout);
+    }
+
+    syncLayout();
+  })();
+</script>

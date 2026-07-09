@@ -1,9 +1,6 @@
 ---
 title: "Home"
-description: "Profile, projects, and recent writings."
+description: "A digital garden of notes, projects, readings, and things in progress."
 date: 2026-02-22
 draft: false
 ---
-
-I am a data engineer focused on analytical automation, cloud-native platforms, and applied AI projects.
-This site brings together my personal profile, projects, and writings in one place.
