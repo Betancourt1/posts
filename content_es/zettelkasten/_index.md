@@ -1,8 +1,8 @@
 ---
 title: "Zettelkasten"
-description: "Notas atómicas para capturar ideas, conceptos y referencias."
 date: 2026-02-21
 draft: false
+description: "Notas atómicas para capturar ideas, conceptos y referencias."
 search: true
 ---
 
