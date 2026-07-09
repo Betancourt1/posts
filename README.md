@@ -55,7 +55,7 @@ Para escribir desde el navegador usa:
 npm run author
 ```
 
-Abre el sitio en `http://127.0.0.1:3010/es/`. El puerto `3001` es solo la API local de autoria; no es la pagina que debes abrir. Ese modo agrega un panel local `Author` para crear notebooks, abrir una pestaña de editor para posts/paginas, editar la pagina actual, subir imagenes y escribir con modo `Typewriter`. El build de produccion no incluye ese panel.
+Abre el sitio en `http://127.0.0.1:3010/es/`. El puerto `3001` es solo la API local de autoria; no es la pagina que debes abrir. Ese modo agrega un panel local `Author` para crear notebooks, abrir una pestaña de editor para posts/paginas, editar la pagina actual, subir imagenes y escribir con selector `Render/Markdown`. El build de produccion no incluye ese panel.
 
 ## QA visual
 

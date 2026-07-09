@@ -16,7 +16,6 @@ const ICONS = Object.freeze({
   list: iconSvg(`<path d="M8 6h13" /><path d="M8 12h13" /><path d="M8 18h13" /><path d="M3 6h.01" /><path d="M3 12h.01" /><path d="M3 18h.01" />`),
   orderedList: iconSvg(`<path d="M10 6h11" /><path d="M10 12h11" /><path d="M10 18h11" /><path d="M4 6h1v4" /><path d="M4 10h2" /><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" />`),
   image: iconSvg(`<rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />`),
-  keyboard: iconSvg(`<rect width="20" height="14" x="2" y="5" rx="2" /><path d="M6 9h.01" /><path d="M10 9h.01" /><path d="M14 9h.01" /><path d="M18 9h.01" /><path d="M6 13h.01" /><path d="M10 13h4" /><path d="M18 13h.01" />`),
   settings: iconSvg(`<path d="M9.7 4.1a2.3 2.3 0 0 1 4.6 0 2.3 2.3 0 0 0 3.3 1.9 2.3 2.3 0 0 1 2.3 4 2.3 2.3 0 0 0 0 3.8 2.3 2.3 0 0 1-2.3 4 2.3 2.3 0 0 0-3.3 1.9 2.3 2.3 0 0 1-4.6 0 2.3 2.3 0 0 0-3.3-1.9 2.3 2.3 0 0 1-2.3-4 2.3 2.3 0 0 0 0-3.8 2.3 2.3 0 0 1 2.3-4 2.3 2.3 0 0 0 3.3-1.9" /><circle cx="12" cy="12" r="3" />`),
   trash: iconSvg(`<path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" />`),
 });
@@ -114,7 +113,13 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       gap: 0.55rem;
     }
     .mobile-settings-button {
-      display: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2.35rem;
+      padding: 0 0.65rem;
+      font-size: 1.1rem;
+      letter-spacing: 0.06em;
     }
     button {
       border: 1px solid var(--line);
@@ -149,10 +154,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     .primary:hover {
       color: #001b14;
     }
-    .typewriter-toggle.is-active {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
     .shell {
       min-height: calc(100vh - 3.5rem);
       display: grid;
@@ -166,6 +167,42 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     }
     .paper {
       width: min(var(--writer-width), 100%);
+    }
+    .view-toggle {
+      display: inline-grid;
+      grid-template-columns: auto auto auto;
+      align-items: center;
+      gap: 0.25rem;
+      margin-bottom: 1.2rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 0.5rem;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .view-toggle span {
+      padding: 0 0.45rem;
+    }
+    .view-toggle button {
+      min-height: 2rem;
+      border: 0;
+      border-radius: 0.35rem;
+      background: transparent;
+      color: var(--muted);
+      padding: 0 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+    .view-toggle button[aria-pressed="true"] {
+      background: var(--panel-2);
+      color: var(--ink);
+    }
+    .paper.markdown-mode .body-input {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      line-height: 1.65;
+      white-space: pre-wrap;
     }
     .title-input,
     .body-input {
@@ -195,26 +232,24 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       font-size: var(--editor-body-size);
       line-height: 1.75;
     }
-    .writer.is-typewriter {
-      align-items: flex-start;
-      padding-top: 1.5rem;
-    }
-    .writer.is-typewriter .paper {
-      width: min(44rem, 100%);
-    }
-    .writer.is-typewriter .body-input {
-      min-height: calc(100vh - 11rem);
-      padding-top: 34vh;
-      padding-bottom: 42vh;
-      border-left: 1px solid transparent;
-      overflow: auto;
-      resize: vertical;
-    }
     .settings {
       border-left: 1px solid var(--line);
       background: var(--panel);
       padding: 1rem;
       overflow: auto;
+    }
+    .settings-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 28;
+      border: 0;
+      border-radius: 0;
+      background: rgba(0, 0, 0, 0.54);
+      padding: 0;
+      cursor: default;
+    }
+    .settings-backdrop[hidden] {
+      display: none !important;
     }
     .settings h2 {
       margin: 0;
@@ -408,12 +443,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     .sheet-grabber {
       display: none;
     }
-    .mobile-sheet-actions {
-      display: none;
-    }
-    .settings-gear-row {
-      display: none;
-    }
     .save-label-mobile {
       display: none;
     }
@@ -498,16 +527,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     }
     .subtitle-input::placeholder {
       color: #a3a3a3;
-    }
-    .bottom-right {
-      position: fixed;
-      bottom: 1.2rem;
-      z-index: 20;
-      display: flex;
-      gap: 0.55rem;
-    }
-    .bottom-right {
-      right: 1.2rem;
     }
     .utility-button {
       display: inline-flex;
@@ -635,11 +654,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     }
     .reference-theme .path {
       color: #777777;
-    }
-    .reference-theme .writer.is-typewriter .body-input {
-      min-height: calc(100vh - 17rem);
-      padding-top: 30vh;
-      padding-bottom: 36vh;
     }
     .reference-theme[data-theme="dark"] {
       --bg: #000000;
@@ -789,7 +803,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       .formatbar button[data-format="ul"] { order: 3; }
       .formatbar button[data-format="quote"] { order: 4; }
       .formatbar button[data-format="undo"] { order: 5; }
-      #typewriter { order: 6; }
       .formatbar button {
         width: 2.75rem;
         min-width: 2.75rem;
@@ -887,33 +900,15 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       .top-actions button[hidden] {
         display: none;
       }
-      .bottom-right {
-        display: none;
-      }
-      .bottom-right .utility-button {
-        min-height: 2.75rem;
-      }
-      body.is-writing .bottom-right .utility-button {
-        width: 2.75rem;
-        padding: 0;
-        border-radius: 999px;
-        opacity: 0.86;
-      }
-      body.is-writing .bottom-right .utility-button span {
-        display: none;
-      }
-      body.settings-open .bottom-right {
-        display: none;
-      }
       .reference-theme .settings {
         inset: auto 0 0 0;
         width: 100%;
-        max-height: min(76vh, 36rem);
+        max-height: min(86vh, 42rem);
         border-right: 0;
         border-bottom: 0;
         border-left: 0;
         border-radius: 1.1rem 1.1rem 0 0;
-        padding: 0.85rem 1.1rem calc(5.8rem + env(safe-area-inset-bottom));
+        padding: 0.85rem 1.1rem calc(1.35rem + env(safe-area-inset-bottom));
         box-shadow: 0 -1rem 3rem rgba(0, 0, 0, 0.24);
       }
       .reference-theme[data-theme="dark"] .settings {
@@ -927,14 +922,23 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         border-radius: 999px;
         background: var(--line);
       }
-      .settings-header {
-        margin-bottom: 0.8rem;
+    .settings-header {
+      margin-bottom: 0.8rem;
+    }
+    .settings-header h2 {
+      font-size: 1.28rem;
+    }
+      .settings-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
       }
-      .settings-header h2 {
-        font-size: 1.28rem;
+      .settings-publish {
+        min-height: 2.65rem;
+        padding: 0 0.9rem;
       }
       .field {
-        grid-template-columns: 1.35rem minmax(0, 1fr) minmax(5rem, auto) 0.8rem;
+        grid-template-columns: minmax(0, 1fr) minmax(5rem, auto) 0.8rem;
         column-gap: 0.75rem;
         align-items: center;
         margin-bottom: 0;
@@ -942,31 +946,22 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         padding: 0.68rem 0;
         border-bottom: 1px solid var(--line);
       }
-      .field::before,
-      .check::before {
-        content: "";
-        width: 1rem;
-        height: 1rem;
-        border: 1.5px solid var(--muted);
-        border-radius: 999px;
-        opacity: 0.78;
-      }
       .field::after {
         content: ">";
-        grid-column: 4;
+        grid-column: 3;
         grid-row: 1;
         justify-self: end;
         color: var(--muted);
       }
       .field span {
-        grid-column: 2;
+        grid-column: 1;
         grid-row: 1;
         align-self: center;
-        padding-right: 1.3rem;
+        padding-right: 0.75rem;
       }
       .field input,
       .field select {
-        grid-column: 3;
+        grid-column: 2;
         grid-row: 1;
         border: 0 !important;
         background: transparent !important;
@@ -978,16 +973,23 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
       .check {
         display: grid;
-        grid-template-columns: 1.35rem minmax(0, 1fr) auto 0.8rem;
+        grid-template-columns: minmax(0, 1fr) auto 2.75rem;
         column-gap: 0.75rem;
         align-items: center;
         min-height: 3.1rem;
         margin: 0;
         border-bottom: 1px solid var(--line);
       }
-      .check span {
+      .check-label {
+        grid-column: 1;
+        grid-row: 1;
+      }
+      .check-state {
         grid-column: 2;
         grid-row: 1;
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 800;
       }
       .check input {
         grid-column: 3;
@@ -1028,55 +1030,11 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       .utility {
         border-top: 0;
       }
-      .settings-gear-row {
-        min-height: 3.1rem;
-        display: grid;
-        grid-template-columns: 1.35rem minmax(0, 1fr) 0.8rem;
-        column-gap: 0.75rem;
-        align-items: center;
-        border-bottom: 1px solid var(--line);
-        color: var(--muted);
-        font-size: 0.76rem;
-        font-weight: 800;
-      }
-      .settings-gear-row .button-icon {
-        width: 1rem;
-        height: 1rem;
-        color: var(--muted);
-      }
-      .settings-gear-row::after {
-        content: ">";
-        justify-self: end;
-      }
-      .mobile-sheet-actions {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 42;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.75rem;
-        padding: 0.75rem 1.1rem calc(0.85rem + env(safe-area-inset-bottom));
-        background: linear-gradient(to top, rgba(7, 8, 10, 1) 78%, rgba(7, 8, 10, 0));
-      }
-      .mobile-sheet-actions button {
-        min-height: 2.9rem;
-        justify-content: center;
-      }
       .save-label-desktop {
         display: none;
       }
       .save-label-mobile {
         display: inline;
-      }
-      .reference-theme .writer.is-typewriter {
-        padding-top: 1rem;
-      }
-      .reference-theme .writer.is-typewriter .body-input {
-        min-height: calc(100vh - 13rem);
-        padding-top: 20vh;
-        padding-bottom: 28vh;
       }
     }
   </style>
@@ -1090,9 +1048,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       <span class="status" id="status">Loading</span>
     </div>
     <div class="top-actions">
-      <button type="button" class="mobile-settings-button" id="top-settings-button" aria-controls="settings" aria-expanded="false" aria-label="Propiedades">...</button>
-      <button type="button" id="open-site">Preview</button>
-      <button type="button" class="primary" id="save"><span class="save-label-desktop">Guardar</span><span class="save-label-mobile">Borradores</span></button>
+      <button type="button" class="mobile-settings-button" id="top-settings-button" aria-controls="settings" aria-expanded="false" aria-label="Configuracion">...</button>
+      <button type="button" id="open-site">Abrir sitio</button>
+      <button type="button" class="primary" id="save"><span class="save-label-desktop">Guardar</span><span class="save-label-mobile">Guardar</span></button>
     </div>
   </header>
   <nav class="formatbar" aria-label="Formatting">
@@ -1121,14 +1079,17 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <button type="button" id="toolbar-image" title="Image" aria-label="Image">${ICONS.image}</button>
       </span>
       <span class="divider" id="insert-divider-after"></span>
-      <span class="toolbar-group" aria-label="View">
-        <button type="button" id="typewriter" class="typewriter-toggle" title="Typewriter" aria-label="Typewriter">${ICONS.keyboard}</button>
-      </span>
     </div>
   </nav>
+  <button type="button" class="settings-backdrop" id="settings-backdrop" aria-label="Cerrar configuracion" hidden></button>
   <main class="shell">
     <section class="writer">
       <article class="paper">
+        <div class="view-toggle" role="group" aria-label="Vista del contenido">
+          <span>Vista</span>
+          <button type="button" id="view-rendered" data-view-mode="render" aria-pressed="true">Render</button>
+          <button type="button" id="view-markdown" data-view-mode="markdown" aria-pressed="false">Markdown</button>
+        </div>
         <textarea class="title-input" id="title" rows="2" placeholder="Titulo (Obligatorio)"></textarea>
         <input class="subtitle-input" id="summary" type="text" placeholder="Agregar un subtitulo..." />
         <textarea class="body-input" id="body" placeholder="Comienza a escribir un articulo..."></textarea>
@@ -1138,7 +1099,10 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       <span class="sheet-grabber" aria-hidden="true"></span>
       <div class="settings-header">
         <h2 id="settings-title">Propiedades</h2>
-        <button type="button" class="settings-close" id="settings-close" aria-label="Close settings">&times;</button>
+        <div class="settings-header-actions">
+          <button type="button" class="primary settings-publish" id="settings-publish">Publicar</button>
+          <button type="button" class="settings-close" id="settings-close" aria-label="Cerrar configuracion">&times;</button>
+        </div>
       </div>
       <label class="field" id="notebook-field">
         <span>Destino</span>
@@ -1157,16 +1121,16 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <input id="tags" type="text" placeholder="ensayo, politica" />
       </label>
       <label class="check">
+        <span class="check-label">Publicacion</span>
+        <span class="check-state" id="draft-state">Borrador</span>
         <input id="draft" type="checkbox" />
-        <span>Estado</span>
       </label>
-      <div class="settings-gear-row">${ICONS.settings}<span>Configuracion</span></div>
       <div class="photo-fields" id="photo-fields" hidden>
         <label class="field">
-          <span>Post image</span>
+          <span>Imagen</span>
           <input id="image" type="text" placeholder="/uploads/2026/07/photo.jpg" />
         </label>
-        <button type="button" class="image-delete-button" id="delete-image" hidden>${ICONS.trash}<span>Delete image file</span></button>
+        <button type="button" class="image-delete-button" id="delete-image" hidden>${ICONS.trash}<span>Eliminar imagen</span></button>
         <img class="photo-preview" id="photo-preview" alt="" />
       </div>
       <label class="field" id="image-alt-field">
@@ -1178,7 +1142,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <input id="caption" type="text" placeholder="Pie opcional" />
       </label>
       <label class="field">
-        <span>Tamano de texto</span>
+        <span>Texto</span>
         <select id="editor-font-size">
           <option value="small">Small</option>
           <option value="medium">Medium</option>
@@ -1186,14 +1150,16 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         </select>
       </label>
       <label class="check">
+        <span class="check-label">Visibilidad</span>
+        <span class="check-state" id="hidden-state">Visible</span>
         <input id="hidden" type="checkbox" />
-        <span>Oculto</span>
       </label>
       <div class="danger-zone" id="danger-zone" hidden>
-        <h3>Danger</h3>
+        <h3>Peligro</h3>
         <label class="check">
+          <span class="check-label">Eliminar imagenes adjuntas</span>
+          <span class="check-state" id="delete-attached-images-state">No</span>
           <input id="delete-attached-images" type="checkbox" />
-          <span>Delete attached images too</span>
         </label>
         <button type="button" class="danger-button" id="delete-page">${ICONS.trash}<span>Delete</span></button>
       </div>
@@ -1201,15 +1167,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <input id="image-file" type="file" accept="image/*" hidden />
         <div class="path" id="path"></div>
       </div>
-      <div class="mobile-sheet-actions">
-        <button type="button" id="settings-save">Guardar</button>
-        <button type="button" class="primary" id="settings-publish">Publicar</button>
-      </div>
     </aside>
   </main>
-  <div class="bottom-right">
-    <button type="button" class="utility-button" id="settings-button" aria-controls="settings" aria-expanded="false" aria-label="Open settings">${ICONS.settings}<span>Settings</span></button>
-  </div>
   <script>
     (function () {
       var params = new URLSearchParams(window.location.search);
@@ -1224,6 +1183,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       var savedUrl = "";
       var slugTouched = false;
       var editorSizeStorageKey = "authorEditorFontSize";
+      var viewModeStorageKey = "authorEditorViewMode";
       var savedSnapshot = null;
       var saveInProgress = false;
       var saveFailed = false;
@@ -1233,15 +1193,16 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       var els = {
         status: document.getElementById("status"),
         savedPill: document.getElementById("saved-pill"),
+        formatbar: document.querySelector(".formatbar"),
         writer: document.querySelector(".writer"),
+        paper: document.querySelector(".paper"),
         back: document.getElementById("back"),
         title: document.getElementById("title"),
         body: document.getElementById("body"),
         settings: document.getElementById("settings"),
+        settingsBackdrop: document.getElementById("settings-backdrop"),
         settingsTitle: document.getElementById("settings-title"),
-        settingsButton: document.getElementById("settings-button"),
         topSettingsButton: document.getElementById("top-settings-button"),
-        settingsSave: document.getElementById("settings-save"),
         settingsPublish: document.getElementById("settings-publish"),
         settingsClose: document.getElementById("settings-close"),
         insertDividerBefore: document.getElementById("insert-divider-before"),
@@ -1263,13 +1224,16 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         caption: document.getElementById("caption"),
         photoPreview: document.getElementById("photo-preview"),
         editorFontSize: document.getElementById("editor-font-size"),
+        viewButtons: Array.from(document.querySelectorAll("[data-view-mode]")),
         summary: document.getElementById("summary"),
         draft: document.getElementById("draft"),
+        draftState: document.getElementById("draft-state"),
         hidden: document.getElementById("hidden"),
+        hiddenState: document.getElementById("hidden-state"),
         dangerZone: document.getElementById("danger-zone"),
         deleteAttachedImages: document.getElementById("delete-attached-images"),
+        deleteAttachedImagesState: document.getElementById("delete-attached-images-state"),
         deletePage: document.getElementById("delete-page"),
-        typewriter: document.getElementById("typewriter"),
         undo: document.querySelector('[data-format="undo"]'),
         redo: document.querySelector('[data-format="redo"]'),
         save: document.getElementById("save"),
@@ -1283,6 +1247,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       function boot() {
         document.body.dataset.theme = theme;
         applyEditorSize(readEditorSize());
+        applyViewMode(readViewMode());
         bind();
         syncSettingsState();
         syncWritingState();
@@ -1324,22 +1289,25 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           markContentEdited();
         });
         els.save.addEventListener("click", save);
-        els.settingsSave.addEventListener("click", save);
         els.settingsPublish.addEventListener("click", function () {
           els.draft.checked = false;
           els.hidden.checked = false;
+          syncSwitchLabels();
           save();
         });
-        els.typewriter.addEventListener("click", toggleTypewriter);
         els.editorFontSize.addEventListener("change", function () {
           applyEditorSize(els.editorFontSize.value);
+        });
+        els.viewButtons.forEach(function (button) {
+          button.addEventListener("click", function () {
+            applyViewMode(button.dataset.viewMode);
+          });
         });
         els.body.addEventListener("input", function () {
           if (!restoringBodyHistory) {
             recordBodyHistory();
           }
           resizeTextarea(els.body);
-          centerTypewriterLine();
         });
         [els.title, els.summary, els.body].forEach(function (input) {
           input.addEventListener("focus", syncWritingState);
@@ -1357,11 +1325,20 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.deleteImage.addEventListener("click", deleteCurrentImage);
         els.deletePage.addEventListener("click", deleteCurrentPage);
         [els.draft, els.hidden].forEach(function (input) {
-          input.addEventListener("change", markContentEdited);
+          input.addEventListener("change", function () {
+            syncSwitchLabels();
+            markContentEdited();
+          });
         });
-        els.body.addEventListener("click", centerTypewriterLine);
-        els.body.addEventListener("keyup", centerTypewriterLine);
+        els.deleteAttachedImages.addEventListener("change", function () {
+          syncSwitchLabels();
+        });
         window.addEventListener("resize", resizeEditorFields);
+        window.addEventListener("keydown", function (event) {
+          if (event.key === "Escape" && !els.settings.hidden) {
+            closeSettings();
+          }
+        });
         els.openSite.addEventListener("click", function () {
           var url = previewUrl();
           if (!url) {
@@ -1369,13 +1346,11 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           }
           window.open(url, "_blank", "noopener");
         });
-        els.settingsButton.addEventListener("click", function () {
-          toggleSettings();
-        });
         els.topSettingsButton.addEventListener("click", function () {
           toggleSettings();
         });
         els.settingsClose.addEventListener("click", closeSettings);
+        els.settingsBackdrop.addEventListener("click", closeSettings);
         els.toolbarImage.addEventListener("click", function () {
           els.imageFile.click();
         });
@@ -1427,6 +1402,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.notebookField.hidden = false;
         els.title.value = "";
         els.body.value = "";
+        els.slug.readOnly = false;
         els.date.value = today();
         els.image.value = "";
         els.imageAlt.value = "";
@@ -1442,6 +1418,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         syncPreviewButton();
         syncPhotoEditor();
         syncDeleteControls();
+        syncSwitchLabels();
         resizeEditorFields();
         els.title.focus();
       }
@@ -1452,8 +1429,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           savedUrl = payload.url || "";
           els.notebookField.hidden = true;
           els.title.value = frontMatter.title || "";
-          els.slug.value = "";
-          els.slug.disabled = true;
+          els.slug.value = slugFromPath(payload.path || sourcePath);
+          els.slug.readOnly = true;
           els.date.value = frontMatter.date || today();
           els.tags.value = (frontMatter.tags || []).join(", ");
           els.summary.value = frontMatter.summary || frontMatter.description || "";
@@ -1473,6 +1450,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           syncPreviewButton();
           syncPhotoEditor();
           syncDeleteControls();
+          syncSwitchLabels();
           resizeEditorFields();
           els.body.focus();
         });
@@ -1490,7 +1468,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           els.path.textContent = sourcePath;
           mode = "edit";
           els.notebookField.hidden = true;
-          els.slug.disabled = true;
+          els.slug.value = slugFromPath(sourcePath) || els.slug.value;
+          els.slug.readOnly = true;
           savedSnapshot = currentSaveSnapshot();
           setStatus("Saved");
           syncPreviewButton();
@@ -1626,7 +1605,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         textarea.focus();
         textarea.selectionStart = textarea.selectionEnd = (prefix + insert).length;
         resizeTextarea(textarea);
-        centerTypewriterLine();
         recordBodyHistory();
       }
 
@@ -1675,10 +1653,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           wrapSelection("[", "](https://)");
           return;
         }
-        if (format === "align") {
-          toggleTypewriter();
-          return;
-        }
         setStatus("Use Markdown for " + format);
       }
 
@@ -1689,7 +1663,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         var selected = els.body.value.slice(start, end) || "text";
         replaceBodyRange(start, end, before + selected + after, start + before.length, start + before.length + selected.length);
         resizeTextarea(els.body);
-        centerTypewriterLine();
         recordBodyHistory();
       }
 
@@ -1699,7 +1672,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         var lineStart = els.body.value.lastIndexOf("\\n", cursor - 1) + 1;
         replaceBodyRange(lineStart, lineStart, prefix, cursor + prefix.length, cursor + prefix.length);
         resizeTextarea(els.body);
-        centerTypewriterLine();
         recordBodyHistory();
       }
 
@@ -1747,7 +1719,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.body.selectionEnd = snapshot.selectionEnd;
         restoringBodyHistory = false;
         resizeTextarea(els.body);
-        centerTypewriterLine();
         updateHistoryButtons();
         markContentEdited();
       }
@@ -1773,14 +1744,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.redo.disabled = bodyHistoryIndex >= bodyHistory.length - 1;
       }
 
-      function toggleTypewriter() {
-        var active = !els.writer.classList.contains("is-typewriter");
-        els.writer.classList.toggle("is-typewriter", active);
-        els.typewriter.classList.toggle("is-active", active);
-        resizeEditorFields();
-        centerTypewriterLine();
-      }
-
       function toggleSettings() {
         if (els.settings.hidden) {
           openSettings();
@@ -1790,27 +1753,59 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
 
       function openSettings() {
+        if (document.activeElement && typeof document.activeElement.blur === "function") {
+          document.activeElement.blur();
+        }
         els.settings.hidden = false;
+        els.settingsBackdrop.hidden = false;
         syncSettingsState();
       }
 
       function closeSettings() {
         els.settings.hidden = true;
+        els.settingsBackdrop.hidden = true;
         syncSettingsState();
       }
 
       function syncSettingsState() {
         var open = !els.settings.hidden;
         document.body.classList.toggle("settings-open", open);
-        els.settingsButton.setAttribute("aria-expanded", String(open));
-        els.settingsButton.setAttribute("aria-label", open ? "Close settings" : "Open settings");
+        els.writer.toggleAttribute("inert", open);
+        els.formatbar.toggleAttribute("inert", open);
+        els.writer.setAttribute("aria-hidden", String(open));
+        els.formatbar.setAttribute("aria-hidden", String(open));
         els.topSettingsButton.setAttribute("aria-expanded", String(open));
-        els.topSettingsButton.setAttribute("aria-label", open ? "Cerrar propiedades" : "Propiedades");
+        els.topSettingsButton.setAttribute("aria-label", open ? "Cerrar configuracion" : "Configuracion");
       }
 
       function syncWritingState() {
         var active = document.activeElement;
         document.body.classList.toggle("is-writing", active === els.title || active === els.summary || active === els.body);
+      }
+
+      function readViewMode() {
+        try {
+          return normalizeViewMode(window.localStorage.getItem(viewModeStorageKey));
+        } catch (error) {
+          return "render";
+        }
+      }
+
+      function normalizeViewMode(value) {
+        return value === "markdown" ? "markdown" : "render";
+      }
+
+      function applyViewMode(value) {
+        var viewMode = normalizeViewMode(value);
+        els.paper.classList.toggle("markdown-mode", viewMode === "markdown");
+        els.viewButtons.forEach(function (button) {
+          button.setAttribute("aria-pressed", String(button.dataset.viewMode === viewMode));
+        });
+        try {
+          window.localStorage.setItem(viewModeStorageKey, viewMode);
+        } catch (error) {
+          // localStorage can be unavailable in private or restricted contexts.
+        }
       }
 
       function readEditorSize() {
@@ -1854,28 +1849,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
 
       function resizeTextarea(textarea) {
-        if (textarea === els.body && els.writer.classList.contains("is-typewriter")) {
-          textarea.style.height = "";
-          return;
-        }
-
         textarea.style.height = "auto";
         textarea.style.height = textarea.scrollHeight + "px";
-      }
-
-      function centerTypewriterLine() {
-        if (!els.writer.classList.contains("is-typewriter")) {
-          return;
-        }
-
-        window.requestAnimationFrame(function () {
-          var computed = window.getComputedStyle(els.body);
-          var lineHeight = parseFloat(computed.lineHeight) || 32;
-          var cursor = els.body.selectionStart || 0;
-          var line = els.body.value.slice(0, cursor).split("\\n").length - 1;
-          var target = Math.max(0, (line * lineHeight) - (els.body.clientHeight / 2) + lineHeight);
-          els.body.scrollTop = target;
-        });
       }
 
       function setStatus(message, error) {
@@ -2018,8 +1993,14 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         var canDeletePage = mode === "edit" && Boolean(sourcePath);
         var image = els.image.value.trim();
         els.dangerZone.hidden = !canDeletePage;
-        els.deletePage.innerHTML = '${ICONS.trash}<span>' + (kind === "notebook" ? "Delete notebook" : "Delete post") + '</span>';
+        els.deletePage.innerHTML = '${ICONS.trash}<span>' + (kind === "notebook" ? "Eliminar notebook" : "Eliminar post") + '</span>';
         els.deleteImage.hidden = !image || !isUploadUrl(image);
+      }
+
+      function syncSwitchLabels() {
+        els.draftState.textContent = els.draft.checked ? "Borrador" : "Publicado";
+        els.hiddenState.textContent = els.hidden.checked ? "Oculto" : "Visible";
+        els.deleteAttachedImagesState.textContent = els.deleteAttachedImages.checked ? "Si" : "No";
       }
 
       function isUploadUrl(value) {
@@ -2038,6 +2019,12 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
 
       function notebookPathFromSource() {
         return sourcePath.replace(/\\/_index\\.md$/, "");
+      }
+
+      function slugFromPath(relativePath) {
+        var clean = String(relativePath || "").replace(/\\/index\\.md$/, "").replace(/\\/_index\\.md$/, "");
+        var fileName = clean.split("/").filter(Boolean).pop() || "";
+        return fileName.replace(/\\.md$/, "");
       }
 
       function deleteCurrentPage() {
