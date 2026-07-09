@@ -1720,9 +1720,9 @@ body.zen-mode-returning .layout {
 .curved-scrollbar {
   position: fixed;
   top: 0;
-  right: 0;
+  left: 0;
   z-index: 1800;
-  width: min(34rem, 66vw);
+  width: 100vw;
   height: 100vh;
   height: 100dvh;
   opacity: 0;
@@ -2817,7 +2817,7 @@ html:not(.infra-mode) .post-body {
 
 @media (max-width: 720px) {
   .curved-scrollbar {
-    width: min(19rem, 82vw);
+    width: 100vw;
   }
 
   html.curved-scrollbar-active .curved-scrollbar {

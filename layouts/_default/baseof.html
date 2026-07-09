@@ -147,7 +147,7 @@
   <script src="{{ "js/knowledge-graph.js" | relURL }}" defer></script>
   <script src="{{ "js/infrastructure.js" | relURL }}" defer></script>
   <script src="{{ "js/typography.js" | relURL }}" defer></script>
-  <script src="{{ "js/curved-scrollbar.js" | relURL }}" defer></script>
+  <script src="{{ "js/curved-scrollbar.js" | relURL }}?v={{ now.UnixNano }}" defer></script>
   {{ if partial "author_enabled.html" . }}
     {{ $authorToolsSrc := "js/author-tools.js" | relURL }}
     {{ if hugo.IsServer }}

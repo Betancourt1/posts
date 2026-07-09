@@ -11,9 +11,10 @@
   var pathLength = 0;
   var viewportWidth = 0;
   var viewportHeight = 0;
+  var geometryKey = "";
   var elements = null;
 
-  var MIN_SCROLLABLE_DISTANCE = 120;
+  var MIN_SCROLLABLE_DISTANCE = 16;
   var POINTER_SAMPLE_COUNT = 96;
 
   function clamp(value, min, max) {
@@ -78,11 +79,12 @@
     var edge = isMobile ? 4 : 8;
     var radius = isMobile ? 26 : 40;
     var topRun = isMobile ? 260 : 420;
-    var right = width - edge;
+    var right = getRightEdge(width, edge, isMobile);
     var top = edge;
     var bottom = height - edge;
-    var startX = Math.max(edge, width - topRun);
+    var startX = Math.max(edge, right - topRun);
 
+    startX = Math.min(startX, right - 16);
     radius = clamp(radius, 16, Math.max(16, Math.min(right - startX, bottom - top)));
 
     return {
@@ -97,6 +99,24 @@
     };
   }
 
+  function getRightEdge(width, edge, isMobile) {
+    if (isMobile) {
+      return width - edge;
+    }
+
+    var layout = document.querySelector(".layout");
+    if (!layout) {
+      return width - edge;
+    }
+
+    var rect = layout.getBoundingClientRect();
+    var style = window.getComputedStyle(layout);
+    var paddingRight = Number(String(style.paddingRight).replace("px", "")) || 0;
+    var layoutRight = rect.right - paddingRight;
+
+    return clamp(Math.round(layoutRight), Math.round(width * 0.55), width - edge);
+  }
+
   function pathFor(geometry) {
     return [
       "M", geometry.startX, geometry.top,
@@ -108,12 +128,22 @@
 
   function updateGeometry() {
     var geometry = getGeometry();
-    if (geometry.width === viewportWidth && geometry.height === viewportHeight && pathLength > 0) {
+    var nextGeometryKey = [
+      geometry.width,
+      geometry.height,
+      geometry.right,
+      geometry.startX,
+      geometry.top,
+      geometry.bottom
+    ].join(":");
+
+    if (nextGeometryKey === geometryKey && pathLength > 0) {
       return;
     }
 
     viewportWidth = geometry.width;
     viewportHeight = geometry.height;
+    geometryKey = nextGeometryKey;
 
     var path = pathFor(geometry);
     elements.svg.setAttribute("viewBox", "0 0 " + geometry.width + " " + geometry.height);
