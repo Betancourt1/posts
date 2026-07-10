@@ -790,8 +790,14 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     .saved-pill[data-state="saving"]::before {
       background: #8d949e;
     }
+    .saved-pill[data-state="loading"]::before {
+      background: #8d949e;
+    }
     .saved-pill[data-state="error"]::before {
       background: var(--danger);
+    }
+    .load-retry[hidden] {
+      display: none !important;
     }
     .save-label-mobile {
       display: none;
@@ -1566,16 +1572,17 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       <button type="button" class="back-button" id="back" aria-label="Back">${ICONS.back}</button>
       <span class="editor-identity">
         <span class="editor-brand"><strong>betancourt</strong><small>aquí escribo cosas</small></span>
-        <span class="saved-pill" id="saved-pill" role="status" aria-live="polite">Saved</span>
+        <span class="saved-pill" id="saved-pill" data-state="loading" role="status" aria-live="polite">Cargando</span>
       </span>
       <span class="status" id="status">Loading</span>
     </div>
     <div class="top-actions">
+      <button type="button" class="load-retry" id="retry-load" aria-label="Reintentar carga" title="Reintentar carga" hidden>${ICONS.redo}</button>
       <button type="button" class="markdown-toggle" id="view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">${ICONS.code}</button>
       <button type="button" class="arena-details-button" id="arena-details-button" data-state="disabled" aria-controls="arena-details">Are.na</button>
       <button type="button" class="mobile-settings-button" id="top-settings-button" aria-controls="settings" aria-expanded="false" aria-label="Configuracion">...</button>
       <button type="button" id="open-site">Abrir sitio</button>
-      <button type="button" class="primary" id="save"><span class="save-label-desktop">Guardar y verificar</span><span class="save-label-mobile">Guardar</span></button>
+      <button type="button" class="primary" id="save" disabled><span class="save-label-desktop">Guardar y verificar</span><span class="save-label-mobile">Guardar</span></button>
     </div>
   </header>
   <nav class="formatbar" aria-label="Formatting">
@@ -1759,6 +1766,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       var theme = params.get("theme") === "light" ? "light" : "dark";
       var grayscale = params.get("grayscale") === "true";
       var siteOrigin = params.get("site") || ${JSON.stringify(SITE_ORIGIN)};
+      var apiBase = ${JSON.stringify(apiBase || "/api")};
       var sourcePath = params.get("path") || "";
       var preferredNotebook = params.get("notebook") || "";
       var frontMatter = {};
@@ -1863,6 +1871,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         deletePage: document.getElementById("delete-page"),
         undo: document.querySelector('[data-format="undo"]'),
         redo: document.querySelector('[data-format="redo"]'),
+        retryLoad: document.getElementById("retry-load"),
         save: document.getElementById("save"),
         openSite: document.getElementById("open-site"),
         imageFile: document.getElementById("image-file"),
@@ -1881,14 +1890,26 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         syncWritingState();
         syncPreviewButton();
         syncEditorKind();
+        loadEditor();
+      }
+
+      function loadEditor() {
+        savedSnapshot = null;
+        saveInProgress = false;
+        saveFailed = false;
+        els.save.disabled = true;
+        els.retryLoad.hidden = true;
+        setSavePill("loading", "Cargando");
+        setStatus("Loading");
         var notebooksPromise = loadNotebooks();
         var contentPromise = mode === "edit"
           ? loadExisting()
           : notebooksPromise.then(function () { setupNewPost(); });
 
         Promise.all([notebooksPromise, contentPromise]).then(function () {
-          if (kind === "notebook") return;
-          loadArenaChannels().then(function () {
+          els.save.disabled = false;
+          if (kind === "notebook") return null;
+          return loadArenaChannels().then(function () {
             if (mode === "edit") return loadArenaStatus();
             syncArenaUi();
             return null;
@@ -1898,6 +1919,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
             setArenaState({ state: "unavailable", error: error.message });
           });
         }).catch(function (error) {
+          els.save.disabled = true;
+          els.retryLoad.hidden = false;
           setStatus(error.message, true);
         });
       }
@@ -1925,6 +1948,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           syncPhotoEditor();
           markContentEdited();
         });
+        els.retryLoad.addEventListener("click", loadEditor);
         els.save.addEventListener("click", save);
         els.createNotebookChannel.addEventListener("click", createNotebookChannel);
         els.editorFontSize.addEventListener("change", function () {
