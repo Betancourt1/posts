@@ -60,6 +60,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     html, body {
       margin: 0;
       min-height: 100%;
+      min-height: 100dvh;
       background: var(--bg);
       color: var(--ink);
       font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -68,7 +69,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       display: grid;
       grid-template-rows: auto 1fr;
     }
-    body.is-grayscale {
+    body.is-grayscale > * {
       filter: grayscale(100%);
     }
     body[data-editor-size="medium"] {
@@ -1215,7 +1216,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         padding: 2rem 1rem calc(6rem + env(safe-area-inset-bottom));
       }
       .reference-theme .writer {
-        padding: 4.85rem 1.5rem calc(7rem + env(safe-area-inset-bottom));
+        min-height: 100dvh;
+        padding: calc(var(--topbar-height) + 1rem) 1.5rem calc(5.85rem + env(safe-area-inset-bottom));
       }
       .formatbar {
         position: fixed;
@@ -1267,12 +1269,13 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       .reference-theme .topbar {
         position: fixed;
         inset: 0 0 auto;
-        min-height: 4.25rem;
-        height: 4.25rem;
+        min-height: 0;
+        height: auto;
         display: grid;
-        grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+        grid-template-columns: 2.75rem minmax(0, 1fr);
+        grid-template-rows: 2.75rem 2.75rem;
         align-items: center;
-        gap: 0.35rem;
+        gap: 0.25rem 0.35rem;
         padding: 0.45rem 0.65rem;
         z-index: 32;
       }
@@ -1331,14 +1334,17 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         height: 0.35rem;
       }
       .top-actions {
-        grid-column: 3;
-        grid-row: 1;
-        width: auto;
-        gap: 0.25rem;
+        grid-column: 1 / -1;
+        grid-row: 2;
+        width: 100%;
+        min-width: 0;
+        justify-content: space-between;
+        gap: 0.1rem;
       }
       .top-actions button,
       .reference-theme .top-actions button {
         flex: 0 0 auto;
+        min-width: 2.15rem;
         min-height: 2.75rem;
         border: 0;
         border-radius: 0;
@@ -1348,7 +1354,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
       .top-actions .markdown-toggle,
       .reference-theme .top-actions .markdown-toggle {
-        display: none;
+        display: inline-flex;
+        width: 2.15rem;
+        min-width: 2.15rem;
       }
       .top-actions .markdown-toggle[aria-pressed="true"],
       .reference-theme .top-actions .markdown-toggle[aria-pressed="true"] {
@@ -1364,12 +1372,12 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         min-height: 2.75rem;
         border: 1px solid rgba(255, 255, 255, 0.68);
         border-radius: 0.55rem;
-        padding: 0 0.75rem;
+        padding: 0 0.55rem;
       }
       .mobile-settings-button {
         display: inline-flex;
-        width: 2.75rem;
-        min-width: 2.75rem !important;
+        width: 2.15rem;
+        min-width: 2.15rem !important;
         border-color: transparent !important;
         background: transparent !important;
         padding: 0 !important;
@@ -1386,22 +1394,18 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         line-height: 1;
       }
       .top-actions #open-site {
-        display: none !important;
+        display: inline-flex !important;
       }
       .arena-details-button {
-        display: none !important;
+        display: inline-flex !important;
       }
-      body.no-preview .topbar {
-        grid-template-columns: 2.75rem minmax(0, 1fr) auto;
-      }
-      body.no-preview .brand {
-        display: contents;
-      }
-      body.no-preview .top-actions {
+      .top-actions #open-site,
+      .top-actions .arena-details-button {
         width: auto;
-      }
-      body.no-preview .top-actions button {
         min-width: 0;
+        padding: 0 0.3rem !important;
+        font-size: 0.72rem;
+        white-space: nowrap;
       }
       .top-actions button[hidden] {
         display: none;
@@ -1909,11 +1913,16 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         setSavePill("loading", "Cargando");
         setStatus("Loading");
         var notebooksPromise = loadNotebooks();
-        var contentPromise = mode === "edit"
-          ? loadExisting()
-          : notebooksPromise.then(function () { setupNewPost(); });
+        var contentPromise;
 
-        Promise.all([notebooksPromise, contentPromise]).then(function () {
+        if (mode === "edit") {
+          notebooksPromise.catch(function () { return []; });
+          contentPromise = loadExisting();
+        } else {
+          contentPromise = notebooksPromise.then(function () { setupNewPost(); });
+        }
+
+        contentPromise.then(function () {
           els.save.disabled = false;
           if (kind === "notebook") return null;
           return loadArenaChannels().then(function () {
