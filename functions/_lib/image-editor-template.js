@@ -734,6 +734,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     .sheet-header {
       display: none;
     }
+    .properties-backdrop {
+      display: none;
+    }
     .panel {
       display: grid;
       gap: 1.35rem;
@@ -1210,12 +1213,17 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         opacity: 1;
         pointer-events: auto;
       }
-      body.properties-open::before {
-        content: "";
+      .properties-backdrop {
+        display: block;
         position: fixed;
         inset: 0;
         z-index: 35;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        border-radius: 0;
         background: rgba(0, 0, 0, 0.36);
+        padding: 0;
       }
       .sheet-header {
         display: grid;
@@ -1533,6 +1541,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       </div>
     </section>
 
+    <button type="button" class="properties-backdrop" id="properties-backdrop" aria-label="Cerrar propiedades" hidden></button>
     <aside class="inspector" id="properties-sheet">
       <div class="sheet-header">
         <span class="sheet-grabber" aria-hidden="true"></span>
@@ -1684,6 +1693,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         publish: document.getElementById("publish"),
         propertiesToggle: document.getElementById("properties-toggle"),
         propertiesClose: document.getElementById("properties-close"),
+        propertiesBackdrop: document.getElementById("properties-backdrop"),
         mobileSaveDraft: document.getElementById("mobile-save-draft"),
         mobilePublish: document.getElementById("mobile-publish"),
         dropzone: document.getElementById("dropzone"),
@@ -1869,6 +1879,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         });
         els.propertiesToggle.addEventListener("click", toggleProperties);
         els.propertiesClose.addEventListener("click", closeProperties);
+        els.propertiesBackdrop.addEventListener("click", closeProperties);
         els.editAltImage.addEventListener("click", function () {
           openProperties();
           openPanel("alt-panel");
@@ -2671,11 +2682,13 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function openProperties() {
         document.body.classList.add("properties-open");
+        els.propertiesBackdrop.hidden = false;
         els.propertiesToggle.setAttribute("aria-expanded", "true");
       }
 
       function closeProperties() {
         document.body.classList.remove("properties-open");
+        els.propertiesBackdrop.hidden = true;
         els.propertiesToggle.setAttribute("aria-expanded", "false");
       }
 
