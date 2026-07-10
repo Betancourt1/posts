@@ -2826,11 +2826,14 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
             els.savedLink.href = publicPostUrl();
             els.savedLink.hidden = els.draft.checked;
           }
-          return startPublicVerification();
-        }).then(function () {
           return syncArenaAfterSave(els.draft.checked);
         }).then(function (arenaSaved) {
-          if (arenaSaved !== false) redirectToNotebook();
+          if (arenaSaved === false) {
+            throw new Error(arenaState.error || "Are.na necesita un reintento.");
+          }
+          return startPublicVerification();
+        }).then(function () {
+          redirectToNotebook();
         }).catch(function (error) {
           setSaveState("Error al guardar", "error");
           setPublicationState("error", error.message);

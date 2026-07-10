@@ -2493,14 +2493,17 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           setStatus("Saved");
           setPublicationState("saved", result.changed === false ? "Sin cambios nuevos; el estado persistido coincide." : "Guardado en GitHub.");
           syncDeleteControls();
-          return startPublicVerification();
-        }).then(function () {
           if (isArenaEligible() && (els.arenaEnabled.checked || hasArenaMapping())) {
             return syncArenaAfterSave();
           }
           return true;
         }).then(function (arenaSaved) {
-          if (arenaSaved !== null) redirectToNotebook();
+          if (arenaSaved === null && els.arenaEnabled.checked) {
+            throw new Error(arenaState.error || "Are.na necesita un reintento.");
+          }
+          return startPublicVerification();
+        }).then(function () {
+          redirectToNotebook();
         }).catch(function (error) {
           setStatus(error.message, true);
           setPublicationState("error", error.message);
