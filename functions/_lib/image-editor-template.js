@@ -1616,7 +1616,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       var apiBase = ${JSON.stringify(API_BASE)};
       var siteOrigin = ${JSON.stringify(SITE_ORIGIN)};
       var params = new URLSearchParams(window.location.search);
-      var preferredNotebook = params.get("notebook") || "content_es/posts";
+      var sourcePath = params.get("path") || "";
+      var preferredNotebook = params.get("notebook") || sourcePath.replace(/\\/[^/]+$/, "") || "content_es/posts";
       var theme = params.get("theme") === "light" ? "light" : "dark";
       var grayscale = params.get("grayscale") === "true";
       var images = [];
@@ -1725,9 +1726,15 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.date.value = today();
         setSaveState("Sincronizado", "saved");
         bind();
-        seedImageFromParams();
-        render();
-        updatePropertySummaries();
+        if (sourcePath) {
+          loadExistingPhoto().catch(function (error) {
+            setStatus(error.message, true);
+          });
+        } else {
+          seedImageFromParams();
+          render();
+          updatePropertySummaries();
+        }
         loadNotebooks().catch(function (error) {
           setStatus(error.message, true);
         });
@@ -1944,6 +1951,65 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           return Promise.resolve();
         }
         return request("/notebooks").then(cacheAndRenderNotebooks);
+      }
+
+      function loadExistingPhoto() {
+        return request("/page?path=" + encodeURIComponent(sourcePath)).then(function (payload) {
+          var frontMatter = payload.frontMatter || {};
+          var gallery = Array.isArray(frontMatter.images) && frontMatter.images.length
+            ? frontMatter.images
+            : frontMatter.image
+              ? [{
+                  src: frontMatter.image,
+                  thumb: frontMatter.thumbnail || frontMatter.image,
+                  alt: frontMatter.image_alt || "",
+                  caption: frontMatter.caption || "",
+                }]
+              : [];
+
+          savedPath = payload.path || sourcePath;
+          savedUrl = payload.url || "";
+          els.title.value = frontMatter.title || "";
+          els.body.value = payload.body || "";
+          els.date.value = frontMatter.date || today();
+          els.tags.value = (frontMatter.tags || []).join(", ");
+          els.draft.checked = frontMatter.draft === true;
+          els.visible.checked = frontMatter.hidden !== true;
+          els.arenaEnabled.checked = frontMatter.arena_enabled === true;
+          if (frontMatter.arena_channel_id) {
+            var configuredChannel = document.createElement("option");
+            configuredChannel.value = String(frontMatter.arena_channel_id);
+            configuredChannel.textContent = "Canal configurado";
+            els.arenaChannel.appendChild(configuredChannel);
+            els.arenaChannel.value = String(frontMatter.arena_channel_id);
+          }
+          images = gallery.map(function (item, index) {
+            var uploadedUrl = item.src || item.image || item.url || "";
+            var thumbnailUrl = item.thumb || item.thumbnail || uploadedUrl;
+            return {
+              id: "image-existing-" + index,
+              file: null,
+              name: uploadedUrl.split("?")[0].split("/").pop() || "imagen",
+              type: "image",
+              size: 0,
+              previewUrl: "",
+              uploadedUrl: uploadedUrl,
+              thumbnailUrl: thumbnailUrl,
+              alt: item.alt || item.image_alt || frontMatter.image_alt || "",
+              caption: item.caption || (index === 0 ? frontMatter.caption || "" : ""),
+              rotation: 0,
+              cropMode: false,
+              needsUpload: false,
+              previewBytes: 0,
+            };
+          });
+          selectedImageId = images[0] ? images[0].id : "";
+          viewMode = images.length > 1 ? "lightbox" : images.length === 1 ? "detail" : "empty";
+          render();
+          updatePropertySummaries();
+          setSaveState("Sincronizado", "saved");
+          setStatus(images.length ? "Publicacion cargada." : "Esta publicacion no tiene imagen.", !images.length);
+        });
       }
 
       function cacheAndRenderNotebooks(payload) {

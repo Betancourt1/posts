@@ -1110,6 +1110,11 @@ async function route(req, res) {
   }
 
   if (req.method === "GET" && url.pathname === "/editor") {
+    const contentPath = url.searchParams.get("path") || "";
+    if (/^content_(es|en)\/fotografia\/.+\.md$/.test(contentPath)) {
+      redirect(res, `/image-editor${url.search}`);
+      return;
+    }
     sendHtml(res, authorEditorHtml({ siteOrigin: SITE_ORIGIN, assetOrigin: SITE_ORIGIN, apiBase: "/api" }));
     return;
   }

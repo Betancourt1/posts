@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { authorEditorHtml } from "./editor-template.js";
 import { imageEditorHtml } from "./image-editor-template.js";
+import { onRequestGet as getEditor } from "../admin/editor.js";
 
 test("notebook editor clears stale private flags and exposes verified publication states", () => {
   const html = authorEditorHtml({ siteOrigin: "https://example.com/admin" });
@@ -29,18 +30,21 @@ test("text editor injects its API base and cannot save before content hydration"
   assert.match(html, /function loadEditor\(\)/);
   assert.match(html, /els\.save\.disabled = false;/);
   assert.match(html, /els\.retryLoad\.hidden = false;/);
-  assert.match(html, /els\.openSite\.hidden = true;/);
-  assert.match(html, /id="open-site" aria-label="Abrir sitio"[^>]*>[^<]*<svg/);
+  assert.doesNotMatch(html, /id="open-site"/);
+  assert.doesNotMatch(html, /ICONS\.preview/);
   assert.match(html, /notebooksPromise\.catch\(function \(\) \{ return \[\]; \}\);/);
   assert.match(html, /contentPromise = loadExisting\(\);/);
   assert.doesNotMatch(html, /Promise\.all\(\[notebooksPromise, contentPromise\]\)/);
   assert.doesNotMatch(html, /content: ">";/);
   assert.match(html, /\.reference-theme \.saved-pill \{[\s\S]*?background: transparent !important;/);
+  assert.match(html, /\.saved-pill,[\s\S]*?\.reference-theme \.saved-pill \{\s+display: none;/);
   assert.match(html, /\.reference-theme \.top-actions button \{[\s\S]*?background: transparent !important;/);
 });
 
 test("image editor uses one explicit save action and lightweight previews", () => {
   const html = imageEditorHtml({ siteOrigin: "https://example.com/admin" });
+  const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  assert.doesNotThrow(() => new Function(script));
   assert.match(html, /id="published"/);
   assert.match(html, /id="visible"/);
   assert.match(html, /Preview ligera · 640 px/);
@@ -52,4 +56,19 @@ test("image editor uses one explicit save action and lightweight previews", () =
   assert.match(html, /\.status-visible \{[\s\S]*?grid-row: 4;[\s\S]*?min-height: 2\.75rem;/);
   assert.match(html, /class="check property-value status-visible"/);
   assert.doesNotMatch(html, /content: ">";/);
+  assert.match(html, /function loadExistingPhoto\(\)/);
+  assert.match(html, /request\("\/page\?path=" \+ encodeURIComponent\(sourcePath\)\)/);
+  assert.match(html, /setStatus\(images\.length \? "Publicacion cargada\."/);
+});
+
+test("photography paths use the specialized image editor", async () => {
+  const response = await getEditor({
+    request: new Request("https://example.com/admin/editor?mode=edit&path=content_es%2Ffotografia%2Fzmg.md&kind=post"),
+  });
+
+  assert.equal(response.status, 302);
+  assert.equal(
+    response.headers.get("location"),
+    "https://example.com/admin/image-editor?mode=edit&path=content_es%2Ffotografia%2Fzmg.md&kind=post",
+  );
 });
