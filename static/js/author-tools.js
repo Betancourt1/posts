@@ -43,6 +43,14 @@
       button.addEventListener("click", handleAuthorAction);
     });
 
+    document.addEventListener("click", function (event) {
+      document.querySelectorAll(".author-more-actions[open]").forEach(function (menu) {
+        if (!menu.contains(event.target)) {
+          menu.open = false;
+        }
+      });
+    });
+
     if (elements.close) {
       elements.close.addEventListener("click", closeModal);
     }
