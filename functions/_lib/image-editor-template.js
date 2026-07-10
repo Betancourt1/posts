@@ -1214,6 +1214,10 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         opacity: 1;
         pointer-events: auto;
       }
+      body.mode-lightbox.properties-open .inspector,
+      body.mode-review.properties-open .inspector {
+        display: flex;
+      }
       .properties-backdrop {
         display: block;
         position: fixed;

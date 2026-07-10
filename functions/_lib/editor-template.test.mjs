@@ -69,6 +69,7 @@ test("image editor uses one explicit save action and lightweight previews", () =
   assert.match(html, /els\.propertiesBackdrop\.addEventListener\("click", closeProperties\)/);
   assert.match(html, /els\.propertiesBackdrop\.hidden = false;/);
   assert.match(html, /els\.propertiesBackdrop\.hidden = true;/);
+  assert.match(html, /body\.mode-lightbox\.properties-open \.inspector,[\s\S]*?body\.mode-review\.properties-open \.inspector \{\s+display: flex;/);
   assert.match(html, /class="check property-value status-visible publication-target"/);
   assert.match(html, /id="arena-enabled" type="checkbox" \/>[\s\S]*?<span>Publicar<\/span>/);
   assert.match(html, /id="arena-channel-field" hidden/);
