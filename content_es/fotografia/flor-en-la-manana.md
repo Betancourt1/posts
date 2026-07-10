@@ -13,4 +13,13 @@ images:
   - src: "/uploads/2026/07/91121-1783535558476-dzye9-1783535561033.jpg"
     alt: "Flor en la mañana"
     caption: ""
+arena_channel_id: "5424086"
+arena_enabled: true
+arena_blocks:
+  - src: "/uploads/2026/07/91164-1783535553531-3ha1y-1783535557239.jpg"
+    block_id: "47750123"
+    connection_id: "100677529"
+  - src: "/uploads/2026/07/91121-1783535558476-dzye9-1783535561033.jpg"
+    block_id: "47750124"
+    connection_id: "100677530"
 ---

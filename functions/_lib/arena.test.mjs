@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   ArenaApiError,
+  arenaMappingPatch,
   getArenaStatus,
   listArenaChannels,
   prepareArenaMarkdown,
@@ -12,6 +13,23 @@ function jsonResponse(status, payload) {
   return new Response(JSON.stringify(payload), {
     status,
     headers: { "Content-Type": "application/json" },
+  });
+}
+
+function photoPage(overrides = {}) {
+  return page({
+    path: "content_es/fotografia/flor-en-la-manana.md",
+    url: "/es/fotografia/flor-en-la-manana/",
+    body: "",
+    frontMatter: {
+      title: "Flor en la mañana",
+      arena_enabled: true,
+      arena_channel_id: "123",
+      image: "/uploads/flor-1.jpg",
+      image_alt: "Flor amarilla",
+      caption: "Después de la lluvia",
+    },
+    ...overrides,
   });
 }
 
@@ -367,4 +385,205 @@ test("API errors never include the token", async () => {
     () => listArenaChannels({ token: "do-not-leak", fetchImpl }),
     (error) => error instanceof ArenaApiError && !error.message.includes("do-not-leak") && error.status === 401,
   );
+});
+
+test("syncArenaPage creates Image blocks with the image, alt text, and caption", async () => {
+  const requests = [];
+  let nextBlockId = 500;
+  let nextConnectionId = 800;
+  const fetchImpl = async (url, options) => {
+    const body = options.body ? JSON.parse(options.body) : null;
+    requests.push({ url, method: options.method, body });
+
+    if (url.includes("/channels/123/contents")) return jsonResponse(200, { data: [] });
+    if (url === "https://api.are.na/v3/blocks" && options.method === "POST") {
+      nextBlockId += 1;
+      return jsonResponse(201, {
+        id: nextBlockId,
+        type: "Image",
+        state: "available",
+        updated_at: "2026-07-10T03:00:00Z",
+      });
+    }
+    if (url.includes("/connections?") || url.match(/\/blocks\/\d+\/connections/)) {
+      return jsonResponse(200, { data: [] });
+    }
+    if (url === "https://api.are.na/v3/connections" && options.method === "POST") {
+      nextConnectionId += 1;
+      return jsonResponse(201, { data: [{ id: nextConnectionId }] });
+    }
+    throw new Error(`Unexpected request: ${options.method} ${url}`);
+  };
+  const gallery = photoPage({
+    frontMatter: {
+      title: "Flor en la mañana",
+      arena_enabled: true,
+      arena_channel_id: "123",
+      image: "/uploads/flor-1.jpg",
+      image_alt: "Flor amarilla",
+      images: [
+        { src: "/uploads/flor-1.jpg", alt: "Flor amarilla", caption: "Después de la lluvia" },
+        { src: "/uploads/flor-2.jpg", alt: "Flor naranja", caption: "Detalle del pétalo" },
+      ],
+    },
+  });
+
+  const result = await syncArenaPage({
+    token: "secret",
+    page: gallery,
+    publicOrigin: "https://blog.example",
+    imageOrigin: "https://raw.example/static",
+    fetchImpl,
+  });
+
+  const creates = requests.filter((request) => request.url === "https://api.are.na/v3/blocks");
+  assert.equal(creates.length, 2);
+  assert.equal(creates[0].body.value, "https://raw.example/static/uploads/flor-1.jpg");
+  assert.equal(creates[0].body.title, "Flor en la mañana · 1/2");
+  assert.equal(creates[0].body.alt_text, "Flor amarilla");
+  assert.equal(creates[0].body.description, "Después de la lluvia");
+  assert.equal(creates[0].body.original_source_url, "https://blog.example/es/fotografia/flor-en-la-manana/");
+  assert.equal(creates[0].body.metadata.image_path, "/uploads/flor-1.jpg");
+  assert.equal(creates[1].body.value, "https://raw.example/static/uploads/flor-2.jpg");
+  assert.equal(result.kind, "images");
+  assert.equal(result.state, "synced");
+  assert.deepEqual(result.blocks.map((block) => block.blockId), ["501", "502"]);
+});
+
+test("syncArenaPage updates Image metadata without creating a Link or a second block", async () => {
+  const requests = [];
+  const existing = photoPage({
+    frontMatter: {
+      title: "Flor actualizada",
+      arena_enabled: true,
+      arena_channel_id: "123",
+      image: "/uploads/flor-1.jpg",
+      image_alt: "Nueva descripción",
+      caption: "Nuevo pie",
+      arena_blocks: [{ src: "/uploads/flor-1.jpg", block_id: "501", connection_id: "801" }],
+    },
+  });
+  const fetchImpl = async (url, options) => {
+    const body = options.body ? JSON.parse(options.body) : null;
+    requests.push({ url, method: options.method, body });
+    if (url.endsWith("/blocks/501") && options.method === "PUT") {
+      return jsonResponse(200, { id: 501, type: "Image", state: "available" });
+    }
+    if (url.includes("/blocks/501/connections")) {
+      return jsonResponse(200, { data: [{ id: 123, type: "Channel" }] });
+    }
+    if (url.includes("/channels/123/contents")) {
+      return jsonResponse(200, { data: [{ id: 501, type: "Image", connection: { id: 801 } }] });
+    }
+    throw new Error(`Unexpected request: ${options.method} ${url}`);
+  };
+
+  const result = await syncArenaPage({ token: "secret", page: existing, fetchImpl });
+
+  assert.equal(requests[0].method, "PUT");
+  assert.deepEqual(requests[0].body, {
+    title: "Flor actualizada",
+    description: "Nuevo pie",
+    alt_text: "Nueva descripción",
+    metadata: {
+      integration: "fbetancourt_blog",
+      blog_path: existing.path,
+      language: "es",
+      image_path: "/uploads/flor-1.jpg",
+      image_index: 0,
+    },
+  });
+  assert.equal(requests.some((request) => request.url === "https://api.are.na/v3/blocks"), false);
+  assert.equal(result.blocks[0].blockId, "501");
+});
+
+test("syncArenaPage disconnects a replaced image before creating its new Image block", async () => {
+  const requests = [];
+  const replaced = photoPage({
+    frontMatter: {
+      title: "Flor reemplazada",
+      arena_enabled: true,
+      arena_channel_id: "123",
+      image: "/uploads/flor-nueva.jpg",
+      image_alt: "Flor nueva",
+      arena_blocks: [{ src: "/uploads/flor-vieja.jpg", block_id: "501", connection_id: "801" }],
+    },
+  });
+  const fetchImpl = async (url, options) => {
+    requests.push({ url, method: options.method, body: options.body ? JSON.parse(options.body) : null });
+    if (url.includes("/channels/123/contents") && url.includes("sort=")) {
+      const oldLookup = requests.filter((request) => request.url.includes("/channels/123/contents")).length === 1;
+      return jsonResponse(200, oldLookup
+        ? { data: [{ id: 501, type: "Image", connection: { id: 801 } }] }
+        : { data: [] });
+    }
+    if (url.endsWith("/connections/801") && options.method === "DELETE") return emptyResponse();
+    if (url === "https://api.are.na/v3/blocks" && options.method === "POST") {
+      return jsonResponse(201, { id: 502, type: "Image", state: "available" });
+    }
+    if (url.includes("/blocks/502/connections")) return jsonResponse(200, { data: [] });
+    if (url === "https://api.are.na/v3/connections" && options.method === "POST") {
+      return jsonResponse(201, { data: [{ id: 802 }] });
+    }
+    throw new Error(`Unexpected request: ${options.method} ${url}`);
+  };
+
+  const result = await syncArenaPage({ token: "secret", page: replaced, fetchImpl });
+
+  assert.equal(requests.some((request) => request.url.endsWith("/connections/801") && request.method === "DELETE"), true);
+  assert.equal(requests.find((request) => request.url === "https://api.are.na/v3/blocks").body.value, "https://fbetancourt.work/uploads/flor-nueva.jpg");
+  assert.equal(result.blocks[0].blockId, "502");
+});
+
+test("disabled image mirroring disconnects every gallery block", async () => {
+  const requests = [];
+  const disabled = photoPage({
+    frontMatter: {
+      title: "Galería",
+      arena_enabled: false,
+      arena_channel_id: "123",
+      image: "/uploads/uno.jpg",
+      images: [
+        { src: "/uploads/uno.jpg", alt: "Uno" },
+        { src: "/uploads/dos.jpg", alt: "Dos" },
+      ],
+      arena_blocks: [
+        { src: "/uploads/uno.jpg", block_id: "501", connection_id: "801" },
+        { src: "/uploads/dos.jpg", block_id: "502", connection_id: "802" },
+      ],
+    },
+  });
+  const fetchImpl = async (url, options) => {
+    requests.push({ url, method: options.method });
+    if (url.includes("/channels/123/contents")) {
+      const id = url.includes("unused") ? 0 : requests.filter((request) => request.url.includes("/channels/123/contents")).length;
+      return jsonResponse(200, { data: [{ id: 500 + id, type: "Image", connection: { id: 800 + id } }] });
+    }
+    if (url.includes("/connections/") && options.method === "DELETE") return emptyResponse();
+    throw new Error(`Unexpected request: ${options.method} ${url}`);
+  };
+
+  const result = await syncArenaPage({ token: "secret", page: disabled, fetchImpl });
+
+  assert.equal(result.state, "disabled");
+  assert.deepEqual(result.blocks.map((block) => block.connectionId), ["", ""]);
+  assert.equal(requests.filter((request) => request.method === "DELETE").length, 2);
+});
+
+test("arenaMappingPatch stores one mapping per image", () => {
+  const target = photoPage();
+  const patch = arenaMappingPatch(target, {
+    kind: "images",
+    blocks: [
+      { src: "/uploads/flor-1.jpg", blockId: "501", connectionId: "801" },
+      { src: "/uploads/flor-2.jpg", blockId: "502", connectionId: "802" },
+    ],
+  });
+
+  assert.deepEqual(patch, {
+    arena_blocks: [
+      { src: "/uploads/flor-1.jpg", block_id: "501", connection_id: "801" },
+      { src: "/uploads/flor-2.jpg", block_id: "502", connection_id: "802" },
+    ],
+  });
 });

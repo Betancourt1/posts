@@ -3,7 +3,15 @@
 import { createServer } from "node:http";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { arenaTokenFromEnv, getArenaStatus, listArenaChannels, syncArenaPage } from "../functions/_lib/arena.js";
+import {
+  arenaImageOriginFromEnv,
+  arenaMappingPatch,
+  arenaTokenFromEnv,
+  getArenaStatus,
+  listArenaChannels,
+  pageHasArenaMapping,
+  syncArenaPage,
+} from "../functions/_lib/arena.js";
 import { authorEditorHtml } from "../functions/_lib/editor-template.js";
 import { imageEditorHtml } from "../functions/_lib/image-editor-template.js";
 
@@ -447,7 +455,13 @@ function localArenaToken() {
 
 async function localArenaStatus(relativePath) {
   const page = parseMarkdownFile(relativePath);
-  return getArenaStatus({ token: localArenaToken(), page });
+  const publicOrigin = process.env.PUBLIC_SITE_ORIGIN || "https://fbetancourt.work";
+  return getArenaStatus({
+    token: localArenaToken(),
+    page,
+    publicOrigin,
+    imageOrigin: arenaImageOriginFromEnv(process.env, publicOrigin),
+  });
 }
 
 async function localArenaChannels() {
@@ -456,10 +470,13 @@ async function localArenaChannels() {
 
 async function syncLocalArena(relativePath) {
   let page = parseMarkdownFile(relativePath);
+  const publicOrigin = process.env.PUBLIC_SITE_ORIGIN || "https://fbetancourt.work";
+  const imageOrigin = arenaImageOriginFromEnv(process.env, publicOrigin);
   let arena = await syncArenaPage({
     token: localArenaToken(),
     page,
-    publicOrigin: process.env.PUBLIC_SITE_ORIGIN || "https://fbetancourt.work",
+    publicOrigin,
+    imageOrigin,
   });
 
   const latestPage = parseMarkdownFile(page.path);
@@ -473,17 +490,12 @@ async function syncLocalArena(relativePath) {
     arena = await syncArenaPage({
       token: localArenaToken(),
       page,
-      publicOrigin: process.env.PUBLIC_SITE_ORIGIN || "https://fbetancourt.work",
+      publicOrigin,
+      imageOrigin,
     });
   }
 
-  const mappingPatch = {};
-  if (arena.blockId && arena.blockId !== String(page.frontMatter.arena_block_id || "")) {
-    mappingPatch.arena_block_id = arena.blockId;
-  }
-  if (String(arena.connectionId || "") !== String(page.frontMatter.arena_connection_id || "")) {
-    mappingPatch.arena_connection_id = arena.connectionId || null;
-  }
+  const mappingPatch = arenaMappingPatch(page, arena);
 
   if (Object.keys(mappingPatch).length) {
     const latest = parseMarkdownFile(page.path);
@@ -499,7 +511,7 @@ async function syncLocalArena(relativePath) {
 
 async function disconnectLocalArenaForDelete(relativePath) {
   const page = parseMarkdownFile(relativePath);
-  const shouldDisconnect = page.frontMatter.arena_block_id &&
+  const shouldDisconnect = pageHasArenaMapping(page) &&
     (page.frontMatter.arena_enabled === true || page.frontMatter.arena_connection_id);
 
   if (!shouldDisconnect) return;
@@ -511,6 +523,10 @@ async function disconnectLocalArenaForDelete(relativePath) {
       frontMatter: { ...page.frontMatter, arena_enabled: false },
     },
     publicOrigin: process.env.PUBLIC_SITE_ORIGIN || "https://fbetancourt.work",
+    imageOrigin: arenaImageOriginFromEnv(
+      process.env,
+      process.env.PUBLIC_SITE_ORIGIN || "https://fbetancourt.work",
+    ),
   });
 }
 

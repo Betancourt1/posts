@@ -853,6 +853,53 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     .panel.is-editing .property-editor.check {
       max-height: 2rem;
     }
+    .arena-editor {
+      gap: 0.7rem;
+    }
+    .panel.is-editing .arena-editor {
+      max-height: 15rem;
+    }
+    .arena-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      min-height: 1.8rem;
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+    }
+    .arena-toggle input {
+      width: 0.95rem;
+      height: 0.95rem;
+      min-height: 0;
+      accent-color: var(--accent);
+    }
+    .arena-message,
+    .arena-help {
+      margin: 0;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      line-height: 1.5;
+    }
+    .arena-message.is-error {
+      color: var(--danger);
+    }
+    .arena-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem 0.8rem;
+    }
+    .arena-links a,
+    .arena-retry {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      padding: 0;
+      font-family: var(--mono);
+      font-size: 0.74rem;
+      text-decoration: none;
+    }
     .mobile-notebook-field {
       display: none;
     }
@@ -1067,7 +1114,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         z-index: 40;
         max-height: min(76vh, 36rem);
         margin-top: 0;
-        padding: 0.85rem 1.1rem calc(5.6rem + env(safe-area-inset-bottom));
+        padding: 0.85rem 1.1rem calc(1.25rem + env(safe-area-inset-bottom));
         border-radius: 1.1rem 1.1rem 0 0;
         background: rgba(8, 9, 11, 0.98);
         backdrop-filter: blur(18px);
@@ -1185,17 +1232,14 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         display: none;
       }
       .desktop-actions {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 42;
+        position: static;
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 0.75rem;
-        padding: 0.75rem 1.1rem calc(0.85rem + env(safe-area-inset-bottom));
+        margin-top: 0.5rem;
+        padding: 0.85rem 0 0;
         border-bottom: 0;
-        background: linear-gradient(to top, rgba(7, 8, 10, 1) 78%, rgba(7, 8, 10, 0));
+        background: transparent;
       }
       .desktop-actions button {
         min-height: 3rem;
@@ -1345,12 +1389,13 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
                     <img id="review-cover-image" alt="" />
                     <span>Portada</span>
                   </div>
-                  <ul class="review-list">
+                <ul class="review-list">
                     <li><span>Destino</span><strong id="review-destination">Fotografia</strong></li>
                     <li><span>Imagenes</span><strong id="review-count">0 imagenes</strong></li>
                     <li><span>Accesibilidad</span><strong id="review-alt">pendiente</strong></li>
-                    <li><span>Estado</span><strong id="review-status">borrador</strong></li>
-                  </ul>
+                  <li><span>Estado</span><strong id="review-status">borrador</strong></li>
+                  <li><span>Are.na</span><strong id="review-arena">no se copiará</strong></li>
+                </ul>
                 </div>
                 <div class="review-actions">
                   <button type="button" class="primary-button" id="review-publish">Publicar ↑</button>
@@ -1432,6 +1477,29 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         </label>
       </section>
 
+      <section class="panel" id="arena-panel">
+        <h2>Are.na</h2>
+        <div class="property-row">
+          <span class="property-value" id="arena-summary">no se copiará</span>
+          <button type="button" class="property-action" data-edit-panel="arena-editor">configurar</button>
+        </div>
+        <div class="property-editor arena-editor" id="arena-editor">
+          <label class="arena-toggle">
+            <input id="arena-enabled" type="checkbox" />
+            <span>Copiar imágenes a Are.na</span>
+          </label>
+          <label class="field">
+            <select id="arena-channel" aria-label="Canal de Are.na" disabled>
+              <option value="">Cargando canales...</option>
+            </select>
+          </label>
+          <p class="arena-help">Cada archivo se guarda como bloque Image con su texto alt y pie. No se crea un bloque de enlace.</p>
+          <p class="arena-message" id="arena-message">La copia está desactivada.</p>
+          <div class="arena-links" id="arena-links"></div>
+          <button type="button" class="arena-retry" id="arena-retry" hidden>Reintentar copia</button>
+        </div>
+      </section>
+
       <section class="panel desktop-actions">
         <button type="button" class="secondary-button" id="panel-save-draft">Guardar</button>
         <button type="button" class="primary-button" id="panel-publish">Publicar ↑</button>
@@ -1462,6 +1530,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       var savedPath = "";
       var savedUrl = "";
       var saveBusy = false;
+      var hasUnsavedChanges = false;
+      var arenaChannels = [];
+      var arenaState = { state: "disabled", blocks: [], error: "" };
       var fullImageMaxEdge = 1920;
       var thumbImageMaxEdge = 900;
       var maxUploadBytes = 12 * 1024 * 1024;
@@ -1496,6 +1567,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         reviewCount: document.getElementById("review-count"),
         reviewAlt: document.getElementById("review-alt"),
         reviewStatus: document.getElementById("review-status"),
+        reviewArena: document.getElementById("review-arena"),
         reviewPublish: document.getElementById("review-publish"),
         mediaCount: document.getElementById("media-count"),
         previewEmpty: document.getElementById("preview-empty"),
@@ -1528,6 +1600,12 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         tags: document.getElementById("tags"),
         draft: document.getElementById("draft"),
         statusSummary: document.getElementById("status-summary"),
+        arenaEnabled: document.getElementById("arena-enabled"),
+        arenaChannel: document.getElementById("arena-channel"),
+        arenaSummary: document.getElementById("arena-summary"),
+        arenaMessage: document.getElementById("arena-message"),
+        arenaLinks: document.getElementById("arena-links"),
+        arenaRetry: document.getElementById("arena-retry"),
         status: document.getElementById("status"),
         savedLink: document.getElementById("saved-link"),
       };
@@ -1544,6 +1622,10 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         updatePropertySummaries();
         loadNotebooks().catch(function (error) {
           setStatus(error.message, true);
+        });
+        loadArenaChannels().catch(function (error) {
+          els.arenaEnabled.disabled = true;
+          setArenaState({ state: "unavailable", error: error.message });
         });
       }
 
@@ -1687,6 +1769,15 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           updatePropertySummaries();
           markUnsaved();
         });
+        els.arenaEnabled.addEventListener("change", function () {
+          syncArenaConfiguration();
+          markUnsaved();
+        });
+        els.arenaChannel.addEventListener("change", function () {
+          syncArenaConfiguration();
+          markUnsaved();
+        });
+        els.arenaRetry.addEventListener("click", retryArenaSync);
         els.saveDraft.addEventListener("click", function () {
           savePost(true, false);
         });
@@ -1748,6 +1839,146 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           syncDefaultTags();
           updateNotebookRail();
           updatePropertySummaries();
+        });
+      }
+
+      function loadArenaChannels() {
+        return request("/arena-channels").then(function (payload) {
+          arenaChannels = payload.channels || [];
+          var preferredId = params.get("arena_channel") || "";
+          els.arenaChannel.innerHTML = "";
+
+          var placeholder = document.createElement("option");
+          placeholder.value = "";
+          placeholder.textContent = "Elige un canal";
+          els.arenaChannel.appendChild(placeholder);
+
+          arenaChannels.forEach(function (channel) {
+            var option = document.createElement("option");
+            option.value = String(channel.id);
+            option.textContent = channel.title;
+            option.selected = option.value === preferredId;
+            els.arenaChannel.appendChild(option);
+          });
+
+          if (!arenaChannels.length) {
+            placeholder.textContent = "No hay canales disponibles";
+            els.arenaChannel.disabled = true;
+            els.arenaEnabled.disabled = true;
+            setArenaState({ state: "unavailable", error: "Crea un canal en Are.na antes de activar la copia." });
+            return;
+          }
+
+          els.arenaChannel.disabled = false;
+          els.arenaEnabled.disabled = false;
+          els.arenaChannel.value = preferredId;
+          syncArenaUi();
+        });
+      }
+
+      function setArenaState(next) {
+        arenaState = Object.assign({}, arenaState, next || {});
+        if (!Array.isArray(arenaState.blocks)) arenaState.blocks = [];
+        syncArenaUi();
+      }
+
+      function currentArenaChannelTitle() {
+        var id = String(els.arenaChannel.value || "");
+        var channel = arenaChannels.find(function (item) {
+          return String(item.id) === id;
+        });
+        return channel ? channel.title : "el canal elegido";
+      }
+
+      function syncArenaConfiguration() {
+        if (!els.arenaEnabled.checked) {
+          setArenaState({ state: "disabled", error: "" });
+          return;
+        }
+        if (!els.arenaChannel.value) {
+          setArenaState({ state: "error", error: "Elige un canal de Are.na." });
+          return;
+        }
+        setArenaState({ state: els.draft.checked ? "paused" : "pending", error: "" });
+      }
+
+      function syncArenaUi() {
+        var state = arenaState.state || "disabled";
+        var blockCount = (arenaState.blocks || []).length;
+        var messages = {
+          disabled: "La copia está desactivada.",
+          unavailable: arenaState.error || "Are.na no está disponible.",
+          paused: "Las imágenes se copiarán cuando publiques.",
+          pending: arenaState.error || (savedPath ? "La copia está pendiente." : "Se copiarán al guardar una publicación pública."),
+          syncing: "Copiando imágenes y metadatos a Are.na...",
+          synced: blockCount + (blockCount === 1 ? " imagen copiada en " : " imágenes copiadas en ") + currentArenaChannelTitle() + ".",
+          error: arenaState.error || "No se pudo completar la copia en Are.na.",
+        };
+        var summaries = {
+          disabled: "no se copiará",
+          unavailable: "no disponible",
+          paused: "al publicar",
+          pending: "pendiente",
+          syncing: "copiando...",
+          synced: blockCount + (blockCount === 1 ? " imagen copiada" : " imágenes copiadas"),
+          error: "necesita reintento",
+        };
+
+        els.arenaSummary.textContent = summaries[state] || summaries.disabled;
+        els.arenaMessage.textContent = messages[state] || messages.disabled;
+        els.arenaMessage.classList.toggle("is-error", state === "error" || state === "unavailable" || Boolean(arenaState.error));
+        els.arenaRetry.hidden = !savedPath || (state !== "error" && state !== "pending");
+        els.arenaLinks.innerHTML = "";
+        (arenaState.blocks || []).forEach(function (block, index) {
+          if (!block.blockUrl) return;
+          var link = document.createElement("a");
+          link.href = block.blockUrl;
+          link.target = "_blank";
+          link.rel = "noopener";
+          link.textContent = "Abrir imagen " + (index + 1);
+          els.arenaLinks.appendChild(link);
+        });
+        if (els.reviewArena) {
+          els.reviewArena.textContent = els.arenaEnabled.checked
+            ? (els.draft.checked ? "al publicar" : "copiar ahora")
+            : "no se copiará";
+        }
+      }
+
+      function syncArenaAfterSave(draft) {
+        var hasMappings = (arenaState.blocks || []).length > 0;
+        if (!savedPath || (!els.arenaEnabled.checked && !hasMappings) || (draft && !hasMappings)) {
+          syncArenaConfiguration();
+          return Promise.resolve(true);
+        }
+        if (els.arenaEnabled.checked && !draft && !els.arenaChannel.value) {
+          setArenaState({ state: "error", error: "Elige un canal de Are.na." });
+          return Promise.resolve(false);
+        }
+
+        setArenaState({ state: "syncing", error: "" });
+        return postJson("/sync-arena", { path: savedPath }).then(function (payload) {
+          setArenaState(payload.arena || {});
+          return true;
+        }).catch(function (error) {
+          setArenaState({ state: "error", error: error.message });
+          setStatus("El blog quedó guardado, pero Are.na necesita un reintento: " + error.message, true);
+          return false;
+        });
+      }
+
+      function retryArenaSync() {
+        if (!savedPath) {
+          setArenaState({ state: "pending", error: "Guarda primero la publicación." });
+          return;
+        }
+        if (hasUnsavedChanges) {
+          setArenaState({ state: "pending", error: "Guarda primero los cambios del blog." });
+          return;
+        }
+        setBusy(true);
+        syncArenaAfterSave(els.draft.checked).finally(function () {
+          setBusy(false);
         });
       }
 
@@ -2069,6 +2300,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.reviewAlt.textContent = missingAlt ? "predeterminado" : "completo";
         els.reviewAlt.classList.toggle("review-warning", missingAlt > 0);
         els.reviewStatus.textContent = els.draft.checked ? "borrador" : "publico";
+        syncArenaUi();
       }
 
       function reorderImage(sourceId, targetId) {
@@ -2218,8 +2450,12 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
 
       function markUnsaved(message) {
+        hasUnsavedChanges = true;
         updatePropertySummaries();
         updateActionLabels();
+        if (els.arenaEnabled.checked && arenaState.state !== "unavailable") {
+          setArenaState({ state: els.draft.checked ? "paused" : "pending", error: "" });
+        }
         setSaveState("Sin guardar", "");
         if (message) {
           setStatus(message, false);
@@ -2246,11 +2482,12 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         [els.saveDraft, els.publish, els.mobileSaveDraft, els.mobilePublish, els.panelSaveDraft, els.panelPublish, els.reviewPublish].forEach(function (button) {
           button.disabled = isBusy;
         });
+        els.arenaRetry.disabled = isBusy;
       }
 
       function publishPost() {
         if (saveBusy) return;
-        if (!validatePost()) return;
+        if (!validatePost(false)) return;
         if (images.length > 1 && viewMode !== "review") {
           els.draft.checked = false;
           viewMode = "review";
@@ -2263,7 +2500,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function savePost(saveAsDraft, redirectAfterSave) {
         if (saveBusy) return;
-        if (!validatePost()) return;
+        if (!validatePost(saveAsDraft)) return;
         setBusy(true);
         setSaveState("Guardando...", "saving");
         setStatus(images.length > 1 ? "Preparando imagenes." : "Preparando imagen.", false);
@@ -2290,18 +2527,25 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
             imageAlt: frontMatter.image_alt,
             caption: frontMatter.caption || "",
             images: frontMatter.images || [],
+            arenaEnabled: frontMatter.arena_enabled === true,
+            arenaChannelId: frontMatter.arena_channel_id || "",
             body: els.body.value,
           });
         }).then(function (result) {
           savedPath = result.path || savedPath;
           savedUrl = result.url || savedUrl;
+          hasUnsavedChanges = false;
           setSaveState("Guardado", "saved");
           setStatus(redirectAfterSave ? "Publicado." : "Borrador guardado.", false);
           if (savedUrl) {
             els.savedLink.href = siteUrl(savedUrl);
             els.savedLink.hidden = false;
           }
-          if (redirectAfterSave && savedUrl) {
+          return syncArenaAfterSave(els.draft.checked).then(function (arenaSaved) {
+            return { arenaSaved: arenaSaved, redirectAfterSave: redirectAfterSave };
+          });
+        }).then(function (result) {
+          if (result.redirectAfterSave && result.arenaSaved && savedUrl) {
             window.location.assign(siteUrl(savedUrl));
           }
         }).catch(function (error) {
@@ -2312,7 +2556,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         });
       }
 
-      function validatePost() {
+      function validatePost(targetDraft) {
         if (!images.length) {
           setStatus("Elige una imagen antes de guardar.", true);
           els.chooseImageEmpty.focus();
@@ -2326,6 +2570,13 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         if (!els.notebook.value) {
           setStatus("Elige un destino.", true);
           els.notebook.focus();
+          return false;
+        }
+        if (els.arenaEnabled.checked && targetDraft !== true && !els.arenaChannel.value) {
+          setStatus("Elige un canal de Are.na antes de publicar.", true);
+          openProperties();
+          openPanel("arena-editor");
+          els.arenaChannel.focus();
           return false;
         }
         return true;
@@ -2347,7 +2598,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         if (!summary && items.length > 1) {
           summary = items.length + " imagenes";
         }
-        return {
+        var frontMatter = {
           title: title,
           date: els.date.value || today(),
           draft: draft,
@@ -2359,6 +2610,13 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           caption: caption,
           images: items.length > 1 ? items : [],
         };
+        if (els.arenaEnabled.checked) {
+          frontMatter.arena_enabled = true;
+          frontMatter.arena_channel_id = String(els.arenaChannel.value || "");
+        } else if ((arenaState.blocks || []).length) {
+          frontMatter.arena_enabled = false;
+        }
+        return frontMatter;
       }
 
       function ensureUploadedImages() {

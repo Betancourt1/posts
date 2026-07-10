@@ -107,6 +107,79 @@ function pageMetadata(page) {
   };
 }
 
+function isPhotoPage(page) {
+  return /^content_(es|en)\/fotografia\/.+\.md$/.test(String(page?.path || ""));
+}
+
+function imageItemsFromPage(page) {
+  const frontMatter = page?.frontMatter || {};
+  const gallery = Array.isArray(frontMatter.images) && frontMatter.images.length
+    ? frontMatter.images
+    : frontMatter.image
+      ? [{
+          src: frontMatter.image,
+          alt: frontMatter.image_alt,
+          caption: frontMatter.caption,
+        }]
+      : [];
+
+  return gallery
+    .map((item, index) => ({
+      src: String(item?.src || item?.image || item?.url || "").trim(),
+      alt: String(item?.alt || item?.image_alt || (index === 0 ? frontMatter.image_alt : "") || pageTitle(page)).trim(),
+      caption: String(item?.caption || (index === 0 ? frontMatter.caption : "") || "").trim(),
+      index,
+    }))
+    .filter((item) => item.src);
+}
+
+function imageMappingsFromPage(page) {
+  if (!Array.isArray(page?.frontMatter?.arena_blocks)) return [];
+
+  return page.frontMatter.arena_blocks
+    .map((item) => ({
+      src: String(item?.src || "").trim(),
+      blockId: String(item?.block_id || item?.blockId || "").trim(),
+      connectionId: String(item?.connection_id || item?.connectionId || "").trim(),
+    }))
+    .filter((item) => item.blockId);
+}
+
+function imageMetadata(page, item) {
+  return {
+    ...pageMetadata(page),
+    image_path: item.src,
+    image_index: item.index,
+  };
+}
+
+function imageBlockTitle(page, item, count) {
+  const title = pageTitle(page);
+  return count > 1 ? `${title} · ${item.index + 1}/${count}` : title;
+}
+
+function publicImageUrl(src, publicOrigin, imageOrigin) {
+  const value = String(src || "").trim();
+  if (/^https?:\/\//i.test(value)) return value;
+
+  const base = String(imageOrigin || publicOrigin || PUBLIC_SITE_ORIGIN).replace(/\/+$/, "");
+  return `${base}/${value.replace(/^\/+/, "")}`;
+}
+
+export function arenaImageOriginFromEnv(env = {}, publicOrigin = PUBLIC_SITE_ORIGIN) {
+  const configured = String(env.ARENA_ASSET_ORIGIN || "").trim();
+  if (configured) return configured.replace(/\/+$/, "");
+
+  const owner = String(env.GITHUB_OWNER || "").trim();
+  const repo = String(env.GITHUB_REPO || "").trim();
+  const branch = String(env.GITHUB_BRANCH || "").trim();
+  if (owner && repo && branch) {
+    return `https://raw.githubusercontent.com/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${encodeURIComponent(branch)}/static`;
+  }
+
+  return String(publicOrigin || PUBLIC_SITE_ORIGIN).replace(/\/+$/, "");
+}
+
 function publicPageUrl(page, publicOrigin = PUBLIC_SITE_ORIGIN) {
   return new URL(String(page?.url || "/"), String(publicOrigin || PUBLIC_SITE_ORIGIN)).href;
 }
@@ -191,6 +264,18 @@ function assertTextBlock(block) {
   }
 }
 
+function assertImageBlock(block) {
+  if (!block?.id) {
+    throw new ArenaApiError("Are.na no devolvio un identificador para la imagen.");
+  }
+  if (block.type && block.type !== "Image" && block.type !== "PendingBlock") {
+    throw new ArenaApiError(`Are.na creo un bloque ${block.type} en vez de una imagen.`);
+  }
+  if (block.state === "failed") {
+    throw new ArenaApiError("Are.na no pudo procesar la imagen.", { retryable: true });
+  }
+}
+
 async function blockConnections({ token, blockId, fetchImpl }) {
   const payload = await arenaRequest(
     token,
@@ -201,7 +286,7 @@ async function blockConnections({ token, blockId, fetchImpl }) {
   return payload.data || [];
 }
 
-async function findBlockInChannel({ token, channelId, blockId, blogPath, fetchImpl }) {
+async function findBlockInChannel({ token, channelId, blockId, blogPath, imageSrc = "", fetchImpl }) {
   const payload = await arenaRequest(
     token,
     `/channels/${encodeURIComponent(channelId)}/contents?sort=created_at_desc&page=1&per=100`,
@@ -211,9 +296,10 @@ async function findBlockInChannel({ token, channelId, blockId, blogPath, fetchIm
   return (payload.data || []).find((item) => {
     if (item?.type === "Channel" || item?.base_type === "Channel") return false;
     if (blockId && String(item?.id) === String(blockId)) return true;
-    return !blockId &&
-      item?.metadata?.integration === "fbetancourt_blog" &&
-      String(item?.metadata?.blog_path || "") === String(blogPath || "");
+    if (blockId) return false;
+    if (item?.metadata?.integration !== "fbetancourt_blog") return false;
+    if (String(item?.metadata?.blog_path || "") !== String(blogPath || "")) return false;
+    return !imageSrc || String(item?.metadata?.image_path || "") === String(imageSrc);
   }) || null;
 }
 
@@ -250,7 +336,17 @@ export async function listArenaChannels({ token, fetchImpl } = {}) {
   };
 }
 
-export async function getArenaStatus({ token, page, publicOrigin = PUBLIC_SITE_ORIGIN, fetchImpl } = {}) {
+export async function getArenaStatus({
+  token,
+  page,
+  publicOrigin = PUBLIC_SITE_ORIGIN,
+  imageOrigin = publicOrigin,
+  fetchImpl,
+} = {}) {
+  if (isPhotoPage(page)) {
+    return getArenaImageStatus({ token, page, publicOrigin, imageOrigin, fetchImpl });
+  }
+
   const baseState = pageBaseState(page);
 
   if (baseState) {
@@ -297,6 +393,87 @@ export async function getArenaStatus({ token, page, publicOrigin = PUBLIC_SITE_O
   };
 }
 
+async function getArenaImageStatus({ token, page, publicOrigin, imageOrigin, fetchImpl }) {
+  const channelId = channelIdFromPage(page);
+  const items = imageItemsFromPage(page);
+  const mappings = imageMappingsFromPage(page);
+  const base = {
+    kind: "images",
+    channelId,
+    blockId: mappings[0]?.blockId || "",
+    blockUrl: blockUrl(mappings[0]?.blockId),
+    blocks: mappings.map((mapping) => ({
+      ...mapping,
+      blockUrl: blockUrl(mapping.blockId),
+    })),
+  };
+
+  if (page?.frontMatter?.arena_enabled !== true || page?.frontMatter?.draft === true) {
+    const state = page?.frontMatter?.arena_enabled === true ? "paused" : "disabled";
+    if (!channelId || !mappings.length) return { ...base, state };
+
+    const connectionSets = await Promise.all(mappings.map((mapping) => (
+      blockConnections({ token, blockId: mapping.blockId, fetchImpl })
+    )));
+    const connected = connectionSets.some((connections) => (
+      connections.some((channel) => String(channel.id) === String(channelId))
+    ));
+    return connected
+      ? { ...base, state: "error", error: "Una o mas imagenes siguen conectadas al canal. Reintenta para retirarlas." }
+      : {
+          ...base,
+          state,
+          blocks: base.blocks.map((mapping) => ({ ...mapping, connectionId: "" })),
+        };
+  }
+
+  if (!channelId) {
+    return { ...base, state: "error", error: "Elige un canal de Are.na antes de guardar." };
+  }
+  if (!items.length) {
+    return { ...base, state: "error", error: "La publicacion no contiene imagenes para copiar." };
+  }
+  if (!mappings.length) return { ...base, state: "pending" };
+
+  const mappingBySource = new Map(mappings.map((mapping) => [mapping.src, mapping]));
+  const currentMappings = items.map((item) => mappingBySource.get(item.src)).filter(Boolean);
+  if (currentMappings.length !== items.length || mappings.length !== items.length) {
+    return { ...base, state: "pending" };
+  }
+
+  const checks = await Promise.all(items.map(async (item) => {
+    const mapping = mappingBySource.get(item.src);
+    const [block, connections] = await Promise.all([
+      arenaRequest(token, `/blocks/${encodeURIComponent(mapping.blockId)}`, { fetchImpl }),
+      blockConnections({ token, blockId: mapping.blockId, fetchImpl }),
+    ]);
+    assertImageBlock(block);
+
+    const expectedTitle = imageBlockTitle(page, item, items.length);
+    const actualDescription = typeof block.description === "object"
+      ? block.description?.markdown
+      : block.description;
+    const matches = expectedTitle === String(block.title || "").trim() &&
+      item.caption === String(actualDescription || "").trim() &&
+      item.alt === String(block.image?.alt_text || block.alt_text || "").trim();
+    const connected = connections.some((channel) => String(channel.id) === String(channelId));
+    return {
+      ...mapping,
+      blockUrl: blockUrl(block.id),
+      state: matches && connected && block.state === "available" ? "synced" : "pending",
+      lastSyncedAt: String(block.updated_at || ""),
+      sourceUrl: publicImageUrl(item.src, publicOrigin, imageOrigin),
+    };
+  }));
+
+  return {
+    ...base,
+    state: checks.every((item) => item.state === "synced") ? "synced" : "pending",
+    blocks: checks,
+    lastSyncedAt: checks.map((item) => item.lastSyncedAt).filter(Boolean).sort().at(-1) || "",
+  };
+}
+
 async function disconnectBlock({ token, page, fetchImpl }) {
   const blockId = blockIdFromPage(page);
   const channelId = channelIdFromPage(page);
@@ -331,8 +508,16 @@ async function deleteConnection({ token, connectionId, fetchImpl }) {
   }
 }
 
-async function ensureBlockConnection({ token, page, blockId, channelId, fetchImpl }) {
-  const existingConnectionId = connectionIdFromPage(page);
+async function ensureBlockConnection({
+  token,
+  page,
+  blockId,
+  channelId,
+  existingConnectionId = "",
+  metadata = pageMetadata(page),
+  imageSrc = "",
+  fetchImpl,
+}) {
   const connections = await blockConnections({ token, blockId, fetchImpl });
   const connected = connections.some((channel) => String(channel.id) === String(channelId));
 
@@ -342,6 +527,7 @@ async function ensureBlockConnection({ token, page, blockId, channelId, fetchImp
       channelId,
       blockId,
       blogPath: page.path,
+      imageSrc,
       fetchImpl,
     });
     const targetConnectionId = String(item?.connection?.id || existingConnectionId);
@@ -356,7 +542,7 @@ async function ensureBlockConnection({ token, page, blockId, channelId, fetchImp
     body: {
       connectable_id: Number(blockId),
       connectable_type: "Block",
-      channels: [{ id: apiId(channelId), metadata: pageMetadata(page) }],
+      channels: [{ id: apiId(channelId), metadata }],
     },
     fetchImpl,
   });
@@ -367,7 +553,17 @@ async function ensureBlockConnection({ token, page, blockId, channelId, fetchImp
   return targetConnectionId;
 }
 
-export async function syncArenaPage({ token, page, publicOrigin = PUBLIC_SITE_ORIGIN, fetchImpl } = {}) {
+export async function syncArenaPage({
+  token,
+  page,
+  publicOrigin = PUBLIC_SITE_ORIGIN,
+  imageOrigin = publicOrigin,
+  fetchImpl,
+} = {}) {
+  if (isPhotoPage(page)) {
+    return syncArenaImages({ token, page, publicOrigin, imageOrigin, fetchImpl });
+  }
+
   const baseState = pageBaseState(page);
 
   if (baseState) {
@@ -440,6 +636,7 @@ export async function syncArenaPage({ token, page, publicOrigin = PUBLIC_SITE_OR
     page: pageWithConnection,
     blockId: block.id,
     channelId,
+    existingConnectionId: connectionId,
     fetchImpl,
   });
 
@@ -451,4 +648,203 @@ export async function syncArenaPage({ token, page, publicOrigin = PUBLIC_SITE_OR
     blockUrl: blockUrl(block.id),
     lastSyncedAt: String(block.updated_at || new Date().toISOString()),
   };
+}
+
+async function disconnectImageMapping({ token, page, mapping, channelId, fetchImpl }) {
+  const mirrored = await findBlockInChannel({
+    token,
+    channelId,
+    blockId: mapping.blockId,
+    blogPath: page.path,
+    imageSrc: mapping.src,
+    fetchImpl,
+  });
+  const connectionId = String(mirrored?.connection?.id || mapping.connectionId || "");
+  if (connectionId) {
+    await deleteConnection({ token, connectionId, fetchImpl });
+  }
+}
+
+async function syncArenaImage({
+  token,
+  page,
+  item,
+  itemCount,
+  mapping,
+  channelId,
+  publicOrigin,
+  imageOrigin,
+  fetchImpl,
+}) {
+  const title = imageBlockTitle(page, item, itemCount);
+  const metadata = imageMetadata(page, item);
+  let blockId = String(mapping?.blockId || "");
+  let connectionId = String(mapping?.connectionId || "");
+  let block;
+
+  if (!blockId) {
+    const mirrored = await findBlockInChannel({
+      token,
+      channelId,
+      blogPath: page.path,
+      imageSrc: item.src,
+      fetchImpl,
+    });
+    blockId = String(mirrored?.id || "");
+    connectionId = String(mirrored?.connection?.id || "");
+  }
+
+  if (blockId) {
+    try {
+      block = await arenaRequest(token, `/blocks/${encodeURIComponent(blockId)}`, {
+        method: "PUT",
+        body: {
+          title,
+          description: item.caption,
+          alt_text: item.alt,
+          metadata,
+        },
+        fetchImpl,
+      });
+      assertImageBlock(block);
+    } catch (error) {
+      if (!(error instanceof ArenaApiError) || error.status !== 404) throw error;
+      blockId = "";
+      connectionId = "";
+    }
+  }
+
+  if (!blockId) {
+    block = await arenaRequest(token, "/blocks", {
+      method: "POST",
+      body: {
+        value: publicImageUrl(item.src, publicOrigin, imageOrigin),
+        title,
+        description: item.caption,
+        alt_text: item.alt,
+        original_source_url: publicPageUrl(page, publicOrigin),
+        original_source_title: pageTitle(page),
+        metadata,
+        channels: [{ id: apiId(channelId), metadata }],
+      },
+      fetchImpl,
+    });
+    assertImageBlock(block);
+    blockId = String(block.id);
+  }
+
+  connectionId = await ensureBlockConnection({
+    token,
+    page,
+    blockId,
+    channelId,
+    existingConnectionId: connectionId,
+    metadata,
+    imageSrc: item.src,
+    fetchImpl,
+  });
+
+  return {
+    src: item.src,
+    blockId,
+    connectionId,
+    blockUrl: blockUrl(blockId),
+    state: block.state === "available" ? "synced" : "pending",
+    lastSyncedAt: String(block.updated_at || new Date().toISOString()),
+  };
+}
+
+async function syncArenaImages({ token, page, publicOrigin, imageOrigin, fetchImpl }) {
+  const channelId = channelIdFromPage(page);
+  const items = imageItemsFromPage(page);
+  const mappings = imageMappingsFromPage(page);
+  const disabled = page?.frontMatter?.arena_enabled !== true;
+  const paused = page?.frontMatter?.draft === true;
+
+  if (disabled || paused) {
+    if (channelId) {
+      await Promise.all(mappings.map((mapping) => (
+        disconnectImageMapping({ token, page, mapping, channelId, fetchImpl })
+      )));
+    }
+    const blocks = mappings.map((mapping) => ({
+      ...mapping,
+      connectionId: "",
+      blockUrl: blockUrl(mapping.blockId),
+    }));
+    return {
+      kind: "images",
+      state: paused && !disabled ? "paused" : "disabled",
+      channelId,
+      blockId: blocks[0]?.blockId || "",
+      blockUrl: blocks[0]?.blockUrl || "",
+      blocks,
+    };
+  }
+
+  if (!channelId) {
+    return { kind: "images", state: "error", channelId, blocks: [], error: "Elige un canal de Are.na antes de guardar." };
+  }
+  if (!items.length) {
+    return { kind: "images", state: "error", channelId, blocks: [], error: "La publicacion no contiene imagenes para copiar." };
+  }
+
+  const mappingBySource = new Map(mappings.map((mapping) => [mapping.src, mapping]));
+  const currentSources = new Set(items.map((item) => item.src));
+  const staleMappings = mappings.filter((mapping) => !currentSources.has(mapping.src));
+  await Promise.all(staleMappings.map((mapping) => (
+    disconnectImageMapping({ token, page, mapping, channelId, fetchImpl })
+  )));
+
+  const blocks = [];
+  for (const item of items) {
+    blocks.push(await syncArenaImage({
+      token,
+      page,
+      item,
+      itemCount: items.length,
+      mapping: mappingBySource.get(item.src),
+      channelId,
+      publicOrigin,
+      imageOrigin,
+      fetchImpl,
+    }));
+  }
+
+  return {
+    kind: "images",
+    state: blocks.every((block) => block.state === "synced") ? "synced" : "pending",
+    channelId,
+    blockId: blocks[0]?.blockId || "",
+    blockUrl: blocks[0]?.blockUrl || "",
+    blocks,
+    lastSyncedAt: blocks.map((block) => block.lastSyncedAt).filter(Boolean).sort().at(-1) || "",
+  };
+}
+
+export function arenaMappingPatch(page, arena) {
+  if (arena?.kind === "images") {
+    const blocks = (arena.blocks || []).map((block) => ({
+      src: String(block.src || ""),
+      block_id: String(block.blockId || ""),
+      ...(block.connectionId ? { connection_id: String(block.connectionId) } : {}),
+    }));
+    const current = Array.isArray(page?.frontMatter?.arena_blocks) ? page.frontMatter.arena_blocks : [];
+    return JSON.stringify(current) === JSON.stringify(blocks)
+      ? {}
+      : { arena_blocks: blocks.length ? blocks : null };
+  }
+
+  const patch = {};
+  if (arena?.blockId && arena.blockId !== String(page?.frontMatter?.arena_block_id || "")) {
+    patch.arena_block_id = arena.blockId;
+  }
+  if (String(arena?.connectionId || "") !== String(page?.frontMatter?.arena_connection_id || "")) {
+    patch.arena_connection_id = arena?.connectionId || null;
+  }
+  return patch;
+}
+
+export function pageHasArenaMapping(page) {
+  return Boolean(blockIdFromPage(page) || imageMappingsFromPage(page).length);
 }
