@@ -54,8 +54,9 @@ test("image editor uses one explicit save action and lightweight previews", () =
   assert.doesNotMatch(html, />Publicar ↑</);
   assert.match(html, /\.property-action \{[\s\S]*?min-height: 2\.75rem;/);
   assert.match(html, /\.status-visible \{[\s\S]*?grid-row: 4;[\s\S]*?min-height: 2\.75rem;/);
-  assert.match(html, /\.panel \{[\s\S]*?grid-template-columns: 1rem minmax\(0, 1fr\) auto;[\s\S]*?column-gap: 0\.75rem;[\s\S]*?row-gap: 0\.15rem;/);
-  assert.match(html, /\.publication-steps \{[\s\S]*?grid-column: 2 \/ -1;[\s\S]*?grid-row: 2;/);
+  assert.match(html, /\.panel \{[\s\S]*?grid-template-columns: minmax\(0, 1fr\) auto;[\s\S]*?column-gap: 0\.75rem;[\s\S]*?row-gap: 0\.15rem;/);
+  assert.doesNotMatch(html, /\.panel:not\(\.desktop-actions\)::before/);
+  assert.match(html, /\.publication-steps \{[\s\S]*?grid-column: 1 \/ -1;[\s\S]*?grid-row: 2;/);
   assert.match(html, /overflow-x: hidden;[\s\S]*?overflow-y: auto;/);
   assert.match(html, /id="properties-backdrop" aria-label="Cerrar propiedades" hidden/);
   assert.match(html, /els\.propertiesBackdrop\.addEventListener\("click", closeProperties\)/);
@@ -65,6 +66,10 @@ test("image editor uses one explicit save action and lightweight previews", () =
   assert.doesNotMatch(html, /content: ">";/);
   assert.match(html, /function loadExistingPhoto\(\)/);
   assert.match(html, /request\("\/page\?path=" \+ encodeURIComponent\(sourcePath\)\)/);
+  assert.match(html, /loadExistingPhoto\(\)\.then\(loadArenaStatus\)/);
+  assert.match(html, /params\.get\("arena_channel"\) \|\| els\.arenaChannel\.value \|\| ""/);
+  assert.match(html, /request\("\/arena-status\?path=" \+ encodeURIComponent\(savedPath\)\)/);
+  assert.match(html, /imagen copiada · actualización pendiente/);
   assert.match(html, /setStatus\(images\.length \? "Publicacion cargada\."/);
 });
 

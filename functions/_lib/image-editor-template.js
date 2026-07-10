@@ -1257,7 +1257,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
       .panel {
         display: grid;
-        grid-template-columns: 1rem minmax(0, 1fr) auto;
+        grid-template-columns: minmax(0, 1fr) auto;
         column-gap: 0.75rem;
         row-gap: 0.15rem;
         align-items: center;
@@ -1265,19 +1265,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         padding: 1.05rem 0;
         border-bottom: 1px solid var(--line-soft);
       }
-      .panel:not(.desktop-actions)::before {
-        content: "";
-        grid-column: 1;
-        grid-row: 1 / -1;
-        width: 1rem;
-        height: 1rem;
-        align-self: center;
-        border: 1.5px solid var(--muted);
-        border-radius: 999px;
-        opacity: 0.78;
-      }
       .panel h2 {
-        grid-column: 2 / -1;
+        grid-column: 1 / -1;
         grid-row: 1;
         font-size: 0.7rem;
         margin-bottom: 0.15rem;
@@ -1288,20 +1277,20 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         align-items: center;
       }
       .property-value {
-        grid-column: 2;
+        grid-column: 1;
         grid-row: 2;
         min-width: 0;
         overflow-wrap: anywhere;
       }
       .property-action {
-        grid-column: 3;
+        grid-column: 2;
         grid-row: 2;
         margin-left: auto;
         min-height: 2.75rem;
         padding: 0 0.2rem;
       }
       .property-editor {
-        grid-column: 2 / -1;
+        grid-column: 1 / -1;
         margin-top: 0;
       }
       .mobile-notebook-field {
@@ -1312,21 +1301,21 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         justify-content: flex-start;
       }
       #status-panel {
-        grid-column: 2 / -1;
+        grid-column: 1 / -1;
         grid-row: 3;
       }
       .status-visible {
-        grid-column: 2 / -1;
+        grid-column: 1 / -1;
         grid-row: 4;
         min-height: 2.75rem;
         margin-top: 0.25rem;
       }
       .publication-progress h2 {
-        grid-column: 2 / -1;
+        grid-column: 1 / -1;
         grid-row: 1;
       }
       .publication-steps {
-        grid-column: 2 / -1;
+        grid-column: 1 / -1;
         grid-row: 2;
         min-width: 0;
         padding: 0.15rem 0 0.25rem;
@@ -1774,7 +1763,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         setSaveState("Sincronizado", "saved");
         bind();
         if (sourcePath) {
-          loadExistingPhoto().catch(function (error) {
+          loadExistingPhoto().then(loadArenaStatus).catch(function (error) {
             setStatus(error.message, true);
           });
         } else {
@@ -2109,7 +2098,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       function loadArenaChannels() {
         return request("/arena-channels").then(function (payload) {
           arenaChannels = payload.channels || [];
-          var preferredId = params.get("arena_channel") || "";
+          var preferredId = params.get("arena_channel") || els.arenaChannel.value || "";
           els.arenaChannel.innerHTML = "";
 
           var placeholder = document.createElement("option");
@@ -2137,6 +2126,13 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           els.arenaEnabled.disabled = false;
           els.arenaChannel.value = preferredId;
           syncArenaUi();
+        });
+      }
+
+      function loadArenaStatus() {
+        if (!savedPath || !els.arenaEnabled.checked) return Promise.resolve();
+        return request("/arena-status?path=" + encodeURIComponent(savedPath)).then(function (payload) {
+          setArenaState(payload || {});
         });
       }
 
@@ -2173,7 +2169,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           disabled: "La copia está desactivada.",
           unavailable: arenaState.error || "Are.na no está disponible.",
           paused: "Las imágenes se copiarán cuando publiques.",
-          pending: arenaState.error || (savedPath ? "La copia está pendiente." : "Se copiarán al guardar una publicación pública."),
+          pending: arenaState.error || (blockCount
+            ? (blockCount === 1 ? "La imagen ya está copiada; hay una actualización pendiente." : "Las imágenes ya están copiadas; hay una actualización pendiente.")
+            : (savedPath ? "La copia está pendiente." : "Se copiarán al guardar una publicación pública.")),
           syncing: "Copiando imágenes y metadatos a Are.na...",
           synced: blockCount + (blockCount === 1 ? " imagen copiada en " : " imágenes copiadas en ") + currentArenaChannelTitle() + ".",
           error: arenaState.error || "No se pudo completar la copia en Are.na.",
@@ -2182,7 +2180,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           disabled: "no se copiará",
           unavailable: "no disponible",
           paused: "al publicar",
-          pending: "pendiente",
+          pending: blockCount
+            ? blockCount + (blockCount === 1 ? " imagen copiada · actualización pendiente" : " imágenes copiadas · actualización pendiente")
+            : "pendiente",
           syncing: "copiando...",
           synced: blockCount + (blockCount === 1 ? " imagen copiada" : " imágenes copiadas"),
           error: "necesita reintento",
