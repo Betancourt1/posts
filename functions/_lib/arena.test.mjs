@@ -67,7 +67,7 @@ test("prepareArenaMarkdown makes root-relative destinations portable", () => {
   );
 });
 
-test("syncArenaPage creates a Text block from the complete Markdown", async () => {
+test("syncArenaPage publishes a draft Text block when Are.na is enabled", async () => {
   const requests = [];
   let created = false;
   const fetchImpl = async (url, options) => {
@@ -94,7 +94,9 @@ test("syncArenaPage creates a Text block from the complete Markdown", async () =
     throw new Error(`Unexpected request: ${options.method} ${url}`);
   };
 
-  const result = await syncArenaPage({ token: "secret", page: page(), fetchImpl });
+  const draft = page();
+  draft.frontMatter.draft = true;
+  const result = await syncArenaPage({ token: "secret", page: draft, fetchImpl });
 
   const createRequest = requests.find((request) => request.url === "https://api.are.na/v3/blocks");
   assert.equal(createRequest.options.method, "POST");
@@ -280,15 +282,13 @@ test("getArenaStatus distinguishes matching, disconnected, and changed Markdown"
   assert.equal((await getArenaStatus({ token: "secret", page: existing, fetchImpl: changedFetch })).state, "pending");
 });
 
-test("disabled and draft pages without a mapped block never call Are.na", async () => {
+test("disabled pages without a mapped block never call Are.na", async () => {
   const fetchImpl = async () => {
     throw new Error("fetch should not run");
   };
   const disabled = page({ frontMatter: { title: "Prueba", arena_channel_id: "123" } });
-  const draft = page({ frontMatter: { title: "Prueba", arena_enabled: true, arena_channel_id: "123", draft: true } });
 
   assert.equal((await syncArenaPage({ token: "secret", page: disabled, fetchImpl })).state, "disabled");
-  assert.equal((await syncArenaPage({ token: "secret", page: draft, fetchImpl })).state, "paused");
 });
 
 test("getArenaStatus exposes a residual connection after mirroring is disabled", async () => {
@@ -389,7 +389,7 @@ test("API errors never include the token", async () => {
   );
 });
 
-test("syncArenaPage creates Image blocks with the image, alt text, and caption", async () => {
+test("syncArenaPage publishes draft Image blocks when Are.na is enabled", async () => {
   const requests = [];
   let nextBlockId = 500;
   let nextConnectionId = 800;
@@ -419,6 +419,7 @@ test("syncArenaPage creates Image blocks with the image, alt text, and caption",
   const gallery = photoPage({
     frontMatter: {
       title: "Flor en la mañana",
+      draft: true,
       arena_enabled: true,
       arena_channel_id: "123",
       image: "/uploads/flor-1.jpg",

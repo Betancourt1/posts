@@ -470,6 +470,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       font-size: 0.76rem;
       font-weight: 700;
     }
+    .arena-channel-field[hidden] {
+      display: none !important;
+    }
     .arena-channel-field select {
       width: 100%;
       min-height: 2.35rem;
@@ -1554,7 +1557,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       <button type="button" class="markdown-toggle" id="view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">${ICONS.code}</button>
       <button type="button" class="arena-details-button" id="arena-details-button" data-state="disabled" aria-controls="arena-details">Are.na</button>
       <button type="button" class="mobile-settings-button" id="top-settings-button" aria-controls="settings" aria-expanded="false" aria-label="Configuracion">...</button>
-      <button type="button" class="primary" id="save" disabled><span class="save-label-desktop">Guardar y verificar</span><span class="save-label-mobile">Guardar</span></button>
+      <button type="button" class="primary" id="save" disabled><span class="save-label-desktop">Publicar</span><span class="save-label-mobile">Publicar</span></button>
     </div>
   </header>
   <nav class="formatbar" aria-label="Formatting">
@@ -1623,10 +1626,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <span>Etiquetas</span>
         <input id="tags" type="text" placeholder="ensayo, politica" />
       </label>
-      <label class="check">
-        <span class="check-label">Publicado</span>
-        <input id="draft" type="checkbox" />
-      </label>
+      <input id="draft" type="checkbox" hidden />
       <div class="photo-fields" id="photo-fields" hidden>
         <label class="field">
           <span>Imagen</span>
@@ -1655,16 +1655,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <span class="check-label">Visible</span>
         <input id="hidden" type="checkbox" />
       </label>
-      <section class="publication-section" id="publication-section">
-        <h3>Estado de publicación</h3>
-        <ol class="publication-steps">
-          <li class="publication-step" id="publication-saved-step">Guardado en GitHub</li>
-          <li class="publication-step" id="publication-deploy-step">Desplegando</li>
-          <li class="publication-step" id="publication-public-step">Disponible en el blog</li>
-        </ol>
-        <p class="publication-message" id="publication-message">Guarda para verificar el estado público.</p>
-        <a class="publication-link" id="publication-link" href="#" target="_blank" rel="noopener" hidden>Abrir publicación ↗</a>
-      </section>
       <section class="notebook-channel-section" id="notebook-channel-section" hidden>
         <h3>Are.na</h3>
         <button type="button" class="notebook-channel-action" id="create-notebook-channel">Crear channel desde notebook</button>
@@ -1677,16 +1667,16 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           <button type="button" class="arena-inline-details" id="arena-inline-details">Ver detalle</button>
         </div>
         <label class="check arena-toggle">
-          <span class="check-label">Mantener copia en Are.na</span>
+          <span class="check-label">Publicar</span>
           <input id="arena-enabled" type="checkbox" disabled />
         </label>
-        <label class="arena-channel-field">
+        <label class="arena-channel-field" id="arena-channel-field" hidden>
           <span>Canal</span>
           <select id="arena-channel" disabled>
             <option value="">Cargando canales...</option>
           </select>
         </label>
-        <p class="arena-helper" id="arena-helper">Al guardar, se copiarán el título y el cuerpo Markdown completo.</p>
+        <p class="arena-helper" id="arena-helper">Al publicar, se copiarán el título y el cuerpo Markdown completo.</p>
         <p class="arena-content-meta" id="arena-content-meta">Bloque de texto</p>
         <div class="arena-progress" aria-label="Estado de la copia en Are.na">
           <span class="arena-step is-complete" id="arena-blog-step">Blog actualizado</span>
@@ -1696,6 +1686,16 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <p class="arena-state-message" id="arena-state-message" aria-live="polite">Activa la copia para mantener este texto en Are.na.</p>
         <p class="arena-last-synced" id="arena-last-synced"></p>
         <button type="button" class="arena-retry" id="arena-retry" hidden>Reintentar</button>
+      </section>
+      <section class="publication-section" id="publication-section">
+        <h3>Estado de publicación</h3>
+        <ol class="publication-steps">
+          <li class="publication-step" id="publication-saved-step">Guardado en GitHub</li>
+          <li class="publication-step" id="publication-deploy-step">Desplegando</li>
+          <li class="publication-step" id="publication-public-step">Disponible en el blog</li>
+        </ol>
+        <p class="publication-message" id="publication-message">Publica para iniciar el proceso.</p>
+        <a class="publication-link" id="publication-link" href="#" target="_blank" rel="noopener" hidden>Abrir publicación ↗</a>
       </section>
       <div class="danger-zone" id="danger-zone" hidden>
         <h3>Peligro</h3>
@@ -1767,6 +1767,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       var bodyHistoryIndex = -1;
       var restoringBodyHistory = false;
       var publicationCheckToken = 0;
+      var publicationRedirectNotebook = "";
       var els = {
         status: document.getElementById("status"),
         savedPill: document.getElementById("saved-pill"),
@@ -1821,6 +1822,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         arenaSection: document.getElementById("arena-section"),
         arenaEnabled: document.getElementById("arena-enabled"),
         arenaChannel: document.getElementById("arena-channel"),
+        arenaChannelField: document.getElementById("arena-channel-field"),
         arenaInlineDetails: document.getElementById("arena-inline-details"),
         arenaContentMeta: document.getElementById("arena-content-meta"),
         arenaHelper: document.getElementById("arena-helper"),
@@ -1944,6 +1946,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.arenaRetry.addEventListener("click", retryArenaSync);
         els.arenaDetailsRetry.addEventListener("click", retryArenaSync);
         els.arenaEnabled.addEventListener("change", function () {
+          els.arenaChannelField.hidden = !els.arenaEnabled.checked;
+          selectFallbackArenaChannel();
           markContentEdited();
           syncArenaConfiguration();
         });
@@ -1977,10 +1981,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         });
         els.deleteImage.addEventListener("click", deleteCurrentImage);
         els.deletePage.addEventListener("click", deleteCurrentPage);
-        [els.draft, els.hidden].forEach(function (input) {
-          input.addEventListener("change", function () {
-            markContentEdited();
-          });
+        els.hidden.addEventListener("change", function () {
+          els.draft.checked = els.hidden.checked;
+          markContentEdited();
         });
         window.addEventListener("resize", resizeEditorFields);
         window.addEventListener("keydown", function (event) {
@@ -2123,10 +2126,15 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
 
           els.arenaChannel.disabled = false;
           els.arenaEnabled.disabled = false;
-          els.arenaChannel.value = preferredId;
+          els.arenaChannel.value = preferredId || String(arenaChannels[0].id);
           syncArenaUi();
           return payload;
         });
+      }
+
+      function selectFallbackArenaChannel() {
+        if (!els.arenaEnabled.checked || els.arenaChannel.value || !arenaChannels.length) return;
+        els.arenaChannel.value = String(arenaChannels[0].id);
       }
 
       function loadArenaStatus() {
@@ -2152,10 +2160,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           setArenaState({ state: "disabled", error: "" });
           return;
         }
-        if (!els.draft.checked) {
-          setArenaState({ state: "paused", error: "" });
-          return;
-        }
+        selectFallbackArenaChannel();
         if (!els.arenaChannel.value) {
           setArenaState({ state: "error", error: "Elige un canal de Are.na." });
           return;
@@ -2167,10 +2172,11 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         if (!isArenaEligible()) return Promise.resolve(null);
         syncArenaConfiguration();
         var hasMappedBlock = hasArenaMapping();
-        if (!sourcePath || (!els.arenaEnabled.checked && !hasMappedBlock) || (!els.draft.checked && !hasMappedBlock)) {
+        if (!sourcePath || (!els.arenaEnabled.checked && !hasMappedBlock)) {
           return Promise.resolve(null);
         }
-        if (els.arenaEnabled.checked && els.draft.checked && !els.arenaChannel.value) {
+        selectFallbackArenaChannel();
+        if (els.arenaEnabled.checked && !els.arenaChannel.value) {
           return Promise.resolve(null);
         }
 
@@ -2266,6 +2272,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
 
       function syncArenaUi() {
         var preview = arenaContentPreview();
+        els.arenaChannelField.hidden = !els.arenaEnabled.checked;
         var photo = isPhotoEditor();
         var hasMappedBlock = hasArenaMapping();
         var imageLabel = preview.imageCount === 1 ? "1 imagen" : preview.imageCount + " imágenes";
@@ -2291,18 +2298,18 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
             : "Los borradores no se copian a Are.na.",
           checking: photo ? "Comprobando las imágenes en Are.na." : "Comprobando el bloque de texto en Are.na.",
           pending: arenaState.error || (!blogSaved
-            ? (photo ? "Guarda para copiar las imágenes." : "Guarda para copiar el contenido completo.")
+            ? (photo ? "Publica para copiar las imágenes." : "Publica para copiar el contenido completo.")
             : (hasMappedBlock
               ? (photo ? "Are.na está procesando las imágenes." : "Are.na está procesando el bloque de texto.")
-              : (photo ? "Guarda para copiar las imágenes." : "Guarda para copiar el contenido completo."))),
+              : (photo ? "Publica para copiar las imágenes." : "Publica para copiar el contenido completo."))),
           syncing: photo ? "Copiando las imágenes guardadas a Are.na." : "Copiando el Markdown guardado a Are.na.",
           synced: photo ? "Las imágenes coinciden con el blog." : "El bloque de texto coincide con el blog.",
           error: arenaState.error || "No se pudo actualizar Are.na.",
         };
 
         els.arenaHelper.textContent = photo
-          ? "Al guardar, cada imagen se copiará con su título, texto alt y pie."
-          : "Al guardar, se copiarán el título y el cuerpo Markdown completo.";
+          ? "Al publicar, cada imagen se copiará con su título, texto alt y pie."
+          : "Al publicar, se copiarán el título y el cuerpo Markdown completo.";
         els.arenaContentMeta.textContent = photo
           ? imageLabel + " · pie · alt"
           : "Bloque de texto · " + preview.characters.toLocaleString("es-MX") + " caracteres";
@@ -2364,9 +2371,10 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.image.value = "";
         els.imageAlt.value = "";
         els.caption.value = "";
-        els.draft.checked = false;
+        els.draft.checked = true;
         els.hidden.checked = true;
         els.arenaEnabled.checked = false;
+        els.arenaChannelField.hidden = true;
         setArenaState({
           state: "disabled",
           blockId: "",
@@ -2379,7 +2387,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         saveInProgress = false;
         saveFailed = false;
         setStatus("New post");
-        setPublicationState("idle", "Guarda para verificar el estado público.");
+        setPublicationState("idle", "Publica para iniciar el proceso.");
         resetBodyHistory();
         syncSavedState();
         syncPhotoEditor();
@@ -2403,9 +2411,10 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           els.image.value = frontMatter.image || "";
           els.imageAlt.value = frontMatter.image_alt || "";
           els.caption.value = frontMatter.caption || "";
-          els.draft.checked = frontMatter.draft !== true;
-          els.hidden.checked = frontMatter.hidden !== true;
+          els.hidden.checked = frontMatter.draft !== true && frontMatter.hidden !== true;
+          els.draft.checked = els.hidden.checked;
           els.arenaEnabled.checked = frontMatter.arena_enabled === true;
+          els.arenaChannelField.hidden = !els.arenaEnabled.checked;
           if (frontMatter.arena_channel_id) {
             var loadingChannel = document.createElement("option");
             loadingChannel.value = String(frontMatter.arena_channel_id);
@@ -2458,7 +2467,12 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         if (!ensureTitleBeforeSave()) {
           return;
         }
+        els.draft.checked = els.hidden.checked;
+        selectFallbackArenaChannel();
         syncGeneratedSlug();
+        publicationRedirectNotebook = kind === "notebook"
+          ? (sourcePath ? sourcePath.replace(/\\/_index\\.md$/, "") : els.notebook.value)
+          : (mode === "edit" ? notebookPathForContent(sourcePath) : els.notebook.value);
         els.save.disabled = true;
         setStatus("Saving");
         setPublicationState("saving", "Guardando cambios en GitHub.");
@@ -2479,13 +2493,14 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           setStatus("Saved");
           setPublicationState("saved", result.changed === false ? "Sin cambios nuevos; el estado persistido coincide." : "Guardado en GitHub.");
           syncDeleteControls();
+          return startPublicVerification();
+        }).then(function () {
           if (isArenaEligible() && (els.arenaEnabled.checked || hasArenaMapping())) {
-            return syncArenaAfterSave().then(function () {
-              startPublicVerification();
-            });
+            return syncArenaAfterSave();
           }
-          startPublicVerification();
-          return result;
+          return true;
+        }).then(function (arenaSaved) {
+          if (arenaSaved !== null) redirectToNotebook();
         }).catch(function (error) {
           setStatus(error.message, true);
           setPublicationState("error", error.message);
@@ -2502,7 +2517,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           date: els.date.value,
           tags: els.tags.value,
           summary: els.summary.value,
-          draft: !els.draft.checked,
+          draft: !els.hidden.checked,
           hidden: !els.hidden.checked,
           arenaEnabled: isArenaEligible() && els.arenaEnabled.checked,
           arenaChannelId: isArenaEligible() && els.arenaEnabled.checked ? els.arenaChannel.value : "",
@@ -2525,7 +2540,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           date: els.date.value,
         });
 
-        if (!els.draft.checked) {
+        if (!els.hidden.checked) {
           nextFrontMatter.draft = true;
         } else {
           nextFrontMatter.draft = null;
@@ -2589,7 +2604,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       function assertPersistedState(result) {
         var persisted = result && result.frontMatter;
         if (!persisted) return;
-        var expectedDraft = !els.draft.checked;
+        var expectedDraft = !els.hidden.checked;
         var expectedHidden = !els.hidden.checked;
         if ((persisted.draft === true) !== expectedDraft) {
           throw new Error("GitHub guardó el archivo, pero el estado de publicación no coincide.");
@@ -2638,7 +2653,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           step.classList.remove("is-active", "is-complete");
         });
 
-        if (["saved", "deploying", "pending", "public", "draft"].indexOf(state) !== -1) {
+        if (["saved", "deploying", "pending", "public", "admin", "draft"].indexOf(state) !== -1) {
           els.publicationSavedStep.classList.add("is-complete");
         }
         if (state === "saving") els.publicationSavedStep.classList.add("is-active");
@@ -2647,6 +2662,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           els.publicationDeployStep.classList.add("is-complete");
           els.publicationPublicStep.classList.add("is-complete");
         }
+        if (state === "admin") els.publicationDeployStep.classList.add("is-complete");
         if (state === "error") els.publicationSavedStep.classList.add("is-active");
         els.publicationMessage.textContent = message || "";
       }
@@ -2655,44 +2671,90 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         publicationCheckToken += 1;
         var token = publicationCheckToken;
         var url = publicPageUrl();
-        els.publicationLink.hidden = !url || !els.draft.checked;
+        els.publicationLink.hidden = !url || !els.hidden.checked;
         if (url) els.publicationLink.href = url;
 
-        if (!els.draft.checked) {
-          setPublicationState("draft", "Borrador guardado; no se envió al sitio público.");
-          return;
-        }
-        if (!url) {
+        if (els.hidden.checked && !url) {
           setPublicationState("saved", "Guardado en GitHub; falta una ruta para verificar.");
-          return;
+          return Promise.reject(new Error("No se pudo determinar la ruta pública."));
         }
-
-        setPublicationState("deploying", "Guardado en GitHub; comprobando la ruta pública.");
-        checkPublicPage(url, token, 0);
+        if (!els.hidden.checked) {
+          setPublicationState("deploying", "Guardado en GitHub; esperando que el notebook se actualice en admin.");
+          return checkAdminNotebook(token, 0);
+        }
+        setPublicationState("deploying", "Guardado en GitHub; esperando el despliegue público.");
+        return checkPublicPage(url, token, 0);
       }
 
       function checkPublicPage(url, token, attempt) {
-        fetch(url, { cache: "no-store", credentials: "same-origin" }).then(function (response) {
-          if (token !== publicationCheckToken) return;
+        return fetch(url, { cache: "no-store", credentials: "same-origin" }).then(function (response) {
+          if (token !== publicationCheckToken) throw new Error("La verificación fue reemplazada por otra publicación.");
           if (response.ok) {
             setPublicationState("public", "Disponible públicamente y verificado.");
-            return;
+            return true;
           }
-          retryPublicPage(url, token, attempt);
-        }).catch(function () {
-          retryPublicPage(url, token, attempt);
+          return retryPublicPage(url, token, attempt);
+        }, function () {
+          return retryPublicPage(url, token, attempt);
         });
       }
 
       function retryPublicPage(url, token, attempt) {
-        if (token !== publicationCheckToken) return;
-        if (attempt >= 29) {
+        if (token !== publicationCheckToken) return Promise.reject(new Error("La verificación fue reemplazada por otra publicación."));
+        if (attempt >= 89) {
           setPublicationState("pending", "Guardado en GitHub; el despliegue sigue pendiente.");
-          return;
+          return Promise.reject(new Error("Cloudflare todavía no confirma el despliegue. Puedes reintentar Publicar."));
         }
-        window.setTimeout(function () {
-          checkPublicPage(url, token, attempt + 1);
-        }, 2000);
+        return new Promise(function (resolve) { window.setTimeout(resolve, 2000); }).then(function () {
+          return checkPublicPage(url, token, attempt + 1);
+        });
+      }
+
+      function checkAdminNotebook(token, attempt) {
+        return fetch(adminNotebookUrl(), { cache: "no-store", credentials: "same-origin" }).then(function (response) {
+          if (!response.ok) return false;
+          return response.text().then(function (html) {
+            var page = new DOMParser().parseFromString(html, "text/html");
+            return String(page.body?.textContent || "").indexOf(els.title.value.trim()) !== -1;
+          });
+        }, function () {
+          return false;
+        }).then(function (ready) {
+          if (token !== publicationCheckToken) throw new Error("La verificación fue reemplazada por otra publicación.");
+          if (ready) {
+            setPublicationState("admin", "Disponible en el notebook de admin y verificado.");
+            return true;
+          }
+          return retryAdminNotebook(token, attempt);
+        });
+      }
+
+      function retryAdminNotebook(token, attempt) {
+        if (token !== publicationCheckToken) return Promise.reject(new Error("La verificación fue reemplazada por otra publicación."));
+        if (attempt >= 89) {
+          setPublicationState("pending", "Guardado en GitHub; el notebook de admin sigue pendiente.");
+          return Promise.reject(new Error("Cloudflare todavía no actualiza el notebook. Puedes reintentar Publicar."));
+        }
+        return new Promise(function (resolve) { window.setTimeout(resolve, 2000); }).then(function () {
+          return checkAdminNotebook(token, attempt + 1);
+        });
+      }
+
+      function adminNotebookUrl() {
+        var base = String(siteOrigin || "").replace(/\\/+$/, "");
+        if (!/\\/admin$/.test(base)) base += "/admin";
+        var path = publicationRedirectNotebook.replace(/^content_es/, "/es").replace(/^content_en/, "");
+        return base + "/" + path.replace(/^\\/+|\\/+$/g, "") + "/";
+      }
+
+      function notebookPathForContent(path) {
+        var parts = String(path || "").split("/");
+        if (parts[1] === "posts") return parts.slice(0, 2).join("/");
+        return parts.slice(0, -1).join("/");
+      }
+
+      function redirectToNotebook() {
+        window.location.assign(adminNotebookUrl());
       }
 
       function uploadImage() {
@@ -3195,7 +3257,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           image: els.image.value,
           imageAlt: els.imageAlt.value,
           caption: els.caption.value,
-          draft: !els.draft.checked,
+          draft: !els.hidden.checked,
           hidden: !els.hidden.checked,
           arenaEnabled: els.arenaEnabled.checked,
           arenaChannelId: els.arenaChannel.value,

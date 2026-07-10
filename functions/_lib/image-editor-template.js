@@ -877,10 +877,11 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       max-height: 2rem;
     }
     .arena-editor {
+      display: grid;
       gap: 0.7rem;
     }
-    .panel.is-editing .arena-editor {
-      max-height: 15rem;
+    .arena-channel-field[hidden] {
+      display: none !important;
     }
     .arena-toggle {
       display: flex;
@@ -1310,6 +1311,13 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         min-height: 2.75rem;
         margin-top: 0.25rem;
       }
+      .publication-target {
+        grid-row: 1;
+        margin-top: 0;
+      }
+      .arena-editor {
+        grid-column: 1 / -1;
+      }
       .publication-progress h2 {
         grid-column: 1 / -1;
         grid-row: 1;
@@ -1420,7 +1428,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       <span class="save-state" id="save-state">Sincronizado</span>
       <button type="button" class="text-action mobile-properties-toggle" id="properties-toggle" aria-controls="properties-sheet" aria-expanded="false" aria-label="Propiedades">...</button>
       <button type="button" class="secondary-button" id="save-draft" hidden>Guardar borrador</button>
-      <button type="button" class="primary-button" id="publish">Guardar borrador</button>
+      <button type="button" class="primary-button" id="publish">Publicar</button>
     </div>
   </header>
 
@@ -1513,7 +1521,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
                 </ul>
                 </div>
                 <div class="review-actions">
-                  <button type="button" class="primary-button" id="review-publish">Guardar y verificar</button>
+                  <button type="button" class="primary-button" id="review-publish">Publicar</button>
                 </div>
               </div>
             </div>
@@ -1582,44 +1590,22 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       </section>
 
       <section class="panel">
-        <h2>Estado</h2>
-        <div class="property-row">
-          <span class="property-value" id="status-summary">• borrador</span>
-          <button type="button" class="property-action" data-edit-panel="status-panel">cambiar</button>
-        </div>
-        <label class="check property-value property-editor" id="status-panel">
-          <input id="published" type="checkbox" />
-          <span>Publicado</span>
-        </label>
         <input id="draft" type="checkbox" checked hidden />
-        <label class="check property-value status-visible">
+        <label class="check property-value status-visible publication-target">
           <input id="visible" type="checkbox" checked />
           <span>Visible</span>
         </label>
       </section>
 
-      <section class="panel publication-progress" id="publication-progress">
-        <h2>Publicación</h2>
-        <ol class="publication-steps">
-          <li class="publication-step" id="publication-saved-step">Guardado en GitHub</li>
-          <li class="publication-step" id="publication-deploy-step">Desplegando</li>
-          <li class="publication-step" id="publication-public-step">Disponible en el blog</li>
-        </ol>
-        <p class="publication-status-copy" id="publication-status-copy">Guarda para verificar la ruta pública.</p>
-      </section>
-
       <section class="panel" id="arena-panel">
         <h2>Are.na</h2>
-        <div class="property-row">
-          <span class="property-value" id="arena-summary">no se copiará</span>
-          <button type="button" class="property-action" data-edit-panel="arena-editor">configurar</button>
-        </div>
-        <div class="property-editor arena-editor" id="arena-editor">
+        <span class="property-value" id="arena-summary" hidden>no se publicará</span>
+        <div class="arena-editor" id="arena-editor">
           <label class="arena-toggle">
             <input id="arena-enabled" type="checkbox" />
-            <span>Copiar imágenes a Are.na</span>
+            <span>Publicar</span>
           </label>
-          <label class="field">
+          <label class="field arena-channel-field" id="arena-channel-field" hidden>
             <select id="arena-channel" aria-label="Canal de Are.na" disabled>
               <option value="">Cargando canales...</option>
             </select>
@@ -1631,9 +1617,19 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         </div>
       </section>
 
+      <section class="panel publication-progress" id="publication-progress">
+        <h2>Publicación</h2>
+        <ol class="publication-steps">
+          <li class="publication-step" id="publication-saved-step">Guardado en GitHub</li>
+          <li class="publication-step" id="publication-deploy-step">Desplegando</li>
+          <li class="publication-step" id="publication-public-step">Disponible en el blog</li>
+        </ol>
+        <p class="publication-status-copy" id="publication-status-copy">Publica para iniciar el proceso.</p>
+      </section>
+
       <section class="panel desktop-actions">
         <button type="button" class="secondary-button" id="panel-save-draft" hidden>Guardar borrador</button>
-        <button type="button" class="primary-button" id="panel-publish">Guardar borrador</button>
+        <button type="button" class="primary-button" id="panel-publish">Publicar</button>
       </section>
 
       <p class="status-line" id="status">Elige una imagen para empezar.</p>
@@ -1643,7 +1639,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
   <footer class="mobile-actions">
     <button type="button" class="secondary-button" id="mobile-save-draft" hidden>Guardar borrador</button>
-    <button type="button" class="primary-button" id="mobile-publish">Guardar borrador</button>
+    <button type="button" class="primary-button" id="mobile-publish">Publicar</button>
   </footer>
 
   <script>
@@ -1672,6 +1668,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       var fullImageMaxEdge = 1920;
       var thumbImageMaxEdge = 640;
       var publicationCheckToken = 0;
+      var publicationRedirectNotebook = "";
       var maxUploadBytes = 12 * 1024 * 1024;
       var allowedImageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
 
@@ -1737,15 +1734,14 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         date: document.getElementById("date"),
         tags: document.getElementById("tags"),
         draft: document.getElementById("draft"),
-        published: document.getElementById("published"),
         visible: document.getElementById("visible"),
-        statusSummary: document.getElementById("status-summary"),
         publicationSavedStep: document.getElementById("publication-saved-step"),
         publicationDeployStep: document.getElementById("publication-deploy-step"),
         publicationPublicStep: document.getElementById("publication-public-step"),
         publicationStatusCopy: document.getElementById("publication-status-copy"),
         arenaEnabled: document.getElementById("arena-enabled"),
         arenaChannel: document.getElementById("arena-channel"),
+        arenaChannelField: document.getElementById("arena-channel-field"),
         arenaSummary: document.getElementById("arena-summary"),
         arenaMessage: document.getElementById("arena-message"),
         arenaLinks: document.getElementById("arena-links"),
@@ -1763,7 +1759,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         setSaveState("Sincronizado", "saved");
         bind();
         if (sourcePath) {
-          loadExistingPhoto().then(loadArenaStatus).catch(function (error) {
+          loadExistingPhoto().then(loadArenaStatus).then(function () {
+            return els.arenaEnabled.checked ? ensureArenaChannels() : null;
+          }).catch(function (error) {
             setStatus(error.message, true);
           });
         } else {
@@ -1774,7 +1772,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         loadNotebooks().catch(function (error) {
           setStatus(error.message, true);
         });
-        setPublicationState("idle", "Guarda para verificar la ruta pública.");
+        setPublicationState("idle", "Publica para iniciar el proceso.");
       }
 
       function bind() {
@@ -1799,9 +1797,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           viewMode = images.length > 1 ? "lightbox" : "detail";
           render();
         });
-        els.reviewPublish.addEventListener("click", function () {
-          savePost(false);
-        });
+        els.reviewPublish.addEventListener("click", publishCurrentState);
         els.removeImage.addEventListener("click", removeSelectedImage);
         document.querySelectorAll("[data-edit-panel]").forEach(function (button) {
           button.addEventListener("click", function () {
@@ -1916,23 +1912,21 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.caption.addEventListener("blur", function () {
           closePropertyEditor(els.caption);
         });
-        els.draft.addEventListener("change", function () {
-          closePropertyEditor(els.draft);
-          updatePropertySummaries();
-          markUnsaved();
-        });
-        els.published.addEventListener("change", function () {
-          els.draft.checked = !els.published.checked;
-          closePropertyEditor(els.published);
-          updatePropertySummaries();
-          markUnsaved();
-        });
         els.visible.addEventListener("change", function () {
+          els.draft.checked = !els.visible.checked;
           updatePropertySummaries();
           markUnsaved();
         });
         els.arenaEnabled.addEventListener("change", function () {
-          syncArenaConfiguration();
+          els.arenaChannelField.hidden = !els.arenaEnabled.checked;
+          if (els.arenaEnabled.checked) {
+            ensureArenaChannels().then(function () {
+              selectFallbackArenaChannel();
+              syncArenaConfiguration();
+            }).catch(function () {});
+          } else {
+            syncArenaConfiguration();
+          }
           markUnsaved();
         });
         els.arenaChannel.addEventListener("change", function () {
@@ -1943,15 +1937,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.saveDraft.addEventListener("click", saveCurrentState);
         els.mobileSaveDraft.addEventListener("click", saveCurrentState);
         els.panelSaveDraft.addEventListener("click", saveCurrentState);
-        els.publish.addEventListener("click", function () {
-          saveCurrentState();
-        });
-        els.mobilePublish.addEventListener("click", function () {
-          saveCurrentState();
-        });
-        els.panelPublish.addEventListener("click", function () {
-          saveCurrentState();
-        });
+        els.publish.addEventListener("click", publishCurrentState);
+        els.mobilePublish.addEventListener("click", publishCurrentState);
+        els.panelPublish.addEventListener("click", publishCurrentState);
       }
 
       function request(path, options) {
@@ -2010,9 +1998,10 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           els.body.value = payload.body || "";
           els.date.value = frontMatter.date || today();
           els.tags.value = (frontMatter.tags || []).join(", ");
-          els.draft.checked = frontMatter.draft === true;
-          els.visible.checked = frontMatter.hidden !== true;
+          els.visible.checked = frontMatter.draft !== true && frontMatter.hidden !== true;
+          els.draft.checked = !els.visible.checked;
           els.arenaEnabled.checked = frontMatter.arena_enabled === true;
+          els.arenaChannelField.hidden = !els.arenaEnabled.checked;
           if (frontMatter.arena_channel_id) {
             var configuredChannel = document.createElement("option");
             configuredChannel.value = String(frontMatter.arena_channel_id);
@@ -2124,9 +2113,16 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
           els.arenaChannel.disabled = false;
           els.arenaEnabled.disabled = false;
-          els.arenaChannel.value = preferredId;
+          els.arenaChannel.value = arenaChannels.some(function (channel) {
+            return String(channel.id) === preferredId;
+          }) ? preferredId : String(arenaChannels[0].id);
           syncArenaUi();
         });
+      }
+
+      function selectFallbackArenaChannel() {
+        if (!els.arenaEnabled.checked || els.arenaChannel.value || !arenaChannels.length) return;
+        els.arenaChannel.value = String(arenaChannels[0].id);
       }
 
       function loadArenaStatus() {
@@ -2155,23 +2151,25 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           setArenaState({ state: "disabled", error: "" });
           return;
         }
+        selectFallbackArenaChannel();
         if (!els.arenaChannel.value) {
           setArenaState({ state: "error", error: "Elige un canal de Are.na." });
           return;
         }
-        setArenaState({ state: els.draft.checked ? "paused" : "pending", error: "" });
+        setArenaState({ state: "pending", error: "" });
       }
 
       function syncArenaUi() {
         var state = arenaState.state || "disabled";
         var blockCount = (arenaState.blocks || []).length;
+        els.arenaChannelField.hidden = !els.arenaEnabled.checked;
         var messages = {
           disabled: "La copia está desactivada.",
           unavailable: arenaState.error || "Are.na no está disponible.",
           paused: "Las imágenes se copiarán cuando publiques.",
           pending: arenaState.error || (blockCount
             ? (blockCount === 1 ? "La imagen ya está copiada; hay una actualización pendiente." : "Las imágenes ya están copiadas; hay una actualización pendiente.")
-            : (savedPath ? "La copia está pendiente." : "Se copiarán al guardar una publicación pública.")),
+            : (savedPath ? "La copia está pendiente." : "Se copiarán al publicar.")),
           syncing: "Copiando imágenes y metadatos a Are.na...",
           synced: blockCount + (blockCount === 1 ? " imagen copiada en " : " imágenes copiadas en ") + currentArenaChannelTitle() + ".",
           error: arenaState.error || "No se pudo completar la copia en Are.na.",
@@ -2211,11 +2209,12 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function syncArenaAfterSave(draft) {
         var hasMappings = (arenaState.blocks || []).length > 0;
-        if (!savedPath || (!els.arenaEnabled.checked && !hasMappings) || (draft && !hasMappings)) {
+        if (!savedPath || (!els.arenaEnabled.checked && !hasMappings)) {
           syncArenaConfiguration();
           return Promise.resolve(true);
         }
-        if (els.arenaEnabled.checked && !draft && !els.arenaChannel.value) {
+        selectFallbackArenaChannel();
+        if (els.arenaEnabled.checked && !els.arenaChannel.value) {
           setArenaState({ state: "error", error: "Elige un canal de Are.na." });
           return Promise.resolve(false);
         }
@@ -2566,7 +2565,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.reviewCount.textContent = imageCountLabel();
         els.reviewAlt.textContent = missingAlt ? "predeterminado" : "completo";
         els.reviewAlt.classList.toggle("review-warning", missingAlt > 0);
-        els.reviewStatus.textContent = els.draft.checked ? "borrador" : "publico";
+        els.reviewStatus.textContent = els.visible.checked ? "visible en el blog" : "solo en admin";
         syncArenaUi();
       }
 
@@ -2614,15 +2613,11 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
 
       function updateActionLabels() {
-        var publishLabel = els.draft.checked
-          ? "Guardar borrador"
-          : images.length > 1 && viewMode !== "review"
-            ? "Revisar"
-            : "Guardar y verificar";
+        var publishLabel = images.length > 1 && viewMode !== "review" ? "Revisar" : "Publicar";
         [els.publish, els.mobilePublish, els.panelPublish].forEach(function (button) {
           button.textContent = publishLabel;
         });
-        els.reviewPublish.textContent = els.draft.checked ? "Guardar borrador" : "Guardar y verificar";
+        els.reviewPublish.textContent = "Publicar";
       }
 
       function imageUrl(image) {
@@ -2702,8 +2697,6 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.captionAction.textContent = captionWritten ? "editar" : "+ añadir";
         els.notebookSummary.textContent = selectedNotebookLabel();
         els.notebookPath.textContent = els.notebook.value || "sin destino";
-        els.published.checked = !els.draft.checked;
-        els.statusSummary.textContent = els.draft.checked ? "• borrador" : "• publicado";
         els.mediaCount.textContent = images.length ? imageCountLabel() : "imagen";
         if (image) {
           els.filePanelTitle.textContent = "Imagen " + (selectedIndex() + 1) + " de " + images.length;
@@ -2731,7 +2724,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         updatePropertySummaries();
         updateActionLabels();
         if (els.arenaEnabled.checked && arenaState.state !== "unavailable") {
-          setArenaState({ state: els.draft.checked ? "paused" : "pending", error: "" });
+          setArenaState({ state: "pending", error: "" });
         }
         setSaveState("Sin guardar", "");
         if (message) {
@@ -2762,8 +2755,20 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.arenaRetry.disabled = isBusy;
       }
 
+      function publishCurrentState() {
+        if (saveBusy) return;
+        var ready = els.arenaEnabled.checked ? ensureArenaChannels() : Promise.resolve();
+        ready.then(function () {
+          selectFallbackArenaChannel();
+          saveCurrentState();
+        }).catch(function (error) {
+          setStatus(error.message, true);
+        });
+      }
+
       function saveCurrentState() {
         if (saveBusy) return;
+        els.draft.checked = !els.visible.checked;
         if (!validatePost(els.draft.checked)) return;
         if (images.length > 1 && viewMode !== "review") {
           viewMode = "review";
@@ -2781,6 +2786,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         setSaveState("Guardando...", "saving");
         setPublicationState("saving", "Guardando cambios en GitHub.");
         setStatus(images.length > 1 ? "Preparando imagenes." : "Preparando imagen.", false);
+        publicationRedirectNotebook = savedPath ? notebookPathForContent(savedPath) : els.notebook.value;
         ensureUploadedImages().then(function () {
           var draft = saveAsDraft ? true : false;
           els.draft.checked = draft;
@@ -2815,16 +2821,16 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           savedUrl = result.url || savedUrl;
           hasUnsavedChanges = false;
           setSaveState("Guardado", "saved");
-          setStatus(els.draft.checked ? "Borrador guardado." : "Guardado en GitHub.", false);
+          setStatus(els.draft.checked ? "Guardado solo en admin." : "Guardado en GitHub.", false);
           if (savedUrl) {
             els.savedLink.href = publicPostUrl();
             els.savedLink.hidden = els.draft.checked;
           }
-          return syncArenaAfterSave(els.draft.checked).then(function (arenaSaved) {
-            return { arenaSaved: arenaSaved };
-          });
-        }).then(function (result) {
-          startPublicVerification();
+          return startPublicVerification();
+        }).then(function () {
+          return syncArenaAfterSave(els.draft.checked);
+        }).then(function (arenaSaved) {
+          if (arenaSaved !== false) redirectToNotebook();
         }).catch(function (error) {
           setSaveState("Error al guardar", "error");
           setPublicationState("error", error.message);
@@ -2856,7 +2862,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         [els.publicationSavedStep, els.publicationDeployStep, els.publicationPublicStep].forEach(function (step) {
           step.classList.remove("is-active", "is-complete");
         });
-        if (["saved", "deploying", "pending", "public", "draft"].indexOf(state) !== -1) {
+        if (["saved", "deploying", "pending", "public", "admin", "draft"].indexOf(state) !== -1) {
           els.publicationSavedStep.classList.add("is-complete");
         }
         if (state === "saving" || state === "error") els.publicationSavedStep.classList.add("is-active");
@@ -2865,6 +2871,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           els.publicationDeployStep.classList.add("is-complete");
           els.publicationPublicStep.classList.add("is-complete");
         }
+        if (state === "admin") els.publicationDeployStep.classList.add("is-complete");
         els.publicationStatusCopy.textContent = message || "";
       }
 
@@ -2872,40 +2879,87 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         publicationCheckToken += 1;
         var token = publicationCheckToken;
         var url = publicPostUrl();
-        if (els.draft.checked) {
-          setPublicationState("draft", "Borrador guardado; no se envió al sitio público.");
-          return;
-        }
-        if (!url) {
+        if (els.visible.checked && !url) {
           setPublicationState("saved", "Guardado en GitHub; falta una ruta para verificar.");
-          return;
+          return Promise.reject(new Error("No se pudo determinar la ruta pública."));
         }
-        setPublicationState("deploying", "Guardado en GitHub; comprobando la ruta pública.");
-        checkPublicPost(url, token, 0);
+        if (!els.visible.checked) {
+          setPublicationState("deploying", "Guardado en GitHub; esperando que el notebook se actualice en admin.");
+          return checkAdminNotebook(token, 0);
+        }
+        setPublicationState("deploying", "Guardado en GitHub; esperando el despliegue público.");
+        return checkPublicPost(url, token, 0);
       }
 
       function checkPublicPost(url, token, attempt) {
-        fetch(url, { cache: "no-store", credentials: "same-origin" }).then(function (response) {
-          if (token !== publicationCheckToken) return;
+        return fetch(url, { cache: "no-store", credentials: "same-origin" }).then(function (response) {
+          if (token !== publicationCheckToken) throw new Error("La verificación fue reemplazada por otra publicación.");
           if (response.ok) {
             setPublicationState("public", "Disponible públicamente y verificado.");
-            return;
+            return true;
           }
-          retryPublicPost(url, token, attempt);
-        }).catch(function () {
-          retryPublicPost(url, token, attempt);
+          return retryPublicPost(url, token, attempt);
+        }, function () {
+          return retryPublicPost(url, token, attempt);
         });
       }
 
       function retryPublicPost(url, token, attempt) {
-        if (token !== publicationCheckToken) return;
-        if (attempt >= 29) {
+        if (token !== publicationCheckToken) return Promise.reject(new Error("La verificación fue reemplazada por otra publicación."));
+        if (attempt >= 89) {
           setPublicationState("pending", "Guardado en GitHub; el despliegue sigue pendiente.");
-          return;
+          return Promise.reject(new Error("Cloudflare todavía no confirma el despliegue. Puedes reintentar Publicar."));
         }
-        window.setTimeout(function () {
-          checkPublicPost(url, token, attempt + 1);
-        }, 2000);
+        return new Promise(function (resolve) { window.setTimeout(resolve, 2000); }).then(function () {
+          return checkPublicPost(url, token, attempt + 1);
+        });
+      }
+
+      function checkAdminNotebook(token, attempt) {
+        return fetch(adminNotebookUrl(), { cache: "no-store", credentials: "same-origin" }).then(function (response) {
+          if (!response.ok) return false;
+          return response.text().then(function (html) {
+            var page = new DOMParser().parseFromString(html, "text/html");
+            return String(page.body?.textContent || "").indexOf(els.title.value.trim()) !== -1;
+          });
+        }, function () {
+          return false;
+        }).then(function (ready) {
+          if (token !== publicationCheckToken) throw new Error("La verificación fue reemplazada por otra publicación.");
+          if (ready) {
+            setPublicationState("admin", "Disponible en el notebook de admin y verificado.");
+            return true;
+          }
+          return retryAdminNotebook(token, attempt);
+        });
+      }
+
+      function retryAdminNotebook(token, attempt) {
+        if (token !== publicationCheckToken) return Promise.reject(new Error("La verificación fue reemplazada por otra publicación."));
+        if (attempt >= 89) {
+          setPublicationState("pending", "Guardado en GitHub; el notebook de admin sigue pendiente.");
+          return Promise.reject(new Error("Cloudflare todavía no actualiza el notebook. Puedes reintentar Publicar."));
+        }
+        return new Promise(function (resolve) { window.setTimeout(resolve, 2000); }).then(function () {
+          return checkAdminNotebook(token, attempt + 1);
+        });
+      }
+
+      function adminNotebookUrl() {
+        var base = String(siteOrigin || "").replace(/\\/+$/, "");
+        if (!/\\/admin$/.test(base)) base += "/admin";
+        var path = publicationRedirectNotebook.replace(/^content_es/, "/es").replace(/^content_en/, "");
+        return base + "/" + path.replace(/^\\/+|\\/+$/g, "") + "/";
+      }
+
+      function notebookPathForContent(path) {
+        var parts = String(path || "").split("/");
+        if (parts[1] === "posts") return parts.slice(0, 2).join("/");
+        return parts.slice(0, -1).join("/");
+      }
+
+      function redirectToNotebook() {
+        window.location.assign(adminNotebookUrl());
       }
 
       function validatePost(targetDraft) {
@@ -2924,10 +2978,10 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           els.notebook.focus();
           return false;
         }
-        if (els.arenaEnabled.checked && targetDraft !== true && !els.arenaChannel.value) {
-          setStatus("Elige un canal de Are.na antes de publicar.", true);
+        selectFallbackArenaChannel();
+        if (els.arenaEnabled.checked && !els.arenaChannel.value) {
+          setStatus("Are.na no devolvió ningún canal disponible.", true);
           openProperties();
-          openPanel("arena-editor");
           els.arenaChannel.focus();
           return false;
         }

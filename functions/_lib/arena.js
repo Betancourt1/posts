@@ -253,9 +253,6 @@ function pageBaseState(page) {
   if (page?.frontMatter?.arena_enabled !== true) {
     return { state: "disabled", channelId, blockId, connectionId, blockUrl: blockUrl(blockId) };
   }
-  if (page?.frontMatter?.draft === true) {
-    return { state: "paused", channelId, blockId, connectionId, blockUrl: blockUrl(blockId) };
-  }
   if (!channelId) {
     return {
       state: "error",
@@ -460,8 +457,8 @@ async function getArenaImageStatus({ token, page, publicOrigin, imageOrigin, fet
     })),
   };
 
-  if (page?.frontMatter?.arena_enabled !== true || page?.frontMatter?.draft === true) {
-    const state = page?.frontMatter?.arena_enabled === true ? "paused" : "disabled";
+  if (page?.frontMatter?.arena_enabled !== true) {
+    const state = "disabled";
     if (!channelId || !mappings.length) return { ...base, state };
 
     const connectionSets = await Promise.all(mappings.map((mapping) => (
@@ -811,9 +808,7 @@ async function syncArenaImages({ token, page, publicOrigin, imageOrigin, fetchIm
   const items = imageItemsFromPage(page);
   const mappings = imageMappingsFromPage(page);
   const disabled = page?.frontMatter?.arena_enabled !== true;
-  const paused = page?.frontMatter?.draft === true;
-
-  if (disabled || paused) {
+  if (disabled) {
     if (channelId) {
       await Promise.all(mappings.map((mapping) => (
         disconnectImageMapping({ token, page, mapping, channelId, fetchImpl })
@@ -826,7 +821,7 @@ async function syncArenaImages({ token, page, publicOrigin, imageOrigin, fetchIm
     }));
     return {
       kind: "images",
-      state: paused && !disabled ? "paused" : "disabled",
+      state: "disabled",
       channelId,
       blockId: blocks[0]?.blockId || "",
       blockUrl: blocks[0]?.blockUrl || "",

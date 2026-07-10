@@ -39,17 +39,23 @@ test("text editor injects its API base and cannot save before content hydration"
   assert.match(html, /\.reference-theme \.saved-pill \{[\s\S]*?background: transparent !important;/);
   assert.match(html, /\.saved-pill,[\s\S]*?\.reference-theme \.saved-pill \{\s+display: none;/);
   assert.match(html, /\.reference-theme \.top-actions button \{[\s\S]*?background: transparent !important;/);
+  assert.match(html, /id="save" disabled>[\s\S]*?Publicar/);
+  assert.doesNotMatch(html, /<span class="check-label">Publicado<\/span>/);
+  assert.match(html, /<span class="check-label">Publicar<\/span>[\s\S]*?id="arena-enabled"/);
+  assert.match(html, /els\.arenaChannel\.value = preferredId \|\| String\(arenaChannels\[0\]\.id\)/);
+  assert.match(html, /function redirectToNotebook\(\)/);
 });
 
 test("image editor uses one explicit save action and lightweight previews", () => {
   const html = imageEditorHtml({ siteOrigin: "https://example.com/admin" });
   const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
   assert.doesNotThrow(() => new Function(script));
-  assert.match(html, /id="published"/);
+  assert.doesNotMatch(html, /id="published"/);
   assert.match(html, /id="visible"/);
   assert.match(html, /Preview ligera · 640 px/);
   assert.match(html, /isPreview \? "image\/webp"/);
-  assert.match(html, /Guardar y verificar/);
+  assert.match(html, /id="publish">Publicar<\/button>/);
+  assert.doesNotMatch(html, /Guardar y verificar/);
   assert.match(html, /assertPersistedState/);
   assert.doesNotMatch(html, />Publicar ↑</);
   assert.match(html, /\.property-action \{[\s\S]*?min-height: 2\.75rem;/);
@@ -62,7 +68,11 @@ test("image editor uses one explicit save action and lightweight previews", () =
   assert.match(html, /els\.propertiesBackdrop\.addEventListener\("click", closeProperties\)/);
   assert.match(html, /els\.propertiesBackdrop\.hidden = false;/);
   assert.match(html, /els\.propertiesBackdrop\.hidden = true;/);
-  assert.match(html, /class="check property-value status-visible"/);
+  assert.match(html, /class="check property-value status-visible publication-target"/);
+  assert.match(html, /id="arena-enabled" type="checkbox" \/>[\s\S]*?<span>Publicar<\/span>/);
+  assert.match(html, /id="arena-channel-field" hidden/);
+  assert.match(html, /\? preferredId : String\(arenaChannels\[0\]\.id\)/);
+  assert.match(html, /function redirectToNotebook\(\)/);
   assert.doesNotMatch(html, /content: ">";/);
   assert.match(html, /function loadExistingPhoto\(\)/);
   assert.match(html, /request\("\/page\?path=" \+ encodeURIComponent\(sourcePath\)\)/);
