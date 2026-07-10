@@ -41,4 +41,6 @@ test("image editor uses one explicit save action and lightweight previews", () =
   assert.match(html, /assertPersistedState/);
   assert.doesNotMatch(html, />Publicar ↑</);
   assert.match(html, /\.property-action \{[\s\S]*?min-height: 2\.75rem;/);
+  assert.match(html, /\.status-visible \{[\s\S]*?grid-row: 4;[\s\S]*?min-height: 2\.75rem;/);
+  assert.match(html, /class="check property-value status-visible"/);
 });

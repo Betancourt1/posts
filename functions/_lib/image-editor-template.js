@@ -1304,6 +1304,16 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         display: flex;
         justify-content: flex-start;
       }
+      #status-panel {
+        grid-column: 2 / 5;
+        grid-row: 3;
+      }
+      .status-visible {
+        grid-column: 2 / 5;
+        grid-row: 4;
+        min-height: 2.75rem;
+        margin-top: 0.25rem;
+      }
       .preview-meta {
         display: none;
       }
@@ -1554,7 +1564,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           <span>Publicado</span>
         </label>
         <input id="draft" type="checkbox" checked hidden />
-        <label class="check property-value">
+        <label class="check property-value status-visible">
           <input id="visible" type="checkbox" checked />
           <span>Visible</span>
         </label>
