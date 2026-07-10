@@ -1650,6 +1650,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     (function () {
       var apiBase = ${JSON.stringify(API_BASE)};
       var siteOrigin = ${JSON.stringify(SITE_ORIGIN)};
+      var assetOrigin = ${JSON.stringify(ASSET_ORIGIN)};
       var params = new URLSearchParams(window.location.search);
       var sourcePath = params.get("path") || "";
       var preferredNotebook = params.get("notebook") || sourcePath.replace(/\\/[^/]+$/, "") || "content_es/posts";
@@ -2626,7 +2627,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function imageUrl(image) {
         if (!image) return "";
-        return image.uploadedUrl ? siteUrl(image.uploadedUrl) : image.previewUrl;
+        return image.previewUrl || (image.uploadedUrl ? siteUrl(image.uploadedUrl) : "");
       }
 
       function imageCountLabel() {
@@ -3034,15 +3035,11 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
 
       function ensureUploadedImages() {
-        var nextIndex = 0;
-        var workers = Array.from({ length: Math.min(2, images.length) }, function () {
-          return (function work() {
-            var index = nextIndex++;
-            if (index >= images.length) return Promise.resolve();
-            return ensureUploadedImage(images[index], index).then(work);
-          })();
-        });
-        return Promise.all(workers);
+        return images.reduce(function (chain, image, index) {
+          return chain.then(function () {
+            return ensureUploadedImage(image, index);
+          });
+        }, Promise.resolve());
       }
 
       function ensureUploadedImage(image, index) {
@@ -3212,7 +3209,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         if (/^https?:\\/\\//.test(url)) {
           return url;
         }
-        return siteOrigin + (url.charAt(0) === "/" ? url : "/" + url);
+        return assetOrigin + (url.charAt(0) === "/" ? url : "/" + url);
       }
 
       function uniqueImageName(name, mime, suffix) {

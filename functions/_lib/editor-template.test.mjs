@@ -48,7 +48,10 @@ test("text editor injects its API base and cannot save before content hydration"
 });
 
 test("image editor uses one explicit save action and lightweight previews", () => {
-  const html = imageEditorHtml({ siteOrigin: "https://example.com/admin" });
+  const html = imageEditorHtml({
+    siteOrigin: "https://example.com/admin",
+    assetOrigin: "https://example.com",
+  });
   const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
   assert.doesNotThrow(() => new Function(script));
   assert.doesNotMatch(html, /id="published"/);
@@ -84,6 +87,11 @@ test("image editor uses one explicit save action and lightweight previews", () =
   assert.match(html, /request\("\/arena-status\?path=" \+ encodeURIComponent\(savedPath\)\)/);
   assert.match(html, /imagen copiada · actualización pendiente/);
   assert.match(html, /setStatus\(images\.length \? "Publicacion cargada\."/);
+  assert.match(html, /return images\.reduce\(function \(chain, image, index\)/);
+  assert.doesNotMatch(html, /Math\.min\(2, images\.length\)/);
+  assert.match(html, /return image\.previewUrl \|\| \(image\.uploadedUrl \? siteUrl\(image\.uploadedUrl\) : ""\)/);
+  assert.match(html, /var assetOrigin = "https:\/\/example\.com";/);
+  assert.match(html, /return assetOrigin \+ \(url\.charAt\(0\) === "\/" \? url : "\/" \+ url\)/);
 });
 
 test("photography paths use the specialized image editor", async () => {
