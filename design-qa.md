@@ -44,3 +44,50 @@ No actionable P0, P1, or P2 visual differences remain.
 - P3: the reference presents publication as an in-context drawer; this implementation uses the existing dedicated author editor and carries over the same states and controls. This avoids duplicating editor state inside the public Hugo page.
 
 final result: passed
+
+---
+
+# Compact mobile editor header design QA
+
+## Evidence
+
+- Source visual truth: `/Users/betancourt/.codex/generated_images/019f4cd9-f066-7b23-9398-bb8271b87b9e/exec-4e979492-dc97-4db3-93f0-c335a9f7f667.png`
+- Browser-rendered implementation: `/tmp/editor-compact-390.png`
+- Normalized full-view comparison: `/tmp/editor-design-comparison.png`
+- Focused header comparison: `/tmp/editor-header-comparison.png`
+- Viewport: 390 x 844 CSS pixels.
+- State: dark and grayscale author editor, editing `content_es/fotografia/zmg.md`.
+
+The generated mockup and browser implementation were normalized to the editor viewport and inspected together. A focused comparison was required because the approved change is concentrated in the persistent mobile header.
+
+## Findings
+
+No actionable P0, P1, or P2 differences remain.
+
+- Fonts and typography: the implementation keeps the existing sans-serif mobile editor type, compact `betancourt` identity, hidden preview label, and visible `Guardar` hierarchy from the mockup.
+- Spacing and layout rhythm: the header is one 68 px row; close, identity/status, preview, properties, and save fit without horizontal overflow. The bottom toolbar remains fixed to the viewport edge.
+- Colors and visual tokens: the pure-black surface, white/gray icons, muted state dot, transparent icon buttons, and outlined save action match the approved dark mockup.
+- Image and icon fidelity: the implementation reuses the repository's existing SVG icon system, including the same preview eye already used by the image editor. No new raster asset or substitute icon was required.
+- Copy and content: `Abrir sitio` is accessible but visually icon-only on mobile; Markdown remains in the lower toolbar; Are.na remains available inside Propiedades.
+- Intentional difference: the mockup uses an empty canvas, while the implementation shows the loaded `ZMG` title and summary because object hydration is required behavior.
+
+## Primary interactions tested
+
+- Open the exact ZMG edit route at 390 x 844.
+- Open and close Propiedades; confirm the Are.na controls remain present.
+- Toggle Markdown from the lower toolbar and confirm the Markdown canvas becomes active.
+- Confirm the top Markdown and Are.na controls are hidden on mobile.
+- Force a missing-object error and confirm Reintentar replaces Vista previa without adding width or a second row.
+- Check the browser console for warnings and errors.
+
+## Comparison history
+
+1. The first browser capture matched the approved single-row hierarchy and required no P0/P1/P2 visual correction.
+2. Interaction checks confirmed the removed top-level actions remain available in their approved destinations.
+3. Error-state testing exposed Vista previa and Reintentar in the same slot; the hidden-state specificity was corrected and the post-fix browser check confirmed only Reintentar remains.
+
+## Follow-up polish
+
+- P3: the enabled save button is brighter than the disabled-looking save state in the generated mockup. This is intentional state feedback and preserves usability.
+
+final result: passed

@@ -16,6 +16,7 @@ const ICONS = Object.freeze({
   list: iconSvg(`<path d="M8 6h13" /><path d="M8 12h13" /><path d="M8 18h13" /><path d="M3 6h.01" /><path d="M3 12h.01" /><path d="M3 18h.01" />`),
   orderedList: iconSvg(`<path d="M10 6h11" /><path d="M10 12h11" /><path d="M10 18h11" /><path d="M4 6h1v4" /><path d="M4 10h2" /><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" />`),
   image: iconSvg(`<rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />`),
+  preview: iconSvg(`<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />`),
   settings: iconSvg(`<path d="M9.7 4.1a2.3 2.3 0 0 1 4.6 0 2.3 2.3 0 0 0 3.3 1.9 2.3 2.3 0 0 1 2.3 4 2.3 2.3 0 0 0 0 3.8 2.3 2.3 0 0 1-2.3 4 2.3 2.3 0 0 0-3.3 1.9 2.3 2.3 0 0 1-4.6 0 2.3 2.3 0 0 0-3.3-1.9 2.3 2.3 0 0 1-2.3-4 2.3 2.3 0 0 0 0-3.8 2.3 2.3 0 0 1 2.3-4 2.3 2.3 0 0 0 3.3-1.9" /><circle cx="12" cy="12" r="3" />`),
   trash: iconSvg(`<path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" />`),
   copy: iconSvg(`<rect width="14" height="14" x="8" y="8" rx="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />`),
@@ -139,6 +140,12 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       display: flex;
       align-items: center;
       gap: 0.55rem;
+    }
+    #open-site {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
     }
     .mobile-settings-button {
       display: inline-flex;
@@ -1269,13 +1276,12 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       .reference-theme .topbar {
         position: fixed;
         inset: 0 0 auto;
-        min-height: 0;
-        height: auto;
+        min-height: 4.25rem;
+        height: 4.25rem;
         display: grid;
-        grid-template-columns: 2.75rem minmax(0, 1fr);
-        grid-template-rows: 2.75rem 2.75rem;
+        grid-template-columns: 2.75rem minmax(0, 1fr) auto;
         align-items: center;
-        gap: 0.25rem 0.35rem;
+        gap: 0.35rem;
         padding: 0.45rem 0.65rem;
         z-index: 32;
       }
@@ -1334,12 +1340,10 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         height: 0.35rem;
       }
       .top-actions {
-        grid-column: 1 / -1;
-        grid-row: 2;
-        width: 100%;
-        min-width: 0;
-        justify-content: space-between;
-        gap: 0.1rem;
+        grid-column: 3;
+        grid-row: 1;
+        width: auto;
+        gap: 0.2rem;
       }
       .top-actions button,
       .reference-theme .top-actions button {
@@ -1354,9 +1358,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
       .top-actions .markdown-toggle,
       .reference-theme .top-actions .markdown-toggle {
-        display: inline-flex;
-        width: 2.15rem;
-        min-width: 2.15rem;
+        display: none;
       }
       .top-actions .markdown-toggle[aria-pressed="true"],
       .reference-theme .top-actions .markdown-toggle[aria-pressed="true"] {
@@ -1395,20 +1397,26 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
       .top-actions #open-site {
         display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 2.35rem;
+        min-width: 2.35rem;
+        order: 1;
       }
+      .top-actions .load-retry { order: 1; }
+      .top-actions .mobile-settings-button { order: 2; }
+      .top-actions .primary { order: 3; }
       .arena-details-button {
-        display: inline-flex !important;
+        display: none !important;
       }
-      .top-actions #open-site,
-      .top-actions .arena-details-button {
-        width: auto;
-        min-width: 0;
-        padding: 0 0.3rem !important;
-        font-size: 0.72rem;
-        white-space: nowrap;
+      .top-actions #open-site .open-site-label {
+        display: none;
       }
       .top-actions button[hidden] {
-        display: none;
+        display: none !important;
+      }
+      .top-actions #open-site[hidden] {
+        display: none !important;
       }
       .reference-theme .settings {
         inset: auto 0 0 0;
@@ -1590,7 +1598,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       <button type="button" class="markdown-toggle" id="view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">${ICONS.code}</button>
       <button type="button" class="arena-details-button" id="arena-details-button" data-state="disabled" aria-controls="arena-details">Are.na</button>
       <button type="button" class="mobile-settings-button" id="top-settings-button" aria-controls="settings" aria-expanded="false" aria-label="Configuracion">...</button>
-      <button type="button" id="open-site">Abrir sitio</button>
+      <button type="button" id="open-site" aria-label="Abrir sitio" title="Abrir sitio">${ICONS.preview}<span class="open-site-label">Abrir sitio</span></button>
       <button type="button" class="primary" id="save" disabled><span class="save-label-desktop">Guardar y verificar</span><span class="save-label-mobile">Guardar</span></button>
     </div>
   </header>
@@ -1937,6 +1945,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         }).catch(function (error) {
           els.save.disabled = true;
           els.retryLoad.hidden = false;
+          els.openSite.hidden = true;
           setStatus(error.message, true);
         });
       }

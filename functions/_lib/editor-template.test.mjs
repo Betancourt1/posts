@@ -12,8 +12,8 @@ test("notebook editor clears stale private flags and exposes verified publicatio
   assert.match(html, /Crear channel desde notebook/);
   assert.match(html, /assertPersistedState/);
   assert.match(html, /apiBase \+ path\.slice\(4\)/);
-  assert.match(html, /grid-template-columns: 2\.75rem minmax\(0, 1fr\);/);
-  assert.match(html, /\.top-actions \{\s+grid-column: 1 \/ -1;\s+grid-row: 2;/);
+  assert.match(html, /grid-template-columns: 2\.75rem minmax\(0, 1fr\) auto;/);
+  assert.match(html, /\.top-actions \{\s+grid-column: 3;\s+grid-row: 1;/);
   assert.match(html, /class="editor-identity"/);
   assert.match(html, /@media \(max-width: 380px\)/);
   assert.match(html, /id="mobile-view-markdown"/);
@@ -29,6 +29,8 @@ test("text editor injects its API base and cannot save before content hydration"
   assert.match(html, /function loadEditor\(\)/);
   assert.match(html, /els\.save\.disabled = false;/);
   assert.match(html, /els\.retryLoad\.hidden = false;/);
+  assert.match(html, /els\.openSite\.hidden = true;/);
+  assert.match(html, /id="open-site" aria-label="Abrir sitio"[^>]*>[^<]*<svg/);
   assert.match(html, /notebooksPromise\.catch\(function \(\) \{ return \[\]; \}\);/);
   assert.match(html, /contentPromise = loadExisting\(\);/);
   assert.doesNotMatch(html, /Promise\.all\(\[notebooksPromise, contentPromise\]\)/);
