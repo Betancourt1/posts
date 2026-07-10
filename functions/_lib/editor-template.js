@@ -111,6 +111,12 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       font-family: var(--editor-font);
       line-height: 1.05;
     }
+    .editor-identity {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-width: 0;
+    }
     .editor-brand strong {
       color: var(--accent);
       font-size: 1rem;
@@ -1200,7 +1206,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         padding: 2rem 1rem calc(6rem + env(safe-area-inset-bottom));
       }
       .reference-theme .writer {
-        padding: 5.1rem 1.5rem calc(7rem + env(safe-area-inset-bottom));
+        padding: 4.85rem 1.5rem calc(7rem + env(safe-area-inset-bottom));
       }
       .formatbar {
         position: fixed;
@@ -1248,13 +1254,13 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       .reference-theme .topbar {
         position: fixed;
         inset: 0 0 auto;
-        min-height: 4.75rem;
-        height: 4.75rem;
+        min-height: 4.25rem;
+        height: 4.25rem;
         display: grid;
-        grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+        grid-template-columns: 2.5rem minmax(0, 1fr) auto;
         align-items: center;
-        gap: 0.65rem;
-        padding: 0.85rem 1rem;
+        gap: 0.35rem;
+        padding: 0.45rem 0.65rem;
         z-index: 32;
       }
       .brand {
@@ -1262,43 +1268,73 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
       .back-button {
         grid-column: 1;
-        width: 2.75rem;
-        min-width: 2.75rem;
-        min-height: 2.75rem;
+        grid-row: 1;
+        width: 2.5rem;
+        min-width: 2.5rem;
+        min-height: 2.5rem;
         color: var(--ink);
+      }
+      .editor-identity {
+        grid-column: 2;
+        grid-row: 1;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        min-width: 0;
+        overflow: hidden;
+      }
+      .editor-brand {
+        flex: 0 1 auto;
+        min-width: 0;
+        margin: 0;
+      }
+      .editor-brand strong {
+        font-size: 0.9rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .editor-brand small {
+        display: none;
       }
       .saved-pill,
       .reference-theme .saved-pill {
-        grid-column: 2;
-        justify-self: center;
-        max-width: min(9.8rem, 38vw);
-        min-height: 1.8rem;
+        flex: 0 0 auto;
+        max-width: 3.2rem;
+        min-height: 1.15rem;
+        margin: 0;
+        padding: 0;
         border: 0;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.08);
+        border-radius: 0;
+        background: transparent;
         color: var(--muted);
-        font-size: 0.72rem;
+        font-size: 0.62rem;
         font-weight: 600;
+      }
+      .saved-pill::before {
+        width: 0.35rem;
+        height: 0.35rem;
       }
       .top-actions {
         grid-column: 3;
+        grid-row: 1;
         width: auto;
-        gap: 0.45rem;
+        gap: 0.25rem;
       }
       .top-actions button,
       .reference-theme .top-actions button {
         flex: 0 0 auto;
-        min-height: 2.6rem;
+        min-height: 2.5rem;
         border: 1px solid rgba(255, 255, 255, 0.68);
         border-radius: 0.55rem;
         background: transparent;
-        padding: 0 0.75rem;
+        padding: 0 0.65rem;
         color: var(--ink);
       }
       .top-actions .markdown-toggle,
       .reference-theme .top-actions .markdown-toggle {
-        width: 2.2rem;
-        min-width: 2.2rem !important;
+        width: 2rem;
+        min-width: 2rem !important;
         border: 0 !important;
         background: transparent !important;
         color: var(--muted);
@@ -1315,7 +1351,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
       .mobile-settings-button {
         display: inline-flex;
-        min-width: 2.25rem !important;
+        min-width: 2.1rem !important;
         border-color: transparent !important;
         background: transparent !important;
         padding: 0 !important;
@@ -1338,7 +1374,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         display: none !important;
       }
       body.no-preview .topbar {
-        grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+        grid-template-columns: 2.5rem minmax(0, 1fr) auto;
       }
       body.no-preview .brand {
         display: contents;
@@ -1505,14 +1541,33 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         display: inline;
       }
     }
+    @media (max-width: 380px) {
+      .editor-identity {
+        gap: 0.3rem;
+      }
+      .saved-pill,
+      .reference-theme .saved-pill {
+        width: 0.4rem;
+        max-width: 0.4rem;
+        font-size: 0;
+        overflow: visible;
+      }
+      .top-actions button,
+      .reference-theme .top-actions button {
+        padding-right: 0.5rem;
+        padding-left: 0.5rem;
+      }
+    }
   </style>
 </head>
 <body class="reference-theme" data-theme="dark">
   <header class="topbar">
     <div class="brand">
       <button type="button" class="back-button" id="back" aria-label="Back">${ICONS.back}</button>
-      <span class="editor-brand"><strong>betancourt</strong><small>aquí escribo cosas</small></span>
-      <span class="saved-pill" id="saved-pill">Saved</span>
+      <span class="editor-identity">
+        <span class="editor-brand"><strong>betancourt</strong><small>aquí escribo cosas</small></span>
+        <span class="saved-pill" id="saved-pill" role="status" aria-live="polite">Saved</span>
+      </span>
       <span class="status" id="status">Loading</span>
     </div>
     <div class="top-actions">

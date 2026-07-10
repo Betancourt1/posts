@@ -12,6 +12,10 @@ test("notebook editor clears stale private flags and exposes verified publicatio
   assert.match(html, /Crear channel desde notebook/);
   assert.match(html, /assertPersistedState/);
   assert.match(html, /apiBase \+ path\.slice\(4\)/);
+  assert.match(html, /grid-template-columns: 2\.5rem minmax\(0, 1fr\) auto/);
+  assert.match(html, /\.top-actions \{\s+grid-column: 3;\s+grid-row: 1;/);
+  assert.match(html, /class="editor-identity"/);
+  assert.match(html, /@media \(max-width: 380px\)/);
 });
 
 test("image editor uses one explicit save action and lightweight previews", () => {
