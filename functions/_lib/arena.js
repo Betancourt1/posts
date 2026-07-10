@@ -187,6 +187,17 @@ function publicPageUrl(page, publicOrigin = PUBLIC_SITE_ORIGIN) {
   return new URL(String(page?.url || "/"), String(publicOrigin || PUBLIC_SITE_ORIGIN)).href;
 }
 
+function sourceLinkMarkdown(page, publicOrigin) {
+  return `[Publicado originalmente en el blog](${publicPageUrl(page, publicOrigin)})`;
+}
+
+function withSourceLink(value, page, publicOrigin) {
+  const text = normalizeComparableMarkdown(value);
+  const url = publicPageUrl(page, publicOrigin);
+  if (text.includes(url)) return text;
+  return [text, sourceLinkMarkdown(page, publicOrigin)].filter(Boolean).join("\n\n");
+}
+
 function normalizeComparableMarkdown(value) {
   return String(value || "").replace(/\r\n/g, "\n").trim();
 }
@@ -206,7 +217,11 @@ export function prepareArenaMarkdown(page, publicOrigin = PUBLIC_SITE_ORIGIN) {
     ? [`# ${title}`, body].filter(Boolean).join("\n\n")
     : body;
 
-  return absolutizeRootRelativeLinks(text, publicOrigin);
+  return absolutizeRootRelativeLinks(withSourceLink(text, page, publicOrigin), publicOrigin);
+}
+
+export function prepareArenaImageDescription(page, item, publicOrigin = PUBLIC_SITE_ORIGIN) {
+  return withSourceLink(item?.caption, page, publicOrigin);
 }
 
 function channelIdFromPage(page) {
@@ -339,6 +354,40 @@ export async function listArenaChannels({ token, fetchImpl } = {}) {
   };
 }
 
+export async function createArenaChannel({
+  token,
+  title,
+  description = "",
+  visibility = "closed",
+  metadata = {},
+  fetchImpl,
+} = {}) {
+  const channel = await arenaRequest(token, "/channels", {
+    method: "POST",
+    body: {
+      title: String(title || "").trim(),
+      visibility,
+      description: String(description || "").trim(),
+      metadata,
+    },
+    fetchImpl,
+  });
+
+  if (!channel?.id || !channel?.slug) {
+    throw new ArenaApiError("Are.na no devolvio un canal valido.");
+  }
+
+  const ownerSlug = String(channel.owner?.slug || "").trim();
+  const slug = String(channel.slug);
+  return {
+    id: String(channel.id),
+    slug,
+    title: String(channel.title || title || "Sin titulo"),
+    visibility: String(channel.visibility || visibility),
+    url: ownerSlug ? `https://www.are.na/${ownerSlug}/${slug}` : `https://www.are.na/channel/${slug}`,
+  };
+}
+
 export async function getArenaStatus({
   token,
   page,
@@ -457,7 +506,7 @@ async function getArenaImageStatus({ token, page, publicOrigin, imageOrigin, fet
       ? block.description?.markdown
       : block.description;
     const matches = expectedTitle === String(block.title || "").trim() &&
-      item.caption === String(actualDescription || "").trim() &&
+      prepareArenaImageDescription(page, item, publicOrigin) === String(actualDescription || "").trim() &&
       item.alt === String(block.image?.alt_text || block.alt_text || "").trim();
     const connected = connections.some((channel) => String(channel.id) === String(channelId));
     return {
@@ -703,7 +752,7 @@ async function syncArenaImage({
         method: "PUT",
         body: {
           title,
-          description: item.caption,
+          description: prepareArenaImageDescription(page, item, publicOrigin),
           alt_text: item.alt,
           metadata,
         },
@@ -723,7 +772,7 @@ async function syncArenaImage({
       body: {
         value: publicImageUrl(item.src, publicOrigin, imageOrigin),
         title,
-        description: item.caption,
+        description: prepareArenaImageDescription(page, item, publicOrigin),
         alt_text: item.alt,
         original_source_url: publicPageUrl(page, publicOrigin),
         original_source_title: pageTitle(page),
@@ -800,19 +849,25 @@ async function syncArenaImages({ token, page, publicOrigin, imageOrigin, fetchIm
   )));
 
   const blocks = [];
-  for (const item of items) {
-    blocks.push(await syncArenaImage({
-      token,
-      page,
-      item,
-      itemCount: items.length,
-      mapping: mappingBySource.get(item.src),
-      channelId,
-      publicOrigin,
-      imageOrigin,
-      fetchImpl,
-    }));
-  }
+  const queue = items.slice();
+  const workerCount = Math.min(2, queue.length);
+  await Promise.all(Array.from({ length: workerCount }, async () => {
+    while (queue.length) {
+      const item = queue.shift();
+      const block = await syncArenaImage({
+        token,
+        page,
+        item,
+        itemCount: items.length,
+        mapping: mappingBySource.get(item.src),
+        channelId,
+        publicOrigin,
+        imageOrigin,
+        fetchImpl,
+      });
+      blocks[item.index] = block;
+    }
+  }));
 
   return {
     kind: "images",

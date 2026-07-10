@@ -7,6 +7,7 @@ import {
   arenaImageOriginFromEnv,
   arenaMappingPatch,
   arenaTokenFromEnv,
+  createArenaChannel,
   getArenaStatus,
   listArenaChannels,
   pageHasArenaMapping,
@@ -687,7 +688,11 @@ function createPost(payload) {
     frontMatter.hidden = true;
   }
 
-  return writeContentFile(relativePath, frontMatter, body, false);
+  return {
+    ...writeContentFile(relativePath, frontMatter, body, false),
+    changed: true,
+    frontMatter,
+  };
 }
 
 function imageItemsFromPayload(value) {
@@ -722,7 +727,107 @@ function savePage(payload) {
   const body = String(payload.body || "");
 
   normalizePhotoFrontMatter(relativePath, frontMatter);
-  return writeContentFile(relativePath, frontMatter, body, true);
+  const nextContent = formatMarkdown(frontMatter, body);
+  const { absolutePath } = safeContentPath(relativePath);
+  const changed = nextContent !== readFileSync(absolutePath, "utf8");
+  if (changed) {
+    writeFileSync(absolutePath, nextContent, "utf8");
+  }
+  return {
+    path: relativePath,
+    url: contentPathToUrl(relativePath),
+    changed,
+    frontMatter,
+  };
+}
+
+async function createLocalNotebookChannel(payload) {
+  const indexPath = normalizeRepoPath(payload.path);
+  if (!/^content_(es|en)\/[^/]+\/_index\.md$/.test(indexPath)) {
+    throw new Error("Ruta de notebook invalida.");
+  }
+
+  const notebookPath = indexPath.replace(/\/_index\.md$/, "");
+  let notebook = parseMarkdownFile(indexPath);
+  const token = localArenaToken();
+  const publicOrigin = process.env.PUBLIC_SITE_ORIGIN || "https://fbetancourt.work";
+  const imageOrigin = arenaImageOriginFromEnv(process.env, publicOrigin);
+  let channel = null;
+  let channelId = String(notebook.frontMatter.arena_channel_id || "");
+
+  if (!channelId) {
+    channel = await createArenaChannel({
+      token,
+      title: notebook.frontMatter.title || path.basename(notebookPath),
+      description: [
+        String(notebook.frontMatter.description || "").trim(),
+        `[Publicado originalmente en el blog](${new URL(notebook.url, publicOrigin).href})`,
+      ].filter(Boolean).join("\n\n"),
+      visibility: "closed",
+      metadata: {
+        integration: "fbetancourt_blog",
+        notebook_path: notebookPath,
+        language: notebookPath.startsWith("content_en/") ? "en" : "es",
+      },
+    });
+    channelId = channel.id;
+    savePage({
+      path: indexPath,
+      frontMatter: {
+        ...notebook.frontMatter,
+        arena_channel_id: channelId,
+        arena_channel_slug: channel.slug,
+        arena_channel_url: channel.url,
+      },
+      body: notebook.body,
+    });
+    notebook = parseMarkdownFile(indexPath);
+  }
+
+  const files = walkFiles(path.join(REPO_ROOT, notebookPath), notebookPath)
+    .filter((file) => file.relativePath.endsWith(".md") && !file.relativePath.endsWith("/_index.md"));
+  const pages = files.map((file) => parseMarkdownFile(file.relativePath))
+    .filter((page) => page.frontMatter.draft !== true && page.frontMatter.hidden !== true);
+  const results = [];
+
+  for (let index = 0; index < pages.length; index += 1) {
+    const page = pages[index];
+    if (index > 0) await new Promise((resolve) => setTimeout(resolve, 250));
+    try {
+      const configuredPage = {
+        ...page,
+        frontMatter: {
+          ...page.frontMatter,
+          arena_enabled: true,
+          arena_channel_id: channelId,
+        },
+      };
+      const arena = await syncArenaPage({ token, page: configuredPage, publicOrigin, imageOrigin });
+      const patch = arenaMappingPatch(configuredPage, arena);
+      savePage({
+        path: page.path,
+        frontMatter: { ...configuredPage.frontMatter, ...patch },
+        body: page.body,
+      });
+      results.push({ path: page.path, state: arena.state });
+    } catch (error) {
+      results.push({ path: page.path, state: "error", error: error.message });
+    }
+  }
+
+  const failures = results.filter((result) => result.state === "error");
+  return {
+    channel: {
+      id: channelId,
+      slug: channel?.slug || String(notebook.frontMatter.arena_channel_slug || ""),
+      title: channel?.title || String(notebook.frontMatter.title || "Notebook"),
+      url: channel?.url || String(notebook.frontMatter.arena_channel_url || ""),
+    },
+    total: pages.length,
+    synced: results.length - failures.length,
+    failures,
+    results,
+  };
 }
 
 function uploadImage(payload) {
@@ -1052,6 +1157,11 @@ async function route(req, res) {
   if (req.method === "POST" && url.pathname === "/api/sync-arena") {
     const payload = await readJson(req);
     sendJson(res, 200, await syncLocalArena(payload.path));
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/create-notebook-channel") {
+    sendJson(res, 200, await createLocalNotebookChannel(await readJson(req)));
     return;
   }
 

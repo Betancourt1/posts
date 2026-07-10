@@ -1,47 +1,46 @@
-# Are.na image publishing design QA
+# Notebook publishing and photography design QA
 
 ## Evidence
 
-- Source visual truth: `/Users/betancourt/.codex/generated_images/019f49fe-dd58-7be0-89c4-05b1560269ae/exec-1df8d38f-8f67-45f8-8039-5af4d319abb1.png`
-- Browser-rendered implementation: `/Users/betancourt/.codex/visualizations/2026/07/10/019f49fe-dd58-7be0-89c4-05b1560269ae/image-editor-arena-enabled.png`
-- Focused side-by-side comparison: `/Users/betancourt/.codex/visualizations/2026/07/10/019f49fe-dd58-7be0-89c4-05b1560269ae/arena-panel-comparison.png`
-- Real Are.na Image block: `/Users/betancourt/.codex/visualizations/2026/07/10/019f49fe-dd58-7be0-89c4-05b1560269ae/arena-image-block-47750123.png`
-- Viewport: 442 x 987 CSS pixels.
-- State: mobile photography editor, properties open, Are.na panel expanded, image mirroring enabled, channel `Desde mi blog`, draft publication.
+- Source visual truth — notebook context: `/Users/betancourt/.codex/generated_images/019f4ab8-591c-7a70-8d71-b826ac1f8f50/exec-eedc22c7-9620-47df-9b13-83ac107379bb.png`
+- Source visual truth — photography editor: `/Users/betancourt/.codex/generated_images/019f4ab8-591c-7a70-8d71-b826ac1f8f50/exec-d7c3e8f2-3fcb-4b09-9d36-19c6da1ffdd9.png`
+- Browser-rendered Notebook: `/private/tmp/posts-fotografia-qa.png`
+- Side-by-side comparison: `/private/tmp/posts-notebook-comparison.png`
+- Viewports checked: 1440 x 1024 and 390 x 844 CSS pixels.
 
-The source is a desktop properties panel and the implementation evidence is its responsive photography-editor counterpart. The focused comparison normalizes the Are.na component height; it is used for hierarchy, copy, controls, tokens, and spacing rather than false pixel-level desktop/mobile equivalence.
+The source and browser screenshot were inspected together in the side-by-side comparison. The implementation keeps the existing site shell and separates editing into its author route, so the comparison treats the central Notebook, navigation, previews, button hierarchy, typography, and color tokens as the shared surface.
 
 ## Findings
 
-No actionable P0, P1, or P2 differences remain.
+No actionable P0, P1, or P2 visual differences remain.
 
-- Fonts and typography: the implementation keeps the product's compact sans/monospace hierarchy, uppercase section label, strong channel title, and muted explanatory copy. The mobile weight and wrapping remain readable.
-- Spacing and layout rhythm: the control order matches the mockup: enabled state, channel, explanation, synchronization state, then save actions. Dividers and vertical gaps preserve the existing image editor's denser mobile rhythm.
-- Colors and tokens: black surfaces, muted gray copy, mint selection/status color, and amber unsaved state use the existing editor tokens and match the source intent.
-- Image quality and asset fidelity: the editor uses the real blog image with an uncropped, sharp preview. The real Are.na block shows the copied 4096 x 3072 image; no placeholder or code-drawn asset replaces it.
-- Copy and content: image mode explicitly says that every file becomes an `Image` block with alt text and caption and that no link block is created. Draft state clearly says the images will be copied on publish.
-- Controls and accessibility: the toggle has a semantic label, the channel is a labelled select, the status is readable without relying only on color, and controls remain reachable at the mobile viewport.
-
-Focused-region evidence was required because the Are.na text and controls were too small to judge in the full editor screenshot. The combined comparison is the focused evidence listed above.
+- Typography and color: the implementation preserves the black background, compact monospace hierarchy, mint accent, muted metadata, and grayscale compatibility used by the references.
+- Notebook layout: the title, description, navigation, two-column photography grid, dates, captions, and secondary archive column retain the source hierarchy without introducing a new card system.
+- Actions: the unlabeled icon cluster was replaced by compact labelled controls. Destructive deletion moved into `Más`, while creation and editing stay visible.
+- Photography previews: every current card resolves to a lightweight thumbnail without a full-resolution `srcset`. The browser reported 310–640 px natural sizes for the list.
+- Individual photography: the detail route resolves directly to the original asset. The browser reported the tested photo at 4096 x 3072 with no preview `srcset`.
+- Publication state: both author editors expose the three states from the reference — saved in GitHub, deploying, and available publicly — and only report public success after checking the route.
+- Responsive navigation: the mobile Notebook menu retains its expanded state when moving from Fotografía to Escritos.
+- Accessibility: action labels are present in visible text and accessible names; publication feedback does not rely only on color.
 
 ## Primary interactions tested
 
-- Open the mobile properties sheet and scroll to Are.na.
-- Expand the Are.na panel without another control intercepting the click.
-- Enable `Copiar imágenes a Are.na` and verify the selected `Desde mi blog` channel.
-- Verify draft feedback changes to `al publicar` and marks the post unsaved.
-- Query the local status endpoint for the mapped gallery and receive two `synced` Image blocks.
-- Open the real Are.na block and confirm the image, title, source link, author, dimensions, and channel connection.
-- Browser console errors checked: none.
+- Open `/es/fotografia/` in desktop and mobile viewports.
+- Confirm five preview images load completely and no card advertises the HD original through `srcset`.
+- Open an individual photograph and confirm the HD original is the selected resource.
+- Expand the Notebook navigation on mobile, navigate to a second Notebook, and confirm it remains expanded.
+- Inspect the final browser console for application errors.
+- Run direct template assertions for publication, visibility, preview conversion, and Notebook-to-channel controls.
 
 ## Comparison history
 
-1. First mobile pass: P1 — the fixed save actions were positioned inside a transformed bottom sheet and intercepted the Are.na configuration row, so the panel could not be expanded.
-2. Fix: changed the sheet actions to normal document flow and reduced obsolete bottom padding.
-3. Post-fix evidence: the Are.na row became reachable, expanded to show its toggle, channel, image-specific explanation, and state, and the save/publish actions remained visible below it. No P0, P1, or P2 findings remained.
+1. Initial implementation still exposed icon-only actions and allowed responsive `srcset` to select HD images on the Notebook list.
+2. The action cluster gained visible labels and a `Más` menu; list cards now use preview-only sources.
+3. The detail route was changed to request the original directly, making the preview-to-HD transition explicit.
+4. Final side-by-side review found no blocking visual or interaction mismatch on the shared Notebook surface.
 
 ## Follow-up polish
 
-- P3: the source mockup has a more verbose two-dot synchronization timeline. The responsive image editor intentionally compresses that information into the row summary and explanatory state to avoid crowding the mobile sheet.
+- P3: the reference presents publication as an in-context drawer; this implementation uses the existing dedicated author editor and carries over the same states and controls. This avoids duplicating editor state inside the public Hugo page.
 
 final result: passed

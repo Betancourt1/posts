@@ -22,11 +22,11 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
   }
 
   return `<!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Image Post Editor</title>
+  <title>Fotografía · betancourt</title>
   <link rel="apple-touch-icon" href="${siteAssetUrl("favicon-32.png")}" />
   <link rel="icon" type="image/png" sizes="32x32" href="${siteAssetUrl("favicon-32.png")}" />
   <link rel="icon" type="image/png" sizes="16x16" href="${siteAssetUrl("favicon-16.png")}" />
@@ -57,6 +57,26 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     }
     body {
       padding-bottom: 0;
+    }
+    body.is-grayscale {
+      filter: grayscale(100%);
+    }
+    body[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f7f8fa;
+      --field: #eef1f5;
+      --line: #dde3ea;
+      --line-soft: #e7ebef;
+      --ink: #16202b;
+      --muted: #495562;
+      --dim: #2b3743;
+      --accent: #1f7a5a;
+      --accent-ink: #ffffff;
+      --danger: #ba2525;
+      --warning: #a86500;
+    }
+    body[data-theme="light"] .topbar {
+      background: rgba(247, 248, 250, 0.94);
     }
     button,
     input,
@@ -922,6 +942,51 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       font-family: var(--mono);
       font-size: 0.82rem;
     }
+    .publication-progress {
+      padding-top: 1rem;
+      border-top: 1px solid var(--line-soft);
+    }
+    .publication-progress h2 {
+      margin-bottom: 0.8rem;
+    }
+    .publication-steps {
+      display: grid;
+      gap: 0.7rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.74rem;
+    }
+    .publication-step {
+      display: grid;
+      grid-template-columns: 0.65rem minmax(0, 1fr);
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .publication-step::before {
+      content: "";
+      width: 0.42rem;
+      height: 0.42rem;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+    }
+    .publication-step.is-active,
+    .publication-step.is-complete {
+      color: var(--accent);
+    }
+    .publication-step.is-complete::before {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .publication-status-copy {
+      margin: 0.75rem 0 0;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      line-height: 1.5;
+    }
     .saved-link[hidden],
     [hidden] {
       display: none !important;
@@ -1304,8 +1369,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       <button type="button" class="text-action" id="preview-image">${ICONS.preview}<span>Vista previa</span></button>
       <span class="save-state" id="save-state">Sincronizado</span>
       <button type="button" class="text-action mobile-properties-toggle" id="properties-toggle" aria-controls="properties-sheet" aria-expanded="false" aria-label="Propiedades">...</button>
-      <button type="button" class="secondary-button" id="save-draft"><span class="draft-label-desktop">Guardar</span><span class="draft-label-mobile">Borradores</span></button>
-      <button type="button" class="primary-button" id="publish">Publicar ↑</button>
+      <button type="button" class="secondary-button" id="save-draft" hidden>Guardar borrador</button>
+      <button type="button" class="primary-button" id="publish">Guardar borrador</button>
     </div>
   </header>
 
@@ -1398,7 +1463,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
                 </ul>
                 </div>
                 <div class="review-actions">
-                  <button type="button" class="primary-button" id="review-publish">Publicar ↑</button>
+                  <button type="button" class="primary-button" id="review-publish">Guardar y verificar</button>
                 </div>
               </div>
             </div>
@@ -1472,9 +1537,24 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           <button type="button" class="property-action" data-edit-panel="status-panel">cambiar</button>
         </div>
         <label class="check property-value property-editor" id="status-panel">
-          <input id="draft" type="checkbox" checked />
-          <span>borrador</span>
+          <input id="published" type="checkbox" />
+          <span>Publicado</span>
         </label>
+        <input id="draft" type="checkbox" checked hidden />
+        <label class="check property-value">
+          <input id="visible" type="checkbox" checked />
+          <span>Visible</span>
+        </label>
+      </section>
+
+      <section class="panel publication-progress" id="publication-progress">
+        <h2>Publicación</h2>
+        <ol class="publication-steps">
+          <li class="publication-step" id="publication-saved-step">Guardado en GitHub</li>
+          <li class="publication-step" id="publication-deploy-step">Desplegando</li>
+          <li class="publication-step" id="publication-public-step">Disponible en el blog</li>
+        </ol>
+        <p class="publication-status-copy" id="publication-status-copy">Guarda para verificar la ruta pública.</p>
       </section>
 
       <section class="panel" id="arena-panel">
@@ -1501,8 +1581,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       </section>
 
       <section class="panel desktop-actions">
-        <button type="button" class="secondary-button" id="panel-save-draft">Guardar</button>
-        <button type="button" class="primary-button" id="panel-publish">Publicar ↑</button>
+        <button type="button" class="secondary-button" id="panel-save-draft" hidden>Guardar borrador</button>
+        <button type="button" class="primary-button" id="panel-publish">Guardar borrador</button>
       </section>
 
       <p class="status-line" id="status">Elige una imagen para empezar.</p>
@@ -1511,8 +1591,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
   </main>
 
   <footer class="mobile-actions">
-    <button type="button" class="secondary-button" id="mobile-save-draft">Guardar</button>
-    <button type="button" class="primary-button" id="mobile-publish">Publicar ↑</button>
+    <button type="button" class="secondary-button" id="mobile-save-draft" hidden>Guardar borrador</button>
+    <button type="button" class="primary-button" id="mobile-publish">Guardar borrador</button>
   </footer>
 
   <script>
@@ -1522,6 +1602,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       var params = new URLSearchParams(window.location.search);
       var preferredNotebook = params.get("notebook") || "content_es/posts";
       var theme = params.get("theme") === "light" ? "light" : "dark";
+      var grayscale = params.get("grayscale") === "true";
       var images = [];
       var selectedImageId = "";
       var viewMode = "empty";
@@ -1532,9 +1613,13 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       var saveBusy = false;
       var hasUnsavedChanges = false;
       var arenaChannels = [];
+      var arenaChannelsLoaded = false;
+      var arenaChannelsLoading = null;
+      var notebookCacheStorageKey = "authorNotebooksCacheV1";
       var arenaState = { state: "disabled", blocks: [], error: "" };
       var fullImageMaxEdge = 1920;
-      var thumbImageMaxEdge = 900;
+      var thumbImageMaxEdge = 640;
+      var publicationCheckToken = 0;
       var maxUploadBytes = 12 * 1024 * 1024;
       var allowedImageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
 
@@ -1599,7 +1684,13 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         date: document.getElementById("date"),
         tags: document.getElementById("tags"),
         draft: document.getElementById("draft"),
+        published: document.getElementById("published"),
+        visible: document.getElementById("visible"),
         statusSummary: document.getElementById("status-summary"),
+        publicationSavedStep: document.getElementById("publication-saved-step"),
+        publicationDeployStep: document.getElementById("publication-deploy-step"),
+        publicationPublicStep: document.getElementById("publication-public-step"),
+        publicationStatusCopy: document.getElementById("publication-status-copy"),
         arenaEnabled: document.getElementById("arena-enabled"),
         arenaChannel: document.getElementById("arena-channel"),
         arenaSummary: document.getElementById("arena-summary"),
@@ -1614,6 +1705,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function boot() {
         document.body.dataset.theme = theme;
+        document.body.classList.toggle("is-grayscale", grayscale);
         els.date.value = today();
         setSaveState("Sincronizado", "saved");
         bind();
@@ -1623,10 +1715,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         loadNotebooks().catch(function (error) {
           setStatus(error.message, true);
         });
-        loadArenaChannels().catch(function (error) {
-          els.arenaEnabled.disabled = true;
-          setArenaState({ state: "unavailable", error: error.message });
-        });
+        setPublicationState("idle", "Guarda para verificar la ruta pública.");
       }
 
       function bind() {
@@ -1652,7 +1741,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           render();
         });
         els.reviewPublish.addEventListener("click", function () {
-          savePost(false, true);
+          savePost(false);
         });
         els.removeImage.addEventListener("click", removeSelectedImage);
         document.querySelectorAll("[data-edit-panel]").forEach(function (button) {
@@ -1663,6 +1752,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
             panel.classList.toggle("is-editing");
             if (panel.classList.contains("is-editing")) {
               openProperties();
+            }
+            if (button.getAttribute("data-edit-panel") === "arena-editor") {
+              ensureArenaChannels();
             }
             var control = editor.querySelector("input, select, textarea");
             if (panel.classList.contains("is-editing") && control) {
@@ -1769,6 +1861,16 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           updatePropertySummaries();
           markUnsaved();
         });
+        els.published.addEventListener("change", function () {
+          els.draft.checked = !els.published.checked;
+          closePropertyEditor(els.published);
+          updatePropertySummaries();
+          markUnsaved();
+        });
+        els.visible.addEventListener("change", function () {
+          updatePropertySummaries();
+          markUnsaved();
+        });
         els.arenaEnabled.addEventListener("change", function () {
           syncArenaConfiguration();
           markUnsaved();
@@ -1778,23 +1880,17 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           markUnsaved();
         });
         els.arenaRetry.addEventListener("click", retryArenaSync);
-        els.saveDraft.addEventListener("click", function () {
-          savePost(true, false);
-        });
-        els.mobileSaveDraft.addEventListener("click", function () {
-          savePost(true, false);
-        });
-        els.panelSaveDraft.addEventListener("click", function () {
-          savePost(true, false);
-        });
+        els.saveDraft.addEventListener("click", saveCurrentState);
+        els.mobileSaveDraft.addEventListener("click", saveCurrentState);
+        els.panelSaveDraft.addEventListener("click", saveCurrentState);
         els.publish.addEventListener("click", function () {
-          publishPost();
+          saveCurrentState();
         });
         els.mobilePublish.addEventListener("click", function () {
-          publishPost();
+          saveCurrentState();
         });
         els.panelPublish.addEventListener("click", function () {
-          publishPost();
+          saveCurrentState();
         });
       }
 
@@ -1820,26 +1916,64 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
 
       function loadNotebooks() {
-        return request("/notebooks").then(function (payload) {
-          var notebooks = payload.notebooks || [];
-          els.notebook.innerHTML = "";
-          notebooks.forEach(function (notebook) {
-            var option = document.createElement("option");
-            option.value = notebook.path;
-            option.textContent = notebook.title + " (" + notebook.lang + ")";
-            if (notebook.path === preferredNotebook) {
-              option.selected = true;
-            }
-            els.notebook.appendChild(option);
-          });
-          renderNotebookRail(notebooks);
-          if (!els.notebook.value && els.notebook.options.length) {
-            els.notebook.options[0].selected = true;
+        var cached = null;
+        try {
+          cached = JSON.parse(sessionStorage.getItem(notebookCacheStorageKey) || "null");
+        } catch (error) {
+          cached = null;
+        }
+        if (cached && Date.now() - cached.savedAt < 20000 && Array.isArray(cached.notebooks)) {
+          renderNotebooks(cached.notebooks);
+          request("/notebooks").then(cacheAndRenderNotebooks).catch(function () {});
+          return Promise.resolve();
+        }
+        return request("/notebooks").then(cacheAndRenderNotebooks);
+      }
+
+      function cacheAndRenderNotebooks(payload) {
+        var notebooks = payload.notebooks || [];
+        try {
+          sessionStorage.setItem(notebookCacheStorageKey, JSON.stringify({
+            savedAt: Date.now(),
+            notebooks: notebooks,
+          }));
+        } catch (error) {}
+        renderNotebooks(notebooks);
+      }
+
+      function renderNotebooks(notebooks) {
+        var selectedPath = els.notebook.value || preferredNotebook;
+        els.notebook.innerHTML = "";
+        notebooks.forEach(function (notebook) {
+          var option = document.createElement("option");
+          option.value = notebook.path;
+          option.textContent = notebook.title + " (" + notebook.lang + ")";
+          if (notebook.path === selectedPath) {
+            option.selected = true;
           }
-          syncDefaultTags();
-          updateNotebookRail();
-          updatePropertySummaries();
+          els.notebook.appendChild(option);
         });
+        renderNotebookRail(notebooks);
+        if (!els.notebook.value && els.notebook.options.length) {
+          els.notebook.options[0].selected = true;
+        }
+        syncDefaultTags();
+        updateNotebookRail();
+        updatePropertySummaries();
+      }
+
+      function ensureArenaChannels() {
+        if (arenaChannelsLoaded) return Promise.resolve();
+        if (arenaChannelsLoading) return arenaChannelsLoading;
+        arenaChannelsLoading = loadArenaChannels().then(function () {
+          arenaChannelsLoaded = true;
+        }).catch(function (error) {
+          setArenaState({ state: "unavailable", error: error.message });
+          throw error;
+        }).finally(function () {
+          arenaChannelsLoading = null;
+        });
+        return arenaChannelsLoading;
       }
 
       function loadArenaChannels() {
@@ -2070,6 +2204,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           rotation: 0,
           cropMode: false,
           needsUpload: true,
+          previewBytes: 0,
         };
       }
 
@@ -2095,6 +2230,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           rotation: 0,
           cropMode: false,
           needsUpload: false,
+          previewBytes: 0,
         }];
         selectedImageId = "image-seed";
         viewMode = "detail";
@@ -2123,6 +2259,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         image.rotation = 0;
         image.cropMode = false;
         image.needsUpload = true;
+        image.previewBytes = 0;
         selectedImageId = image.id;
       }
 
@@ -2347,10 +2484,15 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
 
       function updateActionLabels() {
-        var publishLabel = images.length > 1 && viewMode !== "review" ? "Revisar ↑" : "Publicar ↑";
+        var publishLabel = els.draft.checked
+          ? "Guardar borrador"
+          : images.length > 1 && viewMode !== "review"
+            ? "Revisar"
+            : "Guardar y verificar";
         [els.publish, els.mobilePublish, els.panelPublish].forEach(function (button) {
           button.textContent = publishLabel;
         });
+        els.reviewPublish.textContent = els.draft.checked ? "Guardar borrador" : "Guardar y verificar";
       }
 
       function imageUrl(image) {
@@ -2428,13 +2570,16 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.captionAction.textContent = captionWritten ? "editar" : "+ añadir";
         els.notebookSummary.textContent = selectedNotebookLabel();
         els.notebookPath.textContent = els.notebook.value || "sin destino";
-        els.statusSummary.textContent = els.draft.checked ? "• borrador" : "• publico";
+        els.published.checked = !els.draft.checked;
+        els.statusSummary.textContent = els.draft.checked ? "• borrador" : "• publicado";
         els.mediaCount.textContent = images.length ? imageCountLabel() : "imagen";
         if (image) {
           els.filePanelTitle.textContent = "Imagen " + (selectedIndex() + 1) + " de " + images.length;
           els.previewEmpty.hidden = false;
           els.previewEmpty.textContent = selectedIndex() === 0 ? "Portada" : "Imagen " + (selectedIndex() + 1);
-          els.previewMeta.textContent = imageStatusLabel(image);
+          els.previewMeta.textContent = image.thumbnailUrl
+            ? "Preview ligera · 640 px" + (image.previewBytes ? " · " + formatBytes(image.previewBytes) : "")
+            : imageStatusLabel(image);
         } else {
           els.filePanelTitle.textContent = "Archivo";
           els.previewEmpty.hidden = false;
@@ -2485,24 +2630,24 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.arenaRetry.disabled = isBusy;
       }
 
-      function publishPost() {
+      function saveCurrentState() {
         if (saveBusy) return;
-        if (!validatePost(false)) return;
+        if (!validatePost(els.draft.checked)) return;
         if (images.length > 1 && viewMode !== "review") {
-          els.draft.checked = false;
           viewMode = "review";
           render();
-          setStatus("Revisa la galeria y pulsa Publicar para confirmar.", false);
+          setStatus("Revisa la galería y confirma el guardado.", false);
           return;
         }
-        savePost(false, true);
+        savePost(els.draft.checked);
       }
 
-      function savePost(saveAsDraft, redirectAfterSave) {
+      function savePost(saveAsDraft) {
         if (saveBusy) return;
         if (!validatePost(saveAsDraft)) return;
         setBusy(true);
         setSaveState("Guardando...", "saving");
+        setPublicationState("saving", "Guardando cambios en GitHub.");
         setStatus(images.length > 1 ? "Preparando imagenes." : "Preparando imagen.", false);
         ensureUploadedImages().then(function () {
           var draft = saveAsDraft ? true : false;
@@ -2522,6 +2667,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
             tags: frontMatter.tags,
             summary: frontMatter.summary,
             draft: draft,
+            hidden: frontMatter.hidden === true,
             image: frontMatter.image,
             thumbnail: frontMatter.thumbnail,
             imageAlt: frontMatter.image_alt,
@@ -2532,28 +2678,102 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
             body: els.body.value,
           });
         }).then(function (result) {
+          assertPersistedState(result);
           savedPath = result.path || savedPath;
           savedUrl = result.url || savedUrl;
           hasUnsavedChanges = false;
           setSaveState("Guardado", "saved");
-          setStatus(redirectAfterSave ? "Publicado." : "Borrador guardado.", false);
+          setStatus(els.draft.checked ? "Borrador guardado." : "Guardado en GitHub.", false);
           if (savedUrl) {
-            els.savedLink.href = siteUrl(savedUrl);
-            els.savedLink.hidden = false;
+            els.savedLink.href = publicPostUrl();
+            els.savedLink.hidden = els.draft.checked;
           }
           return syncArenaAfterSave(els.draft.checked).then(function (arenaSaved) {
-            return { arenaSaved: arenaSaved, redirectAfterSave: redirectAfterSave };
+            return { arenaSaved: arenaSaved };
           });
         }).then(function (result) {
-          if (result.redirectAfterSave && result.arenaSaved && savedUrl) {
-            window.location.assign(siteUrl(savedUrl));
-          }
+          startPublicVerification();
         }).catch(function (error) {
           setSaveState("Error al guardar", "error");
+          setPublicationState("error", error.message);
           setStatus(error.message, true);
         }).finally(function () {
           setBusy(false);
         });
+      }
+
+      function assertPersistedState(result) {
+        var persisted = result && result.frontMatter ? result.frontMatter : {};
+        if ((persisted.draft === true) !== els.draft.checked) {
+          throw new Error("GitHub guardó el archivo, pero el estado de publicación no coincide.");
+        }
+        if ((persisted.hidden === true) !== !els.visible.checked) {
+          throw new Error("GitHub guardó el archivo, pero la visibilidad no coincide.");
+        }
+      }
+
+      function publicSiteOrigin() {
+        return String(siteOrigin || "").replace(/\\/admin$/, "").replace(/\\/+$/, "");
+      }
+
+      function publicPostUrl() {
+        return savedUrl ? publicSiteOrigin() + (savedUrl.charAt(0) === "/" ? savedUrl : "/" + savedUrl) : "";
+      }
+
+      function setPublicationState(state, message) {
+        [els.publicationSavedStep, els.publicationDeployStep, els.publicationPublicStep].forEach(function (step) {
+          step.classList.remove("is-active", "is-complete");
+        });
+        if (["saved", "deploying", "pending", "public", "draft"].indexOf(state) !== -1) {
+          els.publicationSavedStep.classList.add("is-complete");
+        }
+        if (state === "saving" || state === "error") els.publicationSavedStep.classList.add("is-active");
+        if (state === "deploying" || state === "pending") els.publicationDeployStep.classList.add("is-active");
+        if (state === "public") {
+          els.publicationDeployStep.classList.add("is-complete");
+          els.publicationPublicStep.classList.add("is-complete");
+        }
+        els.publicationStatusCopy.textContent = message || "";
+      }
+
+      function startPublicVerification() {
+        publicationCheckToken += 1;
+        var token = publicationCheckToken;
+        var url = publicPostUrl();
+        if (els.draft.checked) {
+          setPublicationState("draft", "Borrador guardado; no se envió al sitio público.");
+          return;
+        }
+        if (!url) {
+          setPublicationState("saved", "Guardado en GitHub; falta una ruta para verificar.");
+          return;
+        }
+        setPublicationState("deploying", "Guardado en GitHub; comprobando la ruta pública.");
+        checkPublicPost(url, token, 0);
+      }
+
+      function checkPublicPost(url, token, attempt) {
+        fetch(url, { cache: "no-store", credentials: "same-origin" }).then(function (response) {
+          if (token !== publicationCheckToken) return;
+          if (response.ok) {
+            setPublicationState("public", "Disponible públicamente y verificado.");
+            return;
+          }
+          retryPublicPost(url, token, attempt);
+        }).catch(function () {
+          retryPublicPost(url, token, attempt);
+        });
+      }
+
+      function retryPublicPost(url, token, attempt) {
+        if (token !== publicationCheckToken) return;
+        if (attempt >= 29) {
+          setPublicationState("pending", "Guardado en GitHub; el despliegue sigue pendiente.");
+          return;
+        }
+        window.setTimeout(function () {
+          checkPublicPost(url, token, attempt + 1);
+        }, 2000);
       }
 
       function validatePost(targetDraft) {
@@ -2602,6 +2822,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           title: title,
           date: els.date.value || today(),
           draft: draft,
+          hidden: !els.visible.checked,
           tags: splitTags(els.tags.value),
           summary: summary,
           image: cover.src,
@@ -2620,11 +2841,15 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
 
       function ensureUploadedImages() {
-        return images.reduce(function (chain, image, index) {
-          return chain.then(function () {
-            return ensureUploadedImage(image, index);
-          });
-        }, Promise.resolve());
+        var nextIndex = 0;
+        var workers = Array.from({ length: Math.min(2, images.length) }, function () {
+          return (function work() {
+            var index = nextIndex++;
+            if (index >= images.length) return Promise.resolve();
+            return ensureUploadedImage(images[index], index).then(work);
+          })();
+        });
+        return Promise.all(workers);
       }
 
       function ensureUploadedImage(image, index) {
@@ -2647,7 +2872,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           return postJson("/upload-image", payload);
         }).then(function (result) {
           image.uploadedUrl = result.url;
-          return imagePayload(image, thumbImageMaxEdge, "thumb").then(function (thumbPayload) {
+          return imagePayload(image, thumbImageMaxEdge, "preview").then(function (thumbPayload) {
+            image.previewBytes = thumbPayload.bytes || 0;
             return postJson("/upload-image", thumbPayload);
           }).catch(function () {
             image.thumbnailUrl = image.uploadedUrl;
@@ -2673,6 +2899,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
               alt: defaultImageAlt(image, images.indexOf(image)),
               caption: image.caption.trim(),
               data: data,
+              bytes: fileLike.blob.size,
             };
           });
         });
@@ -2688,7 +2915,15 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
             name: uniqueImageName(image.name, image.type, suffix),
           });
         }
-        return drawTransformedImage(image.file, image.rotation, image.cropMode, maxEdge).then(function (blob) {
+        var isPreview = suffix === "preview";
+        return drawTransformedImage(
+          image.file,
+          image.rotation,
+          image.cropMode,
+          maxEdge,
+          isPreview ? "image/webp" : "",
+          isPreview ? 0.72 : 0.88
+        ).then(function (blob) {
           return {
             blob: blob,
             name: uniqueImageName(image.name, blob.type, suffix),
@@ -2710,7 +2945,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         return file.type === "image/svg+xml" || file.type === "image/gif";
       }
 
-      function drawTransformedImage(file, angle, cropSquare, maxEdge) {
+      function drawTransformedImage(file, angle, cropSquare, maxEdge, outputType, quality) {
         return loadImage(file).then(function (img) {
           var sourceWidth = img.naturalWidth || img.width;
           var sourceHeight = img.naturalHeight || img.height;
@@ -2740,14 +2975,14 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           ctx.drawImage(img, sx, sy, sw, sh, -sw / 2, -sh / 2, sw, sh);
           URL.revokeObjectURL(img.src);
           return new Promise(function (resolve, reject) {
-            var type = file.type === "image/png" || file.type === "image/webp" ? file.type : "image/jpeg";
+            var type = outputType || (file.type === "image/png" || file.type === "image/webp" ? file.type : "image/jpeg");
             canvas.toBlob(function (blob) {
               if (!blob) {
                 reject(new Error("No se pudo preparar la imagen."));
                 return;
               }
               resolve(blob);
-            }, type, 0.92);
+            }, type, quality || 0.88);
           });
         });
       }

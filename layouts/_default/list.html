@@ -13,6 +13,7 @@
             title="{{ if $isEnglish }}New post{{ else }}Nuevo post{{ end }}"
           >
             {{ partial "author_icon.html" "file-plus" }}
+            <span class="author-action-label">{{ if $isEnglish }}New text{{ else }}Nuevo texto{{ end }}</span>
           </button>
           <button
             type="button"
@@ -22,6 +23,7 @@
             title="{{ if $isEnglish }}New image post{{ else }}Nueva publicación con imagen{{ end }}"
           >
             {{ partial "author_icon.html" "image-plus" }}
+            <span class="author-action-label">{{ if $isEnglish }}New photo{{ else }}Nueva foto{{ end }}</span>
           </button>
           <button
             type="button"
@@ -31,16 +33,24 @@
             title="{{ if $isEnglish }}Edit notebook{{ else }}Editar notebook{{ end }}"
           >
             {{ partial "author_icon.html" "pencil" }}
+            <span class="author-action-label">{{ if $isEnglish }}Edit{{ else }}Editar{{ end }}</span>
           </button>
-          <button
-            type="button"
-            class="author-action-button author-action-button--danger"
-            data-author-action="delete-notebook"
-            aria-label="{{ if $isEnglish }}Delete notebook{{ else }}Eliminar notebook{{ end }}"
-            title="{{ if $isEnglish }}Delete notebook{{ else }}Eliminar notebook{{ end }}"
-          >
-            {{ partial "author_icon.html" "trash" }}
-          </button>
+          <details class="author-more-actions">
+            <summary class="author-action-button"><span class="author-action-label">{{ if $isEnglish }}More{{ else }}Más{{ end }}</span></summary>
+            <div class="author-more-menu">
+              <button type="button" class="author-action-button" data-author-action="create-notebook-channel">
+                <span class="author-action-label">{{ if $isEnglish }}Sync to Are.na{{ else }}Crear channel en Are.na{{ end }}</span>
+              </button>
+              <button
+                type="button"
+                class="author-action-button author-action-button--danger"
+                data-author-action="delete-notebook"
+              >
+                {{ partial "author_icon.html" "trash" }}
+                <span class="author-action-label">{{ if $isEnglish }}Delete notebook{{ else }}Eliminar notebook{{ end }}</span>
+              </button>
+            </div>
+          </details>
         </div>
       {{ end }}
     </div>

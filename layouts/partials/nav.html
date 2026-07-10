@@ -65,17 +65,36 @@
     var toggle = nav.querySelector(".nav-toggle");
     var list = document.getElementById("primary-navigation");
     var mobileLayout = window.matchMedia("(max-width: 1000px)");
+    var storageKey = "notebooks_navigation_expanded";
     if (!toggle || !list) return;
 
-    function setExpanded(expanded) {
+    function readExpanded() {
+      try {
+        return sessionStorage.getItem(storageKey) === "true";
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function rememberExpanded(expanded) {
+      try {
+        sessionStorage.setItem(storageKey, expanded ? "true" : "false");
+      } catch (error) {
+        // The navigation still works when storage is unavailable.
+      }
+    }
+
+    function setExpanded(expanded, remember) {
       toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
       list.hidden = !expanded;
+      toggle.textContent = expanded ? "Ocultar notebooks" : "Mostrar notebooks";
+      if (remember) rememberExpanded(expanded);
     }
 
     function syncLayout() {
       if (mobileLayout.matches) {
         toggle.hidden = false;
-        setExpanded(false);
+        setExpanded(readExpanded(), false);
         return;
       }
 
@@ -85,7 +104,7 @@
     }
 
     toggle.addEventListener("click", function () {
-      setExpanded(toggle.getAttribute("aria-expanded") !== "true");
+      setExpanded(toggle.getAttribute("aria-expanded") !== "true", true);
     });
 
     if (typeof mobileLayout.addEventListener === "function") {

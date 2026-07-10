@@ -13,6 +13,7 @@
             title="{{ if $isEnglish }}New post{{ else }}Nuevo post{{ end }}"
           >
             {{ partial "author_icon.html" "file-plus" }}
+            <span class="author-action-label">{{ if $isEnglish }}New text{{ else }}Nuevo texto{{ end }}</span>
           </button>
           <button
             type="button"
@@ -22,6 +23,7 @@
             title="{{ if $isEnglish }}New image post{{ else }}Nueva publicación con imagen{{ end }}"
           >
             {{ partial "author_icon.html" "image-plus" }}
+            <span class="author-action-label">{{ if $isEnglish }}New photo{{ else }}Nueva foto{{ end }}</span>
           </button>
           <button
             type="button"
@@ -31,16 +33,24 @@
             title="{{ if $isEnglish }}Edit notebook{{ else }}Editar notebook{{ end }}"
           >
             {{ partial "author_icon.html" "pencil" }}
+            <span class="author-action-label">{{ if $isEnglish }}Edit{{ else }}Editar{{ end }}</span>
           </button>
-          <button
-            type="button"
-            class="author-action-button author-action-button--danger"
-            data-author-action="delete-notebook"
-            aria-label="{{ if $isEnglish }}Delete notebook{{ else }}Eliminar notebook{{ end }}"
-            title="{{ if $isEnglish }}Delete notebook{{ else }}Eliminar notebook{{ end }}"
-          >
-            {{ partial "author_icon.html" "trash" }}
-          </button>
+          <details class="author-more-actions">
+            <summary class="author-action-button"><span class="author-action-label">{{ if $isEnglish }}More{{ else }}Más{{ end }}</span></summary>
+            <div class="author-more-menu">
+              <button type="button" class="author-action-button" data-author-action="create-notebook-channel">
+                <span class="author-action-label">{{ if $isEnglish }}Sync to Are.na{{ else }}Crear channel en Are.na{{ end }}</span>
+              </button>
+              <button
+                type="button"
+                class="author-action-button author-action-button--danger"
+                data-author-action="delete-notebook"
+              >
+                {{ partial "author_icon.html" "trash" }}
+                <span class="author-action-label">{{ if $isEnglish }}Delete notebook{{ else }}Eliminar notebook{{ end }}</span>
+              </button>
+            </div>
+          </details>
         </div>
       {{ end }}
     </div>
@@ -74,10 +84,6 @@
         {{ if and $imageSrc (hasPrefix $imageSrc "/") }}
           {{ $imageSrc = partial "admin_href.html" (dict "page" . "href" $imageSrc) }}
         {{ end }}
-        {{ $fullImageSrc := $image }}
-        {{ if and $fullImageSrc (hasPrefix $fullImageSrc "/") }}
-          {{ $fullImageSrc = partial "admin_href.html" (dict "page" . "href" $fullImageSrc) }}
-        {{ end }}
         {{ $alt := or .Params.image_alt .Title }}
         {{ $caption := or .Params.caption .Params.summary }}
         <article class="photo-card">
@@ -85,12 +91,13 @@
             {{ if $imageSrc }}
               <img
                 src="{{ $imageSrc | safeURL }}"
-                {{ if and $fullImageSrc (ne $fullImageSrc $imageSrc) }}srcset="{{ $imageSrc | safeURL }} 900w, {{ $fullImageSrc | safeURL }} 1920w" sizes="(min-width: 900px) 25vw, 50vw"{{ end }}
-                {{ if and $fullImageSrc (ne $fullImageSrc $imageSrc) }}onerror="this.onerror=null;this.removeAttribute('srcset');this.src='{{ $fullImageSrc | safeURL }}';"{{ end }}
                 alt="{{ $alt }}"
                 loading="lazy"
                 decoding="async"
               >
+              {{ if and $thumb (ne $thumb $image) }}
+                <span class="photo-card-preview">preview</span>
+              {{ end }}
               {{ if gt $imageCount 1 }}
                 <span class="photo-card-count">{{ $imageCount }} imagenes</span>
               {{ end }}

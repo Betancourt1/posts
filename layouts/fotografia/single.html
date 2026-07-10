@@ -2,14 +2,9 @@
   {{ $isHidden := partial "is_hidden.html" . }}
   {{ $excludeFromSearch := or $isHidden (eq .Params.search false) }}
   {{ $image := .Params.image }}
-  {{ $thumb := .Params.thumbnail }}
   {{ $imageSrc := $image }}
   {{ if and $imageSrc (hasPrefix $imageSrc "/") }}
     {{ $imageSrc = partial "admin_href.html" (dict "page" . "href" $imageSrc) }}
-  {{ end }}
-  {{ $thumbSrc := $thumb }}
-  {{ if and $thumbSrc (hasPrefix $thumbSrc "/") }}
-    {{ $thumbSrc = partial "admin_href.html" (dict "page" . "href" $thumbSrc) }}
   {{ end }}
   {{ $alt := or .Params.image_alt .Title }}
   {{ $caption := .Params.caption }}
@@ -60,18 +55,12 @@
           {{ if and $itemSrc (hasPrefix $itemSrc "/") }}
             {{ $itemSrc = partial "admin_href.html" (dict "page" $ "href" $itemSrc) }}
           {{ end }}
-          {{ $itemThumb := or (index $item "thumb") (index $item "thumbnail") }}
-          {{ if and $itemThumb (hasPrefix $itemThumb "/") }}
-            {{ $itemThumb = partial "admin_href.html" (dict "page" $ "href" $itemThumb) }}
-          {{ end }}
           {{ $itemAlt := or (index $item "alt") $.Title }}
           {{ $itemCaption := index $item "caption" }}
           {{ if $itemSrc }}
             <figure class="photo-post-figure">
               <img
                 src="{{ $itemSrc | safeURL }}"
-                {{ if and $itemThumb (ne $itemThumb $itemSrc) }}srcset="{{ $itemThumb | safeURL }} 900w, {{ $itemSrc | safeURL }} 1920w" sizes="min(100vw, 72rem)"{{ end }}
-                {{ if and $itemThumb (ne $itemThumb $itemSrc) }}onerror="this.onerror=null;this.removeAttribute('srcset');this.src='{{ $itemSrc | safeURL }}';"{{ end }}
                 alt="{{ $itemAlt }}"
                 decoding="async"
                 {{ if eq $index 0 }}fetchpriority="high"{{ else }}loading="lazy"{{ end }}
@@ -88,8 +77,6 @@
         <figure class="photo-post-figure">
           <img
             src="{{ $imageSrc | safeURL }}"
-            {{ if and $thumbSrc (ne $thumbSrc $imageSrc) }}srcset="{{ $thumbSrc | safeURL }} 900w, {{ $imageSrc | safeURL }} 1920w" sizes="min(100vw, 72rem)"{{ end }}
-            {{ if and $thumbSrc (ne $thumbSrc $imageSrc) }}onerror="this.onerror=null;this.removeAttribute('srcset');this.src='{{ $imageSrc | safeURL }}';"{{ end }}
             alt="{{ $alt }}"
             decoding="async"
             fetchpriority="high"

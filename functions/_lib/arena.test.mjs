@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   ArenaApiError,
   arenaMappingPatch,
+  createArenaChannel,
   getArenaStatus,
   listArenaChannels,
   prepareArenaMarkdown,
@@ -55,14 +56,14 @@ function page(overrides = {}) {
 test("prepareArenaMarkdown forces URL-only content to remain a Text block", () => {
   assert.equal(
     prepareArenaMarkdown(page({ body: "https://example.com" })),
-    "# Prueba\n\nhttps://example.com",
+    "# Prueba\n\nhttps://example.com\n\n[Publicado originalmente en el blog](https://fbetancourt.work/es/posts/2026/enero/prueba/)",
   );
 });
 
 test("prepareArenaMarkdown makes root-relative destinations portable", () => {
   assert.equal(
     prepareArenaMarkdown(page({ body: "[Texto](/es/about/)\n\n![Foto](/uploads/foto.jpg)" })),
-    "[Texto](https://fbetancourt.work/es/about/)\n\n![Foto](https://fbetancourt.work/uploads/foto.jpg)",
+    "[Texto](https://fbetancourt.work/es/about/)\n\n![Foto](https://fbetancourt.work/uploads/foto.jpg)\n\n[Publicado originalmente en el blog](https://fbetancourt.work/es/posts/2026/enero/prueba/)",
   );
 });
 
@@ -97,7 +98,7 @@ test("syncArenaPage creates a Text block from the complete Markdown", async () =
 
   const createRequest = requests.find((request) => request.url === "https://api.are.na/v3/blocks");
   assert.equal(createRequest.options.method, "POST");
-  assert.equal(createRequest.body.value, "Texto completo con **Markdown**.");
+  assert.equal(createRequest.body.value, "Texto completo con **Markdown**.\n\n[Publicado originalmente en el blog](https://fbetancourt.work/es/posts/2026/enero/prueba/)");
   assert.equal(createRequest.body.title, "Prueba");
   assert.equal(createRequest.body.original_source_url, "https://fbetancourt.work/es/posts/2026/enero/prueba/");
   assert.deepEqual(createRequest.body.channels.map((item) => item.id), [123]);
@@ -143,7 +144,7 @@ test("syncArenaPage updates the mapped block without creating another", async ()
   const result = await syncArenaPage({ token: "secret", page: existing, fetchImpl });
 
   assert.equal(requests[0].method, "PUT");
-  assert.equal(requests[0].body.content, existing.body);
+  assert.equal(requests[0].body.content, "Texto completo con **Markdown**.\n\n[Publicado originalmente en el blog](https://fbetancourt.work/es/posts/2026/enero/prueba/)");
   assert.equal(requests.some((request) => request.url === "https://api.are.na/v3/blocks"), false);
   assert.equal(result.blockId, "456");
 });
@@ -252,7 +253,7 @@ test("getArenaStatus distinguishes matching, disconnected, and changed Markdown"
     state: "available",
     title: "Prueba",
     updated_at: "2026-07-10T02:00:00Z",
-    content: { markdown: "Texto completo con **Markdown**." },
+    content: { markdown: "Texto completo con **Markdown**.\n\n[Publicado originalmente en el blog](https://fbetancourt.work/es/posts/2026/enero/prueba/)" },
   };
   const matchingFetch = async (url) => url.includes("/connections")
     ? jsonResponse(200, { data: [{ id: 123, type: "Channel" }] })
@@ -442,7 +443,7 @@ test("syncArenaPage creates Image blocks with the image, alt text, and caption",
   assert.equal(creates[0].body.value, "https://raw.example/static/uploads/flor-1.jpg");
   assert.equal(creates[0].body.title, "Flor en la mañana · 1/2");
   assert.equal(creates[0].body.alt_text, "Flor amarilla");
-  assert.equal(creates[0].body.description, "Después de la lluvia");
+  assert.equal(creates[0].body.description, "Después de la lluvia\n\n[Publicado originalmente en el blog](https://blog.example/es/fotografia/flor-en-la-manana/)");
   assert.equal(creates[0].body.original_source_url, "https://blog.example/es/fotografia/flor-en-la-manana/");
   assert.equal(creates[0].body.metadata.image_path, "/uploads/flor-1.jpg");
   assert.equal(creates[1].body.value, "https://raw.example/static/uploads/flor-2.jpg");
@@ -484,7 +485,7 @@ test("syncArenaPage updates Image metadata without creating a Link or a second b
   assert.equal(requests[0].method, "PUT");
   assert.deepEqual(requests[0].body, {
     title: "Flor actualizada",
-    description: "Nuevo pie",
+    description: "Nuevo pie\n\n[Publicado originalmente en el blog](https://fbetancourt.work/es/fotografia/flor-en-la-manana/)",
     alt_text: "Nueva descripción",
     metadata: {
       integration: "fbetancourt_blog",
@@ -496,6 +497,46 @@ test("syncArenaPage updates Image metadata without creating a Link or a second b
   });
   assert.equal(requests.some((request) => request.url === "https://api.are.na/v3/blocks"), false);
   assert.equal(result.blocks[0].blockId, "501");
+});
+
+test("createArenaChannel creates a closed channel with notebook metadata", async () => {
+  const requests = [];
+  const fetchImpl = async (url, options) => {
+    requests.push({ url, method: options.method, body: JSON.parse(options.body) });
+    return jsonResponse(201, {
+      id: 987,
+      slug: "fotografia",
+      title: "Fotografía",
+      visibility: "closed",
+      owner: { slug: "fernando" },
+    });
+  };
+
+  const result = await createArenaChannel({
+    token: "secret",
+    title: "Fotografía",
+    description: "Notebook del blog",
+    metadata: { integration: "fbetancourt_blog" },
+    fetchImpl,
+  });
+
+  assert.deepEqual(requests[0], {
+    url: "https://api.are.na/v3/channels",
+    method: "POST",
+    body: {
+      title: "Fotografía",
+      visibility: "closed",
+      description: "Notebook del blog",
+      metadata: { integration: "fbetancourt_blog" },
+    },
+  });
+  assert.deepEqual(result, {
+    id: "987",
+    slug: "fotografia",
+    title: "Fotografía",
+    visibility: "closed",
+    url: "https://www.are.na/fernando/fotografia",
+  });
 });
 
 test("syncArenaPage disconnects a replaced image before creating its new Image block", async () => {

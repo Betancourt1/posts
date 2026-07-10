@@ -30,6 +30,7 @@
     "add-image-post": "Abriendo imagen",
     "edit-notebook": "Abriendo notebook",
     "edit-post": "Abriendo post",
+    "create-notebook-channel": "Sincronizando Are.na",
     "delete-post": "Preparando eliminacion",
     "delete-notebook": "Preparando eliminacion",
   };
@@ -90,6 +91,10 @@
 
       if (action === "edit-post") {
         return editPost(button);
+      }
+
+      if (action === "create-notebook-channel") {
+        return createNotebookChannel();
       }
 
       if (action === "delete-post") {
@@ -510,9 +515,11 @@
 
   function openEditor(params) {
     var theme = document.documentElement.getAttribute("data-theme") || "dark";
+    var grayscale = false;
 
     try {
       theme = localStorage.getItem("site_theme") || theme;
+      grayscale = localStorage.getItem("grayscale_mode_enabled") === "true";
     } catch (error) {
       theme = theme || "dark";
     }
@@ -521,6 +528,7 @@
       mode: params.mode || "new",
       site: contentOrigin(),
       theme: theme === "light" ? "light" : "dark",
+      grayscale: grayscale ? "true" : "false",
     });
 
     if (params.path) {
@@ -539,11 +547,34 @@
     window.location.assign(apiBase + "/editor?" + query.toString());
   }
 
+  function createNotebookChannel() {
+    if (!state.currentPath || !state.currentPath.endsWith("/_index.md")) {
+      throw new Error("No se encontró la ruta de este notebook.");
+    }
+    if (!window.confirm("Se creará o actualizará un channel de Are.na con las publicaciones públicas de este notebook. ¿Continuar?")) {
+      return false;
+    }
+
+    toast("Sincronizando notebook con Are.na...");
+    return postJson("/api/create-notebook-channel", { path: state.currentPath }).then(function (result) {
+      var channel = result.channel || {};
+      var failures = Array.isArray(result.failures) ? result.failures.length : 0;
+      var message = String(result.synced || 0) + "/" + String(result.total || 0) + " publicaciones sincronizadas";
+      if (failures) {
+        message += "; " + failures + " necesitan reintento";
+      }
+      toast(message + (channel.title ? " en " + channel.title + "." : "."));
+      return false;
+    });
+  }
+
   function openImageEditor(params) {
     var theme = document.documentElement.getAttribute("data-theme") || "dark";
+    var grayscale = false;
 
     try {
       theme = localStorage.getItem("site_theme") || theme;
+      grayscale = localStorage.getItem("grayscale_mode_enabled") === "true";
     } catch (error) {
       theme = theme || "dark";
     }
@@ -551,6 +582,7 @@
     var query = new URLSearchParams({
       site: contentOrigin(),
       theme: theme === "light" ? "light" : "dark",
+      grayscale: grayscale ? "true" : "false",
     });
 
     if (params.notebook) {
@@ -673,13 +705,13 @@
     if (form.elements.draft.checked) {
       frontMatter.draft = true;
     } else {
-      delete frontMatter.draft;
+      frontMatter.draft = null;
     }
 
     if (form.elements.hidden.checked) {
       frontMatter.hidden = true;
     } else {
-      delete frontMatter.hidden;
+      frontMatter.hidden = null;
     }
 
     if (state.editorKind === "notebook") {

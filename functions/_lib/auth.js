@@ -13,6 +13,41 @@ function exactAudienceMatch(payloadAudience, expectedAudience) {
   return audiences.includes(expectedAudience);
 }
 
+const ACCESS_CERTS_TTL_MS = 5 * 60 * 1000;
+let cachedAccessCerts = {
+  domain: "",
+  expiresAt: 0,
+  keys: [],
+};
+
+async function accessCertKeys(domain, forceRefresh = false) {
+  const now = Date.now();
+
+  if (
+    !forceRefresh &&
+    cachedAccessCerts.domain === domain &&
+    cachedAccessCerts.expiresAt > now &&
+    cachedAccessCerts.keys.length
+  ) {
+    return cachedAccessCerts.keys;
+  }
+
+  const certsResponse = await fetch(`${domain}/cdn-cgi/access/certs`);
+
+  if (!certsResponse.ok) {
+    throw new Error("No se pudieron leer las llaves de Cloudflare Access.");
+  }
+
+  const certs = await certsResponse.json();
+  const keys = Array.isArray(certs.keys) ? certs.keys : [];
+  cachedAccessCerts = {
+    domain,
+    expiresAt: now + ACCESS_CERTS_TTL_MS,
+    keys,
+  };
+  return keys;
+}
+
 function normalizeAccessDomain(domain) {
   const value = String(domain || "").replace(/\/+$/, "");
 
@@ -51,15 +86,13 @@ async function validateAccessJwt(request, env) {
     throw new Error("Algoritmo JWT invalido.");
   }
 
-  const certsUrl = `${domain}/cdn-cgi/access/certs`;
-  const certsResponse = await fetch(certsUrl);
+  let keys = await accessCertKeys(domain);
+  let jwk = keys.find((key) => key.kid === headerPayload.kid);
 
-  if (!certsResponse.ok) {
-    throw new Error("No se pudieron leer las llaves de Cloudflare Access.");
+  if (!jwk) {
+    keys = await accessCertKeys(domain, true);
+    jwk = keys.find((key) => key.kid === headerPayload.kid);
   }
-
-  const certs = await certsResponse.json();
-  const jwk = (certs.keys || []).find((key) => key.kid === headerPayload.kid);
 
   if (!jwk) {
     throw new Error("No se encontro la llave JWT.");

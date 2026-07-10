@@ -36,6 +36,20 @@ const IMAGE_MIME_BY_EXTENSION = new Map([
   [".webp", "image/webp"],
   [".svg", "image/svg+xml"],
 ]);
+const NOTEBOOK_CACHE_TTL_MS = 20 * 1000;
+let notebookCache = {
+  key: "",
+  expiresAt: 0,
+  notebooks: [],
+};
+
+function notebookCacheKey(env = {}) {
+  return [env.GITHUB_OWNER, env.GITHUB_REPO, env.GITHUB_BRANCH].map((value) => String(value || "")).join("/");
+}
+
+export function invalidateNotebooksCache() {
+  notebookCache = { key: "", expiresAt: 0, notebooks: [] };
+}
 const PROTECTED_NOTEBOOKS = new Set(["content_es/posts", "content_en/posts"]);
 
 function startsWithBytes(bytes, expected) {
@@ -264,6 +278,11 @@ export async function readPage(env, path) {
 }
 
 export async function listNotebooks(env) {
+  const cacheKey = notebookCacheKey(env);
+  if (notebookCache.key === cacheKey && notebookCache.expiresAt > Date.now()) {
+    return notebookCache.notebooks;
+  }
+
   const tree = await readRepositoryTree(env);
   const ignored = new Set(["archives", "tags"]);
   const indexFiles = tree
@@ -290,7 +309,13 @@ export async function listNotebooks(env) {
     };
   }));
 
-  return notebooks.sort((a, b) => a.lang.localeCompare(b.lang) || a.title.localeCompare(b.title));
+  const sorted = notebooks.sort((a, b) => a.lang.localeCompare(b.lang) || a.title.localeCompare(b.title));
+  notebookCache = {
+    key: cacheKey,
+    expiresAt: Date.now() + NOTEBOOK_CACHE_TTL_MS,
+    notebooks: sorted,
+  };
+  return sorted;
 }
 
 export async function createPost(env, payload) {
@@ -379,7 +404,7 @@ export async function createPost(env, payload) {
     message: commitMessage("Crea", path),
   });
 
-  return { path, url: contentPathToUrl(path) };
+  return { path, url: contentPathToUrl(path), changed: true, frontMatter };
 }
 
 function imageItemsFromPayload(value) {
@@ -435,7 +460,9 @@ export async function createNotebook(env, payload) {
     message: commitMessage("Crea", path),
   });
 
-  return { path, url: contentPathToUrl(path) };
+  invalidateNotebooksCache();
+
+  return { path, url: contentPathToUrl(path), changed: true, frontMatter };
 }
 
 export async function savePage(env, payload) {
@@ -458,14 +485,33 @@ export async function savePage(env, payload) {
 
   normalizePhotoFrontMatter(path, frontMatter);
 
-  await writeGitHubFile(env, {
+  const content = formatMarkdown(frontMatter, String(payload.body || ""));
+
+  if (content === current.content) {
+    return {
+      path,
+      url: contentPathToUrl(path),
+      changed: false,
+      frontMatter,
+    };
+  }
+
+  const result = await writeGitHubFile(env, {
     path,
-    content: formatMarkdown(frontMatter, String(payload.body || "")),
+    content,
     message: commitMessage("Edita", path),
     sha: current.sha,
   });
 
-  return { path, url: contentPathToUrl(path) };
+  if (path.endsWith("/_index.md")) invalidateNotebooksCache();
+
+  return {
+    path,
+    url: contentPathToUrl(path),
+    changed: true,
+    frontMatter,
+    commitSha: String(result?.commit?.sha || ""),
+  };
 }
 
 export async function savePageFrontMatter(env, pathValue, patch) {
@@ -487,14 +533,33 @@ export async function savePageFrontMatter(env, pathValue, patch) {
   });
   normalizePhotoFrontMatter(path, frontMatter);
 
-  await writeGitHubFile(env, {
+  const content = formatMarkdown(frontMatter, parsed.body);
+
+  if (content === current.content) {
+    return {
+      path,
+      url: contentPathToUrl(path),
+      changed: false,
+      frontMatter,
+    };
+  }
+
+  const result = await writeGitHubFile(env, {
     path,
-    content: formatMarkdown(frontMatter, parsed.body),
+    content,
     message: commitMessage("Edita", path),
     sha: current.sha,
   });
 
-  return { path, url: contentPathToUrl(path) };
+  if (path.endsWith("/_index.md")) invalidateNotebooksCache();
+
+  return {
+    path,
+    url: contentPathToUrl(path),
+    changed: true,
+    frontMatter,
+    commitSha: String(result?.commit?.sha || ""),
+  };
 }
 
 export async function deleteImage(env, payload) {
@@ -586,6 +651,8 @@ export async function deleteNotebook(env, payload) {
       deletedImages.push(imagePath);
     }
   }
+
+  invalidateNotebooksCache();
 
   return {
     path: notebook,
