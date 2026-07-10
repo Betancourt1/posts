@@ -107,8 +107,11 @@ function pageMetadata(page) {
   };
 }
 
-function isPhotoPage(page) {
-  return /^content_(es|en)\/fotografia\/.+\.md$/.test(String(page?.path || ""));
+function isImagePage(page) {
+  const hasImages = imageItemsFromPage(page).length > 0;
+  const isPhotographySection = /^content_(es|en)\/fotografia\/.+\.md$/.test(String(page?.path || ""));
+  const hasWrittenBody = Boolean(String(page?.body || "").trim());
+  return hasImages && (isPhotographySection || !hasWrittenBody);
 }
 
 function imageItemsFromPage(page) {
@@ -343,7 +346,7 @@ export async function getArenaStatus({
   imageOrigin = publicOrigin,
   fetchImpl,
 } = {}) {
-  if (isPhotoPage(page)) {
+  if (isImagePage(page)) {
     return getArenaImageStatus({ token, page, publicOrigin, imageOrigin, fetchImpl });
   }
 
@@ -560,7 +563,7 @@ export async function syncArenaPage({
   imageOrigin = publicOrigin,
   fetchImpl,
 } = {}) {
-  if (isPhotoPage(page)) {
+  if (isImagePage(page)) {
     return syncArenaImages({ token, page, publicOrigin, imageOrigin, fetchImpl });
   }
 

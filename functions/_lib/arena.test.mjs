@@ -8,6 +8,7 @@ import {
   prepareArenaMarkdown,
   syncArenaPage,
 } from "./arena.js";
+import { authorEditorHtml } from "./editor-template.js";
 
 function jsonResponse(status, payload) {
   return new Response(JSON.stringify(payload), {
@@ -586,4 +587,38 @@ test("arenaMappingPatch stores one mapping per image", () => {
       { src: "/uploads/flor-2.jpg", block_id: "502", connection_id: "802" },
     ],
   });
+});
+
+test("image-only posts outside Fotografía are mirrored as Image blocks", async () => {
+  const requests = [];
+  const imagePost = photoPage({
+    path: "content_es/posts/2026/julio/imagen-suelta.md",
+    url: "/es/posts/2026/julio/imagen-suelta/",
+    body: "",
+  });
+  const fetchImpl = async (url, options) => {
+    requests.push({ url, method: options.method, body: options.body ? JSON.parse(options.body) : null });
+    if (url.includes("/channels/123/contents")) return jsonResponse(200, { data: [] });
+    if (url === "https://api.are.na/v3/blocks" && options.method === "POST") {
+      return jsonResponse(201, { id: 601, type: "Image", state: "available" });
+    }
+    if (url.includes("/blocks/601/connections")) return jsonResponse(200, { data: [] });
+    if (url === "https://api.are.na/v3/connections" && options.method === "POST") {
+      return jsonResponse(201, { data: [{ id: 901 }] });
+    }
+    throw new Error(`Unexpected request: ${options.method} ${url}`);
+  };
+
+  const result = await syncArenaPage({ token: "secret", page: imagePost, fetchImpl });
+
+  assert.equal(result.kind, "images");
+  assert.equal(requests.find((request) => request.url === "https://api.are.na/v3/blocks").body.value, "https://fbetancourt.work/uploads/flor-1.jpg");
+});
+
+test("the author editor offers Are.na to every post and excludes only notebooks", () => {
+  const html = authorEditorHtml({});
+
+  assert.match(html, /function isArenaEligible\(\) \{\s+return kind !== "notebook";/);
+  assert.doesNotMatch(html, /kind === "notebook" \|\| isPhotoEditor\(\)/);
+  assert.doesNotMatch(html, /kind !== "notebook" && !isPhotoEditor\(\)/);
 });

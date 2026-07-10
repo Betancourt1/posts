@@ -1541,7 +1541,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
             <option value="">Cargando canales...</option>
           </select>
         </label>
-        <p class="arena-helper">Al guardar, se copiarán el título y el cuerpo Markdown completo.</p>
+        <p class="arena-helper" id="arena-helper">Al guardar, se copiarán el título y el cuerpo Markdown completo.</p>
         <p class="arena-content-meta" id="arena-content-meta">Bloque de texto</p>
         <div class="arena-progress" aria-label="Estado de la copia en Are.na">
           <span class="arena-step is-complete" id="arena-blog-step">Blog actualizado</span>
@@ -1571,7 +1571,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <button type="button" class="arena-details-close" id="arena-details-close" aria-label="Cerrar detalle de Are.na">&times;</button>
       </div>
       <div class="arena-preview">
-        <span class="arena-preview-type">Bloque de texto · Markdown completo</span>
+        <span class="arena-preview-type" id="arena-preview-type">Bloque de texto · Markdown completo</span>
         <h3 id="arena-preview-title">Sin titulo</h3>
         <p class="arena-preview-excerpt" id="arena-preview-excerpt"></p>
         <p class="arena-preview-meta" id="arena-preview-meta"></p>
@@ -1611,6 +1611,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         blockId: "",
         connectionId: "",
         blockUrl: "",
+        blocks: [],
         lastSyncedAt: "",
         error: "",
       };
@@ -1663,6 +1664,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         arenaChannel: document.getElementById("arena-channel"),
         arenaInlineDetails: document.getElementById("arena-inline-details"),
         arenaContentMeta: document.getElementById("arena-content-meta"),
+        arenaHelper: document.getElementById("arena-helper"),
         arenaBlogStep: document.getElementById("arena-blog-step"),
         arenaCopyStep: document.getElementById("arena-copy-step"),
         arenaStateMessage: document.getElementById("arena-state-message"),
@@ -1672,6 +1674,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         arenaDetailsBackdrop: document.getElementById("arena-details-backdrop"),
         arenaDetailsClose: document.getElementById("arena-details-close"),
         arenaPreviewTitle: document.getElementById("arena-preview-title"),
+        arenaPreviewType: document.getElementById("arena-preview-type"),
         arenaPreviewExcerpt: document.getElementById("arena-preview-excerpt"),
         arenaPreviewMeta: document.getElementById("arena-preview-meta"),
         arenaDetailsState: document.getElementById("arena-details-state"),
@@ -1924,7 +1927,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
 
       function loadArenaStatus() {
-        if (kind === "notebook" || isPhotoEditor() || !sourcePath) {
+        if (kind === "notebook" || !sourcePath) {
           setArenaState({ state: "disabled" });
           return Promise.resolve();
         }
@@ -1960,7 +1963,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       function syncArenaAfterSave() {
         if (!isArenaEligible()) return Promise.resolve(null);
         syncArenaConfiguration();
-        var hasMappedBlock = Boolean(arenaState.blockId || frontMatter.arena_block_id);
+        var hasMappedBlock = hasArenaMapping();
         if (!sourcePath || (!els.arenaEnabled.checked && !hasMappedBlock) || (!els.draft.checked && !hasMappedBlock)) {
           return Promise.resolve(null);
         }
@@ -1971,10 +1974,21 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         setArenaState({ state: "syncing", error: "" });
         return postJson("/api/sync-arena", { path: sourcePath }).then(function (payload) {
           var result = payload.arena || {};
-          if (result.blockId) {
+          if (result.kind === "images") {
+            frontMatter.arena_blocks = (result.blocks || []).map(function (block) {
+              var mapping = {
+                src: String(block.src || ""),
+                block_id: String(block.blockId || ""),
+              };
+              if (block.connectionId) mapping.connection_id = String(block.connectionId);
+              return mapping;
+            });
+          } else if (result.blockId) {
             frontMatter.arena_block_id = String(result.blockId);
           }
-          if (result.connectionId) {
+          if (result.kind === "images") {
+            delete frontMatter.arena_connection_id;
+          } else if (result.connectionId) {
             frontMatter.arena_connection_id = String(result.connectionId);
           } else {
             delete frontMatter.arena_connection_id;
@@ -2012,6 +2026,16 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
 
       function arenaContentPreview() {
+        if (isPhotoEditor()) {
+          var galleryCount = Array.isArray(frontMatter.images) && frontMatter.images.length
+            ? frontMatter.images.length
+            : (els.image.value.trim() ? 1 : 0);
+          var details = [els.imageAlt.value.trim(), els.caption.value.trim()].filter(Boolean);
+          return {
+            excerpt: details.join(" · "),
+            imageCount: galleryCount,
+          };
+        }
         var content = String(els.body.value || "").replace(/\\r\\n/g, "\\n").trim();
         var excerpt = content.replace(/^#\\s+[^\\n]+\\n+/, "").slice(0, 360).trim();
         var words = content ? content.split(/\\s+/).filter(Boolean).length : 0;
@@ -2039,6 +2063,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
 
       function syncArenaUi() {
         var preview = arenaContentPreview();
+        var photo = isPhotoEditor();
+        var hasMappedBlock = hasArenaMapping();
+        var imageLabel = preview.imageCount === 1 ? "1 imagen" : preview.imageCount + " imágenes";
         var blogSaved = Boolean(savedSnapshot && currentSaveSnapshot() === savedSnapshot && !saveInProgress && !saveFailed);
         var state = arenaState.state || "disabled";
         var labels = {
@@ -2052,25 +2079,30 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           error: "Error de Are.na",
         };
         var messages = {
-          disabled: arenaState.blockId
+          disabled: hasMappedBlock
             ? (blogSaved ? "El bloque se conserva en Are.na, fuera del canal." : "Guarda para retirar la copia del canal.")
-            : "Activa la copia para mantener este texto en Are.na.",
+            : (photo ? "Activa la copia para mantener estas imágenes en Are.na." : "Activa la copia para mantener este texto en Are.na."),
           unavailable: arenaState.error || "Are.na no esta disponible.",
-          paused: arenaState.blockId
+          paused: hasMappedBlock
             ? (blogSaved ? "El borrador no aparece en el canal de Are.na." : "Guarda para retirar el borrador del canal.")
             : "Los borradores no se copian a Are.na.",
-          checking: "Comprobando el bloque de texto en Are.na.",
+          checking: photo ? "Comprobando las imágenes en Are.na." : "Comprobando el bloque de texto en Are.na.",
           pending: arenaState.error || (!blogSaved
-            ? "Guarda para copiar el contenido completo."
-            : (arenaState.blockId
-              ? "Are.na está procesando el bloque de texto."
-              : "Guarda para copiar el contenido completo.")),
-          syncing: "Copiando el Markdown guardado a Are.na.",
-          synced: "El bloque de texto coincide con el blog.",
+            ? (photo ? "Guarda para copiar las imágenes." : "Guarda para copiar el contenido completo.")
+            : (hasMappedBlock
+              ? (photo ? "Are.na está procesando las imágenes." : "Are.na está procesando el bloque de texto.")
+              : (photo ? "Guarda para copiar las imágenes." : "Guarda para copiar el contenido completo."))),
+          syncing: photo ? "Copiando las imágenes guardadas a Are.na." : "Copiando el Markdown guardado a Are.na.",
+          synced: photo ? "Las imágenes coinciden con el blog." : "El bloque de texto coincide con el blog.",
           error: arenaState.error || "No se pudo actualizar Are.na.",
         };
 
-        els.arenaContentMeta.textContent = "Bloque de texto · " + preview.characters.toLocaleString("es-MX") + " caracteres";
+        els.arenaHelper.textContent = photo
+          ? "Al guardar, cada imagen se copiará con su título, texto alt y pie."
+          : "Al guardar, se copiarán el título y el cuerpo Markdown completo.";
+        els.arenaContentMeta.textContent = photo
+          ? imageLabel + " · pie · alt"
+          : "Bloque de texto · " + preview.characters.toLocaleString("es-MX") + " caracteres";
         els.arenaBlogStep.textContent = blogSaved ? "Blog actualizado" : "Blog sin guardar";
         els.arenaBlogStep.className = "arena-step " + (blogSaved ? "is-complete" : "is-pending");
         els.arenaCopyStep.textContent = labels[state] || labels.disabled;
@@ -2087,14 +2119,18 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.arenaDetailsButton.dataset.state = state;
         els.arenaDetailsButton.title = labels[state] || labels.disabled;
         els.arenaPreviewTitle.textContent = els.title.value.trim() || "Sin titulo";
-        els.arenaPreviewExcerpt.textContent = preview.excerpt || "El texto guardado aparecera aqui.";
-        els.arenaPreviewMeta.textContent = preview.characters.toLocaleString("es-MX") + " caracteres · " + preview.minutes + " min de lectura";
+        els.arenaPreviewType.textContent = photo ? "Bloque de imagen · archivo completo" : "Bloque de texto · Markdown completo";
+        els.arenaPreviewExcerpt.textContent = preview.excerpt || (photo ? "El texto alt y el pie aparecerán aquí." : "El texto guardado aparecera aqui.");
+        els.arenaPreviewMeta.textContent = photo
+          ? imageLabel + " · título · pie · alt"
+          : preview.characters.toLocaleString("es-MX") + " caracteres · " + preview.minutes + " min de lectura";
         els.arenaDetailsState.textContent = messages[state] || messages.disabled;
         els.arenaDetailsChannel.textContent = currentArenaChannelTitle();
         els.arenaBlockLink.hidden = !arenaState.blockUrl;
         if (arenaState.blockUrl) {
           els.arenaBlockLink.href = arenaState.blockUrl;
         }
+        els.arenaBlockLink.textContent = photo ? "Abrir imagen en Are.na ↗" : "Abrir bloque de texto en Are.na ↗";
       }
 
       function openArenaDetails() {
@@ -2176,9 +2212,19 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           }
           setArenaState({
             state: frontMatter.arena_enabled === true ? "checking" : "disabled",
-            blockId: String(frontMatter.arena_block_id || ""),
-            blockUrl: frontMatter.arena_block_id ? "https://www.are.na/block/" + frontMatter.arena_block_id : "",
+            blockId: String(frontMatter.arena_block_id || frontMatter.arena_blocks?.[0]?.block_id || ""),
+            blockUrl: (frontMatter.arena_block_id || frontMatter.arena_blocks?.[0]?.block_id)
+              ? "https://www.are.na/block/" + (frontMatter.arena_block_id || frontMatter.arena_blocks[0].block_id)
+              : "",
             connectionId: String(frontMatter.arena_connection_id || ""),
+            blocks: (frontMatter.arena_blocks || []).map(function (block) {
+              return {
+                src: String(block.src || ""),
+                blockId: String(block.block_id || ""),
+                connectionId: String(block.connection_id || ""),
+                blockUrl: block.block_id ? "https://www.are.na/block/" + block.block_id : "",
+              };
+            }),
             lastSyncedAt: "",
             error: "",
           });
@@ -2224,7 +2270,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           setStatus("Saved");
           syncPreviewButton();
           syncDeleteControls();
-          if (isArenaEligible() && (els.arenaEnabled.checked || arenaState.blockId || frontMatter.arena_block_id)) {
+          if (isArenaEligible() && (els.arenaEnabled.checked || hasArenaMapping())) {
             return syncArenaAfterSave();
           }
           goToSavedPage();
@@ -2286,7 +2332,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
               nextFrontMatter.arena_channel_id = String(els.arenaChannel.value);
             }
           } else {
-            if (frontMatter.arena_enabled === true || frontMatter.arena_block_id) {
+            if (frontMatter.arena_enabled === true || hasArenaMapping()) {
               nextFrontMatter.arena_enabled = false;
             } else {
               nextFrontMatter.arena_enabled = null;
@@ -2925,7 +2971,16 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
 
       function isArenaEligible() {
-        return kind !== "notebook" && !isPhotoEditor();
+        return kind !== "notebook";
+      }
+
+      function hasArenaMapping() {
+        return Boolean(
+          arenaState.blockId ||
+          (Array.isArray(arenaState.blocks) && arenaState.blocks.length) ||
+          frontMatter.arena_block_id ||
+          (Array.isArray(frontMatter.arena_blocks) && frontMatter.arena_blocks.length)
+        );
       }
 
       function syncPhotoEditor() {
@@ -2949,7 +3004,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           closeArenaDetails();
           if (mode === "new" && els.arenaEnabled.checked) {
             els.arenaEnabled.checked = false;
-            setArenaState({ state: "disabled", blockId: "", connectionId: "", blockUrl: "", error: "" });
+            setArenaState({ state: "disabled", blockId: "", connectionId: "", blockUrl: "", blocks: [], error: "" });
           }
         }
       }
