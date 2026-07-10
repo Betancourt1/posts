@@ -1186,6 +1186,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         position: fixed;
         inset: auto 0 0 0;
         z-index: 40;
+        width: 100%;
         max-height: min(76vh, 36rem);
         margin-top: 0;
         padding: 0.85rem 1.1rem calc(1.25rem + env(safe-area-inset-bottom));
@@ -1193,7 +1194,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         background: rgba(8, 9, 11, 0.98);
         backdrop-filter: blur(18px);
         -webkit-backdrop-filter: blur(18px);
-        overflow: auto;
+        gap: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
         transform: translateY(100%);
         opacity: 0;
         pointer-events: none;
@@ -1246,17 +1249,18 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
       .panel {
         display: grid;
-        grid-template-columns: 1.35rem minmax(0, 1fr) auto 0.8rem;
+        grid-template-columns: 1rem minmax(0, 1fr) auto;
         column-gap: 0.75rem;
+        row-gap: 0.15rem;
         align-items: center;
-        gap: 0;
-        padding: 0.9rem 0;
+        min-width: 0;
+        padding: 1.05rem 0;
         border-bottom: 1px solid var(--line-soft);
       }
       .panel:not(.desktop-actions)::before {
         content: "";
         grid-column: 1;
-        grid-row: 1 / span 2;
+        grid-row: 1 / -1;
         width: 1rem;
         height: 1rem;
         align-self: center;
@@ -1265,7 +1269,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         opacity: 0.78;
       }
       .panel h2 {
-        grid-column: 2 / 4;
+        grid-column: 2 / -1;
         grid-row: 1;
         font-size: 0.7rem;
         margin-bottom: 0.15rem;
@@ -1278,6 +1282,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       .property-value {
         grid-column: 2;
         grid-row: 2;
+        min-width: 0;
+        overflow-wrap: anywhere;
       }
       .property-action {
         grid-column: 3;
@@ -1287,7 +1293,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         padding: 0 0.2rem;
       }
       .property-editor {
-        grid-column: 2 / 5;
+        grid-column: 2 / -1;
         margin-top: 0;
       }
       .mobile-notebook-field {
@@ -1298,14 +1304,38 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         justify-content: flex-start;
       }
       #status-panel {
-        grid-column: 2 / 5;
+        grid-column: 2 / -1;
         grid-row: 3;
       }
       .status-visible {
-        grid-column: 2 / 5;
+        grid-column: 2 / -1;
         grid-row: 4;
         min-height: 2.75rem;
         margin-top: 0.25rem;
+      }
+      .publication-progress h2 {
+        grid-column: 2 / -1;
+        grid-row: 1;
+      }
+      .publication-steps {
+        grid-column: 2 / -1;
+        grid-row: 2;
+        min-width: 0;
+        padding: 0.15rem 0 0.25rem;
+      }
+      .publication-step {
+        align-items: start;
+        line-height: 1.4;
+      }
+      .publication-step::before {
+        margin-top: 0.28rem;
+      }
+      .publication-status-copy {
+        grid-column: 2 / -1;
+        grid-row: 3;
+        min-width: 0;
+        margin: 0.35rem 0 0;
+        overflow-wrap: anywhere;
       }
       .preview-meta {
         display: none;
@@ -1368,6 +1398,13 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
       .tool-button {
         font-size: 0.68rem;
+      }
+      .inspector {
+        padding-right: 0.9rem;
+        padding-left: 0.9rem;
+      }
+      .panel {
+        column-gap: 0.65rem;
       }
     }
   </style>

@@ -54,6 +54,9 @@ test("image editor uses one explicit save action and lightweight previews", () =
   assert.doesNotMatch(html, />Publicar ↑</);
   assert.match(html, /\.property-action \{[\s\S]*?min-height: 2\.75rem;/);
   assert.match(html, /\.status-visible \{[\s\S]*?grid-row: 4;[\s\S]*?min-height: 2\.75rem;/);
+  assert.match(html, /\.panel \{[\s\S]*?grid-template-columns: 1rem minmax\(0, 1fr\) auto;[\s\S]*?column-gap: 0\.75rem;[\s\S]*?row-gap: 0\.15rem;/);
+  assert.match(html, /\.publication-steps \{[\s\S]*?grid-column: 2 \/ -1;[\s\S]*?grid-row: 2;/);
+  assert.match(html, /overflow-x: hidden;[\s\S]*?overflow-y: auto;/);
   assert.match(html, /class="check property-value status-visible"/);
   assert.doesNotMatch(html, /content: ">";/);
   assert.match(html, /function loadExistingPhoto\(\)/);
