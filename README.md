@@ -67,10 +67,11 @@ npm run visual:qa -- \
   --reference /tmp/mockup.png \
   --target editor=http://127.0.0.1:3001/editor?theme=dark \
   --target editor_props=http://127.0.0.1:3001/editor?theme=dark \
-  --click "editor_props=#top-settings-button"
+  --click "editor_props=#top-settings-button" \
+  --assert-responsive
 ```
 
-La salida queda en `tmp/visual-qa/<fecha>-<feature>/` con screenshots, `manifest.json` y `subagent-prompt.md`. El subagente debe calificar 1/10 y dar luz verde solo con promedio `9+`; si no llega, se itera con los cambios minimos y se vuelve a correr la CLI.
+La salida queda en `tmp/visual-qa/<fecha>-<feature>/` con screenshots, `manifest.json` y `subagent-prompt.md`. `--assert-responsive` tambien hace fallar la ejecucion si detecta overflow horizontal o controles moviles menores a 44 px. El subagente debe calificar 1/10 y dar luz verde solo con promedio `9+`; si no llega, se itera con los cambios minimos y se vuelve a correr la CLI.
 
 ```bash
 # Nuevo post en espanol

@@ -31,6 +31,8 @@ async function main() {
   const waitMs = numberOption(options.wait, DEFAULT_WAIT_MS);
   const fullPage = Boolean(options["full-page"]);
   const noCapture = Boolean(options["no-capture"]);
+  const assertResponsive = Boolean(options["assert-responsive"]);
+  const minimumHitTarget = numberOption(options["minimum-hit-target"], 44);
   const loadState = stringOption(options["load-state"], "networkidle");
 
   if (!VALID_LOAD_STATES.has(loadState)) {
@@ -87,6 +89,7 @@ async function main() {
       loadState,
       waitMs,
       fullPage,
+      minimumHitTarget,
     });
   } else {
     manifest.notes.push("Captura automatica omitida con --no-capture.");
@@ -95,6 +98,13 @@ async function main() {
   writeFileSync(path.join(outputDir, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
   writeFileSync(path.join(outputDir, "subagent-prompt.md"), buildSubagentPrompt(manifest));
   writeFileSync(path.join(outputDir, "README.md"), buildReadme(manifest));
+
+  if (assertResponsive) {
+    const failures = responsiveFailures(manifest.captures);
+    if (failures.length) {
+      throw new Error(`QA responsive fallido:\n- ${failures.join("\n- ")}`);
+    }
+  }
 
   const summary = {
     outputDir,
@@ -125,6 +135,7 @@ async function captureTargets({
   loadState,
   waitMs,
   fullPage,
+  minimumHitTarget,
 }) {
   const { chromium } = await loadPlaywright();
   const browser = await launchBrowser(chromium);
@@ -151,6 +162,7 @@ async function captureTargets({
         await page.goto(target.url, { waitUntil: loadState, timeout: 45000 });
         await applyTargetActions(page, target.label, waitMap, typeMap, clickMap, waitMs);
         await page.waitForTimeout(waitMs);
+        const responsiveAudit = await auditResponsiveLayout(page, viewport, minimumHitTarget);
 
         const fileName = `${slugify(target.label)}-${slugify(viewport.label)}.png`;
         const screenshotPath = path.join(screenshotsDir, fileName);
@@ -162,6 +174,7 @@ async function captureTargets({
           viewport,
           path: screenshotPath,
           errors,
+          responsiveAudit,
         });
 
         await page.close();
@@ -172,6 +185,69 @@ async function captureTargets({
   }
 
   return captures;
+}
+
+async function auditResponsiveLayout(page, viewport, minimumHitTarget) {
+  return page.evaluate(({ width, minimumSize }) => {
+    const documentWidth = Math.max(document.documentElement.scrollWidth, document.body.scrollWidth);
+    const undersizedControls = width > 480 ? [] : Array.from(document.querySelectorAll(
+      'button, input[type="button"], input[type="submit"], input[type="reset"], [role="button"]',
+    )).flatMap((element) => {
+      const rect = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      const isVisible = !element.closest('[inert], [aria-hidden="true"]')
+        && (typeof element.checkVisibility !== "function" || element.checkVisibility({
+          checkOpacity: true,
+          checkVisibilityCSS: true,
+        }))
+        && style.display !== "none"
+        && style.visibility !== "hidden"
+        && rect.width > 0
+        && rect.height > 0
+        && rect.right > 0
+        && rect.bottom > 0
+        && rect.left < innerWidth
+        && rect.top < innerHeight;
+
+      if (!isVisible || (rect.width >= minimumSize && rect.height >= minimumSize)) {
+        return [];
+      }
+
+      return [{
+        selector: element.id ? `#${element.id}` : element.className || element.tagName.toLowerCase(),
+        label: element.getAttribute("aria-label") || element.textContent.trim().slice(0, 48),
+        width: Math.round(rect.width),
+        height: Math.round(rect.height),
+      }];
+    });
+
+    return {
+      viewportWidth: width,
+      documentWidth,
+      horizontalOverflow: Math.max(0, documentWidth - width),
+      minimumHitTarget: minimumSize,
+      undersizedControls,
+    };
+  }, { width: viewport.width, minimumSize: minimumHitTarget });
+}
+
+function responsiveFailures(captures) {
+  return captures.flatMap((capture) => {
+    const audit = capture.responsiveAudit;
+    const context = `${capture.target} (${capture.viewport.label})`;
+    const failures = [];
+
+    if (audit.horizontalOverflow > 1) {
+      failures.push(`${context}: desbordamiento horizontal de ${audit.horizontalOverflow}px`);
+    }
+    for (const control of audit.undersizedControls) {
+      failures.push(
+        `${context}: ${control.selector} mide ${control.width}x${control.height}px`,
+      );
+    }
+
+    return failures;
+  });
 }
 
 async function applyTargetActions(page, targetLabel, waitMap, typeMap, clickMap, waitMs) {
@@ -286,6 +362,8 @@ Opciones:
   --out ruta                      Carpeta de salida; default tmp/visual-qa/<fecha>-<feature>
   --wait ms                       Pausa tras acciones; default 500
   --full-page                     Captura pagina completa
+  --assert-responsive             Falla si hay overflow horizontal o controles móviles menores a 44 px
+  --minimum-hit-target numero     Tamaño táctil mínimo; default 44
   --no-capture                    Solo genera manifest y prompt
   --json                          Imprime resumen JSON
 
