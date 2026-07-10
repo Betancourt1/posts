@@ -29,6 +29,9 @@ test("text editor injects its API base and cannot save before content hydration"
   assert.match(html, /function loadEditor\(\)/);
   assert.match(html, /els\.save\.disabled = false;/);
   assert.match(html, /els\.retryLoad\.hidden = false;/);
+  assert.doesNotMatch(html, /content: ">";/);
+  assert.match(html, /\.reference-theme \.saved-pill \{[\s\S]*?background: transparent !important;/);
+  assert.match(html, /\.reference-theme \.top-actions button \{[\s\S]*?background: transparent !important;/);
 });
 
 test("image editor uses one explicit save action and lightweight previews", () => {
@@ -43,4 +46,5 @@ test("image editor uses one explicit save action and lightweight previews", () =
   assert.match(html, /\.property-action \{[\s\S]*?min-height: 2\.75rem;/);
   assert.match(html, /\.status-visible \{[\s\S]*?grid-row: 4;[\s\S]*?min-height: 2\.75rem;/);
   assert.match(html, /class="check property-value status-visible"/);
+  assert.doesNotMatch(html, /content: ">";/);
 });

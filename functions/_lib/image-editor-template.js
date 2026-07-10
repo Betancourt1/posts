@@ -1275,13 +1275,6 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         min-height: 1.8rem;
         align-items: center;
       }
-      .property-row::after {
-        content: ">";
-        grid-column: 4;
-        grid-row: 2;
-        justify-self: end;
-        color: var(--muted);
-      }
       .property-value {
         grid-column: 2;
         grid-row: 2;

@@ -1320,7 +1320,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         padding: 0;
         border: 0;
         border-radius: 0;
-        background: transparent;
+        background: transparent !important;
         color: var(--muted);
         font-size: 0;
         font-weight: 600;
@@ -1342,7 +1342,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         min-height: 2.75rem;
         border: 0;
         border-radius: 0;
-        background: transparent;
+        background: transparent !important;
         padding: 0;
         color: var(--ink);
       }
@@ -1452,13 +1452,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         min-height: 3.75rem;
         padding: 0.68rem 0;
         border-bottom: 1px solid var(--line);
-      }
-      .field::after {
-        content: ">";
-        grid-column: 3;
-        grid-row: 1;
-        justify-self: end;
-        color: var(--muted);
       }
       .field span {
         grid-column: 1;
