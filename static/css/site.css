@@ -2550,25 +2550,6 @@ html:not(.infra-mode) .post-body {
   margin-top: 0.1rem;
 }
 
-.page-header-row > .author-inline-actions .author-action-button {
-  width: auto;
-  min-width: 0;
-  height: 34px;
-  gap: 0.4rem;
-  padding: 0.42rem 0.62rem !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 0.28rem !important;
-  background: var(--bg-soft) !important;
-  color: var(--ink-dim) !important;
-  font-size: 0.72rem;
-  letter-spacing: 0.01em;
-}
-
-.page-header-row > .author-inline-actions .author-action-button:hover {
-  border-color: var(--accent) !important;
-  transform: translateY(-1px);
-}
-
 .author-action-label {
   white-space: nowrap;
 }
@@ -2603,7 +2584,12 @@ html:not(.infra-mode) .post-body {
 
 .author-more-menu .author-action-button {
   width: 100% !important;
+  height: auto;
+  min-height: 2.35rem;
   justify-content: flex-start;
+  gap: 0.4rem;
+  padding: 0.45rem 0.55rem !important;
+  font-size: 0.72rem;
 }
 
 .author-form button {
