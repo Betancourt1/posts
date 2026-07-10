@@ -802,6 +802,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     .save-label-mobile {
       display: none;
     }
+    .mobile-markdown-toggle {
+      display: none;
+    }
     .formatbar {
       max-width: 100vw;
       height: 4.75rem;
@@ -1256,6 +1259,10 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         min-width: 2.75rem;
         min-height: 2.75rem;
       }
+      .mobile-markdown-toggle {
+        display: inline-flex;
+        order: 2;
+      }
       .topbar,
       .reference-theme .topbar {
         position: fixed;
@@ -1263,7 +1270,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         min-height: 4.25rem;
         height: 4.25rem;
         display: grid;
-        grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+        grid-template-columns: 2.75rem minmax(0, 1fr) auto;
         align-items: center;
         gap: 0.35rem;
         padding: 0.45rem 0.65rem;
@@ -1275,9 +1282,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       .back-button {
         grid-column: 1;
         grid-row: 1;
-        width: 2.5rem;
-        min-width: 2.5rem;
-        min-height: 2.5rem;
+        width: 2.75rem;
+        min-width: 2.75rem;
+        min-height: 2.75rem;
         color: var(--ink);
       }
       .editor-identity {
@@ -1306,7 +1313,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       .saved-pill,
       .reference-theme .saved-pill {
         flex: 0 0 auto;
-        max-width: 3.2rem;
+        width: 0.4rem;
+        max-width: 0.4rem;
         min-height: 1.15rem;
         margin: 0;
         padding: 0;
@@ -1314,8 +1322,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         border-radius: 0;
         background: transparent;
         color: var(--muted);
-        font-size: 0.62rem;
+        font-size: 0;
         font-weight: 600;
+        overflow: visible;
       }
       .saved-pill::before {
         width: 0.35rem;
@@ -1330,21 +1339,16 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       .top-actions button,
       .reference-theme .top-actions button {
         flex: 0 0 auto;
-        min-height: 2.5rem;
-        border: 1px solid rgba(255, 255, 255, 0.68);
-        border-radius: 0.55rem;
+        min-height: 2.75rem;
+        border: 0;
+        border-radius: 0;
         background: transparent;
-        padding: 0 0.65rem;
+        padding: 0;
         color: var(--ink);
       }
       .top-actions .markdown-toggle,
       .reference-theme .top-actions .markdown-toggle {
-        width: 2rem;
-        min-width: 2rem !important;
-        border: 0 !important;
-        background: transparent !important;
-        color: var(--muted);
-        padding: 0 !important;
+        display: none;
       }
       .top-actions .markdown-toggle[aria-pressed="true"],
       .reference-theme .top-actions .markdown-toggle[aria-pressed="true"] {
@@ -1355,9 +1359,17 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         background: transparent;
         color: var(--ink);
       }
+      .top-actions .primary,
+      .reference-theme .top-actions .primary {
+        min-height: 2.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.68);
+        border-radius: 0.55rem;
+        padding: 0 0.75rem;
+      }
       .mobile-settings-button {
         display: inline-flex;
-        min-width: 2.1rem !important;
+        width: 2.75rem;
+        min-width: 2.75rem !important;
         border-color: transparent !important;
         background: transparent !important;
         padding: 0 !important;
@@ -1380,7 +1392,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         display: none !important;
       }
       body.no-preview .topbar {
-        grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+        grid-template-columns: 2.75rem minmax(0, 1fr) auto;
       }
       body.no-preview .brand {
         display: contents;
@@ -1484,9 +1496,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       .slug-copy {
         grid-column: auto;
         grid-row: auto;
-        width: 2rem;
-        min-width: 2rem;
-        min-height: 2rem;
+        width: 2.75rem;
+        min-width: 2.75rem;
+        min-height: 2.75rem;
       }
       .check {
         display: grid;
@@ -1610,6 +1622,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       <span class="toolbar-group" id="insert-toolbar-group" aria-label="Insert">
         <button type="button" id="toolbar-image" title="Image" aria-label="Image">${ICONS.image}</button>
       </span>
+      <button type="button" class="mobile-markdown-toggle" id="mobile-view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">${ICONS.code}</button>
       <span class="divider" id="insert-divider-after"></span>
     </div>
   </nav>
@@ -1831,6 +1844,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         photoPreview: document.getElementById("photo-preview"),
         editorFontSize: document.getElementById("editor-font-size"),
         viewMarkdown: document.getElementById("view-markdown"),
+        mobileViewMarkdown: document.getElementById("mobile-view-markdown"),
         arenaDetailsButton: document.getElementById("arena-details-button"),
         summary: document.getElementById("summary"),
         draft: document.getElementById("draft"),
@@ -1955,6 +1969,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           applyEditorSize(els.editorFontSize.value);
         });
         els.viewMarkdown.addEventListener("click", function () {
+          applyViewMode(activeViewMode === "markdown" ? "render" : "markdown", true);
+        });
+        els.mobileViewMarkdown.addEventListener("click", function () {
           applyViewMode(activeViewMode === "markdown" ? "render" : "markdown", true);
         });
         els.arenaDetailsButton.addEventListener("click", openArenaDetails);
@@ -3012,8 +3029,10 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.summary.hidden = viewMode === "markdown";
         els.body.hidden = viewMode === "markdown";
         els.markdownCanvas.hidden = viewMode !== "markdown";
-        els.viewMarkdown.setAttribute("aria-pressed", String(viewMode === "markdown"));
-        els.viewMarkdown.setAttribute("aria-label", viewMode === "markdown" ? "Desactivar Markdown" : "Activar Markdown");
+        [els.viewMarkdown, els.mobileViewMarkdown].forEach(function (button) {
+          button.setAttribute("aria-pressed", String(viewMode === "markdown"));
+          button.setAttribute("aria-label", viewMode === "markdown" ? "Desactivar Markdown" : "Activar Markdown");
+        });
         if (viewMode === "markdown") {
           syncMarkdownFromFields();
           resizeTextarea(els.markdownCanvas);

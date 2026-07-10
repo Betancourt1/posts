@@ -1070,9 +1070,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 2.35rem;
-        min-width: 2.35rem;
-        height: 2.6rem;
+        width: 2.75rem;
+        min-width: 2.75rem;
+        height: 2.75rem;
         color: var(--ink);
         font-size: 1.25rem;
         letter-spacing: 0.06em;
@@ -1080,7 +1080,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       #save-draft {
         grid-column: 3;
         display: inline-flex;
-        min-height: 2.6rem;
+        min-height: 2.75rem;
         padding: 0 0.75rem;
         border: 1px solid rgba(255, 255, 255, 0.68);
         border-radius: 0.55rem;
@@ -1122,11 +1122,18 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
       .dropzone {
         order: 1;
-        min-height: min(50vh, 27rem);
+        min-height: 16rem;
       }
       .empty-state {
-        min-height: min(52vh, 28rem);
+        min-height: 16rem;
         padding: 1.5rem;
+      }
+      .image-surface {
+        min-height: 16rem;
+      }
+      .empty-state .primary-button {
+        min-height: 2.75rem;
+        padding: 0 0.65rem;
       }
       .image-object {
         display: grid;
@@ -1163,7 +1170,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         overflow-x: auto;
       }
       .tool-button {
-        min-width: 2.8rem;
+        width: 2.75rem;
+        min-width: 2.75rem;
+        min-height: 2.75rem;
         justify-content: center;
         color: var(--dim);
       }
@@ -1227,8 +1236,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         font-size: 1.28rem;
       }
       .sheet-close {
-        width: 2.45rem;
-        height: 2.45rem;
+        width: 2.75rem;
+        height: 2.75rem;
         border: 0;
         background: transparent;
         color: var(--dim);
@@ -1281,6 +1290,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         grid-column: 3;
         grid-row: 2;
         margin-left: auto;
+        min-height: 2.75rem;
+        padding: 0 0.2rem;
       }
       .property-editor {
         grid-column: 2 / 5;
@@ -1344,9 +1355,11 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         font-size: 0.68rem;
       }
       .dropzone {
-        min-height: 20rem;
+        min-height: 16rem;
       }
-      .empty-state,
+      .empty-state {
+        min-height: 16rem;
+      }
       .image-stage {
         min-height: 19rem;
       }

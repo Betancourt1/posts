@@ -12,10 +12,12 @@ test("notebook editor clears stale private flags and exposes verified publicatio
   assert.match(html, /Crear channel desde notebook/);
   assert.match(html, /assertPersistedState/);
   assert.match(html, /apiBase \+ path\.slice\(4\)/);
-  assert.match(html, /grid-template-columns: 2\.5rem minmax\(0, 1fr\) auto/);
+  assert.match(html, /grid-template-columns: 2\.75rem minmax\(0, 1fr\) auto/);
   assert.match(html, /\.top-actions \{\s+grid-column: 3;\s+grid-row: 1;/);
   assert.match(html, /class="editor-identity"/);
   assert.match(html, /@media \(max-width: 380px\)/);
+  assert.match(html, /id="mobile-view-markdown"/);
+  assert.match(html, /\[els\.viewMarkdown, els\.mobileViewMarkdown\]/);
 });
 
 test("text editor injects its API base and cannot save before content hydration", () => {
@@ -38,4 +40,5 @@ test("image editor uses one explicit save action and lightweight previews", () =
   assert.match(html, /Guardar y verificar/);
   assert.match(html, /assertPersistedState/);
   assert.doesNotMatch(html, />Publicar ↑</);
+  assert.match(html, /\.property-action \{[\s\S]*?min-height: 2\.75rem;/);
 });
