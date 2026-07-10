@@ -373,8 +373,12 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 
 .layout {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(10rem, 15rem) minmax(0, 52.5rem) minmax(10rem, 15rem);
+  justify-content: center;
   gap: 28px;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
   padding: 28px 32px 48px;
   transition: gap 0.85s cubic-bezier(0.25, 1, 0.5, 1),
               padding 0.85s cubic-bezier(0.25, 1, 0.5, 1),
@@ -1237,6 +1241,8 @@ code {
   padding: 0.15rem 0.35rem;
   border-radius: 4px;
   color: var(--accent);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 pre {
@@ -1246,6 +1252,11 @@ pre {
   border: 1px solid var(--line);
   border-radius: 8px;
   font-size: 0.95rem;
+}
+
+pre code {
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 table {
@@ -3006,6 +3017,37 @@ html:not(.infra-mode) .post-body {
     display: flex;
     align-items: center;
     min-height: 44px;
+  }
+
+  .archive-list li.archive-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.25rem 0.75rem;
+    align-items: baseline;
+    margin: 0;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .archive-item > a {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    min-width: 0;
+    line-height: 1.45;
+  }
+
+  .archive-date {
+    grid-column: 1;
+    grid-row: 2;
+    min-width: 0;
+    font-size: 0.76rem;
+  }
+
+  .archive-badge {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    margin-left: 0;
   }
 
   .page-header-row {

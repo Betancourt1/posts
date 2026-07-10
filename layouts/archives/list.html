@@ -69,7 +69,7 @@
         // Filter items
         items.forEach(item => {
           if (filterValue === "all" || item.getAttribute("data-section") === filterValue) {
-            item.style.display = "flex";
+            item.style.removeProperty("display");
           } else {
             item.style.display = "none";
           }
