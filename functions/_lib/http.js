@@ -26,5 +26,12 @@ export async function readJson(request) {
 }
 
 export function errorResponse(error) {
-  return jsonResponse({ error: error.message || "Error del editor." }, 400);
+  const upstreamStatus = Number(error?.status || 0);
+  const status = upstreamStatus >= 400 && upstreamStatus <= 599 ? upstreamStatus : 400;
+  const payload = { error: error.message || "Error del editor." };
+
+  if (upstreamStatus) payload.status = upstreamStatus;
+  if (typeof error?.retryable === "boolean") payload.retryable = error.retryable;
+
+  return jsonResponse(payload, status);
 }

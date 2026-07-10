@@ -3,8 +3,15 @@
 import { createServer } from "node:http";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { arenaTokenFromEnv, getArenaStatus, listArenaChannels, syncArenaPage } from "../functions/_lib/arena.js";
 import { authorEditorHtml } from "../functions/_lib/editor-template.js";
 import { imageEditorHtml } from "../functions/_lib/image-editor-template.js";
+
+try {
+  process.loadEnvFile?.(".env");
+} catch (error) {
+  if (error?.code !== "ENOENT") throw error;
+}
 
 const PORT = Number(process.env.AUTHOR_PORT || 3001);
 const HOST = "127.0.0.1";
@@ -434,6 +441,79 @@ function parseMarkdownFile(relativePath) {
   };
 }
 
+function localArenaToken() {
+  return arenaTokenFromEnv(process.env);
+}
+
+async function localArenaStatus(relativePath) {
+  const page = parseMarkdownFile(relativePath);
+  return getArenaStatus({ token: localArenaToken(), page });
+}
+
+async function localArenaChannels() {
+  return listArenaChannels({ token: localArenaToken() });
+}
+
+async function syncLocalArena(relativePath) {
+  let page = parseMarkdownFile(relativePath);
+  let arena = await syncArenaPage({
+    token: localArenaToken(),
+    page,
+    publicOrigin: process.env.PUBLIC_SITE_ORIGIN || "https://fbetancourt.work",
+  });
+
+  const latestPage = parseMarkdownFile(page.path);
+  const configKey = (value) => JSON.stringify({
+    enabled: value.frontMatter.arena_enabled === true,
+    draft: value.frontMatter.draft === true,
+    channelId: String(value.frontMatter.arena_channel_id || ""),
+  });
+  if (configKey(latestPage) !== configKey(page)) {
+    page = latestPage;
+    arena = await syncArenaPage({
+      token: localArenaToken(),
+      page,
+      publicOrigin: process.env.PUBLIC_SITE_ORIGIN || "https://fbetancourt.work",
+    });
+  }
+
+  const mappingPatch = {};
+  if (arena.blockId && arena.blockId !== String(page.frontMatter.arena_block_id || "")) {
+    mappingPatch.arena_block_id = arena.blockId;
+  }
+  if (String(arena.connectionId || "") !== String(page.frontMatter.arena_connection_id || "")) {
+    mappingPatch.arena_connection_id = arena.connectionId || null;
+  }
+
+  if (Object.keys(mappingPatch).length) {
+    const latest = parseMarkdownFile(page.path);
+    const nextFrontMatter = { ...latest.frontMatter, ...mappingPatch };
+    Object.entries(mappingPatch).forEach(([key, value]) => {
+      if (value === null) delete nextFrontMatter[key];
+    });
+    writeContentFile(latest.path, nextFrontMatter, latest.body, true);
+  }
+
+  return { path: page.path, arena };
+}
+
+async function disconnectLocalArenaForDelete(relativePath) {
+  const page = parseMarkdownFile(relativePath);
+  const shouldDisconnect = page.frontMatter.arena_block_id &&
+    (page.frontMatter.arena_enabled === true || page.frontMatter.arena_connection_id);
+
+  if (!shouldDisconnect) return;
+
+  await syncArenaPage({
+    token: localArenaToken(),
+    page: {
+      ...page,
+      frontMatter: { ...page.frontMatter, arena_enabled: false },
+    },
+    publicOrigin: process.env.PUBLIC_SITE_ORIGIN || "https://fbetancourt.work",
+  });
+}
+
 function notebookTitle(frontMatter, slug) {
   return frontMatter.title || slug.replaceAll("-", " ").replaceAll("_", " ");
 }
@@ -559,6 +639,13 @@ function createPost(payload) {
     frontMatter.tags = ["fotografia"];
   }
 
+  if (payload.arenaEnabled === true) {
+    frontMatter.arena_enabled = true;
+    if (String(payload.arenaChannelId || "").trim()) {
+      frontMatter.arena_channel_id = String(payload.arenaChannelId).trim();
+    }
+  }
+
   if (image) {
     frontMatter.image = image;
     if (thumbnail) {
@@ -613,6 +700,9 @@ function savePage(payload) {
     ...current.frontMatter,
     ...(payload.frontMatter || {}),
   };
+  Object.entries(payload.frontMatter || {}).forEach(([key, value]) => {
+    if (value === null) delete frontMatter[key];
+  });
   const body = String(payload.body || "");
 
   normalizePhotoFrontMatter(relativePath, frontMatter);
@@ -918,6 +1008,16 @@ async function route(req, res) {
     return;
   }
 
+  if (req.method === "GET" && url.pathname === "/api/arena-channels") {
+    sendJson(res, 200, await localArenaChannels());
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/arena-status") {
+    sendJson(res, 200, await localArenaStatus(url.searchParams.get("path")));
+    return;
+  }
+
   if (req.method === "POST" && url.pathname === "/api/create-notebook") {
     sendJson(res, 200, createNotebook(await readJson(req)));
     return;
@@ -933,6 +1033,12 @@ async function route(req, res) {
     return;
   }
 
+  if (req.method === "POST" && url.pathname === "/api/sync-arena") {
+    const payload = await readJson(req);
+    sendJson(res, 200, await syncLocalArena(payload.path));
+    return;
+  }
+
   if (req.method === "POST" && url.pathname === "/api/upload-image") {
     sendJson(res, 200, uploadImage(await readJson(req)));
     return;
@@ -944,7 +1050,9 @@ async function route(req, res) {
   }
 
   if (req.method === "POST" && url.pathname === "/api/delete-page") {
-    sendJson(res, 200, deletePage(await readJson(req)));
+    const payload = await readJson(req);
+    await disconnectLocalArenaForDelete(payload.path);
+    sendJson(res, 200, deletePage(payload));
     return;
   }
 

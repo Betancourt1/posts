@@ -1,4 +1,6 @@
 # Local-only workspace files
+/.env
+/.dev.vars
 /tmp/
 /node_modules/
 /tools/hugo/

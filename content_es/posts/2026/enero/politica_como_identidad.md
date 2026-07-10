@@ -2,6 +2,10 @@
 title: ¿Por qué votan los que votan?
 date: 2026-01-14
 tags: [ensayo, politica]
+arena_block_id: "47749538"
+arena_channel_id: "5424086"
+arena_connection_id: "100676424"
+arena_enabled: true
 ---
 
 # ¿Por qué votan los que votan?

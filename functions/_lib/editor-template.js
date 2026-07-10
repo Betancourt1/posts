@@ -89,7 +89,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       background: rgba(5, 5, 6, 0.95);
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 32;
     }
     .brand {
       display: flex;
@@ -211,6 +211,36 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       opacity: 1;
       transform: translateX(-50%) scale(1);
     }
+    .arena-details-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.42rem;
+      min-height: 2.35rem;
+      padding: 0 0.78rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+    .arena-details-button::before {
+      content: "";
+      width: 0.42rem;
+      height: 0.42rem;
+      border-radius: 999px;
+      background: #59606a;
+    }
+    .arena-details-button[data-state="pending"]::before,
+    .arena-details-button[data-state="syncing"]::before {
+      background: #f2c94c;
+    }
+    .arena-details-button[data-state="synced"]::before {
+      background: var(--accent);
+    }
+    .arena-details-button[data-state="error"]::before {
+      background: var(--danger);
+    }
+    .arena-details-button[hidden] {
+      display: none !important;
+    }
     @keyframes markdown-toggle-pop {
       0% { transform: scale(0.94) rotate(-6deg); }
       55% { transform: scale(1.08) rotate(4deg); }
@@ -278,7 +308,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       z-index: 28;
       border: 0;
       border-radius: 0;
-      background: rgba(0, 0, 0, 0.54);
+      background: rgba(0, 0, 0, 0.18);
       padding: 0;
       cursor: default;
     }
@@ -377,6 +407,213 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       color: var(--ink);
       font-size: 0.84rem;
       cursor: pointer;
+    }
+    .check input {
+      accent-color: var(--accent);
+    }
+    .arena-section {
+      display: grid;
+      gap: 0.72rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+    }
+    .arena-section[hidden] {
+      display: none !important;
+    }
+    .arena-section-header,
+    .arena-details-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .arena-section h3,
+    .arena-details h2 {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .arena-channel-field {
+      display: grid;
+      gap: 0.35rem;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+    .arena-channel-field select {
+      width: 100%;
+      min-height: 2.35rem;
+      border: 1px solid var(--line);
+      border-radius: 0.38rem;
+      background: var(--field);
+      color: var(--ink);
+      padding: 0.42rem 0.52rem;
+      font: inherit;
+      font-size: 0.86rem;
+    }
+    .arena-channel-field select:focus {
+      border-color: var(--accent);
+      outline: none;
+    }
+    .arena-helper,
+    .arena-content-meta,
+    .arena-state-message,
+    .arena-last-synced,
+    .arena-source,
+    .arena-preview-meta {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.74rem;
+      line-height: 1.55;
+    }
+    .arena-progress {
+      display: grid;
+      grid-template-columns: auto minmax(1rem, 1fr) auto;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .arena-progress-line {
+      height: 1px;
+      background: var(--line);
+    }
+    .arena-step {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--muted);
+      font-size: 0.73rem;
+      white-space: nowrap;
+    }
+    .arena-step::before {
+      content: "";
+      width: 0.48rem;
+      height: 0.48rem;
+      border-radius: 999px;
+      background: #59606a;
+    }
+    .arena-step.is-complete {
+      color: var(--accent);
+    }
+    .arena-step.is-complete::before {
+      background: var(--accent);
+    }
+    .arena-step.is-pending {
+      color: #f2c94c;
+    }
+    .arena-step.is-pending::before {
+      background: #f2c94c;
+    }
+    .arena-step.is-error {
+      color: var(--danger);
+    }
+    .arena-step.is-error::before {
+      background: var(--danger);
+    }
+    .arena-inline-details,
+    .arena-retry,
+    .arena-details-retry {
+      min-height: 2.2rem;
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      padding: 0;
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+    .arena-inline-details {
+      display: none;
+    }
+    .arena-retry[hidden],
+    .arena-details-retry[hidden] {
+      display: none !important;
+    }
+    .arena-details-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 38;
+      border: 0;
+      border-radius: 0;
+      background: rgba(0, 0, 0, 0.62);
+      padding: 0;
+      cursor: default;
+    }
+    .arena-details-backdrop[hidden],
+    .arena-details[hidden] {
+      display: none !important;
+    }
+    .arena-details {
+      position: fixed;
+      top: 4.35rem;
+      right: 1.2rem;
+      bottom: 0.75rem;
+      z-index: 40;
+      width: min(27rem, calc(100vw - 2.4rem));
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 0.65rem;
+      background: var(--panel);
+      color: var(--ink);
+      padding: 1rem;
+      box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.34);
+    }
+    .arena-details-close {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      min-width: 2.5rem;
+      min-height: 2.5rem;
+      border: 0;
+      border-radius: 999px;
+      padding: 0;
+      background: var(--panel-2);
+      color: var(--ink);
+      font-size: 1.15rem;
+    }
+    .arena-preview {
+      display: grid;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      padding: 0.9rem;
+      border: 1px solid var(--line);
+      border-radius: 0.5rem;
+      background: var(--field);
+    }
+    .arena-preview-type {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+    .arena-preview h3 {
+      color: var(--ink);
+      font-size: 0.96rem;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .arena-preview-excerpt {
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--editor-font);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    .arena-details-meta {
+      display: grid;
+      gap: 0.55rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+    }
+    .arena-block-link {
+      color: var(--accent);
+      font-size: 0.78rem;
+      text-decoration: none;
+    }
+    .arena-block-link[hidden] {
+      display: none !important;
     }
     .utility {
       display: grid;
@@ -730,11 +967,12 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     }
     .reference-theme .settings {
       position: fixed;
+      top: 4rem;
       right: 1.2rem;
-      bottom: 4.45rem;
+      bottom: 2.5rem;
       z-index: 30;
-      width: min(22rem, calc(100vw - 2.4rem));
-      max-height: min(38rem, calc(100vh - 6rem));
+      width: min(27rem, calc(100vw - 2.4rem));
+      max-height: none;
       border: 1px solid #e6e6e6;
       border-radius: 0.65rem;
       box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.12);
@@ -826,7 +1064,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     }
     .reference-theme[data-theme="dark"] .settings {
       border-color: #1c2025;
-      background: #0b0c0f;
+      background: linear-gradient(145deg, #12161b, #0b0d10);
       color: #cfcfd2;
     }
     .reference-theme[data-theme="dark"] .field input,
@@ -923,7 +1161,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         align-items: center;
         gap: 0.65rem;
         padding: 0.85rem 1rem;
-        z-index: 12;
+        z-index: 32;
       }
       .brand {
         display: contents;
@@ -1002,6 +1240,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       .top-actions #open-site {
         display: none !important;
       }
+      .arena-details-button {
+        display: none !important;
+      }
       body.no-preview .topbar {
         grid-template-columns: 2.75rem minmax(0, 1fr) auto;
       }
@@ -1027,6 +1268,19 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         border-radius: 1.1rem 1.1rem 0 0;
         padding: 0.85rem 1.1rem calc(1.35rem + env(safe-area-inset-bottom));
         box-shadow: 0 -1rem 3rem rgba(0, 0, 0, 0.24);
+      }
+      .arena-inline-details {
+        display: inline-flex;
+      }
+      .arena-details {
+        inset: auto 0 0 0;
+        width: 100%;
+        max-height: min(86vh, 42rem);
+        border-right: 0;
+        border-bottom: 0;
+        border-left: 0;
+        border-radius: 1.1rem 1.1rem 0 0;
+        padding: 1rem 1.1rem calc(1.35rem + env(safe-area-inset-bottom));
       }
       .reference-theme[data-theme="dark"] .settings {
         background: rgba(7, 8, 10, 0.98);
@@ -1169,6 +1423,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     </div>
     <div class="top-actions">
       <button type="button" class="markdown-toggle" id="view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">${ICONS.code}</button>
+      <button type="button" class="arena-details-button" id="arena-details-button" data-state="disabled" aria-controls="arena-details">Are.na</button>
       <button type="button" class="mobile-settings-button" id="top-settings-button" aria-controls="settings" aria-expanded="false" aria-label="Configuracion">...</button>
       <button type="button" id="open-site">Abrir sitio</button>
       <button type="button" class="primary" id="save"><span class="save-label-desktop">Guardar</span><span class="save-label-mobile">Guardar</span></button>
@@ -1203,6 +1458,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     </div>
   </nav>
   <button type="button" class="settings-backdrop" id="settings-backdrop" aria-label="Cerrar configuracion" hidden></button>
+  <button type="button" class="arena-details-backdrop" id="arena-details-backdrop" aria-label="Cerrar detalle de Are.na" hidden></button>
   <main class="shell">
     <section class="writer">
       <article class="paper">
@@ -1270,6 +1526,32 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         <span class="check-label">Visible</span>
         <input id="hidden" type="checkbox" />
       </label>
+      <section class="arena-section" id="arena-section">
+        <div class="arena-section-header">
+          <h3>Are.na</h3>
+          <button type="button" class="arena-inline-details" id="arena-inline-details">Ver detalle</button>
+        </div>
+        <label class="check arena-toggle">
+          <span class="check-label">Mantener copia en Are.na</span>
+          <input id="arena-enabled" type="checkbox" disabled />
+        </label>
+        <label class="arena-channel-field">
+          <span>Canal</span>
+          <select id="arena-channel" disabled>
+            <option value="">Cargando canales...</option>
+          </select>
+        </label>
+        <p class="arena-helper">Al guardar, se copiarán el título y el cuerpo Markdown completo.</p>
+        <p class="arena-content-meta" id="arena-content-meta">Bloque de texto</p>
+        <div class="arena-progress" aria-label="Estado de la copia en Are.na">
+          <span class="arena-step is-complete" id="arena-blog-step">Blog actualizado</span>
+          <span class="arena-progress-line"></span>
+          <span class="arena-step" id="arena-copy-step">Copia desactivada</span>
+        </div>
+        <p class="arena-state-message" id="arena-state-message" aria-live="polite">Activa la copia para mantener este texto en Are.na.</p>
+        <p class="arena-last-synced" id="arena-last-synced"></p>
+        <button type="button" class="arena-retry" id="arena-retry" hidden>Reintentar</button>
+      </section>
       <div class="danger-zone" id="danger-zone" hidden>
         <h3>Peligro</h3>
         <label class="check">
@@ -1281,6 +1563,25 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       <div class="utility">
         <input id="image-file" type="file" accept="image/*" hidden />
         <div class="path" id="path"></div>
+      </div>
+    </aside>
+    <aside class="arena-details" id="arena-details" role="dialog" aria-modal="true" aria-labelledby="arena-details-title" hidden>
+      <div class="arena-details-header">
+        <h2 id="arena-details-title">Copia en Are.na</h2>
+        <button type="button" class="arena-details-close" id="arena-details-close" aria-label="Cerrar detalle de Are.na">&times;</button>
+      </div>
+      <div class="arena-preview">
+        <span class="arena-preview-type">Bloque de texto · Markdown completo</span>
+        <h3 id="arena-preview-title">Sin titulo</h3>
+        <p class="arena-preview-excerpt" id="arena-preview-excerpt"></p>
+        <p class="arena-preview-meta" id="arena-preview-meta"></p>
+      </div>
+      <div class="arena-details-meta">
+        <p class="arena-state-message" id="arena-details-state" aria-live="polite"></p>
+        <p class="arena-source">Canal: <strong id="arena-details-channel">Sin elegir</strong></p>
+        <p class="arena-source">Fuente original: fbetancourt.work</p>
+        <a class="arena-block-link" id="arena-block-link" href="#" target="_blank" rel="noopener" hidden>Abrir bloque de texto en Are.na ↗</a>
+        <button type="button" class="arena-details-retry" id="arena-details-retry" hidden>Reintentar</button>
       </div>
     </aside>
   </main>
@@ -1303,6 +1604,16 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       var savedSnapshot = null;
       var saveInProgress = false;
       var saveFailed = false;
+      var arenaChannels = [];
+      var arenaProfile = null;
+      var arenaState = {
+        state: "disabled",
+        blockId: "",
+        connectionId: "",
+        blockUrl: "",
+        lastSyncedAt: "",
+        error: "",
+      };
       var bodyHistory = [];
       var bodyHistoryIndex = -1;
       var restoringBodyHistory = false;
@@ -1343,9 +1654,30 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         photoPreview: document.getElementById("photo-preview"),
         editorFontSize: document.getElementById("editor-font-size"),
         viewMarkdown: document.getElementById("view-markdown"),
+        arenaDetailsButton: document.getElementById("arena-details-button"),
         summary: document.getElementById("summary"),
         draft: document.getElementById("draft"),
         hidden: document.getElementById("hidden"),
+        arenaSection: document.getElementById("arena-section"),
+        arenaEnabled: document.getElementById("arena-enabled"),
+        arenaChannel: document.getElementById("arena-channel"),
+        arenaInlineDetails: document.getElementById("arena-inline-details"),
+        arenaContentMeta: document.getElementById("arena-content-meta"),
+        arenaBlogStep: document.getElementById("arena-blog-step"),
+        arenaCopyStep: document.getElementById("arena-copy-step"),
+        arenaStateMessage: document.getElementById("arena-state-message"),
+        arenaLastSynced: document.getElementById("arena-last-synced"),
+        arenaRetry: document.getElementById("arena-retry"),
+        arenaDetails: document.getElementById("arena-details"),
+        arenaDetailsBackdrop: document.getElementById("arena-details-backdrop"),
+        arenaDetailsClose: document.getElementById("arena-details-close"),
+        arenaPreviewTitle: document.getElementById("arena-preview-title"),
+        arenaPreviewExcerpt: document.getElementById("arena-preview-excerpt"),
+        arenaPreviewMeta: document.getElementById("arena-preview-meta"),
+        arenaDetailsState: document.getElementById("arena-details-state"),
+        arenaDetailsChannel: document.getElementById("arena-details-channel"),
+        arenaBlockLink: document.getElementById("arena-block-link"),
+        arenaDetailsRetry: document.getElementById("arena-details-retry"),
         dangerZone: document.getElementById("danger-zone"),
         deleteAttachedImages: document.getElementById("delete-attached-images"),
         deletePage: document.getElementById("delete-page"),
@@ -1375,6 +1707,18 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
 
           setupNewPost();
           return null;
+        }).then(function () {
+          loadArenaChannels().then(function () {
+            if (mode === "edit") {
+              return loadArenaStatus();
+            }
+            syncArenaUi();
+            return null;
+          }).catch(function (error) {
+            els.arenaChannel.disabled = true;
+            els.arenaEnabled.disabled = true;
+            setArenaState({ state: "unavailable", error: error.message });
+          });
         }).catch(function (error) {
           setStatus(error.message, true);
         });
@@ -1410,6 +1754,20 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.viewMarkdown.addEventListener("click", function () {
           applyViewMode(activeViewMode === "markdown" ? "render" : "markdown", true);
         });
+        els.arenaDetailsButton.addEventListener("click", openArenaDetails);
+        els.arenaInlineDetails.addEventListener("click", openArenaDetails);
+        els.arenaDetailsClose.addEventListener("click", closeArenaDetails);
+        els.arenaDetailsBackdrop.addEventListener("click", closeArenaDetails);
+        els.arenaRetry.addEventListener("click", retryArenaSync);
+        els.arenaDetailsRetry.addEventListener("click", retryArenaSync);
+        els.arenaEnabled.addEventListener("change", function () {
+          markContentEdited();
+          syncArenaConfiguration();
+        });
+        els.arenaChannel.addEventListener("change", function () {
+          markContentEdited();
+          syncArenaConfiguration();
+        });
         els.body.addEventListener("input", function () {
           if (!restoringBodyHistory) {
             recordBodyHistory();
@@ -1443,8 +1801,14 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         });
         window.addEventListener("resize", resizeEditorFields);
         window.addEventListener("keydown", function (event) {
-          if (event.key === "Escape" && !els.settings.hidden) {
-            closeSettings();
+          if (event.key === "Escape") {
+            if (!els.arenaDetails.hidden) {
+              closeArenaDetails();
+              return;
+            }
+            if (!els.settings.hidden) {
+              closeSettings();
+            }
           }
         });
         els.openSite.addEventListener("click", function () {
@@ -1506,6 +1870,249 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         });
       }
 
+      function loadArenaChannels() {
+        return request("/api/arena-channels").then(function (payload) {
+          arenaProfile = payload.profile || null;
+          arenaChannels = payload.channels || [];
+          var preferredId = String(frontMatter.arena_channel_id || els.arenaChannel.value || "");
+          els.arenaChannel.innerHTML = "";
+
+          var placeholderOption = document.createElement("option");
+          placeholderOption.value = "";
+          placeholderOption.textContent = "Elige un canal";
+          els.arenaChannel.appendChild(placeholderOption);
+
+          arenaChannels.forEach(function (channel) {
+            var option = document.createElement("option");
+            option.value = String(channel.id);
+            option.textContent = channel.title;
+            if (option.value === preferredId) {
+              option.selected = true;
+            }
+            els.arenaChannel.appendChild(option);
+          });
+
+          if (preferredId && !arenaChannels.some(function (channel) { return String(channel.id) === preferredId; })) {
+            var configuredOption = document.createElement("option");
+            configuredOption.value = preferredId;
+            configuredOption.textContent = "Canal configurado (" + preferredId + ")";
+            configuredOption.selected = true;
+            els.arenaChannel.appendChild(configuredOption);
+          }
+
+          if (!arenaChannels.length) {
+            els.arenaChannel.innerHTML = "";
+            var emptyOption = document.createElement("option");
+            emptyOption.value = "";
+            emptyOption.textContent = "No hay canales disponibles";
+            els.arenaChannel.appendChild(emptyOption);
+            els.arenaChannel.disabled = true;
+            els.arenaEnabled.disabled = true;
+            setArenaState({
+              state: "unavailable",
+              error: "Crea un canal en Are.na antes de activar la copia.",
+            });
+            return payload;
+          }
+
+          els.arenaChannel.disabled = false;
+          els.arenaEnabled.disabled = false;
+          els.arenaChannel.value = preferredId;
+          syncArenaUi();
+          return payload;
+        });
+      }
+
+      function loadArenaStatus() {
+        if (kind === "notebook" || isPhotoEditor() || !sourcePath) {
+          setArenaState({ state: "disabled" });
+          return Promise.resolve();
+        }
+        setArenaState({ state: "checking", error: "" });
+        return request("/api/arena-status?path=" + encodeURIComponent(sourcePath)).then(function (payload) {
+          setArenaState(payload);
+        }).catch(function (error) {
+          setArenaState({ state: "error", error: error.message });
+        });
+      }
+
+      function setArenaState(next) {
+        arenaState = Object.assign({}, arenaState, next || {});
+        syncArenaUi();
+      }
+
+      function syncArenaConfiguration() {
+        if (!els.arenaEnabled.checked) {
+          setArenaState({ state: "disabled", error: "" });
+          return;
+        }
+        if (!els.draft.checked) {
+          setArenaState({ state: "paused", error: "" });
+          return;
+        }
+        if (!els.arenaChannel.value) {
+          setArenaState({ state: "error", error: "Elige un canal de Are.na." });
+          return;
+        }
+        setArenaState({ state: "pending", error: "" });
+      }
+
+      function syncArenaAfterSave() {
+        if (!isArenaEligible()) return Promise.resolve(null);
+        syncArenaConfiguration();
+        var hasMappedBlock = Boolean(arenaState.blockId || frontMatter.arena_block_id);
+        if (!sourcePath || (!els.arenaEnabled.checked && !hasMappedBlock) || (!els.draft.checked && !hasMappedBlock)) {
+          return Promise.resolve(null);
+        }
+        if (els.arenaEnabled.checked && els.draft.checked && !els.arenaChannel.value) {
+          return Promise.resolve(null);
+        }
+
+        setArenaState({ state: "syncing", error: "" });
+        return postJson("/api/sync-arena", { path: sourcePath }).then(function (payload) {
+          var result = payload.arena || {};
+          if (result.blockId) {
+            frontMatter.arena_block_id = String(result.blockId);
+          }
+          if (result.connectionId) {
+            frontMatter.arena_connection_id = String(result.connectionId);
+          } else {
+            delete frontMatter.arena_connection_id;
+          }
+          setArenaState(result);
+          if (result.state === "pending") {
+            var syncedSnapshot = savedSnapshot;
+            window.setTimeout(function () {
+              if (arenaState.state === "pending" && savedSnapshot === syncedSnapshot && currentSaveSnapshot() === savedSnapshot) {
+                loadArenaStatus();
+              }
+            }, 1500);
+          }
+          return result;
+        }).catch(function (error) {
+          setArenaState({ state: "error", error: error.message });
+          return null;
+        });
+      }
+
+      function retryArenaSync() {
+        if (!savedSnapshot || currentSaveSnapshot() !== savedSnapshot) {
+          setArenaState({ state: "pending", error: "Guarda primero los cambios del blog." });
+          return;
+        }
+        syncArenaAfterSave();
+      }
+
+      function currentArenaChannelTitle() {
+        var id = String(els.arenaChannel.value || "");
+        var channel = arenaChannels.find(function (item) { return String(item.id) === id; });
+        if (channel) return channel.title;
+        var option = els.arenaChannel.options[els.arenaChannel.selectedIndex];
+        return option ? option.textContent : "Sin elegir";
+      }
+
+      function arenaContentPreview() {
+        var content = String(els.body.value || "").replace(/\\r\\n/g, "\\n").trim();
+        var excerpt = content.replace(/^#\\s+[^\\n]+\\n+/, "").slice(0, 360).trim();
+        var words = content ? content.split(/\\s+/).filter(Boolean).length : 0;
+        return {
+          content: content,
+          excerpt: excerpt + (content.length > excerpt.length ? "…" : ""),
+          characters: content.length,
+          minutes: Math.max(1, Math.ceil(words / 200)),
+        };
+      }
+
+      function formatArenaDate(value) {
+        if (!value) return "";
+        var date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "";
+        return date.toLocaleString("es-MX", {
+          timeZone: "America/Mexico_City",
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      function syncArenaUi() {
+        var preview = arenaContentPreview();
+        var blogSaved = Boolean(savedSnapshot && currentSaveSnapshot() === savedSnapshot && !saveInProgress && !saveFailed);
+        var state = arenaState.state || "disabled";
+        var labels = {
+          disabled: "Copia desactivada",
+          unavailable: "No disponible",
+          paused: "Copia pausada",
+          checking: "Comprobando",
+          pending: "Copia pendiente",
+          syncing: "Copiando",
+          synced: "Copia actualizada",
+          error: "Error de Are.na",
+        };
+        var messages = {
+          disabled: arenaState.blockId
+            ? (blogSaved ? "El bloque se conserva en Are.na, fuera del canal." : "Guarda para retirar la copia del canal.")
+            : "Activa la copia para mantener este texto en Are.na.",
+          unavailable: arenaState.error || "Are.na no esta disponible.",
+          paused: arenaState.blockId
+            ? (blogSaved ? "El borrador no aparece en el canal de Are.na." : "Guarda para retirar el borrador del canal.")
+            : "Los borradores no se copian a Are.na.",
+          checking: "Comprobando el bloque de texto en Are.na.",
+          pending: arenaState.error || (!blogSaved
+            ? "Guarda para copiar el contenido completo."
+            : (arenaState.blockId
+              ? "Are.na está procesando el bloque de texto."
+              : "Guarda para copiar el contenido completo.")),
+          syncing: "Copiando el Markdown guardado a Are.na.",
+          synced: "El bloque de texto coincide con el blog.",
+          error: arenaState.error || "No se pudo actualizar Are.na.",
+        };
+
+        els.arenaContentMeta.textContent = "Bloque de texto · " + preview.characters.toLocaleString("es-MX") + " caracteres";
+        els.arenaBlogStep.textContent = blogSaved ? "Blog actualizado" : "Blog sin guardar";
+        els.arenaBlogStep.className = "arena-step " + (blogSaved ? "is-complete" : "is-pending");
+        els.arenaCopyStep.textContent = labels[state] || labels.disabled;
+        els.arenaCopyStep.className = "arena-step";
+        if (state === "synced") els.arenaCopyStep.classList.add("is-complete");
+        if (["pending", "syncing", "checking"].indexOf(state) !== -1) els.arenaCopyStep.classList.add("is-pending");
+        if (state === "error" || state === "unavailable") els.arenaCopyStep.classList.add("is-error");
+        els.arenaStateMessage.textContent = messages[state] || messages.disabled;
+        els.arenaLastSynced.textContent = arenaState.lastSyncedAt
+          ? "Ultima copia: " + formatArenaDate(arenaState.lastSyncedAt)
+          : "";
+        els.arenaRetry.hidden = state !== "error";
+        els.arenaDetailsRetry.hidden = state !== "error";
+        els.arenaDetailsButton.dataset.state = state;
+        els.arenaDetailsButton.title = labels[state] || labels.disabled;
+        els.arenaPreviewTitle.textContent = els.title.value.trim() || "Sin titulo";
+        els.arenaPreviewExcerpt.textContent = preview.excerpt || "El texto guardado aparecera aqui.";
+        els.arenaPreviewMeta.textContent = preview.characters.toLocaleString("es-MX") + " caracteres · " + preview.minutes + " min de lectura";
+        els.arenaDetailsState.textContent = messages[state] || messages.disabled;
+        els.arenaDetailsChannel.textContent = currentArenaChannelTitle();
+        els.arenaBlockLink.hidden = !arenaState.blockUrl;
+        if (arenaState.blockUrl) {
+          els.arenaBlockLink.href = arenaState.blockUrl;
+        }
+      }
+
+      function openArenaDetails() {
+        closeSettings();
+        syncArenaUi();
+        els.arenaDetails.hidden = false;
+        els.arenaDetailsBackdrop.hidden = false;
+        els.arenaDetailsClose.focus();
+        if (sourcePath && savedSnapshot && currentSaveSnapshot() === savedSnapshot) {
+          loadArenaStatus();
+        }
+      }
+
+      function closeArenaDetails() {
+        els.arenaDetails.hidden = true;
+        els.arenaDetailsBackdrop.hidden = true;
+      }
+
       function setupNewPost() {
         els.notebookField.hidden = false;
         els.title.value = "";
@@ -1520,6 +2127,15 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.caption.value = "";
         els.draft.checked = false;
         els.hidden.checked = true;
+        els.arenaEnabled.checked = false;
+        setArenaState({
+          state: "disabled",
+          blockId: "",
+          connectionId: "",
+          blockUrl: "",
+          lastSyncedAt: "",
+          error: "",
+        });
         savedSnapshot = currentSaveSnapshot();
         saveInProgress = false;
         saveFailed = false;
@@ -1550,6 +2166,22 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           els.caption.value = frontMatter.caption || "";
           els.draft.checked = frontMatter.draft !== true;
           els.hidden.checked = frontMatter.hidden !== true;
+          els.arenaEnabled.checked = frontMatter.arena_enabled === true;
+          if (frontMatter.arena_channel_id) {
+            var loadingChannel = document.createElement("option");
+            loadingChannel.value = String(frontMatter.arena_channel_id);
+            loadingChannel.textContent = "Canal configurado";
+            els.arenaChannel.appendChild(loadingChannel);
+            els.arenaChannel.value = String(frontMatter.arena_channel_id);
+          }
+          setArenaState({
+            state: frontMatter.arena_enabled === true ? "checking" : "disabled",
+            blockId: String(frontMatter.arena_block_id || ""),
+            blockUrl: frontMatter.arena_block_id ? "https://www.are.na/block/" + frontMatter.arena_block_id : "",
+            connectionId: String(frontMatter.arena_connection_id || ""),
+            lastSyncedAt: "",
+            error: "",
+          });
           els.body.value = payload.body || "";
           els.path.textContent = payload.path || "";
           savedSnapshot = currentSaveSnapshot();
@@ -1592,7 +2224,11 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           setStatus("Saved");
           syncPreviewButton();
           syncDeleteControls();
+          if (isArenaEligible() && (els.arenaEnabled.checked || arenaState.blockId || frontMatter.arena_block_id)) {
+            return syncArenaAfterSave();
+          }
           goToSavedPage();
+          return null;
         }).catch(function (error) {
           setStatus(error.message, true);
         }).finally(function () {
@@ -1610,6 +2246,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           summary: els.summary.value,
           draft: !els.draft.checked,
           hidden: !els.hidden.checked,
+          arenaEnabled: isArenaEligible() && els.arenaEnabled.checked,
+          arenaChannelId: isArenaEligible() && els.arenaEnabled.checked ? els.arenaChannel.value : "",
           body: isPhotoEditor() && els.image.value ? els.body.value : (els.body.value || "# " + els.title.value + "\\n"),
         };
 
@@ -1641,6 +2279,22 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           delete nextFrontMatter.hidden;
         }
 
+        if (isArenaEligible()) {
+          if (els.arenaEnabled.checked) {
+            nextFrontMatter.arena_enabled = true;
+            if (els.arenaChannel.value) {
+              nextFrontMatter.arena_channel_id = String(els.arenaChannel.value);
+            }
+          } else {
+            if (frontMatter.arena_enabled === true || frontMatter.arena_block_id) {
+              nextFrontMatter.arena_enabled = false;
+            } else {
+              nextFrontMatter.arena_enabled = null;
+              nextFrontMatter.arena_channel_id = null;
+            }
+          }
+        }
+
         if (kind === "notebook") {
           nextFrontMatter.description = els.summary.value;
         } else {
@@ -1669,6 +2323,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           frontMatter: nextFrontMatter,
           body: els.body.value,
         }).then(function (result) {
+          Object.keys(nextFrontMatter).forEach(function (key) {
+            if (nextFrontMatter[key] === null) delete nextFrontMatter[key];
+          });
           frontMatter = nextFrontMatter;
           return result;
         });
@@ -2154,6 +2811,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
 
       function markContentEdited() {
         saveFailed = false;
+        if (els.arenaEnabled.checked && arenaState.state !== "unavailable" && arenaState.state !== "syncing") {
+          arenaState = Object.assign({}, arenaState, { state: "pending", error: "" });
+        }
         syncSavedState();
       }
 
@@ -2171,6 +2831,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           caption: els.caption.value,
           draft: !els.draft.checked,
           hidden: !els.hidden.checked,
+          arenaEnabled: els.arenaEnabled.checked,
+          arenaChannelId: els.arenaChannel.value,
           body: els.body.value,
         });
       }
@@ -2178,17 +2840,21 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       function syncSavedState() {
         if (saveInProgress) {
           setSavePill("saving", "Guardando");
+          syncArenaUi();
           return;
         }
         if (saveFailed) {
           setSavePill("error", "Error");
+          syncArenaUi();
           return;
         }
         if (savedSnapshot && currentSaveSnapshot() === savedSnapshot) {
           setSavePill("saved", "Sincronizado");
+          syncArenaUi();
           return;
         }
         setSavePill("unsaved", "Sin guardar");
+        syncArenaUi();
       }
 
       function setSavePill(state, label) {
@@ -2248,10 +2914,18 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         if (kind === "notebook") {
           return false;
         }
+        if (mode === "edit") {
+          return postFormat === "image" ||
+            Boolean(frontMatter.image) ||
+            sourcePath.startsWith("content_es/fotografia/");
+        }
         return postFormat === "image" ||
-          Boolean(frontMatter.image) ||
           els.notebook.value.endsWith("/fotografia") ||
           preferredNotebook.endsWith("/fotografia");
+      }
+
+      function isArenaEligible() {
+        return kind !== "notebook" && !isPhotoEditor();
       }
 
       function syncPhotoEditor() {
@@ -2263,7 +2937,21 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           els.tags.value = "fotografia";
         }
         updatePhotoPreview();
+        syncArenaSurfaceVisibility();
         syncDeleteControls();
+      }
+
+      function syncArenaSurfaceVisibility() {
+        var hidden = !isArenaEligible();
+        els.arenaSection.hidden = hidden;
+        els.arenaDetailsButton.hidden = hidden;
+        if (hidden) {
+          closeArenaDetails();
+          if (mode === "new" && els.arenaEnabled.checked) {
+            els.arenaEnabled.checked = false;
+            setArenaState({ state: "disabled", blockId: "", connectionId: "", blockUrl: "", error: "" });
+          }
+        }
       }
 
       function syncEditorKind() {
@@ -2277,6 +2965,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.insertDividerAfter.hidden = notebook;
         els.toolbarImage.hidden = notebook;
         els.toolbarImage.disabled = notebook;
+        syncArenaSurfaceVisibility();
       }
 
       function updatePhotoPreview() {

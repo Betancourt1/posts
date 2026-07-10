@@ -341,6 +341,13 @@ export async function createPost(env, payload) {
     frontMatter.hidden = true;
   }
 
+  if (payload.arenaEnabled === true) {
+    frontMatter.arena_enabled = true;
+    if (String(payload.arenaChannelId || "").trim()) {
+      frontMatter.arena_channel_id = String(payload.arenaChannelId).trim();
+    }
+  }
+
   if (isPhotoNotebook && frontMatter.tags.length === 0) {
     frontMatter.tags = ["fotografia"];
   }
@@ -445,11 +452,44 @@ export async function savePage(env, payload) {
     ...(payload.frontMatter || {}),
   };
 
+  Object.entries(payload.frontMatter || {}).forEach(([key, value]) => {
+    if (value === null) delete frontMatter[key];
+  });
+
   normalizePhotoFrontMatter(path, frontMatter);
 
   await writeGitHubFile(env, {
     path,
     content: formatMarkdown(frontMatter, String(payload.body || "")),
+    message: commitMessage("Edita", path),
+    sha: current.sha,
+  });
+
+  return { path, url: contentPathToUrl(path) };
+}
+
+export async function savePageFrontMatter(env, pathValue, patch) {
+  const path = safeContentPath(pathValue);
+  const current = await readGitHubFile(env, path);
+
+  if (!current) {
+    throw new Error("El archivo no existe.");
+  }
+
+  const parsed = splitMarkdown(current.content);
+  const frontMatter = {
+    ...parsed.frontMatter,
+    ...(patch || {}),
+  };
+
+  Object.entries(patch || {}).forEach(([key, value]) => {
+    if (value === null) delete frontMatter[key];
+  });
+  normalizePhotoFrontMatter(path, frontMatter);
+
+  await writeGitHubFile(env, {
+    path,
+    content: formatMarkdown(frontMatter, parsed.body),
     message: commitMessage("Edita", path),
     sha: current.sha,
   });
