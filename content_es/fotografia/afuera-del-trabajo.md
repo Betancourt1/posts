@@ -10,6 +10,10 @@ image_alt: "Afuera del trabajo"
 caption: ""
 images: []
 hidden: false
+arena_blocks:
+  - src: "/uploads/2026/07/89187-1783714595105-n7nnq-1783714600490.jpg"
+    block_id: "47777997"
+    connection_id: "100729337"
 arena_channel_id: "5424086"
 arena_enabled: true
 ---
