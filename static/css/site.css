@@ -2577,9 +2577,13 @@ html:not(.infra-mode) .post-body {
 .author-more-menu {
   position: absolute;
   z-index: 20;
+  display: grid;
+  gap: 0.1rem;
   top: calc(100% + 0.35rem);
   right: 0;
-  min-width: 11rem;
+  width: 12rem;
+  min-width: 0;
+  max-width: calc(100vw - 2rem);
   padding: 0.3rem;
   border: 1px solid var(--line);
   background: var(--bg);
@@ -2998,17 +3002,53 @@ html:not(.infra-mode) .post-body {
 
   .author-inline-actions {
     justify-content: flex-start;
+    gap: 0.45rem;
     margin-top: 0.7rem;
   }
 
-  .page-header-row > .author-inline-actions .author-action-button {
-    width: auto !important;
-    height: 40px !important;
+  .page-header-row > .author-inline-actions > .author-action-button,
+  .page-header-row > .author-inline-actions > .author-more-actions > summary {
+    width: 36px !important;
+    height: 36px !important;
+    justify-content: center;
+    padding: 0 !important;
+    border-color: transparent !important;
+    background: transparent !important;
+  }
+
+  .page-header-row > .author-inline-actions > .author-action-button:hover,
+  .page-header-row > .author-inline-actions > .author-more-actions > summary:hover {
+    border-color: transparent !important;
+    background: transparent !important;
+    color: var(--ink) !important;
+    transform: none;
+  }
+
+  .page-header-row > .author-inline-actions > .author-action-button > .author-action-label,
+  .page-header-row > .author-inline-actions > .author-more-actions > summary > .author-action-label {
+    display: none;
+  }
+
+  .page-header-row > .author-inline-actions > .author-action-button svg,
+  .page-header-row > .author-inline-actions > .author-more-actions > summary svg {
+    width: 20px;
+    height: 20px;
   }
 
   .author-more-menu {
-    right: auto;
-    left: 0;
+    right: 0;
+    left: auto;
+    width: min(12rem, calc(100vw - 2rem));
+    min-width: 0;
+    padding: 0.2rem;
+    transform-origin: top right;
+  }
+
+  .author-more-menu .author-action-button {
+    min-height: 2.25rem;
+    height: auto !important;
+    padding: 0.45rem 0.55rem !important;
+    font-size: 0.68rem;
   }
 
   .author-grid {

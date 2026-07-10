@@ -32,4 +32,10 @@
     <path d="M10 11v6"></path>
     <path d="M14 11v6"></path>
   </svg>
+{{- else if eq . "ellipsis" -}}
+  <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+    <circle cx="5" cy="12" r="1.5"></circle>
+    <circle cx="12" cy="12" r="1.5"></circle>
+    <circle cx="19" cy="12" r="1.5"></circle>
+  </svg>
 {{- end -}}

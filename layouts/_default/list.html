@@ -36,7 +36,14 @@
             <span class="author-action-label">{{ if $isEnglish }}Edit{{ else }}Editar{{ end }}</span>
           </button>
           <details class="author-more-actions">
-            <summary class="author-action-button"><span class="author-action-label">{{ if $isEnglish }}More{{ else }}Más{{ end }}</span></summary>
+            <summary
+              class="author-action-button"
+              title="{{ if $isEnglish }}More actions{{ else }}Más acciones{{ end }}"
+              aria-label="{{ if $isEnglish }}More actions{{ else }}Más acciones{{ end }}"
+            >
+              {{ partial "author_icon.html" "ellipsis" }}
+              <span class="author-action-label">{{ if $isEnglish }}More{{ else }}Más{{ end }}</span>
+            </summary>
             <div class="author-more-menu">
               <button type="button" class="author-action-button" data-author-action="create-notebook-channel">
                 <span class="author-action-label">{{ if $isEnglish }}Sync to Are.na{{ else }}Crear channel en Are.na{{ end }}</span>
