@@ -2488,8 +2488,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           if (arenaSaved === null && els.arenaEnabled.checked) {
             throw new Error(arenaState.error || "Are.na necesita un reintento.");
           }
-          return verifySavedPublication();
-        }).then(function () {
+          // Product contract: GitHub -> Are.na -> Notebook. Cloudflare deploys asynchronously.
           redirectToNotebook();
         }).catch(function (error) {
           setStatus(error.message, true);
@@ -2646,21 +2645,6 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         if (state === "admin") els.publicationDeployStep.classList.add("is-complete");
         if (state === "error") els.publicationSavedStep.classList.add("is-active");
         els.publicationMessage.textContent = message || "";
-      }
-
-      function verifySavedPublication() {
-        els.publicationPublicStep.textContent = "Disponible en el blog";
-        if (!els.hidden.checked || !savedUrl) {
-          setPublicationState("admin", "Guardado solo en el admin; no hay una URL publica que esperar.");
-          return Promise.resolve();
-        }
-        var publicUrl = editorCore.publicContentUrl(savedUrl);
-        els.publicationLink.href = publicUrl;
-        els.publicationLink.hidden = false;
-        setPublicationState("deploying", "Guardado en GitHub. Esperando que la URL publica responda.");
-        return waitForPublicState(publicUrl, { exists: true }).then(function () {
-          setPublicationState("public", "La URL publica ya responde en el dominio principal.");
-        });
       }
 
       function verifyDeletedPublication(result) {

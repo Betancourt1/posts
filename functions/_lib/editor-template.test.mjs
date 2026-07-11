@@ -50,8 +50,8 @@ test("text editor injects its API base and cannot save before content hydration"
   assert.match(html, /<span class="check-label">Publicar<\/span>[\s\S]*?id="arena-enabled"/);
   assert.match(html, /els\.arenaChannel\.value = preferredId \|\| String\(arenaChannels\[0\]\.id\)/);
   assert.match(html, /function redirectToNotebook\(\)/);
-  assert.match(html, /return syncArenaAfterSave\(\);[\s\S]{0,500}return verifySavedPublication\(\);[\s\S]{0,200}redirectToNotebook\(\);/);
-  assert.match(html, /waitForPublicState\(publicUrl, \{ exists: true \}\)/);
+  assert.match(html, /return syncArenaAfterSave\(\);[\s\S]{0,500}redirectToNotebook\(\);/);
+  assert.doesNotMatch(html, /function verifySavedPublication|exists: true/);
   assert.match(html, /waitForPublicState\(publicUrl, \{ exists: false \}\)/);
   assert.match(html, /result\.deletedUrl/);
 });
@@ -94,8 +94,8 @@ test("image editor uses one explicit save action and lightweight previews", () =
   assert.match(html, /id="arena-channel-field" hidden/);
   assert.match(html, /\? preferredId : String\(arenaChannels\[0\]\.id\)/);
   assert.match(html, /function redirectToNotebook\(\)/);
-  assert.match(html, /return syncArenaAfterSave\(els\.draft\.checked\);[\s\S]{0,500}return verifySavedPublication\(\);[\s\S]{0,200}redirectToNotebook\(\);/);
-  assert.match(html, /waitForPublicState\(publicUrl, \{ exists: true \}\)/);
+  assert.match(html, /return syncArenaAfterSave\(els\.draft\.checked\);[\s\S]{0,500}redirectToNotebook\(\);/);
+  assert.doesNotMatch(html, /function verifySavedPublication|waitForPublicState/);
   assert.doesNotMatch(html, /content: ">";/);
   assert.match(html, /function loadExistingPhoto\(\)/);
   assert.match(html, /request\("\/page\?path=" \+ encodeURIComponent\(sourcePath\)\)/);

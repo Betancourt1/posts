@@ -31,6 +31,18 @@ La autoria tiene tres entradas independientes: Notebook, Post e Imagen. Ninguna 
 - Publicar regresa a la Notebook después del guardado; no espera el despliegue de Cloudflare.
 - El arnés no usa el repositorio real, GitHub, Are.na ni credenciales.
 
+## Decisión de producto: guardar no espera el despliegue
+
+El orden obligatorio al pulsar `Guardar` o `Publicar` es:
+
+1. Persistir el contenido en GitHub.
+2. Sincronizar Are.na cuando esté seleccionado; si ya existe un vínculo y se desactiva, terminar esa desconexión.
+3. Redirigir inmediatamente a la Notebook seleccionada.
+
+Cloudflare Pages despliega de forma eventual y puede tardar varios minutos. La disponibilidad de la URL pública nunca debe bloquear la redirección del editor. Una verificación futura puede ejecutarse en segundo plano desde la Notebook, pero no debe insertarse entre la sincronización de Are.na y `redirectToNotebook()`.
+
+El borrado es una excepción deliberada: puede verificar el 404 de la URL exacta para no comunicar una eliminación pública mientras una copia stale siga accesible. Esa comprobación no debe reutilizarse en el flujo de guardado.
+
 ## Pruebas
 
 Pruebas unitarias rápidas:
@@ -56,4 +68,4 @@ npm run build
 
 ## Regla para cambios futuros
 
-Una capacidad nueva pertenece primero al controlador de un editor. Solo debe moverse al núcleo compartido cuando dos o más editores necesiten exactamente la misma semántica. Toda modificación de rutas o guardado debe añadir o ajustar primero un caso del arnés.
+Una capacidad nueva pertenece primero al controlador de un editor. Solo debe moverse al núcleo compartido cuando dos o más editores necesiten exactamente la misma semántica. Toda modificación de rutas o guardado debe añadir o ajustar primero un caso del arnés. Las pruebas de plantilla deben rechazar explícitamente cualquier espera de despliegue antes de `redirectToNotebook()`.
