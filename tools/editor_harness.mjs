@@ -263,6 +263,7 @@ async function runCase(browser, origin, fixture, viewport, savedRequests) {
     await page.goto(url, { waitUntil: "domcontentloaded" });
     await waitForEditor(page);
     assert.equal(new URL(page.url()).pathname, `/${fixture.expectedKind}-editor`);
+    assert.equal(await page.locator("body").getAttribute("data-editor-kind"), fixture.expectedKind);
     await assertEditorContract(page, fixture.expectedKind);
     assert.deepEqual(consoleErrors, []);
     assert.deepEqual(blockedRequests, []);

@@ -1,3 +1,5 @@
+import { imageEditorController } from "./image-editor-controller.js";
+
 function iconSvg(paths) {
   return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">${paths}</svg>`;
 }
@@ -12,7 +14,7 @@ const ICONS = Object.freeze({
   preview: iconSvg(`<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />`),
 });
 
-export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "/api" } = {}) {
+export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "/api", editorController = imageEditorController } = {}) {
   const SITE_ORIGIN = String(siteOrigin || "https://fbetancourt.work").replace(/\/+$/, "");
   const ASSET_ORIGIN = String(assetOrigin || SITE_ORIGIN).replace(/\/+$/, "");
   const API_BASE = String(apiBase || "/api").replace(/\/+$/, "");
@@ -1652,6 +1654,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       var apiBase = ${JSON.stringify(API_BASE)};
       var siteOrigin = ${JSON.stringify(SITE_ORIGIN)};
       var assetOrigin = ${JSON.stringify(ASSET_ORIGIN)};
+      var editorController = ${JSON.stringify(editorController)};
       var editorCore = window.EditorCore.create({ apiBase: apiBase, siteOrigin: siteOrigin });
       var request = editorCore.request;
       var postJson = editorCore.postJson;
@@ -1766,6 +1769,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function boot() {
         document.body.dataset.theme = theme;
+        document.body.dataset.editorKind = editorController.kind;
         document.body.classList.toggle("is-grayscale", grayscale);
         els.date.value = today();
         setSaveState("Sincronizado", "saved");

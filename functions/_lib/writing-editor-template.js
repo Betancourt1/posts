@@ -1,4 +1,4 @@
-import { writingEditorProfile } from "./writing-editor-profile.js";
+import { postEditorController } from "./post-editor-controller.js";
 
 function iconSvg(paths) {
   return `<svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${paths}</svg>`;
@@ -23,8 +23,7 @@ const ICONS = Object.freeze({
   copy: iconSvg(`<rect width="14" height="14" x="8" y="8" rx="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />`),
 });
 
-export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "/api", editorKind = "post" } = {}) {
-  const editorProfile = writingEditorProfile(editorKind);
+export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "/api", editorController = postEditorController } = {}) {
   const SITE_ORIGIN = String(siteOrigin || "https://fbetancourt.work").replace(/\/+$/, "");
   const ASSET_ORIGIN = String(assetOrigin || SITE_ORIGIN).replace(/\/+$/, "");
   function siteAssetUrl(assetPath) {
@@ -1738,7 +1737,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
     (function () {
       var params = new URLSearchParams(window.location.search);
       var mode = params.get("mode") || "new";
-      var editorProfile = ${JSON.stringify(editorProfile)};
+      var editorController = ${JSON.stringify(editorController)};
       var postFormat = params.get("format") || "";
       var theme = params.get("theme") === "light" ? "light" : "dark";
       var grayscale = params.get("grayscale") === "true";
@@ -1866,6 +1865,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function boot() {
         document.body.dataset.theme = theme;
+        document.body.dataset.editorKind = editorController.kind;
         document.body.classList.toggle("is-grayscale", grayscale);
         applyEditorSize(readEditorSize());
         applyViewMode(readViewMode());
@@ -1896,7 +1896,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
         contentPromise.then(function () {
           els.save.disabled = false;
-          if (!editorProfile.arenaEligible) return null;
+          if (!editorController.arenaEligible) return null;
           return loadArenaChannels().then(function () {
             if (mode === "edit") return loadArenaStatus();
             syncArenaUi();
@@ -2123,7 +2123,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function loadArenaStatus() {
-        if (!editorProfile.arenaEligible || !sourcePath) {
+        if (!editorController.arenaEligible || !sourcePath) {
           setArenaState({ state: "disabled" });
           return Promise.resolve();
         }
@@ -2455,7 +2455,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.draft.checked = els.hidden.checked;
         selectFallbackArenaChannel();
         syncGeneratedSlug();
-        publicationRedirectNotebook = editorProfile.notebook
+        publicationRedirectNotebook = editorController.notebook
           ? (sourcePath ? sourcePath.replace(/\\/_index\\.md$/, "") : els.notebook.value)
           : (mode === "edit" ? notebookPathForContent(sourcePath) : els.notebook.value);
         els.save.disabled = true;
@@ -2554,7 +2554,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           }
         }
 
-        if (editorProfile.notebook) {
+        if (editorController.notebook) {
           nextFrontMatter.description = els.summary.value;
         } else {
           nextFrontMatter.summary = els.summary.value;
@@ -2601,7 +2601,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function createNotebookChannel() {
-        if (!editorProfile.notebook || !sourcePath) return;
+        if (!editorController.notebook || !sourcePath) return;
         els.createNotebookChannel.disabled = true;
         els.createNotebookChannel.textContent = "Sincronizando notebook…";
         els.notebookChannelStatus.textContent = "Creando o reutilizando el channel y copiando publicaciones públicas.";
@@ -3203,7 +3203,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function isPhotoEditor() {
-        if (editorProfile.notebook) {
+        if (editorController.notebook) {
           return false;
         }
         if (mode === "edit") {
@@ -3217,7 +3217,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function isArenaEligible() {
-        return editorProfile.arenaEligible;
+        return editorController.arenaEligible;
       }
 
       function hasArenaMapping() {
@@ -3256,8 +3256,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function syncEditorKind() {
-        var notebook = editorProfile.notebook;
-        els.settingsTitle.textContent = editorProfile.settingsTitle;
+        var notebook = editorController.notebook;
+        els.settingsTitle.textContent = editorController.settingsTitle;
         els.notebookChannelSection.hidden = !notebook;
         els.tagsField.hidden = notebook;
         els.imageAltField.hidden = true;
@@ -3294,7 +3294,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         var canDeletePage = mode === "edit" && Boolean(sourcePath);
         var image = els.image.value.trim();
         els.dangerZone.hidden = !canDeletePage;
-        els.deletePage.innerHTML = '${ICONS.trash}<span>' + editorProfile.deleteLabel + '</span>';
+        els.deletePage.innerHTML = '${ICONS.trash}<span>' + editorController.deleteLabel + '</span>';
         els.deleteImage.hidden = !image || !isUploadUrl(image);
       }
 
@@ -3389,15 +3389,15 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       function deleteCurrentPage() {
         if (mode !== "edit" || !sourcePath) return;
         pulseButton(els.deletePage);
-        var label = editorProfile.notebook ? "notebook" : "post";
+        var label = editorController.notebook ? "notebook" : "post";
         var confirmation = window.prompt("Escribe BORRAR para eliminar este " + label + ".");
         if (confirmation !== "BORRAR") {
           setStatus("Eliminacion cancelada.");
           return;
         }
 
-        var endpoint = editorProfile.deleteEndpoint;
-        var path = editorProfile.notebook ? notebookPathFromSource() : sourcePath;
+        var endpoint = editorController.deleteEndpoint;
+        var path = editorController.notebook ? notebookPathFromSource() : sourcePath;
         var clearBusy = setDeleteButtonBusy("Eliminando...");
         els.deletePage.disabled = true;
         setStatus("Deleting");
