@@ -1,5 +1,19 @@
 {{ define "main" }}
   {{ $isEnglish := eq .Site.Language.Lang "en" }}
+  <style>
+    body.not-found-localized .nav-column,
+    body.not-found-localized .sidebar-column {
+      display: none;
+    }
+    body.not-found-localized .layout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    body.not-found-localized .content-column {
+      grid-column: 1;
+      width: min(100%, 52.5rem);
+      justify-self: center;
+    }
+  </style>
   <header class="page-header">
     <h1 data-not-found-title>{{ if $isEnglish }}Page not found{{ else }}Página no encontrada{{ end }}</h1>
     <p class="post-summary" data-not-found-summary>
@@ -22,11 +36,65 @@
       var path = window.location.pathname;
       if (!path.startsWith("/es/")) return;
 
+      document.body.classList.add("not-found-localized");
       document.documentElement.lang = "es";
       document.title = "Página no encontrada | betancourt";
       document.querySelector("[data-not-found-title]").textContent = "Página no encontrada";
       document.querySelector("[data-not-found-summary]").textContent = "La página que buscas no existe o cambió de lugar.";
       document.querySelector("[data-not-found-home]").textContent = "Volver al inicio";
+
+      var subtitle = document.querySelector(".site-subtitle");
+      if (subtitle) subtitle.textContent = "aquí escribo cosas";
+
+      var language = document.querySelector(".lang-toggle");
+      if (language) {
+        language.textContent = "EN";
+        language.href = "/";
+        language.title = "Switch to English";
+      }
+
+      var typography = document.getElementById("typo-toggle");
+      if (typography) {
+        typography.setAttribute("aria-label", "Ajustes de texto");
+        typography.title = "Ajustes de texto";
+      }
+
+      var infrastructure = document.getElementById("infra-toggle");
+      if (infrastructure) {
+        infrastructure.setAttribute("aria-label", "Modo infraestructura");
+        infrastructure.title = "Modo infraestructura";
+      }
+
+      var search = document.getElementById("search-trigger");
+      if (search) {
+        search.setAttribute("aria-label", "Buscar (Ctrl+K)");
+        var searchLabel = search.querySelector("span");
+        if (searchLabel) searchLabel.textContent = "Buscar...";
+      }
+
+      var searchTitle = document.getElementById("search-modal-title");
+      if (searchTitle) searchTitle.textContent = "Búsqueda global";
+      var searchFooter = document.querySelector(".search-modal-footer span");
+      if (searchFooter) searchFooter.innerHTML = "Presiona <kbd>Esc</kbd> para cerrar";
+
+      function localizeTrailingUi() {
+        var updated = document.querySelector(".site-footer-updated");
+        if (updated) {
+          var updatedTime = updated.querySelector("time");
+          updated.textContent = "Última actualización del sitio: ";
+          if (updatedTime) updated.appendChild(updatedTime);
+        }
+        var terminalOpen = document.getElementById("ssh-terminal-open");
+        if (terminalOpen) terminalOpen.setAttribute("aria-label", "Abrir terminal, Ctrl más acento grave");
+        var terminalClose = document.getElementById("ssh-terminal-close");
+        if (terminalClose) terminalClose.setAttribute("aria-label", "Cerrar terminal");
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", localizeTrailingUi, { once: true });
+      } else {
+        localizeTrailingUi();
+      }
     })();
   </script>
 {{ end }}

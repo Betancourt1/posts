@@ -9,6 +9,10 @@ test("the 404 page localizes in place without redirecting", () => {
   assert.match(notFoundLayout, /data-not-found-title/);
   assert.match(notFoundLayout, /path\.startsWith\("\/es\/"\)/);
   assert.match(notFoundLayout, /document\.documentElement\.lang = "es"/);
+  assert.match(notFoundLayout, /not-found-localized/);
+  assert.match(notFoundLayout, /\.nav-column,[\s\S]*?\.sidebar-column/);
+  assert.match(notFoundLayout, /Ajustes de texto/);
+  assert.match(notFoundLayout, /Búsqueda global/);
   assert.doesNotMatch(notFoundLayout, /location\.(replace|assign)/);
   assert.doesNotMatch(notFoundLayout, /URLSearchParams|\?from=/);
 });
