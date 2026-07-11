@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { invalidateNotebooksCache, listNotebooks, savePage } from "./content.js";
+import { deletePage, invalidateNotebooksCache, listNotebooks, savePage } from "./content.js";
 import { formatMarkdown, splitMarkdown } from "./markdown.js";
 
 const env = {
@@ -73,6 +73,34 @@ test("savePage skips an empty GitHub commit when content is unchanged", async ()
     });
     assert.equal(result.changed, false);
     assert.equal(writes, 0);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("deletePage returns the exact deleted URL separately from its fallback", async () => {
+  const originalFetch = globalThis.fetch;
+  const current = formatMarkdown({ title: "Temporal", tags: ["qa"] }, "Contenido\n");
+
+  globalThis.fetch = async (url, options = {}) => {
+    if ((options.method || "GET") === "DELETE") {
+      return jsonResponse(200, { commit: { sha: "deleted" } });
+    }
+    return jsonResponse(200, {
+      type: "file",
+      path: "content_es/posts/2026/julio/temporal.md",
+      sha: "old",
+      content: encoded(current),
+    });
+  };
+
+  try {
+    const result = await deletePage(env, {
+      path: "content_es/posts/2026/julio/temporal.md",
+      deleteImages: false,
+    });
+    assert.equal(result.deletedUrl, "/es/posts/2026/julio/temporal/");
+    assert.equal(result.url, "/es/posts/");
   } finally {
     globalThis.fetch = originalFetch;
   }

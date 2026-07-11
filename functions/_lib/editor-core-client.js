@@ -41,6 +41,80 @@ export const editorCoreClientScript = String.raw`(function (global) {
     return publicSiteOrigin(siteOrigin) + (contentUrl.charAt(0) === "/" ? contentUrl : "/" + contentUrl);
   }
 
+  function verificationUrl(url, attempt) {
+    var separator = String(url || "").indexOf("?") === -1 ? "?" : "&";
+    return String(url || "") + separator + "author_verify=" + Date.now() + "-" + attempt;
+  }
+
+  function fetchPublicState(url, attempt) {
+    var options = {
+      cache: "no-store",
+      credentials: "same-origin",
+      headers: { "Cache-Control": "no-cache" },
+      redirect: "follow",
+    };
+    return Promise.all([
+      fetch(url, options),
+      fetch(verificationUrl(url, attempt), options),
+    ]).then(function (responses) {
+      return {
+        canonical: responses[0],
+        uncached: responses[1],
+      };
+    });
+  }
+
+  function waitForPublicState(url, options) {
+    var target = String(url || "");
+    var settings = options || {};
+    var expectsExists = settings.exists !== false;
+    var timeoutMs = Number(settings.timeoutMs || 120000);
+    var intervalMs = Number(settings.intervalMs === undefined ? 2000 : settings.intervalMs);
+    var startedAt = Date.now();
+    var attempt = 0;
+
+    if (!target) {
+      return Promise.reject(new Error("No hay una URL publica que verificar."));
+    }
+
+    function retry() {
+      if (intervalMs <= 0) return Promise.resolve().then(check);
+      return new Promise(function (resolve) {
+        setTimeout(resolve, intervalMs);
+      }).then(check);
+    }
+
+    function check() {
+      attempt += 1;
+      return fetchPublicState(target, attempt).then(function (state) {
+        var canonicalMatches = expectsExists ? state.canonical.ok : state.canonical.status === 404;
+        var uncachedMatches = expectsExists ? state.uncached.ok : state.uncached.status === 404;
+
+        if (canonicalMatches && uncachedMatches) {
+          return {
+            url: target,
+            exists: expectsExists,
+            attempts: attempt,
+            canonicalStatus: state.canonical.status,
+            uncachedStatus: state.uncached.status,
+          };
+        }
+        if (Date.now() - startedAt >= timeoutMs) {
+          var expected = expectsExists ? "estar disponible" : "responder 404";
+          throw new Error("GitHub ya guardo el cambio, pero la URL publica aun no termina de " + expected + ".");
+        }
+        return retry();
+      }).catch(function (error) {
+        if (Date.now() - startedAt >= timeoutMs || /GitHub ya guardo/.test(String(error && error.message || ""))) {
+          throw error;
+        }
+        return retry();
+      });
+    }
+
+    return check();
+  }
+
   function splitTags(value) {
     return String(value || "")
       .split(/[,\s]+/)
@@ -107,6 +181,7 @@ export const editorCoreClientScript = String.raw`(function (global) {
       slugify: slugify,
       splitTags: splitTags,
       today: today,
+      waitForPublicState: waitForPublicState,
     });
   }
 
@@ -120,5 +195,6 @@ export const editorCoreClientScript = String.raw`(function (global) {
     slugify: slugify,
     splitTags: splitTags,
     today: today,
+    waitForPublicState: waitForPublicState,
   });
 })(window);`;

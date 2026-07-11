@@ -603,6 +603,7 @@ export async function deletePage(env, payload) {
 
   return {
     path,
+    deletedUrl: contentPathToUrl(path),
     deletedImages,
     url: fallbackUrlForContent(path),
   };
@@ -656,6 +657,7 @@ export async function deleteNotebook(env, payload) {
 
   return {
     path: notebook,
+    deletedUrl: contentPathToUrl(`${notebook}/_index.md`),
     deletedFiles: files.map((entry) => entry.path),
     deletedImages,
     url: notebook.startsWith("content_es/") ? "/es/" : "/",

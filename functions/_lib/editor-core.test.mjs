@@ -14,6 +14,7 @@ function loadCore(fetch = () => Promise.reject(new Error("Unexpected fetch"))) {
     JSON,
     Object,
     RegExp,
+    setTimeout,
     String,
     fetch,
     window: {},
@@ -61,6 +62,48 @@ test("EditorCore API client rejects application errors", async () => {
   await assert.rejects(client.postJson("/api/save-page", { path: "fixture.md" }), /fallo controlado/);
   assert.equal(requests[0].url, "/admin/api/save-page");
   assert.equal(requests[0].options.method, "POST");
+});
+
+test("EditorCore waits for both canonical and uncached public state", async () => {
+  const statuses = [404, 404, 200, 200];
+  const requests = [];
+  const core = loadCore(async (url, options) => {
+    requests.push({ url, options });
+    const status = statuses.shift();
+    return { ok: status >= 200 && status < 300, status };
+  });
+  const client = core.create({ apiBase: "/admin/api", siteOrigin: "https://example.com/admin" });
+
+  const result = await client.waitForPublicState("https://example.com/es/post/", {
+    exists: true,
+    intervalMs: 0,
+    timeoutMs: 1000,
+  });
+
+  assert.equal(result.exists, true);
+  assert.equal(result.attempts, 2);
+  assert.equal(requests.length, 4);
+  assert.equal(requests[0].url, "https://example.com/es/post/");
+  assert.match(requests[1].url, /author_verify=/);
+  assert.equal(requests[0].options.cache, "no-store");
+});
+
+test("EditorCore verifies deletion only after both URLs return 404", async () => {
+  const statuses = [200, 404, 404, 404];
+  const core = loadCore(async () => {
+    const status = statuses.shift();
+    return { ok: status >= 200 && status < 300, status };
+  });
+
+  const result = await core.waitForPublicState("https://example.com/es/post/", {
+    exists: false,
+    intervalMs: 0,
+    timeoutMs: 1000,
+  });
+
+  assert.equal(result.exists, false);
+  assert.equal(result.attempts, 2);
+  assert.equal(result.canonicalStatus, 404);
 });
 
 test("EditorCore is served as a protected admin asset", async () => {

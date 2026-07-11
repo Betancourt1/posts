@@ -1750,6 +1750,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       var notebookPathForContent = editorCore.notebookPathForContent;
       var slugify = editorCore.slugify;
       var today = editorCore.today;
+      var waitForPublicState = editorCore.waitForPublicState;
       var sourcePath = params.get("path") || "";
       var preferredNotebook = params.get("notebook") || "";
       var frontMatter = {};
@@ -2487,6 +2488,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           if (arenaSaved === null && els.arenaEnabled.checked) {
             throw new Error(arenaState.error || "Are.na necesita un reintento.");
           }
+          return verifySavedPublication();
+        }).then(function () {
           redirectToNotebook();
         }).catch(function (error) {
           setStatus(error.message, true);
@@ -2643,6 +2646,32 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         if (state === "admin") els.publicationDeployStep.classList.add("is-complete");
         if (state === "error") els.publicationSavedStep.classList.add("is-active");
         els.publicationMessage.textContent = message || "";
+      }
+
+      function verifySavedPublication() {
+        els.publicationPublicStep.textContent = "Disponible en el blog";
+        if (!els.hidden.checked || !savedUrl) {
+          setPublicationState("admin", "Guardado solo en el admin; no hay una URL publica que esperar.");
+          return Promise.resolve();
+        }
+        var publicUrl = editorCore.publicContentUrl(savedUrl);
+        els.publicationLink.href = publicUrl;
+        els.publicationLink.hidden = false;
+        setPublicationState("deploying", "Guardado en GitHub. Esperando que la URL publica responda.");
+        return waitForPublicState(publicUrl, { exists: true }).then(function () {
+          setPublicationState("public", "La URL publica ya responde en el dominio principal.");
+        });
+      }
+
+      function verifyDeletedPublication(result) {
+        if (!result || !result.deletedUrl) return Promise.resolve(result);
+        var publicUrl = editorCore.publicContentUrl(result.deletedUrl);
+        els.publicationPublicStep.textContent = "Retirado del blog";
+        setPublicationState("deploying", "Eliminado en GitHub. Esperando el 404 de la URL exacta.");
+        return waitForPublicState(publicUrl, { exists: false }).then(function () {
+          setPublicationState("public", "La URL exacta ya responde 404 en el dominio principal.");
+          return result;
+        });
       }
 
       function redirectToNotebook() {
@@ -3400,19 +3429,33 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         var endpoint = editorController.deleteEndpoint;
         var path = editorController.notebook ? notebookPathFromSource() : sourcePath;
         var clearBusy = setDeleteButtonBusy("Eliminando...");
+        var deletionCommitted = false;
         els.deletePage.disabled = true;
         setStatus("Deleting");
         postJson(endpoint, {
           path: path,
           deleteImages: els.deleteAttachedImages.checked,
         }).then(function (result) {
+          deletionCommitted = true;
+          return verifyDeletedPublication(result);
+        }).then(function (result) {
           var target = result.url || "/es/";
           window.location.assign(siteOrigin + target);
         }).catch(function (error) {
+          if (deletionCommitted) {
+            setPublicationState("pending", "El archivo ya fue eliminado de GitHub, pero la URL publica sigue actualizandose.");
+            setStatus(error.message, true);
+            return;
+          }
+          setPublicationState("error", error.message);
           setStatus(error.message, true);
         }).finally(function () {
-          els.deletePage.disabled = false;
           clearBusy();
+          els.deletePage.disabled = deletionCommitted;
+          if (deletionCommitted) {
+            var labelNode = els.deletePage.querySelector("span");
+            if (labelNode) labelNode.textContent = "Eliminado en GitHub";
+          }
         });
       }
 
