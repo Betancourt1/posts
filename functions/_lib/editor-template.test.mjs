@@ -28,6 +28,8 @@ test("text editor injects its API base and cannot save before content hydration"
   const html = postEditorHtml({ apiBase: "/admin/api" });
   assert.match(html, /var apiBase = "\/admin\/api";/);
   assert.match(html, /src="\/admin\/editor-core"/);
+  assert.match(html, /request\("\/api\/notebooks"\)/);
+  assert.doesNotMatch(html, /request\("\/admin\/api\/notebooks"\)/);
   assert.match(html, /id="saved-pill" data-state="loading"[^>]*>Cargando<\/span>/);
   assert.match(html, /id="save" disabled/);
   assert.match(html, /id="retry-load"[^>]*hidden/);

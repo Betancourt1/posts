@@ -8,6 +8,9 @@ export const editorCoreClientScript = String.raw`(function (global) {
   function requestPath(apiBase, path) {
     var base = cleanBase(apiBase);
     var target = String(path || "");
+    if (base && (target === base || target.indexOf(base + "/") === 0)) {
+      return target;
+    }
     if (target.indexOf("/api/") === 0 && /\/api$/.test(base)) {
       return base + target.slice(4);
     }

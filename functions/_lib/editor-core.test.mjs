@@ -25,6 +25,7 @@ function loadCore(fetch = () => Promise.reject(new Error("Unexpected fetch"))) {
 test("EditorCore resolves API paths for production and local editors", () => {
   const core = loadCore();
   assert.equal(core.requestPath("/admin/api", "/api/notebooks"), "/admin/api/notebooks");
+  assert.equal(core.requestPath("/admin/api", "/admin/api/notebooks"), "/admin/api/notebooks");
   assert.equal(core.requestPath("/api", "/notebooks"), "/api/notebooks");
 });
 

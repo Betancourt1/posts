@@ -3468,6 +3468,5 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
   </script>
 </body>
 </html>`;
-  const normalizedApiBase = String(apiBase || "/api").replace(/\/+$/, "");
-  return html.replaceAll('"/api/', '"' + normalizedApiBase + "/");
+  return html;
 }
