@@ -21,7 +21,7 @@ const ICONS = Object.freeze({
   copy: iconSvg(`<rect width="14" height="14" x="8" y="8" rx="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />`),
 });
 
-export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "/api" } = {}) {
+export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "/api", editorKind = "" } = {}) {
   const SITE_ORIGIN = String(siteOrigin || "https://fbetancourt.work").replace(/\/+$/, "");
   const ASSET_ORIGIN = String(assetOrigin || SITE_ORIGIN).replace(/\/+$/, "");
   function siteAssetUrl(assetPath) {
@@ -1734,7 +1734,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     (function () {
       var params = new URLSearchParams(window.location.search);
       var mode = params.get("mode") || "new";
-      var kind = params.get("kind") || "post";
+      var kind = ${JSON.stringify(editorKind)} || params.get("kind") || "post";
       var postFormat = params.get("format") || "";
       var theme = params.get("theme") === "light" ? "light" : "dark";
       var grayscale = params.get("grayscale") === "true";

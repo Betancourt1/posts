@@ -13,8 +13,10 @@ import {
   pageHasArenaMapping,
   syncArenaPage,
 } from "../functions/_lib/arena.js";
-import { authorEditorHtml } from "../functions/_lib/editor-template.js";
 import { imageEditorHtml } from "../functions/_lib/image-editor-template.js";
+import { resolveEditorPath } from "../functions/_lib/editor-routing.js";
+import { notebookEditorHtml } from "../functions/_lib/notebook-editor-template.js";
+import { postEditorHtml } from "../functions/_lib/post-editor-template.js";
 
 try {
   process.loadEnvFile?.(".env");
@@ -1110,12 +1112,17 @@ async function route(req, res) {
   }
 
   if (req.method === "GET" && url.pathname === "/editor") {
-    const contentPath = url.searchParams.get("path") || "";
-    if (/^content_(es|en)\/fotografia\/.+\.md$/.test(contentPath)) {
-      redirect(res, `/image-editor${url.search}`);
-      return;
-    }
-    sendHtml(res, authorEditorHtml({ siteOrigin: SITE_ORIGIN, assetOrigin: SITE_ORIGIN, apiBase: "/api" }));
+    redirect(res, `${resolveEditorPath(url.searchParams)}${url.search}`);
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/notebook-editor") {
+    sendHtml(res, notebookEditorHtml({ siteOrigin: SITE_ORIGIN, assetOrigin: SITE_ORIGIN, apiBase: "/api" }));
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/post-editor") {
+    sendHtml(res, postEditorHtml({ siteOrigin: SITE_ORIGIN, assetOrigin: SITE_ORIGIN, apiBase: "/api" }));
     return;
   }
 

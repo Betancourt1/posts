@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { authorEditorHtml } from "./editor-template.js";
 import { imageEditorHtml } from "./image-editor-template.js";
+import { notebookEditorHtml } from "./notebook-editor-template.js";
+import { postEditorHtml } from "./post-editor-template.js";
 import { onRequestGet as getEditor } from "../admin/editor.js";
 
 test("notebook editor clears stale private flags and exposes verified publication states", () => {
@@ -106,4 +108,24 @@ test("photography paths use the specialized image editor", async () => {
     response.headers.get("location"),
     "https://example.com/admin/image-editor?mode=edit&path=content_es%2Ffotografia%2Fzmg.md&kind=post",
   );
+});
+
+test("photography notebook paths stay in the notebook editor", async () => {
+  const response = await getEditor({
+    request: new Request("https://example.com/admin/editor?mode=edit&path=content_es%2Ffotografia%2F_index.md&kind=notebook"),
+  });
+
+  assert.equal(response.status, 302);
+  assert.equal(
+    response.headers.get("location"),
+    "https://example.com/admin/notebook-editor?mode=edit&path=content_es%2Ffotografia%2F_index.md&kind=notebook",
+  );
+});
+
+test("explicit editor templates lock their content kind", () => {
+  const notebookHtml = notebookEditorHtml();
+  const postHtml = postEditorHtml();
+
+  assert.match(notebookHtml, /var kind = "notebook" \|\| params\.get\("kind"\)/);
+  assert.match(postHtml, /var kind = "post" \|\| params\.get\("kind"\)/);
 });
