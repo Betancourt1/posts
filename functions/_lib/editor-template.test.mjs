@@ -44,7 +44,8 @@ test("text editor injects its API base and cannot save before content hydration"
   assert.match(html, /<span class="check-label">Publicar<\/span>[\s\S]*?id="arena-enabled"/);
   assert.match(html, /els\.arenaChannel\.value = preferredId \|\| String\(arenaChannels\[0\]\.id\)/);
   assert.match(html, /function redirectToNotebook\(\)/);
-  assert.match(html, /return syncArenaAfterSave\(\);[\s\S]{0,500}return startPublicVerification\(\);/);
+  assert.match(html, /return syncArenaAfterSave\(\);[\s\S]{0,500}redirectToNotebook\(\);/);
+  assert.doesNotMatch(html, /return syncArenaAfterSave\(\);[\s\S]{0,500}return startPublicVerification\(\);/);
 });
 
 test("image editor uses one explicit save action and lightweight previews", () => {
@@ -78,7 +79,8 @@ test("image editor uses one explicit save action and lightweight previews", () =
   assert.match(html, /id="arena-channel-field" hidden/);
   assert.match(html, /\? preferredId : String\(arenaChannels\[0\]\.id\)/);
   assert.match(html, /function redirectToNotebook\(\)/);
-  assert.match(html, /return syncArenaAfterSave\(els\.draft\.checked\);[\s\S]{0,500}return startPublicVerification\(\);/);
+  assert.match(html, /return syncArenaAfterSave\(els\.draft\.checked\);[\s\S]{0,500}redirectToNotebook\(\);/);
+  assert.doesNotMatch(html, /return syncArenaAfterSave\(els\.draft\.checked\);[\s\S]{0,500}return startPublicVerification\(\);/);
   assert.doesNotMatch(html, /content: ">";/);
   assert.match(html, /function loadExistingPhoto\(\)/);
   assert.match(html, /request\("\/page\?path=" \+ encodeURIComponent\(sourcePath\)\)/);

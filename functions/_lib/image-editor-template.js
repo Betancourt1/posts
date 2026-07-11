@@ -2836,8 +2836,6 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           if (arenaSaved === false) {
             throw new Error(arenaState.error || "Are.na necesita un reintento.");
           }
-          return startPublicVerification();
-        }).then(function () {
           redirectToNotebook();
         }).catch(function (error) {
           setSaveState("Error al guardar", "error");
