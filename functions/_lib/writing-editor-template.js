@@ -3271,8 +3271,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function syncEditorKind() {
         var notebook = editorController.notebook;
-        els.settingsTitle.textContent = editorController.settingsTitle;
-        els.notebookChannelSection.hidden = !notebook;
+        var home = isHomeEditor();
+        els.settingsTitle.textContent = home ? "Página de inicio" : editorController.settingsTitle;
+        els.notebookChannelSection.hidden = !notebook || home;
         els.tagsField.hidden = notebook;
         els.imageAltField.hidden = true;
         els.captionField.hidden = true;
@@ -3305,7 +3306,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function syncDeleteControls() {
-        var canDeletePage = mode === "edit" && Boolean(sourcePath);
+        var canDeletePage = mode === "edit" && Boolean(sourcePath) && !isHomeEditor();
         var image = els.image.value.trim();
         els.dangerZone.hidden = !canDeletePage;
         els.deletePage.innerHTML = '${ICONS.trash}<span>' + editorController.deleteLabel + '</span>';
@@ -3396,12 +3397,16 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         return sourcePath.replace(/\\/_index\\.md$/, "");
       }
 
+      function isHomeEditor() {
+        return /^content_(es|en)\\/_index\\.md$/.test(sourcePath);
+      }
+
       function routeFromPath(relativePath) {
         return relativePath ? contentPathToUrl(relativePath) : "";
       }
 
       function deleteCurrentPage() {
-        if (mode !== "edit" || !sourcePath) return;
+        if (mode !== "edit" || !sourcePath || isHomeEditor()) return;
         pulseButton(els.deletePage);
         var label = editorController.notebook ? "notebook" : "post";
         var confirmation = window.prompt("Escribe BORRAR para eliminar este " + label + ".");

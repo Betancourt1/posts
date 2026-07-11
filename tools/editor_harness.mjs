@@ -30,6 +30,17 @@ const notebooks = [
 ];
 
 const pages = {
+  "content_es/_index.md": {
+    path: "content_es/_index.md",
+    url: "/es/",
+    frontMatter: {
+      title: "Inicio",
+      date: "2026-02-22",
+      description: "Un jardín digital de notas y proyectos.",
+      draft: false,
+    },
+    body: "Contenido de la página de inicio.",
+  },
   "content_es/fotografia/_index.md": {
     path: "content_es/fotografia/_index.md",
     url: "/es/fotografia/",
@@ -184,7 +195,7 @@ async function startHarnessServer(savedRequests) {
       return;
     }
 
-    if (req.method === "GET" && /^\/admin\/(es\/)?(fotografia|posts)\/$/.test(url.pathname)) {
+    if (req.method === "GET" && (/^\/admin\/(es\/)?(fotografia|posts)\/$/.test(url.pathname) || url.pathname === "/admin/es/")) {
       html(res, `<!doctype html><title>Notebook</title><h1 data-testid="notebook-destination">${url.pathname}</h1>`);
       return;
     }
@@ -209,7 +220,8 @@ async function waitForEditor(page) {
   });
 }
 
-async function assertEditorContract(page, expectedKind) {
+async function assertEditorContract(page, fixture) {
+  const expectedKind = fixture.expectedKind;
   if (expectedKind !== "image" && !(await page.locator("#settings-title").isVisible())) {
     await page.locator("#top-settings-button").click();
     await page.locator("#settings-title").waitFor({ state: "visible" });
@@ -217,8 +229,9 @@ async function assertEditorContract(page, expectedKind) {
 
   if (expectedKind === "notebook") {
     await assert.doesNotReject(() => page.locator("#settings-title").waitFor({ state: "visible" }));
-    assert.equal(await page.locator("#settings-title").textContent(), "Notebook");
-    assert.equal(await page.locator("#notebook-channel-section").isVisible(), true);
+    assert.equal(await page.locator("#settings-title").textContent(), fixture.home ? "Página de inicio" : "Notebook");
+    assert.equal(await page.locator("#notebook-channel-section").isVisible(), !fixture.home);
+    assert.equal(await page.locator("#danger-zone").isVisible(), !fixture.home);
     assert.equal(await page.locator("#tags-field").isVisible(), false);
     assert.equal(await page.locator("#dropzone").count(), 0);
     return;
@@ -268,7 +281,7 @@ async function runCase(browser, origin, fixture, viewport, savedRequests) {
     await waitForEditor(page);
     assert.equal(new URL(page.url()).pathname, `/${fixture.expectedKind}-editor`);
     assert.equal(await page.locator("body").getAttribute("data-editor-kind"), fixture.expectedKind);
-    await assertEditorContract(page, fixture.expectedKind);
+    await assertEditorContract(page, fixture);
     assert.deepEqual(consoleErrors, []);
     assert.deepEqual(blockedRequests, []);
 
@@ -280,7 +293,7 @@ async function runCase(browser, origin, fixture, viewport, savedRequests) {
       const publish = page.locator(fixture.expectedKind === "image" ? "#mobile-publish" : "#save");
       await publish.waitFor({ state: "visible" });
       await Promise.all([
-        page.waitForURL(/\/admin\/es\/(fotografia|posts)\/$/, { timeout: 10000 }),
+        page.waitForURL(fixture.home ? /\/admin\/es\/$/ : /\/admin\/es\/(fotografia|posts)\/$/, { timeout: 10000 }),
         publish.click(),
       ]);
       assert.equal(savedRequests.length, before + 1);
@@ -305,6 +318,12 @@ async function main() {
   const { server, origin } = await startHarnessServer(savedRequests);
   const browser = await chromium.launch({ headless: true });
   const fixtures = [
+    {
+      path: "content_es/_index.md",
+      requestedKind: "notebook",
+      expectedKind: "notebook",
+      home: true,
+    },
     {
       path: "content_es/fotografia/_index.md",
       requestedKind: "notebook",

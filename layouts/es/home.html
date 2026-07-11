@@ -1,6 +1,22 @@
 {{ define "main" }}
+  {{ $isEnglish := eq .Site.Language.Lang "en" }}
   <header class="page-header">
-    <h1>{{ with .Title }}{{ . }}{{ else }}{{ if eq .Site.Language.Lang "en" }}Home{{ else }}Inicio{{ end }}{{ end }}</h1>
+    <div class="page-header-row">
+      <h1>{{ with .Title }}{{ . }}{{ else }}{{ if $isEnglish }}Home{{ else }}Inicio{{ end }}{{ end }}</h1>
+      {{ if and (partial "author_enabled.html" .) .File }}
+        <div class="author-inline-actions">
+          <button
+            type="button"
+            class="author-action-button"
+            data-author-action="edit-home"
+            aria-label="{{ if $isEnglish }}Edit home page{{ else }}Editar página de inicio{{ end }}"
+            title="{{ if $isEnglish }}Edit home page{{ else }}Editar página de inicio{{ end }}"
+          >
+            {{ partial "author_icon.html" "pencil" }}
+          </button>
+        </div>
+      {{ end }}
+    </div>
     {{ with .Params.description }}
       <p class="lead">{{ . }}</p>
     {{ else }}

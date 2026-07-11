@@ -22,6 +22,9 @@ test("notebook editor clears stale private flags and exposes verified publicatio
   assert.match(html, /@media \(max-width: 380px\)/);
   assert.match(html, /id="mobile-view-markdown"/);
   assert.match(html, /\[els\.viewMarkdown, els\.mobileViewMarkdown\]/);
+  assert.match(html, /function isHomeEditor\(\)/);
+  assert.match(html, /els\.notebookChannelSection\.hidden = !notebook \|\| home/);
+  assert.match(html, /Boolean\(sourcePath\) && !isHomeEditor\(\)/);
 });
 
 test("text editor injects its API base and cannot save before content hydration", () => {

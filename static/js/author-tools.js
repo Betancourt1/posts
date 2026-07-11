@@ -28,6 +28,7 @@
     "add-notebook": "Nuevo notebook",
     "add-post": "Abriendo editor",
     "add-image-post": "Abriendo imagen",
+    "edit-home": "Abriendo inicio",
     "edit-notebook": "Abriendo notebook",
     "edit-post": "Abriendo post",
     "create-notebook-channel": "Sincronizando Are.na",
@@ -94,6 +95,10 @@
       }
 
       if (action === "edit-notebook") {
+        return editCurrentNotebook(button);
+      }
+
+      if (action === "edit-home") {
         return editCurrentNotebook(button);
       }
 
