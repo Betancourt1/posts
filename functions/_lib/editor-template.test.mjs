@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { authorEditorHtml } from "./editor-template.js";
+import { writingEditorHtml } from "./writing-editor-template.js";
 import { imageEditorHtml } from "./image-editor-template.js";
 import { notebookEditorHtml } from "./notebook-editor-template.js";
 import { postEditorHtml } from "./post-editor-template.js";
 import { onRequestGet as getEditor } from "../admin/editor.js";
 
 test("notebook editor clears stale private flags and exposes verified publication states", () => {
-  const html = authorEditorHtml({ siteOrigin: "https://example.com/admin" });
+  const html = writingEditorHtml({ siteOrigin: "https://example.com/admin", editorKind: "notebook" });
   assert.match(html, /nextFrontMatter\.draft = null/);
   assert.match(html, /nextFrontMatter\.hidden = null/);
   assert.match(html, /Guardado en GitHub/);
@@ -25,7 +25,7 @@ test("notebook editor clears stale private flags and exposes verified publicatio
 });
 
 test("text editor injects its API base and cannot save before content hydration", () => {
-  const html = authorEditorHtml({ apiBase: "/admin/api" });
+  const html = writingEditorHtml({ apiBase: "/admin/api", editorKind: "post" });
   assert.match(html, /var apiBase = "\/admin\/api";/);
   assert.match(html, /id="saved-pill" data-state="loading"[^>]*>Cargando<\/span>/);
   assert.match(html, /id="save" disabled/);
@@ -127,6 +127,8 @@ test("explicit editor templates lock their content kind", () => {
   const notebookHtml = notebookEditorHtml();
   const postHtml = postEditorHtml();
 
-  assert.match(notebookHtml, /var kind = "notebook" \|\| params\.get\("kind"\)/);
-  assert.match(postHtml, /var kind = "post" \|\| params\.get\("kind"\)/);
+  assert.match(notebookHtml, /var editorProfile = \{"kind":"notebook"/);
+  assert.match(postHtml, /var editorProfile = \{"kind":"post"/);
+  assert.doesNotMatch(notebookHtml, /params\.get\("kind"\)/);
+  assert.doesNotMatch(postHtml, /params\.get\("kind"\)/);
 });

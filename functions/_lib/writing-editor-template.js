@@ -1,3 +1,5 @@
+import { writingEditorProfile } from "./writing-editor-profile.js";
+
 function iconSvg(paths) {
   return `<svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${paths}</svg>`;
 }
@@ -21,7 +23,8 @@ const ICONS = Object.freeze({
   copy: iconSvg(`<rect width="14" height="14" x="8" y="8" rx="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />`),
 });
 
-export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "/api", editorKind = "" } = {}) {
+export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "/api", editorKind = "post" } = {}) {
+  const editorProfile = writingEditorProfile(editorKind);
   const SITE_ORIGIN = String(siteOrigin || "https://fbetancourt.work").replace(/\/+$/, "");
   const ASSET_ORIGIN = String(assetOrigin || SITE_ORIGIN).replace(/\/+$/, "");
   function siteAssetUrl(assetPath) {
@@ -1735,7 +1738,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
     (function () {
       var params = new URLSearchParams(window.location.search);
       var mode = params.get("mode") || "new";
-      var kind = ${JSON.stringify(editorKind)} || params.get("kind") || "post";
+      var editorProfile = ${JSON.stringify(editorProfile)};
       var postFormat = params.get("format") || "";
       var theme = params.get("theme") === "light" ? "light" : "dark";
       var grayscale = params.get("grayscale") === "true";
@@ -1773,7 +1776,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       var bodyHistory = [];
       var bodyHistoryIndex = -1;
       var restoringBodyHistory = false;
-      var publicationCheckToken = 0;
       var publicationRedirectNotebook = "";
       var els = {
         status: document.getElementById("status"),
@@ -1894,7 +1896,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
 
         contentPromise.then(function () {
           els.save.disabled = false;
-          if (kind === "notebook") return null;
+          if (!editorProfile.arenaEligible) return null;
           return loadArenaChannels().then(function () {
             if (mode === "edit") return loadArenaStatus();
             syncArenaUi();
@@ -2121,7 +2123,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
 
       function loadArenaStatus() {
-        if (kind === "notebook" || !sourcePath) {
+        if (!editorProfile.arenaEligible || !sourcePath) {
           setArenaState({ state: "disabled" });
           return Promise.resolve();
         }
@@ -2453,7 +2455,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         els.draft.checked = els.hidden.checked;
         selectFallbackArenaChannel();
         syncGeneratedSlug();
-        publicationRedirectNotebook = kind === "notebook"
+        publicationRedirectNotebook = editorProfile.notebook
           ? (sourcePath ? sourcePath.replace(/\\/_index\\.md$/, "") : els.notebook.value)
           : (mode === "edit" ? notebookPathForContent(sourcePath) : els.notebook.value);
         els.save.disabled = true;
@@ -2552,7 +2554,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           }
         }
 
-        if (kind === "notebook") {
+        if (editorProfile.notebook) {
           nextFrontMatter.description = els.summary.value;
         } else {
           nextFrontMatter.summary = els.summary.value;
@@ -2599,7 +2601,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
 
       function createNotebookChannel() {
-        if (kind !== "notebook" || !sourcePath) return;
+        if (!editorProfile.notebook || !sourcePath) return;
         els.createNotebookChannel.disabled = true;
         els.createNotebookChannel.textContent = "Sincronizando notebook…";
         els.notebookChannelStatus.textContent = "Creando o reutilizando el channel y copiando publicaciones públicas.";
@@ -2623,11 +2625,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         });
       }
 
-      function publicPageUrl() {
-        var path = savedUrl || (sourcePath ? contentPathToUrl(sourcePath) : "");
-        return editorCore.publicContentUrl(path);
-      }
-
       function setPublicationState(state, message) {
         [els.publicationSavedStep, els.publicationDeployStep, els.publicationPublicStep].forEach(function (step) {
           step.classList.remove("is-active", "is-complete");
@@ -2645,79 +2642,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         if (state === "admin") els.publicationDeployStep.classList.add("is-complete");
         if (state === "error") els.publicationSavedStep.classList.add("is-active");
         els.publicationMessage.textContent = message || "";
-      }
-
-      function startPublicVerification() {
-        publicationCheckToken += 1;
-        var token = publicationCheckToken;
-        var url = publicPageUrl();
-        els.publicationLink.hidden = !url || !els.hidden.checked;
-        if (url) els.publicationLink.href = url;
-
-        if (els.hidden.checked && !url) {
-          setPublicationState("saved", "Guardado en GitHub; falta una ruta para verificar.");
-          return Promise.reject(new Error("No se pudo determinar la ruta pública."));
-        }
-        if (!els.hidden.checked) {
-          setPublicationState("deploying", "Guardado en GitHub; esperando que el notebook se actualice en admin.");
-          return checkAdminNotebook(token, 0);
-        }
-        setPublicationState("deploying", "Guardado en GitHub; esperando el despliegue público.");
-        return checkPublicPage(url, token, 0);
-      }
-
-      function checkPublicPage(url, token, attempt) {
-        return fetch(url, { cache: "no-store", credentials: "same-origin" }).then(function (response) {
-          if (token !== publicationCheckToken) throw new Error("La verificación fue reemplazada por otra publicación.");
-          if (response.ok) {
-            setPublicationState("public", "Disponible públicamente y verificado.");
-            return true;
-          }
-          return retryPublicPage(url, token, attempt);
-        }, function () {
-          return retryPublicPage(url, token, attempt);
-        });
-      }
-
-      function retryPublicPage(url, token, attempt) {
-        if (token !== publicationCheckToken) return Promise.reject(new Error("La verificación fue reemplazada por otra publicación."));
-        if (attempt >= 89) {
-          setPublicationState("pending", "Guardado en GitHub; el despliegue sigue pendiente.");
-          return Promise.reject(new Error("Cloudflare todavía no confirma el despliegue. Puedes reintentar Publicar."));
-        }
-        return new Promise(function (resolve) { window.setTimeout(resolve, 2000); }).then(function () {
-          return checkPublicPage(url, token, attempt + 1);
-        });
-      }
-
-      function checkAdminNotebook(token, attempt) {
-        return fetch(editorCore.adminNotebookUrl(publicationRedirectNotebook), { cache: "no-store", credentials: "same-origin" }).then(function (response) {
-          if (!response.ok) return false;
-          return response.text().then(function (html) {
-            var page = new DOMParser().parseFromString(html, "text/html");
-            return String(page.body?.textContent || "").indexOf(els.title.value.trim()) !== -1;
-          });
-        }, function () {
-          return false;
-        }).then(function (ready) {
-          if (token !== publicationCheckToken) throw new Error("La verificación fue reemplazada por otra publicación.");
-          if (ready) {
-            setPublicationState("admin", "Disponible en el notebook de admin y verificado.");
-            return true;
-          }
-          return retryAdminNotebook(token, attempt);
-        });
-      }
-
-      function retryAdminNotebook(token, attempt) {
-        if (token !== publicationCheckToken) return Promise.reject(new Error("La verificación fue reemplazada por otra publicación."));
-        if (attempt >= 89) {
-          setPublicationState("pending", "Guardado en GitHub; el notebook de admin sigue pendiente.");
-          return Promise.reject(new Error("Cloudflare todavía no actualiza el notebook. Puedes reintentar Publicar."));
-        }
-        return new Promise(function (resolve) { window.setTimeout(resolve, 2000); }).then(function () {
-          return checkAdminNotebook(token, attempt + 1);
-        });
       }
 
       function redirectToNotebook() {
@@ -3279,7 +3203,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
 
       function isPhotoEditor() {
-        if (kind === "notebook") {
+        if (editorProfile.notebook) {
           return false;
         }
         if (mode === "edit") {
@@ -3293,7 +3217,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
 
       function isArenaEligible() {
-        return kind !== "notebook";
+        return editorProfile.arenaEligible;
       }
 
       function hasArenaMapping() {
@@ -3332,8 +3256,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
 
       function syncEditorKind() {
-        var notebook = kind === "notebook";
-        els.settingsTitle.textContent = notebook ? "Notebook" : "Propiedades";
+        var notebook = editorProfile.notebook;
+        els.settingsTitle.textContent = editorProfile.settingsTitle;
         els.notebookChannelSection.hidden = !notebook;
         els.tagsField.hidden = notebook;
         els.imageAltField.hidden = true;
@@ -3370,7 +3294,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         var canDeletePage = mode === "edit" && Boolean(sourcePath);
         var image = els.image.value.trim();
         els.dangerZone.hidden = !canDeletePage;
-        els.deletePage.innerHTML = '${ICONS.trash}<span>' + (kind === "notebook" ? "Eliminar notebook" : "Eliminar post") + '</span>';
+        els.deletePage.innerHTML = '${ICONS.trash}<span>' + editorProfile.deleteLabel + '</span>';
         els.deleteImage.hidden = !image || !isUploadUrl(image);
       }
 
@@ -3465,15 +3389,15 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       function deleteCurrentPage() {
         if (mode !== "edit" || !sourcePath) return;
         pulseButton(els.deletePage);
-        var label = kind === "notebook" ? "notebook" : "post";
+        var label = editorProfile.notebook ? "notebook" : "post";
         var confirmation = window.prompt("Escribe BORRAR para eliminar este " + label + ".");
         if (confirmation !== "BORRAR") {
           setStatus("Eliminacion cancelada.");
           return;
         }
 
-        var endpoint = kind === "notebook" ? "/api/delete-notebook" : "/api/delete-page";
-        var path = kind === "notebook" ? notebookPathFromSource() : sourcePath;
+        var endpoint = editorProfile.deleteEndpoint;
+        var path = editorProfile.notebook ? notebookPathFromSource() : sourcePath;
         var clearBusy = setDeleteButtonBusy("Eliminando...");
         els.deletePage.disabled = true;
         setStatus("Deleting");
@@ -3481,7 +3405,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           path: path,
           deleteImages: els.deleteAttachedImages.checked,
         }).then(function (result) {
-          var target = result.url || (kind === "notebook" ? "/es/" : "/es/");
+          var target = result.url || "/es/";
           window.location.assign(siteOrigin + target);
         }).catch(function (error) {
           setStatus(error.message, true);

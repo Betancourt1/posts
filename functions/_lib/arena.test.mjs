@@ -9,7 +9,8 @@ import {
   prepareArenaMarkdown,
   syncArenaPage,
 } from "./arena.js";
-import { authorEditorHtml } from "./editor-template.js";
+import { notebookEditorHtml } from "./notebook-editor-template.js";
+import { postEditorHtml } from "./post-editor-template.js";
 
 function jsonResponse(status, payload) {
   return new Response(JSON.stringify(payload), {
@@ -658,9 +659,11 @@ test("image-only posts outside Fotografía are mirrored as Image blocks", async 
 });
 
 test("the author editor offers Are.na to every post and excludes only notebooks", () => {
-  const html = authorEditorHtml({});
+  const postHtml = postEditorHtml();
+  const notebookHtml = notebookEditorHtml();
 
-  assert.match(html, /function isArenaEligible\(\) \{\s+return kind !== "notebook";/);
-  assert.doesNotMatch(html, /kind === "notebook" \|\| isPhotoEditor\(\)/);
-  assert.doesNotMatch(html, /kind !== "notebook" && !isPhotoEditor\(\)/);
+  assert.match(postHtml, /"arenaEligible":true/);
+  assert.match(notebookHtml, /"arenaEligible":false/);
+  assert.doesNotMatch(postHtml, /kind === "notebook"/);
+  assert.doesNotMatch(notebookHtml, /kind !== "notebook"/);
 });

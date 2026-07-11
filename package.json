@@ -1,5 +1,6 @@
 {
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "hugo server -D --renderToMemory --bind 127.0.0.1 --port 3010 --baseURL http://127.0.0.1:3010/ --appendPort=false --disableFastRender",
     "start": "hugo server -D --renderToMemory --bind 127.0.0.1 --port 3010 --baseURL http://127.0.0.1:3010/ --appendPort=false --disableFastRender",

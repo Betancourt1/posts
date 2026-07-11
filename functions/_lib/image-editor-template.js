@@ -1680,7 +1680,6 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       var arenaState = { state: "disabled", blocks: [], error: "" };
       var fullImageMaxEdge = 1920;
       var thumbImageMaxEdge = 640;
-      var publicationCheckToken = 0;
       var publicationRedirectNotebook = "";
       var maxUploadBytes = 12 * 1024 * 1024;
       var allowedImageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
@@ -2862,76 +2861,6 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         }
         if (state === "admin") els.publicationDeployStep.classList.add("is-complete");
         els.publicationStatusCopy.textContent = message || "";
-      }
-
-      function startPublicVerification() {
-        publicationCheckToken += 1;
-        var token = publicationCheckToken;
-        var url = publicPostUrl();
-        if (els.visible.checked && !url) {
-          setPublicationState("saved", "Guardado en GitHub; falta una ruta para verificar.");
-          return Promise.reject(new Error("No se pudo determinar la ruta pública."));
-        }
-        if (!els.visible.checked) {
-          setPublicationState("deploying", "Guardado en GitHub; esperando que el notebook se actualice en admin.");
-          return checkAdminNotebook(token, 0);
-        }
-        setPublicationState("deploying", "Guardado en GitHub; esperando el despliegue público.");
-        return checkPublicPost(url, token, 0);
-      }
-
-      function checkPublicPost(url, token, attempt) {
-        return fetch(url, { cache: "no-store", credentials: "same-origin" }).then(function (response) {
-          if (token !== publicationCheckToken) throw new Error("La verificación fue reemplazada por otra publicación.");
-          if (response.ok) {
-            setPublicationState("public", "Disponible públicamente y verificado.");
-            return true;
-          }
-          return retryPublicPost(url, token, attempt);
-        }, function () {
-          return retryPublicPost(url, token, attempt);
-        });
-      }
-
-      function retryPublicPost(url, token, attempt) {
-        if (token !== publicationCheckToken) return Promise.reject(new Error("La verificación fue reemplazada por otra publicación."));
-        if (attempt >= 89) {
-          setPublicationState("pending", "Guardado en GitHub; el despliegue sigue pendiente.");
-          return Promise.reject(new Error("Cloudflare todavía no confirma el despliegue. Puedes reintentar Publicar."));
-        }
-        return new Promise(function (resolve) { window.setTimeout(resolve, 2000); }).then(function () {
-          return checkPublicPost(url, token, attempt + 1);
-        });
-      }
-
-      function checkAdminNotebook(token, attempt) {
-        return fetch(editorCore.adminNotebookUrl(publicationRedirectNotebook), { cache: "no-store", credentials: "same-origin" }).then(function (response) {
-          if (!response.ok) return false;
-          return response.text().then(function (html) {
-            var page = new DOMParser().parseFromString(html, "text/html");
-            return String(page.body?.textContent || "").indexOf(els.title.value.trim()) !== -1;
-          });
-        }, function () {
-          return false;
-        }).then(function (ready) {
-          if (token !== publicationCheckToken) throw new Error("La verificación fue reemplazada por otra publicación.");
-          if (ready) {
-            setPublicationState("admin", "Disponible en el notebook de admin y verificado.");
-            return true;
-          }
-          return retryAdminNotebook(token, attempt);
-        });
-      }
-
-      function retryAdminNotebook(token, attempt) {
-        if (token !== publicationCheckToken) return Promise.reject(new Error("La verificación fue reemplazada por otra publicación."));
-        if (attempt >= 89) {
-          setPublicationState("pending", "Guardado en GitHub; el notebook de admin sigue pendiente.");
-          return Promise.reject(new Error("Cloudflare todavía no actualiza el notebook. Puedes reintentar Publicar."));
-        }
-        return new Promise(function (resolve) { window.setTimeout(resolve, 2000); }).then(function () {
-          return checkAdminNotebook(token, attempt + 1);
-        });
       }
 
       function redirectToNotebook() {

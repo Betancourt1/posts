@@ -1,5 +1,5 @@
-import { authorEditorHtml } from "./editor-template.js";
+import { writingEditorHtml } from "./writing-editor-template.js";
 
 export function postEditorHtml(options = {}) {
-  return authorEditorHtml({ ...options, editorKind: "post" });
+  return writingEditorHtml({ ...options, editorKind: "post" });
 }
