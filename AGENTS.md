@@ -14,6 +14,22 @@ Run commands from the repository root where `hugo.toml` is located.
 ## Coding Style & Naming Conventions
 Use UTF-8 Markdown with concise front matter and clear tags. Keep filenames lowercase with underscores, for example `politica_como_identidad.md`. Preserve the existing content hierarchy by language, section, year, and month. Prefer `hidden: true` in front matter for pages that should not appear in listings, search, archives, infrastructure mode, or the knowledge graph; `no_post*` filenames are still supported as a legacy convention. In templates and HTML, keep indentation consistent (2 spaces is preferred in this repo) and reuse partials in `layouts/partials/` instead of duplicating markup. Keep custom styles in `static/css/site.css`.
 
+## Locked Design Decisions
+
+### Editor save navigation
+
+Do not change this flow unless the user explicitly replaces the decision:
+
+1. Persist the content in GitHub.
+2. Synchronize Are.na when selected, including disconnecting an existing mapping when the user disables it.
+3. Redirect immediately to the selected Notebook.
+
+Cloudflare Pages deployment is asynchronous and must never block the editor redirect. Do not insert public-URL polling, deployment polling, cache verification, or `waitForPublicState(..., { exists: true })` between the Are.na step and `redirectToNotebook()`.
+
+Deletion is deliberately different: it may wait for the exact public URL to return 404 so the UI does not report a completed removal while stale content remains accessible.
+
+The rationale and regression contract live in `docs/editor-architecture.md`. Preserve the negative assertions in `functions/_lib/editor-template.test.mjs` that reject deployment waits in save flows.
+
 ## Testing Guidelines
 There is no automated test suite yet. Validate changes with a local build:
 - `hugo server -D` for visual/content review.
