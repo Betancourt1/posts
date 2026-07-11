@@ -18,6 +18,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
   const SITE_ORIGIN = String(siteOrigin || "https://fbetancourt.work").replace(/\/+$/, "");
   const ASSET_ORIGIN = String(assetOrigin || SITE_ORIGIN).replace(/\/+$/, "");
   const API_BASE = String(apiBase || "/api").replace(/\/+$/, "");
+  const EDITOR_CORE_URL = `${API_BASE.replace(/\/api$/, "")}/editor-core.js`;
 
   function siteAssetUrl(assetPath) {
     return `${ASSET_ORIGIN}/${String(assetPath).replace(/^\/+/, "")}`;
@@ -1648,7 +1649,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     <button type="button" class="primary-button" id="mobile-publish">Publicar</button>
   </footer>
 
-  <script src="${ASSET_ORIGIN}/js/editor/core.js"></script>
+  <script src="${EDITOR_CORE_URL}"></script>
   <script>
     (function () {
       var apiBase = ${JSON.stringify(API_BASE)};

@@ -14,6 +14,7 @@ import {
   syncArenaPage,
 } from "../functions/_lib/arena.js";
 import { imageEditorHtml } from "../functions/_lib/image-editor-template.js";
+import { editorCoreClientScript } from "../functions/_lib/editor-core-client.js";
 import { resolveEditorPath } from "../functions/_lib/editor-routing.js";
 import { notebookEditorHtml } from "../functions/_lib/notebook-editor-template.js";
 import { postEditorHtml } from "../functions/_lib/post-editor-template.js";
@@ -1113,6 +1114,15 @@ async function route(req, res) {
 
   if (req.method === "GET" && url.pathname === "/editor") {
     redirect(res, `${resolveEditorPath(url.searchParams)}${url.search}`);
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/editor-core.js") {
+    res.writeHead(200, {
+      "Cache-Control": "no-store",
+      "Content-Type": "text/javascript; charset=utf-8",
+    });
+    res.end(editorCoreClientScript);
     return;
   }
 

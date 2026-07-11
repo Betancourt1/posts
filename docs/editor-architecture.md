@@ -8,7 +8,7 @@ La autoria tiene tres entradas independientes: Notebook, Post e Imagen. Ninguna 
 2. La ruta de compatibilidad `/editor` redirige a `/notebook-editor`, `/post-editor` o `/image-editor`.
 3. Cada ruta carga su plantilla y su controlador inmutable.
 4. Notebook y Post comparten solamente el motor visual de escritura.
-5. Los tres editores usan `static/js/editor/core.js` para API, rutas, fechas, slugs y navegación.
+5. Los tres editores usan el núcleo protegido `editor-core-client.js` para API, rutas, fechas, slugs y navegación.
 
 ## Responsabilidades
 
@@ -18,7 +18,7 @@ La autoria tiene tres entradas independientes: Notebook, Post e Imagen. Ninguna 
 - `image-editor-controller.js`: capacidades exclusivas de publicaciones de imagen.
 - `writing-editor-template.js`: lienzo compartido por Notebook y Post; no clasifica contenido.
 - `image-editor-template.js`: experiencia image-first.
-- `static/js/editor/core.js`: infraestructura cliente sin decisiones de producto.
+- `editor-core-client.js`: infraestructura cliente sin decisiones de producto, servida únicamente bajo `/admin` en producción.
 - `tools/editor_harness.mjs`: navegador y API aislados para regresiones.
 
 ## Invariantes

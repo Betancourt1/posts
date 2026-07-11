@@ -26,6 +26,7 @@ const ICONS = Object.freeze({
 export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "/api", editorController = postEditorController } = {}) {
   const SITE_ORIGIN = String(siteOrigin || "https://fbetancourt.work").replace(/\/+$/, "");
   const ASSET_ORIGIN = String(assetOrigin || SITE_ORIGIN).replace(/\/+$/, "");
+  const EDITOR_CORE_URL = `${String(apiBase || "/api").replace(/\/+$/, "").replace(/\/api$/, "")}/editor-core.js`;
   function siteAssetUrl(assetPath) {
     return `${ASSET_ORIGIN}/${String(assetPath).replace(/^\/+/, "")}`;
   }
@@ -1732,7 +1733,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       </div>
     </aside>
   </main>
-  <script src="${ASSET_ORIGIN}/js/editor/core.js"></script>
+  <script src="${EDITOR_CORE_URL}"></script>
   <script>
     (function () {
       var params = new URLSearchParams(window.location.search);

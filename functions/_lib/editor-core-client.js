@@ -1,4 +1,4 @@
-(function (global) {
+export const editorCoreClientScript = String.raw`(function (global) {
   "use strict";
 
   function cleanBase(value) {
@@ -118,4 +118,4 @@
     splitTags: splitTags,
     today: today,
   });
-})(window);
+})(window);`;

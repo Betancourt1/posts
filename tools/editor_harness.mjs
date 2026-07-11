@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { chromium } from "playwright";
 import { imageEditorHtml } from "../functions/_lib/image-editor-template.js";
+import { editorCoreClientScript } from "../functions/_lib/editor-core-client.js";
 import { notebookEditorHtml } from "../functions/_lib/notebook-editor-template.js";
 import { postEditorHtml } from "../functions/_lib/post-editor-template.js";
 import { resolveEditorPath } from "../functions/_lib/editor-routing.js";
@@ -13,7 +13,6 @@ const fixtureImage = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
   "base64",
 );
-const editorCoreScript = readFileSync(new URL("../static/js/editor/core.js", import.meta.url), "utf8");
 
 const notebooks = [
   {
@@ -133,9 +132,9 @@ async function startHarnessServer(savedRequests) {
       return;
     }
 
-    if (req.method === "GET" && url.pathname === "/js/editor/core.js") {
+    if (req.method === "GET" && url.pathname === "/editor-core.js") {
       res.writeHead(200, { "Content-Type": "text/javascript; charset=utf-8" });
-      res.end(editorCoreScript);
+      res.end(editorCoreClientScript);
       return;
     }
 

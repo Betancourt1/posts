@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
+import { editorCoreClientScript } from "./editor-core-client.js";
+import { onRequestGet as getEditorCore } from "../admin/editor-core.js";
 
-const source = readFileSync(new URL("../../static/js/editor/core.js", import.meta.url), "utf8");
+const source = editorCoreClientScript;
 
 function loadCore(fetch = () => Promise.reject(new Error("Unexpected fetch"))) {
   const context = {
@@ -59,4 +60,12 @@ test("EditorCore API client rejects application errors", async () => {
   await assert.rejects(client.postJson("/api/save-page", { path: "fixture.md" }), /fallo controlado/);
   assert.equal(requests[0].url, "/admin/api/save-page");
   assert.equal(requests[0].options.method, "POST");
+});
+
+test("EditorCore is served as a protected admin asset", async () => {
+  const response = getEditorCore();
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  assert.match(response.headers.get("content-type"), /text\/javascript/);
+  assert.equal(await response.text(), editorCoreClientScript);
 });
