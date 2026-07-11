@@ -67,7 +67,14 @@ test("image editor uses one explicit save action and lightweight previews", () =
   assert.match(html, /id="visible"/);
   assert.match(html, /Preview ligera · 640 px/);
   assert.match(html, /isPreview \? "image\/webp"/);
-  assert.match(html, /id="publish">Publicar<\/button>/);
+  assert.match(html, /id="publish" aria-describedby="status" disabled>Publicar<\/button>/);
+  assert.match(html, /id="mobile-publish" aria-describedby="status" disabled>Publicar<\/button>/);
+  assert.match(html, /publishDisabled = saveBusy \|\| images\.length === 0/);
+  assert.match(html, /Hay cambios sin guardar/);
+  assert.match(html, /beforeunload/);
+  assert.match(html, /Falta texto alt/);
+  assert.match(html, /Sin pie \(opcional\)/);
+  assert.match(html, /aria-label="Carga de imágenes"/);
   assert.doesNotMatch(html, /Guardar y verificar/);
   assert.match(html, /assertPersistedState/);
   assert.doesNotMatch(html, />Publicar ↑</);

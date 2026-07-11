@@ -1424,7 +1424,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 <body>
   <header class="topbar">
     <div class="topbar-left">
-      <button type="button" class="icon-button" id="back" aria-label="Back" title="Back">${ICONS.back}</button>
+      <button type="button" class="icon-button" id="back" aria-label="Volver" title="Volver">${ICONS.back}</button>
       <a class="brand" href="${SITE_ORIGIN}/es/" aria-label="betancourt">
         <strong>betancourt</strong>
         <span>aqui escribo cosas</span>
@@ -1432,10 +1432,10 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     </div>
     <div class="topbar-actions">
       <button type="button" class="text-action" id="preview-image">${ICONS.preview}<span>Vista previa</span></button>
-      <span class="save-state" id="save-state">Sincronizado</span>
+      <span class="save-state" id="save-state" role="status" aria-live="polite">Sincronizado</span>
       <button type="button" class="text-action mobile-properties-toggle" id="properties-toggle" aria-controls="properties-sheet" aria-expanded="false" aria-label="Propiedades">...</button>
       <button type="button" class="secondary-button" id="save-draft" hidden>Guardar borrador</button>
-      <button type="button" class="primary-button" id="publish">Publicar</button>
+      <button type="button" class="primary-button" id="publish" aria-describedby="status" disabled>Publicar</button>
     </div>
   </header>
 
@@ -1469,7 +1469,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         </datalist>
       </div>
 
-      <div class="dropzone" id="dropzone" aria-label="Image upload area">
+      <div class="dropzone" id="dropzone" aria-label="Carga de imágenes">
         <div class="image-object">
           <div class="image-surface">
             <div class="empty-state" id="empty-state">
@@ -1477,7 +1477,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
                 ${ICONS.imagePlus}
               </span>
               <h2>Imagen pendiente</h2>
-              <p>Suelta o elige una o varias fotos.</p>
+              <p>Suelta o elige una o varias fotos. Publicar se activará cuando haya una imagen.</p>
               <p class="helper-copy">JPG, PNG y WebP se guardan en HD. GIF/SVG max 12 MB.</p>
               <button type="button" class="primary-button" id="choose-image-empty">Elegir imagenes</button>
             </div>
@@ -1528,7 +1528,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
                 </ul>
                 </div>
                 <div class="review-actions">
-                  <button type="button" class="primary-button" id="review-publish">Publicar</button>
+                  <button type="button" class="primary-button" id="review-publish" aria-describedby="status" disabled>Publicar</button>
                 </div>
               </div>
             </div>
@@ -1636,17 +1636,17 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       <section class="panel desktop-actions">
         <button type="button" class="secondary-button" id="panel-save-draft" hidden>Guardar borrador</button>
-        <button type="button" class="primary-button" id="panel-publish">Publicar</button>
+        <button type="button" class="primary-button" id="panel-publish" aria-describedby="status" disabled>Publicar</button>
       </section>
 
-      <p class="status-line" id="status">Elige una imagen para empezar.</p>
+      <p class="status-line" id="status" role="status" aria-live="polite">Elige una imagen para empezar. Publicar está desactivado hasta entonces.</p>
       <a class="saved-link" id="saved-link" href="#" hidden>Abrir publicacion guardada</a>
     </aside>
   </main>
 
   <footer class="mobile-actions">
     <button type="button" class="secondary-button" id="mobile-save-draft" hidden>Guardar borrador</button>
-    <button type="button" class="primary-button" id="mobile-publish">Publicar</button>
+    <button type="button" class="primary-button" id="mobile-publish" aria-describedby="status" disabled>Publicar</button>
   </footer>
 
   <script src="${EDITOR_CORE_URL}"></script>
@@ -1795,8 +1795,14 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function bind() {
         els.back.addEventListener("click", function () {
+          if (!confirmDiscardChanges()) return;
           window.close();
           window.history.back();
+        });
+        window.addEventListener("beforeunload", function (event) {
+          if (!hasUnsavedChanges || saveBusy) return;
+          event.preventDefault();
+          event.returnValue = "";
         });
         els.chooseImageEmpty.addEventListener("click", function () {
           chooseImages("add");
@@ -2457,6 +2463,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         syncSelectedInputs();
         updatePropertySummaries();
         updateActionLabels();
+        syncActionAvailability();
       }
 
       function renderLightbox() {
@@ -2688,9 +2695,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         var image = selectedImage();
         var altWritten = Boolean(image && image.alt.trim());
         var captionWritten = Boolean(image && image.caption.trim());
-        els.altSummary.textContent = altWritten ? "escrito" : "falta";
+        els.altSummary.textContent = altWritten ? "Completo" : "Falta texto alt";
         els.altAction.textContent = altWritten ? "editar" : "+ añadir";
-        els.captionSummary.textContent = captionWritten ? "escrito" : "opcional";
+        els.captionSummary.textContent = captionWritten ? "Escrito" : "Sin pie (opcional)";
         els.captionAction.textContent = captionWritten ? "editar" : "+ añadir";
         els.notebookSummary.textContent = selectedNotebookLabel();
         els.notebookPath.textContent = els.notebook.value || "sin destino";
@@ -2746,10 +2753,26 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function setBusy(isBusy) {
         saveBusy = isBusy;
-        [els.saveDraft, els.publish, els.mobileSaveDraft, els.mobilePublish, els.panelSaveDraft, els.panelPublish, els.reviewPublish].forEach(function (button) {
+        [els.saveDraft, els.mobileSaveDraft, els.panelSaveDraft].forEach(function (button) {
           button.disabled = isBusy;
         });
+        syncActionAvailability();
         els.arenaRetry.disabled = isBusy;
+      }
+
+      function syncActionAvailability() {
+        var publishDisabled = saveBusy || images.length === 0;
+        [els.publish, els.mobilePublish, els.panelPublish, els.reviewPublish].forEach(function (button) {
+          button.disabled = publishDisabled;
+          button.setAttribute("aria-disabled", publishDisabled ? "true" : "false");
+        });
+        els.previewImage.disabled = images.length === 0;
+        els.editAltImage.disabled = images.length === 0;
+      }
+
+      function confirmDiscardChanges() {
+        if (!hasUnsavedChanges || saveBusy) return true;
+        return window.confirm("Hay cambios sin guardar. ¿Quieres salir y descartarlos?");
       }
 
       function publishCurrentState() {
