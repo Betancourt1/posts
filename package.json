@@ -11,6 +11,7 @@
     "site": "node tools/site_cli.mjs",
     "visual:qa": "node tools/visual_qa.mjs",
     "test": "node --test functions/_lib/*.test.mjs",
+    "test:editors": "node tools/editor_harness.mjs",
     "test:arena": "node --test functions/_lib/arena.test.mjs",
     "build": "node tools/build_site.mjs",
     "build:local": "npm run build && node tools/sync_pagefind_static.mjs"
