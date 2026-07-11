@@ -8,6 +8,7 @@
   {{ end }}
   {{ $alt := or .Params.image_alt .Title }}
   {{ $caption := .Params.caption }}
+  {{ $hasContentTitle := gt (len (findRE `(?m)^\s*#\s+\S` .RawContent 1)) 0 }}
   <article class="post" {{ if $excludeFromSearch }}data-pagefind-ignore="all"{{ else }}data-pagefind-body{{ end }}>
     <header class="post-header">
       <div class="post-header-top" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 8px;">
@@ -46,7 +47,7 @@
         </div>
       </div>
 
-      {{ if not (or (eq .Section "posts") (eq .Section "zettelkasten")) }}
+      {{ if not $hasContentTitle }}
         <h1 class="post-title" style="margin-top: 0; margin-bottom: 12px;">{{ .Title }}</h1>
       {{ end }}
 

@@ -1,7 +1,7 @@
 {{ define "main" }}
   {{ $isEnglish := eq .Site.Language.Lang "en" }}
   <header class="page-header">
-    <h1>{{ if $isEnglish }}Page not found{{ else }}Página no encontrada{{ end }}</h1>
+    <h1 data-not-found-title>{{ if $isEnglish }}Page not found{{ else }}Página no encontrada{{ end }}</h1>
     <p class="post-summary" data-not-found-summary>
       {{ if $isEnglish }}
         The page you are looking for does not exist or moved.
@@ -12,7 +12,7 @@
   </header>
 
   <p>
-    <a class="button" href="{{ .Site.Home.RelPermalink }}">
+    <a class="button" href="{{ .Site.Home.RelPermalink }}" data-not-found-home>
       {{ if $isEnglish }}Go home{{ else }}Volver al inicio{{ end }}
     </a>
   </p>
@@ -20,21 +20,13 @@
   <script>
     (function () {
       var path = window.location.pathname;
-      var params = new URLSearchParams(window.location.search);
-      var originalPath = params.get("from");
+      if (!path.startsWith("/es/")) return;
 
-      if (path === "/es/404.html") {
-        document.title = "Página no encontrada | betancourt";
-        if (originalPath && originalPath.startsWith("/es/")) {
-          window.history.replaceState(null, "", originalPath);
-        }
-        return;
-      }
-
-      if (path.startsWith("/es/") && path !== "/es/404.html") {
-        var missingPath = path + window.location.search + window.location.hash;
-        window.location.replace("/es/404.html?from=" + encodeURIComponent(missingPath));
-      }
+      document.documentElement.lang = "es";
+      document.title = "Página no encontrada | betancourt";
+      document.querySelector("[data-not-found-title]").textContent = "Página no encontrada";
+      document.querySelector("[data-not-found-summary]").textContent = "La página que buscas no existe o cambió de lugar.";
+      document.querySelector("[data-not-found-home]").textContent = "Volver al inicio";
     })();
   </script>
 {{ end }}
