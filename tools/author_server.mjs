@@ -1117,7 +1117,7 @@ async function route(req, res) {
     return;
   }
 
-  if (req.method === "GET" && url.pathname === "/editor-core.js") {
+  if (req.method === "GET" && url.pathname === "/editor-core") {
     res.writeHead(200, {
       "Cache-Control": "no-store",
       "Content-Type": "text/javascript; charset=utf-8",

@@ -18,7 +18,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
   const SITE_ORIGIN = String(siteOrigin || "https://fbetancourt.work").replace(/\/+$/, "");
   const ASSET_ORIGIN = String(assetOrigin || SITE_ORIGIN).replace(/\/+$/, "");
   const API_BASE = String(apiBase || "/api").replace(/\/+$/, "");
-  const EDITOR_CORE_URL = `${API_BASE.replace(/\/api$/, "")}/editor-core.js`;
+  const EDITOR_CORE_URL = `${API_BASE.replace(/\/api$/, "")}/editor-core`;
 
   function siteAssetUrl(assetPath) {
     return `${ASSET_ORIGIN}/${String(assetPath).replace(/^\/+/, "")}`;

@@ -132,7 +132,7 @@ async function startHarnessServer(savedRequests) {
       return;
     }
 
-    if (req.method === "GET" && url.pathname === "/editor-core.js") {
+    if (req.method === "GET" && url.pathname === "/editor-core") {
       res.writeHead(200, { "Content-Type": "text/javascript; charset=utf-8" });
       res.end(editorCoreClientScript);
       return;
