@@ -179,6 +179,11 @@ async function startHarnessServer(savedRequests) {
       return;
     }
 
+    if (req.method === "GET" && /^\/es\/(fotografia|posts)\/.+\/$/.test(url.pathname)) {
+      html(res, `<!doctype html><title>Publicación</title><main>${url.pathname}</main>`);
+      return;
+    }
+
     if (req.method === "GET" && /^\/admin\/(es\/)?(fotografia|posts)\/$/.test(url.pathname)) {
       html(res, `<!doctype html><title>Notebook</title><h1 data-testid="notebook-destination">${url.pathname}</h1>`);
       return;
