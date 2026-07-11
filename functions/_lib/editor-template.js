@@ -1730,6 +1730,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       </div>
     </aside>
   </main>
+  <script src="${ASSET_ORIGIN}/js/editor/core.js"></script>
   <script>
     (function () {
       var params = new URLSearchParams(window.location.search);
@@ -1740,6 +1741,12 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       var grayscale = params.get("grayscale") === "true";
       var siteOrigin = params.get("site") || ${JSON.stringify(SITE_ORIGIN)};
       var apiBase = ${JSON.stringify(apiBase || "/api")};
+      var editorCore = window.EditorCore.create({ apiBase: apiBase, siteOrigin: siteOrigin });
+      var request = editorCore.request;
+      var postJson = editorCore.postJson;
+      var notebookPathForContent = editorCore.notebookPathForContent;
+      var slugify = editorCore.slugify;
+      var today = editorCore.today;
       var sourcePath = params.get("path") || "";
       var preferredNotebook = params.get("notebook") || "";
       var frontMatter = {};
@@ -2010,30 +2017,6 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
           button.addEventListener("click", function () {
             applyFormat(button.dataset.format);
           });
-        });
-      }
-
-      function request(path, options) {
-        var requestPath = path.indexOf("/api/") === 0
-          ? apiBase + path.slice(4)
-          : path;
-        return fetch(requestPath, options || {}).then(function (response) {
-          return response.json().catch(function () {
-            return {};
-          }).then(function (payload) {
-            if (!response.ok || payload.error) {
-              throw new Error(payload.error || "Author API error.");
-            }
-            return payload;
-          });
-        });
-      }
-
-      function postJson(path, payload) {
-        return request(path, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
         });
       }
 
@@ -2640,13 +2623,9 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         });
       }
 
-      function publicSiteOrigin() {
-        return String(siteOrigin || "").replace(/\\/admin$/, "").replace(/\\/+$/, "");
-      }
-
       function publicPageUrl() {
         var path = savedUrl || (sourcePath ? contentPathToUrl(sourcePath) : "");
-        return path ? publicSiteOrigin() + path : "";
+        return editorCore.publicContentUrl(path);
       }
 
       function setPublicationState(state, message) {
@@ -2712,7 +2691,7 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
       }
 
       function checkAdminNotebook(token, attempt) {
-        return fetch(adminNotebookUrl(), { cache: "no-store", credentials: "same-origin" }).then(function (response) {
+        return fetch(editorCore.adminNotebookUrl(publicationRedirectNotebook), { cache: "no-store", credentials: "same-origin" }).then(function (response) {
           if (!response.ok) return false;
           return response.text().then(function (html) {
             var page = new DOMParser().parseFromString(html, "text/html");
@@ -2741,21 +2720,8 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         });
       }
 
-      function adminNotebookUrl() {
-        var base = String(siteOrigin || "").replace(/\\/+$/, "");
-        if (!/\\/admin$/.test(base)) base += "/admin";
-        var path = publicationRedirectNotebook.replace(/^content_es/, "/es").replace(/^content_en/, "");
-        return base + "/" + path.replace(/^\\/+|\\/+$/g, "") + "/";
-      }
-
-      function notebookPathForContent(path) {
-        var parts = String(path || "").split("/");
-        if (parts[1] === "posts") return parts.slice(0, 2).join("/");
-        return parts.slice(0, -1).join("/");
-      }
-
       function redirectToNotebook() {
-        window.location.assign(adminNotebookUrl());
+        window.location.assign(editorCore.adminNotebookUrl(publicationRedirectNotebook));
       }
 
       function uploadImage() {
@@ -3557,25 +3523,11 @@ export function authorEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = 
         };
       }
 
-      function slugify(value, separator) {
-        return String(value || "")
-          .normalize("NFD")
-          .replace(/[\\u0300-\\u036f]/g, "")
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, separator)
-          .replace(new RegExp(separator + "+", "g"), separator)
-          .replace(new RegExp("^" + separator + "|" + separator + "$", "g"), "");
-      }
-
       function splitTags(value) {
         return String(value || "")
           .split(",")
           .map(function (tag) { return tag.trim(); })
           .filter(Boolean);
-      }
-
-      function today() {
-        return new Date().toLocaleDateString("en-CA", { timeZone: "America/Mexico_City" });
       }
 
       function contentPathToUrl(relativePath) {

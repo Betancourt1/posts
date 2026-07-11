@@ -14,7 +14,8 @@ test("notebook editor clears stale private flags and exposes verified publicatio
   assert.match(html, /Disponible en el blog/);
   assert.match(html, /Crear channel desde notebook/);
   assert.match(html, /assertPersistedState/);
-  assert.match(html, /apiBase \+ path\.slice\(4\)/);
+  assert.match(html, /\/js\/editor\/core\.js/);
+  assert.match(html, /window\.EditorCore\.create/);
   assert.match(html, /grid-template-columns: 2\.75rem minmax\(0, 1fr\) auto;/);
   assert.match(html, /\.top-actions \{\s+grid-column: 3;\s+grid-row: 1;/);
   assert.match(html, /class="editor-identity"/);

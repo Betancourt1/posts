@@ -1646,11 +1646,19 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     <button type="button" class="primary-button" id="mobile-publish">Publicar</button>
   </footer>
 
+  <script src="${ASSET_ORIGIN}/js/editor/core.js"></script>
   <script>
     (function () {
       var apiBase = ${JSON.stringify(API_BASE)};
       var siteOrigin = ${JSON.stringify(SITE_ORIGIN)};
       var assetOrigin = ${JSON.stringify(ASSET_ORIGIN)};
+      var editorCore = window.EditorCore.create({ apiBase: apiBase, siteOrigin: siteOrigin });
+      var request = editorCore.request;
+      var postJson = editorCore.postJson;
+      var notebookPathForContent = editorCore.notebookPathForContent;
+      var slugify = editorCore.slugify;
+      var splitTags = editorCore.splitTags;
+      var today = editorCore.today;
       var params = new URLSearchParams(window.location.search);
       var sourcePath = params.get("path") || "";
       var preferredNotebook = params.get("notebook") || sourcePath.replace(/\\/[^/]+$/, "") || "content_es/posts";
@@ -1945,27 +1953,6 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.publish.addEventListener("click", publishCurrentState);
         els.mobilePublish.addEventListener("click", publishCurrentState);
         els.panelPublish.addEventListener("click", publishCurrentState);
-      }
-
-      function request(path, options) {
-        return fetch(apiBase + path, options || {}).then(function (response) {
-          return response.json().catch(function () {
-            return {};
-          }).then(function (payload) {
-            if (!response.ok || payload.error) {
-              throw new Error(payload.error || "Author API error.");
-            }
-            return payload;
-          });
-        });
-      }
-
-      function postJson(path, payload) {
-        return request(path, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
       }
 
       function loadNotebooks() {
@@ -2856,12 +2843,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         }
       }
 
-      function publicSiteOrigin() {
-        return String(siteOrigin || "").replace(/\\/admin$/, "").replace(/\\/+$/, "");
-      }
-
       function publicPostUrl() {
-        return savedUrl ? publicSiteOrigin() + (savedUrl.charAt(0) === "/" ? savedUrl : "/" + savedUrl) : "";
+        return editorCore.publicContentUrl(savedUrl);
       }
 
       function setPublicationState(state, message) {
@@ -2922,7 +2905,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
 
       function checkAdminNotebook(token, attempt) {
-        return fetch(adminNotebookUrl(), { cache: "no-store", credentials: "same-origin" }).then(function (response) {
+        return fetch(editorCore.adminNotebookUrl(publicationRedirectNotebook), { cache: "no-store", credentials: "same-origin" }).then(function (response) {
           if (!response.ok) return false;
           return response.text().then(function (html) {
             var page = new DOMParser().parseFromString(html, "text/html");
@@ -2951,21 +2934,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         });
       }
 
-      function adminNotebookUrl() {
-        var base = String(siteOrigin || "").replace(/\\/+$/, "");
-        if (!/\\/admin$/.test(base)) base += "/admin";
-        var path = publicationRedirectNotebook.replace(/^content_es/, "/es").replace(/^content_en/, "");
-        return base + "/" + path.replace(/^\\/+|\\/+$/g, "") + "/";
-      }
-
-      function notebookPathForContent(path) {
-        var parts = String(path || "").split("/");
-        if (parts[1] === "posts") return parts.slice(0, 2).join("/");
-        return parts.slice(0, -1).join("/");
-      }
-
       function redirectToNotebook() {
-        window.location.assign(adminNotebookUrl());
+        window.location.assign(editorCore.adminNotebookUrl(publicationRedirectNotebook));
       }
 
       function validatePost(targetDraft) {
@@ -3229,13 +3199,6 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         return match ? match[0].toLowerCase() : ".jpg";
       }
 
-      function splitTags(value) {
-        return String(value || "")
-          .split(/[,\\s]+/)
-          .map(function (tag) { return tag.trim().replace(/^#/, ""); })
-          .filter(Boolean);
-      }
-
       function formatBytes(bytes) {
         var size = Number(bytes || 0);
         if (size >= 1024 * 1024) {
@@ -3264,28 +3227,6 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         return images.length > 1 && index > 0 && fallback === title ? fallback + " " + (index + 1) : fallback;
       }
 
-      function slugify(value) {
-        return String(value || "")
-          .normalize("NFD")
-          .replace(/[\\u0300-\\u036f]/g, "")
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-+|-+$/g, "");
-      }
-
-      function today() {
-        var parts = new Intl.DateTimeFormat("en", {
-          timeZone: "America/Mexico_City",
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        }).formatToParts(new Date());
-        var values = {};
-        parts.forEach(function (part) {
-          values[part.type] = part.value;
-        });
-        return values.year + "-" + values.month + "-" + values.day;
-      }
     })();
   </script>
 </body>
