@@ -1,0 +1,7 @@
+{{ $scratch := newScratch }}
+{{ range .Site.RegularPages }}
+  {{ if and (ne .Section "") (not (partial "is_hidden.html" .)) }}
+    {{ $scratch.Add "pages" (slice .) }}
+  {{ end }}
+{{ end }}
+{{ return ($scratch.Get "pages" | default (slice)) }}

@@ -6,13 +6,7 @@
   {{ $filterAcademic := cond $isEnglish "Academic" "Académicos" }}
   {{ $filterZettelkasten := "Zettelkasten" }}
   {{ $filterReadings := cond $isEnglish "Readings" "Lecturas" }}
-  {{ $scratch := newScratch }}
-  {{ range .Site.RegularPages }}
-    {{ if not (partial "is_hidden.html" .) }}
-      {{ $scratch.Add "pages" (slice .) }}
-    {{ end }}
-  {{ end }}
-  {{ $pages := $scratch.Get "pages" | default (slice) }}
+  {{ $pages := partial "archive_pages.html" . }}
   {{ $sections := slice }}
   {{ range .Site.Sections.ByTitle }}
     {{ if gt (len (where $pages "Section" .Section)) 0 }}
