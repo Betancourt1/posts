@@ -43,6 +43,10 @@
   --badge-zettel-text: #a86bff;
   --badge-lit-border: rgba(255, 107, 107, 0.45);
   --badge-lit-text: #ff6b6b;
+  --badge-photo-border: rgba(56, 199, 232, 0.45);
+  --badge-photo-text: #38c7e8;
+  --badge-book-border: rgba(244, 114, 182, 0.45);
+  --badge-book-text: #f472b6;
 
   /* Article custom styling variables (Dark Mode) */
   --article-ink: #c8c8c8;
@@ -86,6 +90,10 @@
   --badge-zettel-text: #5a27ad;
   --badge-lit-border: rgba(186, 37, 37, 0.45);
   --badge-lit-text: #ba2525;
+  --badge-photo-border: rgba(8, 124, 147, 0.45);
+  --badge-photo-text: #087c93;
+  --badge-book-border: rgba(166, 30, 99, 0.45);
+  --badge-book-text: #a61e63;
 
   /* Article custom styling variables (Light Mode) */
   --article-ink: var(--ink);
@@ -2045,6 +2053,15 @@ body.graph-maximized .curved-scrollbar {
 .archive-badge--lit {
   border-color: var(--badge-lit-border);
   color: var(--badge-lit-text);
+}
+.archive-badge--fotografia {
+  border-color: var(--badge-photo-border);
+  color: var(--badge-photo-text);
+}
+.archive-badge--books,
+.archive-badge--libros {
+  border-color: var(--badge-book-border);
+  color: var(--badge-book-text);
 }
 
 /* Ensure active/hover items look clean and don't wrap badge weirdly */
