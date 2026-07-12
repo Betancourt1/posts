@@ -30,7 +30,11 @@
   <ul class="nav-list" id="primary-navigation">
     {{ range .Site.Menus.main }}
     {{ $menuPage := .Page }}
-    {{ if or $menuPage (hasPrefix .URL "http://") (hasPrefix .URL "https://") }}
+    {{ $menuIsHidden := false }}
+    {{ with $menuPage }}
+      {{ $menuIsHidden = partial "is_hidden.html" . }}
+    {{ end }}
+    {{ if and (not $menuIsHidden) (or $menuPage (hasPrefix .URL "http://") (hasPrefix .URL "https://")) }}
       {{ with $menuPage }}
         {{ if .Section }}
           {{ $menuSections = $menuSections | append .Section }}
