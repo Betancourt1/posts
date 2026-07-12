@@ -375,10 +375,10 @@
     document.addEventListener("keydown", function (e) {
       if (e.ctrlKey && e.key === "`") {
         e.preventDefault();
-        toggleTerminal(!overlay.classList.contains("is-open"));
+        toggleTerminal(!overlay.classList.contains("is-open"), true);
       }
       if (e.key === "Escape" && overlay.classList.contains("is-open")) {
-        toggleTerminal(false);
+        toggleTerminal(false, true);
       }
     });
 
@@ -395,24 +395,30 @@
 
     /* Restore terminal state */
     if (localStorage.getItem(TERMINAL_STORAGE_KEY) === "true") {
-      toggleTerminal(true);
+      toggleTerminal(true, true);
     }
   }
 
-  function toggleTerminal(open) {
+  function toggleTerminal(open, instant) {
     var overlay = document.getElementById("ssh-terminal-overlay");
     var input = document.getElementById("ssh-terminal-input");
     if (!overlay) return;
+    overlay.classList.toggle("is-instant", !!instant);
     if (open) {
       overlay.classList.add("is-open");
-      overlay.style.height = "100vh";
+      overlay.style.removeProperty("height");
       if (input) input.focus();
       localStorage.setItem(TERMINAL_STORAGE_KEY, "true");
     } else {
       overlay.classList.remove("is-open");
-      overlay.style.height = "0px";
+      overlay.style.removeProperty("height");
       localStorage.setItem(TERMINAL_STORAGE_KEY, "false");
       updateContentMargin(0);
+    }
+    if (instant) {
+      setTimeout(function () {
+        overlay.classList.remove("is-instant");
+      }, 0);
     }
   }
 

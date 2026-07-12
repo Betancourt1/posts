@@ -34,7 +34,7 @@
               {{ partial "author_icon.html" "trash" }}
             </button>
           {{ end }}
-          <button type="button" class="zen-toggle-btn" id="zen-toggle-btn" aria-label="Modo lectura Zen" title="Modo lectura Zen" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0;">
+          <button type="button" class="zen-toggle-btn" id="zen-toggle-btn" aria-label="Modo lectura Zen" title="Modo lectura Zen">
             <svg class="zen-icon-normal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 17px; height: 17px;">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
               <circle cx="12" cy="12" r="3"></circle>
@@ -104,7 +104,8 @@
 
       var storageKey = "zen_mode_enabled";
       var body = document.body;
-      var slideDuration = 280;
+      var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      var slideDuration = 220;
       var returnRevealDelay = 40;
       var zenTimer = null;
 
@@ -120,6 +121,11 @@
         body.classList.remove("zen-mode-fading", "zen-mode-returning");
         toggleBtn.classList.toggle("is-active", enabled);
         localStorage.setItem(storageKey, enabled ? "true" : "false");
+
+        if (reducedMotion.matches) {
+          body.classList.toggle("zen-mode", enabled);
+          return;
+        }
 
         if (enabled) {
           body.classList.add("zen-mode-fading");

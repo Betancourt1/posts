@@ -27,7 +27,7 @@
   var CORNER_LEAD_MOBILE = 24;
   var EDGE_COMPRESSION_RANGE = 0.22;
   var COMPRESSED_LENGTH_SCALE = 0.42;
-  var VISUAL_SETTLE_MS = 360;
+  var VISUAL_SETTLE_MS = 240;
   var DIRECT_SETTLE_DISTANCE = 0.002;
 
   function clamp(value, min, max) {
@@ -299,7 +299,7 @@
   }
 
   function handlePointerDown(event) {
-    if (!root.classList.contains("curved-scrollbar-active")) {
+    if (isDragging || !root.classList.contains("curved-scrollbar-active")) {
       return;
     }
 

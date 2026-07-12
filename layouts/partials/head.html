@@ -85,7 +85,7 @@
 <meta name="twitter:title" content="{{ $pageTitle }}" />
 <meta name="twitter:description" content="{{ $description }}" />
 <meta name="twitter:image" content="{{ $socialImage }}" />
-<link rel="preload" href="{{ "fonts/Jersey10-Regular.ttf" | relURL }}" as="font" type="font/ttf" crossorigin />
+<link rel="preload" href="{{ "fonts/Jersey10-Regular.woff2" | relURL }}" as="font" type="font/woff2" crossorigin />
 <link rel="stylesheet" href="{{ "css/site.css" | relURL }}?v={{ $buildID }}" />
 {{ $showSearch := partial "search_enabled.html" . }}
 {{ if $showSearch }}
@@ -184,8 +184,9 @@
           );
         }
 
-        function openModal() {
+        function openModal(instant) {
           previouslyFocused = document.activeElement;
+          overlay.classList.toggle("is-instant", !!instant);
           overlay.removeAttribute("inert");
           overlay.setAttribute("aria-hidden", "false");
           overlay.classList.add("is-visible");
@@ -201,10 +202,14 @@
             } else {
               modal.focus();
             }
-          }, 60);
+            if (instant) {
+              overlay.classList.remove("is-instant");
+            }
+          }, instant ? 0 : 60);
         }
 
-        function closeModal() {
+        function closeModal(instant) {
+          overlay.classList.toggle("is-instant", !!instant);
           overlay.classList.remove("is-visible");
           document.body.classList.remove("search-active");
           if (trigger) {
@@ -219,22 +224,29 @@
           overlay.setAttribute("aria-hidden", "true");
           overlay.setAttribute("inert", "");
           previouslyFocused = null;
+          if (instant) {
+            setTimeout(function () {
+              overlay.classList.remove("is-instant");
+            }, 0);
+          }
         }
 
         if (trigger) {
           trigger.addEventListener("click", function (e) {
             e.preventDefault();
-            openModal();
+            openModal(false);
           });
         }
 
         if (closeBtn) {
-          closeBtn.addEventListener("click", closeModal);
+          closeBtn.addEventListener("click", function () {
+            closeModal(false);
+          });
         }
 
         overlay.addEventListener("click", function (e) {
           if (e.target === overlay) {
-            closeModal();
+            closeModal(false);
           }
         });
 
@@ -263,13 +275,13 @@
           if ((e.ctrlKey || e.metaKey) && e.key === "k") {
             e.preventDefault();
             if (overlay.classList.contains("is-visible")) {
-              closeModal();
+              closeModal(true);
             } else {
-              openModal();
+              openModal(true);
             }
           }
           if (e.key === "Escape" && overlay.classList.contains("is-visible")) {
-            closeModal();
+            closeModal(true);
           }
         });
       }

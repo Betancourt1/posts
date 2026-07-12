@@ -262,6 +262,29 @@
       searchMatches: [],
       searchMatchIndex: -1
     };
+    var simulationFrame = null;
+    var simulationFrames = 0;
+    var graphVisible = true;
+    var MAX_SIMULATION_FRAMES = 360;
+    var SETTLED_SPEED = 0.02;
+
+    function requestSimulationFrame() {
+      if (simulationFrame !== null || !graphVisible || document.hidden) {
+        return;
+      }
+      simulationFrame = window.requestAnimationFrame(tick);
+    }
+
+    function wakeSimulation() {
+      simulationFrames = 0;
+      requestSimulationFrame();
+    }
+
+    function drawIfIdle() {
+      if (simulationFrame === null && graphVisible && !document.hidden) {
+        draw();
+      }
+    }
 
     function readVar(name, fallback) {
       var value = getComputedStyle(document.documentElement).getPropertyValue(name);
@@ -295,6 +318,7 @@
         placeInitialNodes();
         hasPositioned = true;
       }
+      drawIfIdle();
     }
 
     function placeInitialNodes() {
@@ -344,6 +368,7 @@
       state.zoom = nextZoom;
       state.offsetX = screenX - worldBefore.x * state.zoom;
       state.offsetY = screenY - worldBefore.y * state.zoom;
+      drawIfIdle();
     }
 
     function recenterGraph() {
@@ -351,6 +376,7 @@
       state.offsetX = width / 2;
       state.offsetY = height / 2;
       placeInitialNodes();
+      wakeSimulation();
     }
 
     function syncLabelsButton() {
@@ -376,6 +402,7 @@
       state.searchMatches = [];
       state.searchMatchIndex = -1;
       updateSearchStatus("");
+      drawIfIdle();
     }
 
     function centerViewport(node) {
@@ -400,6 +427,7 @@
       state.searchNode = node;
       state.zoom = clamp(Math.max(state.zoom, 1.08), state.minZoom, state.maxZoom);
       centerViewport(node);
+      drawIfIdle();
     }
 
     function applySearchQuery(rawQuery, cycleNext) {
@@ -629,11 +657,17 @@
     }
 
     function tick() {
+      simulationFrame = null;
+      if (!graphVisible || document.hidden) {
+        return;
+      }
+
       var spacingScale = state.linkDistance / state.baseLinkDistance;
       var repulsion = 2200 * spacingScale;
       var springStrength = 0.011;
       var centerStrength = 0.0025;
       var damping = 0.88;
+      var maxSpeed = 0;
 
       for (var i = 0; i < nodes.length; i += 1) {
         for (var j = i + 1; j < nodes.length; j += 1) {
@@ -711,13 +745,24 @@
         node.vy *= damping;
         node.x += node.vx * 0.08;
         node.y += node.vy * 0.08;
+        maxSpeed = Math.max(maxSpeed, Math.abs(node.vx) + Math.abs(node.vy));
       });
 
       draw();
-      window.requestAnimationFrame(tick);
+      simulationFrames += 1;
+      if (
+        state.draggingNode ||
+        state.panning ||
+        (maxSpeed > SETTLED_SPEED && simulationFrames < MAX_SIMULATION_FRAMES)
+      ) {
+        requestSimulationFrame();
+      }
     }
 
     canvas.addEventListener("pointerdown", function (event) {
+      if (state.pointerId !== null) {
+        return;
+      }
       var pos = pointerXY(event);
       var world = screenToWorld(pos.x, pos.y);
       var pickedNode = pickNode(world.x, world.y);
@@ -738,6 +783,7 @@
       }
 
       canvas.setPointerCapture(event.pointerId);
+      wakeSimulation();
     });
 
     canvas.addEventListener("pointermove", function (event) {
@@ -753,17 +799,23 @@
         if (state.draggingNode) {
           state.draggingNode.x = world.x;
           state.draggingNode.y = world.y;
+          requestSimulationFrame();
           return;
         }
 
         if (state.panning) {
           state.offsetX = state.panStartOffsetX + (pos.x - state.downScreenX);
           state.offsetY = state.panStartOffsetY + (pos.y - state.downScreenY);
+          drawIfIdle();
         }
         return;
       }
 
-      state.hoverNode = pickNode(world.x, world.y);
+      var nextHoverNode = pickNode(world.x, world.y);
+      if (nextHoverNode !== state.hoverNode) {
+        state.hoverNode = nextHoverNode;
+        drawIfIdle();
+      }
     });
 
     function onPointerUp(event) {
@@ -776,6 +828,7 @@
       state.draggingNode = null;
       state.panning = false;
       container.classList.toggle("is-grabbing", false);
+      wakeSimulation();
     }
 
     canvas.addEventListener("pointerup", onPointerUp);
@@ -817,23 +870,27 @@
           return;
         }
         state.linkDistance = clamp(nextValue, 30, 200);
+        wakeSimulation();
       });
     }
 
     if (searchInput) {
       searchInput.addEventListener("input", function () {
         applySearchQuery(searchInput.value, false);
+        drawIfIdle();
       });
       searchInput.addEventListener("keydown", function (event) {
         if (event.key === "Enter") {
           event.preventDefault();
           applySearchQuery(searchInput.value, true);
+          drawIfIdle();
           return;
         }
         if (event.key === "Escape" && searchInput.value) {
           searchInput.value = "";
           clearSearchSelection();
           centerViewport(null);
+          drawIfIdle();
         }
       });
     }
@@ -863,6 +920,7 @@
         if (action === "toggle-labels") {
           state.forceLabels = !state.forceLabels;
           syncLabelsButton();
+          drawIfIdle();
           return;
         }
         if (action === "toggle-maximize") {
@@ -883,17 +941,38 @@
 
     var themeObserver = new MutationObserver(function () {
       refreshTheme();
+      drawIfIdle();
     });
     themeObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["data-theme"]
     });
 
+    if ("IntersectionObserver" in window) {
+      var visibilityObserver = new IntersectionObserver(function (entries) {
+        graphVisible = entries.some(function (entry) {
+          return entry.isIntersecting;
+        });
+        if (graphVisible) {
+          drawIfIdle();
+          wakeSimulation();
+        }
+      }, { rootMargin: "100px" });
+      visibilityObserver.observe(container);
+    }
+
+    document.addEventListener("visibilitychange", function () {
+      if (!document.hidden) {
+        drawIfIdle();
+        wakeSimulation();
+      }
+    });
+
     refreshTheme();
     setCanvasSize();
     syncLabelsButton();
     syncMaximizeButton();
-    tick();
+    wakeSimulation();
   }
 
   if (document.readyState === "loading") {

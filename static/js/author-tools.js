@@ -211,12 +211,10 @@
       return;
     }
 
-    button.classList.remove("is-pressed");
-    void button.offsetWidth;
     button.classList.add("is-pressed");
     window.setTimeout(function () {
       button.classList.remove("is-pressed");
-    }, 220);
+    }, 160);
   }
 
   function setIconBusy(button, label) {
