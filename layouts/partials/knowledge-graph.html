@@ -5,11 +5,13 @@
 {{ $graphEntries := slice }}
 {{ $graphTagLinks := dict }}
 {{ $focusTags := slice }}
+{{ $graphIgnoredTags := slice "book" "read" "currently-reading" "to-read" "libro" "leído" "leyendo" "por-leer" }}
 {{ if $isSidebar }}
   {{ with $page.Params.tags }}
     {{ range . }}
       {{ $tagText := replaceRE "^\\s+|\\s+$" "" (printf "%v" .) }}
-      {{ if $tagText }}
+      {{ $tagKey := lower $tagText }}
+      {{ if and $tagText (not (in $graphIgnoredTags $tagKey)) }}
         {{ $focusTags = $focusTags | append $tagText }}
       {{ end }}
     {{ end }}
@@ -23,14 +25,19 @@
   {{ end }}
   {{ if $includeInGraph }}
     {{ with $entryPage.Params.tags }}
-      {{ $entryPermalink := partial "admin_href.html" (dict "page" $page "href" $entryPage.RelPermalink) }}
-      {{ $graphEntries = $graphEntries | append (dict "title" $entryPage.Title "permalink" $entryPermalink "tags" .) }}
+      {{ $entryTags := slice }}
       {{ range . }}
         {{ $tagText := replaceRE "^\\s+|\\s+$" "" (printf "%v" .) }}
-        {{ if $tagText }}
+        {{ $tagKey := lower $tagText }}
+        {{ if and $tagText (not (in $graphIgnoredTags $tagKey)) }}
+          {{ $entryTags = $entryTags | append $tagText }}
           {{ $tagLink := printf "tags/%s/" ($tagText | urlize) | relLangURL }}
           {{ $graphTagLinks = merge $graphTagLinks (dict $tagText $tagLink) }}
         {{ end }}
+      {{ end }}
+      {{ if gt (len $entryTags) 0 }}
+        {{ $entryPermalink := partial "admin_href.html" (dict "page" $page "href" $entryPage.RelPermalink) }}
+        {{ $graphEntries = $graphEntries | append (dict "title" $entryPage.Title "permalink" $entryPermalink "tags" $entryTags) }}
       {{ end }}
     {{ end }}
   {{ end }}
