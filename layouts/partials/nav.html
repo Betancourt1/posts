@@ -39,7 +39,7 @@
       <li>
         {{ $href := partial "admin_href.html" (dict "page" $ "href" .URL) }}
         <a href="{{ $href }}" {{ if and $menuPage ($.IsMenuCurrent "main" .) }} class="active" {{ end }}>
-          {{ .Name }}
+          {{ if $menuPage }}{{ $menuPage.Title }}{{ else }}{{ .Name }}{{ end }}
         </a>
       </li>
     {{ end }}
