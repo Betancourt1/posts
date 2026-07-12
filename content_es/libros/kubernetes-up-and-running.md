@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-26759355"
 summary: "De Kelsey Hightower · Leído"
-tags: ["libro","leído","libro-técnico","tecnología"]
+tags: ["libro","leído","libro-técnico","tecnología","kubernetes","contenedores","devops","computación-en-la-nube"]
 book_author: "Kelsey Hightower"
 book_status: "read"
 goodreads_id: "26759355"

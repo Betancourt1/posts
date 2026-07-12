@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-6903942"
 summary: "De Pablo Amster · Leído · 5/5"
-tags: ["libro","leído","matemáticas","ensayo"]
+tags: ["libro","leído","matemáticas","ensayo","lenguaje","comunicación","filosofía"]
 book_author: "Pablo Amster"
 book_status: "read"
 goodreads_id: "6903942"

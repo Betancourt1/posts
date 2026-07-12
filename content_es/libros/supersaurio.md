@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-60373913"
 summary: "De Meryem El Mehdati · Leído · 5/5"
-tags: ["libro","leído","novelas"]
+tags: ["libro","leído","novelas","trabajo-de-oficina","trabajo-precario","capitalismo","amor-no-correspondido"]
 book_author: "Meryem El Mehdati"
 book_status: "read"
 goodreads_id: "60373913"

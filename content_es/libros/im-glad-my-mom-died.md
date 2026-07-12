@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-59366244"
 summary: "De Jennette McCurdy · Por leer"
-tags: ["libro","por-leer"]
+tags: ["libro","por-leer","memorias","familia","abuso","fama-infantil","salud-mental"]
 book_author: "Jennette McCurdy"
 book_status: "to-read"
 goodreads_id: "59366244"

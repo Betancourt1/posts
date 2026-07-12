@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-57581258"
 summary: "By Renata Salecl · Read · 5/5"
-tags: ["book","read","essays","social-sciences"]
+tags: ["book","read","essays","social-sciences","psychoanalysis","desire","transgression","social-theory"]
 book_author: "Renata Salecl"
 book_status: "read"
 goodreads_id: "57581258"

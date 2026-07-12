@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-36411996"
 summary: "By Nigel Poulton · Read · 5/5"
-tags: ["book","read","technical-books"]
+tags: ["book","read","technical-books","containers","docker","devops","cloud-computing"]
 book_author: "Nigel Poulton"
 book_status: "read"
 goodreads_id: "36411996"

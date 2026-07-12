@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-23692271"
 summary: "De Yuval Noah Harari · Leído"
-tags: ["libro","leído","ensayo","ciencias-sociales"]
+tags: ["libro","leído","ensayo","ciencias-sociales","historia-humana","antropología","evolución","civilización"]
 book_author: "Yuval Noah Harari"
 book_status: "read"
 goodreads_id: "23692271"

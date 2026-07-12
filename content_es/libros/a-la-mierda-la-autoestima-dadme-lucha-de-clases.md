@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-228194371"
 summary: "De Jean-Philippe Kindler · Leído · 5/5"
-tags: ["libro","leído","ciencias-sociales","ensayo"]
+tags: ["libro","leído","ciencias-sociales","ensayo","política-de-clase","capitalismo","crítica-a-la-autoayuda","izquierda"]
 book_author: "Jean-Philippe Kindler"
 book_status: "read"
 goodreads_id: "228194371"

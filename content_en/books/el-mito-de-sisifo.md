@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-2704427"
 summary: "By Albert Camus · Read · 5/5"
-tags: ["book","read","essays"]
+tags: ["book","read","essays","existentialism","absurdism","suicide","philosophy"]
 book_author: "Albert Camus"
 book_status: "read"
 goodreads_id: "2704427"

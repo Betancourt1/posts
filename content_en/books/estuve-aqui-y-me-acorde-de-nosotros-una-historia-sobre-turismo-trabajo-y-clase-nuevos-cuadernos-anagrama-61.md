@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-205169784"
 summary: "By Anna Pacheco · Read · 5/5"
-tags: ["book","read","social-sciences","essays"]
+tags: ["book","read","social-sciences","essays","tourism","labor","class","gentrification"]
 book_author: "Anna Pacheco"
 book_status: "read"
 goodreads_id: "205169784"

@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-225665"
 summary: "By Michael Polanyi · Want to read"
-tags: ["book","to-read"]
+tags: ["book","to-read","tacit-knowledge","epistemology","philosophy-of-science","knowledge"]
 book_author: "Michael Polanyi"
 book_status: "to-read"
 goodreads_id: "225665"

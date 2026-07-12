@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-385"
 summary: "De Harry G. Frankfurt · Leído · 5/5"
-tags: ["libro","leído","ensayo","ciencias-sociales"]
+tags: ["libro","leído","ensayo","ciencias-sociales","lenguaje","engaño","filosofía","retórica"]
 book_author: "Harry G. Frankfurt"
 book_status: "read"
 goodreads_id: "385"

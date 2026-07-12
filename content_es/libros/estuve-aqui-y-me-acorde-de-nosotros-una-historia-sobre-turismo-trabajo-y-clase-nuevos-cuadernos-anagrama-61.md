@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-205169784"
 summary: "De Anna Pacheco · Leído · 5/5"
-tags: ["libro","leído","ciencias-sociales","ensayo"]
+tags: ["libro","leído","ciencias-sociales","ensayo","turismo","trabajo","clase","gentrificación"]
 book_author: "Anna Pacheco"
 book_status: "read"
 goodreads_id: "205169784"

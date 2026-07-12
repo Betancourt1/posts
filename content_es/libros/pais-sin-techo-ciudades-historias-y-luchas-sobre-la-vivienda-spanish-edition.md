@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-144342430"
 summary: "De Carla Escoffie · Leído · 5/5"
-tags: ["libro","leído","ciencias-sociales"]
+tags: ["libro","leído","ciencias-sociales","vivienda","urbanismo","desigualdad","derecho-a-la-vivienda","méxico"]
 book_author: "Carla Escoffie"
 book_status: "read"
 goodreads_id: "144342430"

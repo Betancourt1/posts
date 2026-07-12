@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-58103907"
 summary: "De Liv Strömquist · Leído · 5/5"
-tags: ["libro","leído","comic","ciencias-sociales","ensayo"]
+tags: ["libro","leído","comic","ciencias-sociales","ensayo","amor","relaciones","patriarcado","cultura-popular"]
 book_author: "Liv Strömquist"
 book_status: "read"
 goodreads_id: "58103907"

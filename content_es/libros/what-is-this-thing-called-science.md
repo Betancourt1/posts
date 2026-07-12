@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-137314"
 summary: "De Alan F. Chalmers · Leído · 4/5"
-tags: ["libro","leído"]
+tags: ["libro","leído","filosofía-de-la-ciencia","método-científico","epistemología","falsabilidad"]
 book_author: "Alan F. Chalmers"
 book_status: "read"
 goodreads_id: "137314"

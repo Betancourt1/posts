@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-8994891"
 summary: "De Julian Barnes · Leído · 5/5"
-tags: ["libro","leído","ensayo"]
+tags: ["libro","leído","ensayo","mortalidad","religión","memoria","familia","memorias"]
 book_author: "Julian Barnes"
 book_status: "read"
 goodreads_id: "8994891"

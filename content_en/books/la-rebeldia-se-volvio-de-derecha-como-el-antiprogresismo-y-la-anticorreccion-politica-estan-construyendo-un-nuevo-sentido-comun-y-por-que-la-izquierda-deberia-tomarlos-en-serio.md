@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-56871504"
 summary: "By Pablo Stefanoni · Read · 3/5"
-tags: ["book","read","social-sciences","essays"]
+tags: ["book","read","social-sciences","essays","far-right","populism","political-communication","culture-wars"]
 book_author: "Pablo Stefanoni"
 book_status: "read"
 goodreads_id: "56871504"

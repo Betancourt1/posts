@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-228194371"
 summary: "By Jean-Philippe Kindler · Read · 5/5"
-tags: ["book","read","social-sciences","essays"]
+tags: ["book","read","social-sciences","essays","class-politics","capitalism","self-help-critique","left"]
 book_author: "Jean-Philippe Kindler"
 book_status: "read"
 goodreads_id: "228194371"

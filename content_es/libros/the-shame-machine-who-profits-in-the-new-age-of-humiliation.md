@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-59342743"
 summary: "De Cathy O'Neil · Leído · 4/5"
-tags: ["libro","leído","ciencias-sociales","ensayo","tecnología"]
+tags: ["libro","leído","ciencias-sociales","ensayo","tecnología","vergüenza","redes-sociales","humillación-pública","psicología"]
 book_author: "Cathy O'Neil"
 book_status: "read"
 goodreads_id: "59342743"

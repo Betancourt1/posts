@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-36411996"
 summary: "De Nigel Poulton · Leído · 5/5"
-tags: ["libro","leído","libro-técnico"]
+tags: ["libro","leído","libro-técnico","contenedores","docker","devops","computación-en-la-nube"]
 book_author: "Nigel Poulton"
 book_status: "read"
 goodreads_id: "36411996"

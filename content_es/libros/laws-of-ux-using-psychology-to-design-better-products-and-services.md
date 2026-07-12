@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-50611580"
 summary: "De Jon Yablonski · Leído · 5/5"
-tags: ["libro","leído","visualización-de-datos","tecnología"]
+tags: ["libro","leído","visualización-de-datos","tecnología","experiencia-de-usuario","psicología","diseño-de-producto","usabilidad"]
 book_author: "Jon Yablonski"
 book_status: "read"
 goodreads_id: "50611580"

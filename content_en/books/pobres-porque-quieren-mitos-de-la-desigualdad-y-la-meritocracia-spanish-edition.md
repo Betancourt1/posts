@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-220273077"
 summary: "By Máximo E. Jaramillo Molina · Read · 5/5"
-tags: ["book","read","essays","social-sciences","data-visualization"]
+tags: ["book","read","essays","social-sciences","data-visualization","inequality","meritocracy","poverty","social-mobility","mexico"]
 book_author: "Máximo E. Jaramillo Molina"
 book_status: "read"
 goodreads_id: "220273077"

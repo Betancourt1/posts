@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-2543099"
 summary: "De Wayne C. Booth · Leído · 5/5"
-tags: ["libro","leído","ciencias-sociales"]
+tags: ["libro","leído","ciencias-sociales","métodos-de-investigación","escritura-académica","argumentación","evidencia"]
 book_author: "Wayne C. Booth"
 book_status: "read"
 goodreads_id: "2543099"

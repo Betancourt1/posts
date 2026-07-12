@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-59186"
 summary: "By Franz Kafka · Read · 4/5"
-tags: ["book","read"]
+tags: ["book","read","alienation","family","identity","absurdism"]
 book_author: "Franz Kafka"
 book_status: "read"
 goodreads_id: "59186"

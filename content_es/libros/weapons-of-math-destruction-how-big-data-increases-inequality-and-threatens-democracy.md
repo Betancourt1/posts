@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-28186015"
 summary: "De Cathy O'Neil · Leído · 4/5"
-tags: ["libro","leído","ensayo","ciencias-sociales"]
+tags: ["libro","leído","ensayo","ciencias-sociales","sesgo-algorítmico","desigualdad","big-data","ética","política-pública"]
 book_author: "Cathy O'Neil"
 book_status: "read"
 goodreads_id: "28186015"

@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-51291"
 summary: "By Darrell Huff · Read"
-tags: ["book","read","essays","mathematics"]
+tags: ["book","read","essays","mathematics","statistics","misinformation","data-literacy","critical-thinking"]
 book_author: "Darrell Huff"
 book_status: "read"
 goodreads_id: "51291"

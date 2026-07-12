@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-34762552"
 summary: "De Safiya Umoja Noble · Por leer"
-tags: ["libro","por-leer"]
+tags: ["libro","por-leer","racismo","motores-de-búsqueda","sesgo-algorítmico","justicia-social"]
 book_author: "Safiya Umoja Noble"
 book_status: "to-read"
 goodreads_id: "34762552"

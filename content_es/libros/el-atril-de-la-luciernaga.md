@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-39862192"
 summary: "De Marco Ángel · Leído · 5/5"
-tags: ["libro","leído","aforismos"]
+tags: ["libro","leído","aforismos","filosofía","literatura","vida-interior"]
 book_author: "Marco Ángel"
 book_status: "read"
 goodreads_id: "39862192"

@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-219843"
 summary: "De Michael   Warner · Por leer"
-tags: ["libro","por-leer"]
+tags: ["libro","por-leer","teoría-queer","sexualidad","política","matrimonio","ética"]
 book_author: "Michael   Warner"
 book_status: "to-read"
 goodreads_id: "219843"

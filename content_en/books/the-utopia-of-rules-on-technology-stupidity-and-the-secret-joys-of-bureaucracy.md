@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-22245334"
 summary: "By David Graeber · Read · 4/5"
-tags: ["book","read","social-sciences"]
+tags: ["book","read","social-sciences","bureaucracy","technology","power","work","anthropology"]
 book_author: "David Graeber"
 book_status: "read"
 goodreads_id: "22245334"

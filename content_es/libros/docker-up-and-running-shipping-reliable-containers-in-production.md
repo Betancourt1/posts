@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-25000037"
 summary: "De Karl Matthias · Leído · 5/5"
-tags: ["libro","leído"]
+tags: ["libro","leído","contenedores","docker","devops","computación-en-la-nube"]
 book_author: "Karl Matthias"
 book_status: "read"
 goodreads_id: "25000037"

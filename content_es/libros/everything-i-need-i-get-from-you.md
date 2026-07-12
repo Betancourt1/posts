@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-58772737"
 summary: "De Kaitlyn Tiffany · Leído · 5/5"
-tags: ["libro","leído","ciencias-sociales"]
+tags: ["libro","leído","ciencias-sociales","fandom","redes-sociales","cultura-de-internet","comunidad"]
 book_author: "Kaitlyn Tiffany"
 book_status: "read"
 goodreads_id: "58772737"

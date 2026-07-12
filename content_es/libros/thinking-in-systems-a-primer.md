@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-3828902"
 summary: "De Donella H. Meadows · Leído · 5/5"
-tags: ["libro","leído"]
+tags: ["libro","leído","pensamiento-sistémico","complejidad","bucles-de-retroalimentación","sostenibilidad"]
 book_author: "Donella H. Meadows"
 book_status: "read"
 goodreads_id: "3828902"

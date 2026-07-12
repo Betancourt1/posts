@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-8388210"
 summary: "De Nicholas A. Christakis · Leído · 5/5"
-tags: ["libro","leído","ciencias-sociales","ensayo","libro-técnico"]
+tags: ["libro","leído","ciencias-sociales","ensayo","libro-técnico","redes-sociales","ciencia-de-redes","sociología","influencia"]
 book_author: "Nicholas A. Christakis"
 book_status: "read"
 goodreads_id: "8388210"

@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-27801606"
 summary: "De Juan José Castillo · Por leer"
-tags: ["libro","por-leer"]
+tags: ["libro","por-leer","trabajo","equilibrio-vida-trabajo","precariedad","sociología"]
 book_author: "Juan José Castillo"
 book_status: "to-read"
 goodreads_id: "27801606"

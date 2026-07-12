@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-53031096"
 summary: "De Alaíde Ventura · Leído · 5/5"
-tags: ["libro","leído"]
+tags: ["libro","leído","familia","trauma","identidad","ficción-contemporánea"]
 book_author: "Alaíde Ventura"
 book_status: "read"
 goodreads_id: "53031096"

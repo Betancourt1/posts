@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-24113"
 summary: "De Douglas R. Hofstadter · Leído · 5/5"
-tags: ["libro","leído","ensayo","ciencias-sociales","matemáticas","tecnología"]
+tags: ["libro","leído","ensayo","ciencias-sociales","matemáticas","tecnología","conciencia","cognición","inteligencia-artificial","música"]
 book_author: "Douglas R. Hofstadter"
 book_status: "read"
 goodreads_id: "24113"

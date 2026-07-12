@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-594048"
 summary: "By Emil M. Cioran · Read · 5/5"
-tags: ["book","read"]
+tags: ["book","read","philosophy","pessimism","existentialism"]
 book_author: "Emil M. Cioran"
 book_status: "read"
 goodreads_id: "594048"

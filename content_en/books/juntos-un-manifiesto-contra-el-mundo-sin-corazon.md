@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-62899700"
 summary: "By Ece Temelkuran · Read · 5/5"
-tags: ["book","read","essays"]
+tags: ["book","read","essays","solidarity","democracy","resistance","hope"]
 book_author: "Ece Temelkuran"
 book_status: "read"
 goodreads_id: "62899700"

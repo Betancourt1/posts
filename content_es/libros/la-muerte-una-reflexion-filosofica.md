@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-25315499"
 summary: "De Todd  May · Leído · 5/5"
-tags: ["libro","leído","ensayo"]
+tags: ["libro","leído","ensayo","muerte","mortalidad","filosofía","sentido"]
 book_author: "Todd  May"
 book_status: "read"
 goodreads_id: "25315499"

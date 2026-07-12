@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-3828902"
 summary: "By Donella H. Meadows · Read · 5/5"
-tags: ["book","read"]
+tags: ["book","read","systems-thinking","complexity","feedback-loops","sustainability"]
 book_author: "Donella H. Meadows"
 book_status: "read"
 goodreads_id: "3828902"

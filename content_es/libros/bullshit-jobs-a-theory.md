@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-34466958"
 summary: "De David Graeber · Leído · 5/5"
-tags: ["libro","leído","ciencias-sociales"]
+tags: ["libro","leído","ciencias-sociales","trabajo","capitalismo","burocracia","antropología"]
 book_author: "David Graeber"
 book_status: "read"
 goodreads_id: "34466958"

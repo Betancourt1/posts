@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-6763725"
 summary: "By Mark Fisher · Read · 5/5"
-tags: ["book","read","social-sciences"]
+tags: ["book","read","social-sciences","capitalism","neoliberalism","mental-health","cultural-theory"]
 book_author: "Mark Fisher"
 book_status: "read"
 goodreads_id: "6763725"

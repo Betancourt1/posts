@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-22457722"
 summary: "De Guillermo Osorno · Por leer"
-tags: ["libro","por-leer"]
+tags: ["libro","por-leer","historia-queer","ciudad-de-méxico","vida-nocturna","vih-sida","historia-cultural"]
 book_author: "Guillermo Osorno"
 book_status: "to-read"
 goodreads_id: "22457722"

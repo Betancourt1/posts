@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-55245676"
 summary: "By Donna J. Haraway · Read · 5/5"
-tags: ["book","read","essays","social-sciences"]
+tags: ["book","read","essays","social-sciences","cyborgs","feminism","science-and-technology-studies","posthumanism"]
 book_author: "Donna J. Haraway"
 book_status: "read"
 goodreads_id: "55245676"

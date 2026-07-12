@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-8411635"
 summary: "De Stephen W. Hawking · Leído · 4/5"
-tags: ["libro","leído"]
+tags: ["libro","leído","cosmología","física","tiempo","ciencia"]
 book_author: "Stephen W. Hawking"
 book_status: "read"
 goodreads_id: "8411635"

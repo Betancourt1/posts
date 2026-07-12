@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-142239"
 summary: "De Bryan Peterson · Leyendo"
-tags: ["libro","leyendo","libro-técnico","fotografía"]
+tags: ["libro","leyendo","libro-técnico","fotografía","exposición","composición","técnica-fotográfica"]
 book_author: "Bryan Peterson"
 book_status: "currently-reading"
 goodreads_id: "142239"

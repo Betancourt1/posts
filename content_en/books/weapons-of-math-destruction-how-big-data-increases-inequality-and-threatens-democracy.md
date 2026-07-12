@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-28186015"
 summary: "By Cathy O'Neil · Read · 4/5"
-tags: ["book","read","essays","social-sciences"]
+tags: ["book","read","essays","social-sciences","algorithmic-bias","inequality","big-data","ethics","public-policy"]
 book_author: "Cathy O'Neil"
 book_status: "read"
 goodreads_id: "28186015"

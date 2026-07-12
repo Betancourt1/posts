@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-44135420"
 summary: "By Matthew    Skelton · Read"
-tags: ["book","read","essays","technology"]
+tags: ["book","read","essays","technology","team-design","software-architecture","devops","organizational-design","collaboration"]
 book_author: "Matthew    Skelton"
 book_status: "read"
 goodreads_id: "44135420"

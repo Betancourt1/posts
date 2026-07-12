@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-26535513"
 summary: "De Cole Nussbaumer Knaflic · Leído · 4/5"
-tags: ["libro","leído","visualización-de-datos","tecnología"]
+tags: ["libro","leído","visualización-de-datos","tecnología","narrativa-de-datos","diseño-de-información","comunicación-empresarial","gráficas"]
 book_author: "Cole Nussbaumer Knaflic"
 book_status: "read"
 goodreads_id: "26535513"

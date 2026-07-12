@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-55827593"
 summary: "By Alberto Cairo · Currently reading"
-tags: ["book","currently-reading","mathematics","data-visualization","technical-books"]
+tags: ["book","currently-reading","mathematics","data-visualization","technical-books","design-process","visual-thinking","interviews","data-storytelling"]
 book_author: "Alberto Cairo"
 book_status: "currently-reading"
 goodreads_id: "55827593"

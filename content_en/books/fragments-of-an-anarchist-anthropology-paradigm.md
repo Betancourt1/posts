@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-51645"
 summary: "By David Graeber · Read · 5/5"
-tags: ["book","read","social-sciences"]
+tags: ["book","read","social-sciences","anarchism","anthropology","political-theory","direct-action"]
 book_author: "David Graeber"
 book_status: "read"
 goodreads_id: "51645"

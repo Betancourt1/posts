@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-57801487"
 summary: "By Katherine Angel · Read · 5/5"
-tags: ["book","read"]
+tags: ["book","read","feminism","desire","consent","sexuality"]
 book_author: "Katherine Angel"
 book_status: "read"
 goodreads_id: "57801487"

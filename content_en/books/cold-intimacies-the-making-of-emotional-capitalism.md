@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-1088620"
 summary: "By Eva Illouz · Currently reading"
-tags: ["book","currently-reading"]
+tags: ["book","currently-reading","emotional-capitalism","intimacy","relationships","sociology"]
 book_author: "Eva Illouz"
 book_status: "currently-reading"
 goodreads_id: "1088620"

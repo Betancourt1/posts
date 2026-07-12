@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-27801606"
 summary: "By Juan José Castillo · Want to read"
-tags: ["book","to-read"]
+tags: ["book","to-read","labor","work-life-balance","precarity","sociology"]
 book_author: "Juan José Castillo"
 book_status: "to-read"
 goodreads_id: "27801606"

@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-56871504"
 summary: "De Pablo Stefanoni · Leído · 3/5"
-tags: ["libro","leído","ciencias-sociales","ensayo"]
+tags: ["libro","leído","ciencias-sociales","ensayo","extrema-derecha","populismo","comunicación-política","guerras-culturales"]
 book_author: "Pablo Stefanoni"
 book_status: "read"
 goodreads_id: "56871504"

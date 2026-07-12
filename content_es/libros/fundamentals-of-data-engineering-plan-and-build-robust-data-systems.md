@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-61218623"
 summary: "De Joe Reis · Leído"
-tags: ["libro","leído","libro-técnico"]
+tags: ["libro","leído","libro-técnico","ingeniería-de-datos","arquitectura-de-datos","pipelines-de-datos","computación-en-la-nube"]
 book_author: "Joe Reis"
 book_status: "read"
 goodreads_id: "61218623"

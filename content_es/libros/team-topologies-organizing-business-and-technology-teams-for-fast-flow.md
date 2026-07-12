@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-44135420"
 summary: "De Matthew    Skelton · Leído"
-tags: ["libro","leído","ensayo","tecnología"]
+tags: ["libro","leído","ensayo","tecnología","diseño-de-equipos","arquitectura-de-software","devops","diseño-organizacional","colaboración"]
 book_author: "Matthew    Skelton"
 book_status: "read"
 goodreads_id: "44135420"

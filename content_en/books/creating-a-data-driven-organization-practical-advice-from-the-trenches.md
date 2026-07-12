@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-26059903"
 summary: "By Carl  Anderson · Read · 5/5"
-tags: ["book","read"]
+tags: ["book","read","data-culture","analytics","organizational-change","business"]
 book_author: "Carl  Anderson"
 book_status: "read"
 goodreads_id: "26059903"

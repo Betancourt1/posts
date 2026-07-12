@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-710193"
 summary: "By Antonio Porchia · Read · 5/5"
-tags: ["book","read","aphorisms"]
+tags: ["book","read","aphorisms","philosophy","existentialism","inner-life","language"]
 book_author: "Antonio Porchia"
 book_status: "read"
 goodreads_id: "710193"

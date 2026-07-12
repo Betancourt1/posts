@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-388052"
 summary: "De Reinhard Diestel · Leído · 5/5"
-tags: ["libro","leído","matemáticas"]
+tags: ["libro","leído","matemáticas","teoría-de-grafos","matemáticas-discretas","redes","demostraciones-matemáticas"]
 book_author: "Reinhard Diestel"
 book_status: "read"
 goodreads_id: "388052"

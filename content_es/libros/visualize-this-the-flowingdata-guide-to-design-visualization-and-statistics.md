@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-11054622"
 summary: "De Nathan Yau · Por leer"
-tags: ["libro","por-leer"]
+tags: ["libro","por-leer","estadística","programación","narrativa","diseño"]
 book_author: "Nathan Yau"
 book_status: "to-read"
 goodreads_id: "11054622"

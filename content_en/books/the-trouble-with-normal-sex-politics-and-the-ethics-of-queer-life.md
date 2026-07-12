@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-219843"
 summary: "By Michael   Warner · Want to read"
-tags: ["book","to-read"]
+tags: ["book","to-read","queer-theory","sexuality","politics","marriage","ethics"]
 book_author: "Michael   Warner"
 book_status: "to-read"
 goodreads_id: "219843"

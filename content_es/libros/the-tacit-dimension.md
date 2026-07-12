@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-225665"
 summary: "De Michael Polanyi · Por leer"
-tags: ["libro","por-leer"]
+tags: ["libro","por-leer","conocimiento-tácito","epistemología","filosofía-de-la-ciencia","conocimiento"]
 book_author: "Michael Polanyi"
 book_status: "to-read"
 goodreads_id: "225665"

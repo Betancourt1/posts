@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-31138556"
 summary: "By Yuval Noah Harari · Read"
-tags: ["book","read","essays"]
+tags: ["book","read","essays","futurism","transhumanism","technology","history"]
 book_author: "Yuval Noah Harari"
 book_status: "read"
 goodreads_id: "31138556"

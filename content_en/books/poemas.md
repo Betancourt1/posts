@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-36891927"
 summary: "By Hannah Arendt · Read · 5/5"
-tags: ["book","read","poetry"]
+tags: ["book","read","poetry","love","exile","philosophy"]
 book_author: "Hannah Arendt"
 book_status: "read"
 goodreads_id: "36891927"

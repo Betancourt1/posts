@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-855286"
 summary: "By Ray Loriga · Read · 3/5"
-tags: ["book","read"]
+tags: ["book","read","youth","alienation","identity","contemporary-fiction"]
 book_author: "Ray Loriga"
 book_status: "read"
 goodreads_id: "855286"

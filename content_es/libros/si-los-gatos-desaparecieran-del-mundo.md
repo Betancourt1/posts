@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-35216428"
 summary: "De Genki Kawamura · Leído · 4/5"
-tags: ["libro","leído"]
+tags: ["libro","leído","muerte","duelo","amor","sentido","realismo-mágico"]
 book_author: "Genki Kawamura"
 book_status: "read"
 goodreads_id: "35216428"

@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-71642379"
 summary: "De Paul Karl Feyerabend · Leído · 5/5"
-tags: ["libro","leído","ensayo"]
+tags: ["libro","leído","ensayo","filosofía-de-la-ciencia","epistemología","racionalismo"]
 book_author: "Paul Karl Feyerabend"
 book_status: "read"
 goodreads_id: "71642379"

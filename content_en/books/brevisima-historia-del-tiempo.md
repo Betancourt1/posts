@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-8411635"
 summary: "By Stephen W. Hawking · Read · 4/5"
-tags: ["book","read"]
+tags: ["book","read","cosmology","physics","time","science"]
 book_author: "Stephen W. Hawking"
 book_status: "read"
 goodreads_id: "8411635"

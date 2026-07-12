@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-59465612"
 summary: "De Eudald Espluga · Leído · 4/5"
-tags: ["libro","leído","ciencias-sociales"]
+tags: ["libro","leído","ciencias-sociales","agotamiento","neoliberalismo","identidad","crítica-a-la-autoayuda"]
 book_author: "Eudald Espluga"
 book_status: "read"
 goodreads_id: "59465612"

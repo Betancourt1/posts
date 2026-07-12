@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-336258"
 summary: "De Stephen Few · Leyendo"
-tags: ["libro","leyendo","visualización-de-datos","tecnología"]
+tags: ["libro","leyendo","visualización-de-datos","tecnología","dashboards","diseño-de-información","analítica-visual","usabilidad"]
 book_author: "Stephen Few"
 book_status: "currently-reading"
 goodreads_id: "336258"

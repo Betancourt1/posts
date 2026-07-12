@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-517406"
 summary: "By Fyodor Dostoevsky · Read · 5/5"
-tags: ["book","read","novels"]
+tags: ["book","read","novels","alienation","existentialism","psychology","self-consciousness"]
 book_author: "Fyodor Dostoevsky"
 book_status: "read"
 goodreads_id: "517406"
