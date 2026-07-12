@@ -6,26 +6,36 @@
   {{ $filterAcademic := cond $isEnglish "Academic" "Académicos" }}
   {{ $filterZettelkasten := "Zettelkasten" }}
   {{ $filterReadings := cond $isEnglish "Readings" "Lecturas" }}
-  <header class="page-header">
-    <h1>{{ .Title }}</h1>
-  </header>
-  <div class="archive-filters">
-    <button class="filter-btn active" data-filter="all">{{ $filterAll }}</button>
-    <button class="filter-btn" data-filter="posts">{{ $filterPosts }}</button>
-    <button class="filter-btn" data-filter="proyectos-profesionales">{{ $filterProfessional }}</button>
-    <button class="filter-btn" data-filter="proyectos-academicos">{{ $filterAcademic }}</button>
-    <button class="filter-btn" data-filter="zettelkasten">{{ $filterZettelkasten }}</button>
-    <button class="filter-btn" data-filter="lit">{{ $filterReadings }}</button>
-  </div>
-
-  {{ $allPages := where .Site.RegularPages "Section" "in" (slice "posts" "proyectos-profesionales" "proyectos-academicos" "zettelkasten" "lit") }}
   {{ $scratch := newScratch }}
-  {{ range $allPages }}
+  {{ range .Site.RegularPages }}
     {{ if not (partial "is_hidden.html" .) }}
       {{ $scratch.Add "pages" (slice .) }}
     {{ end }}
   {{ end }}
   {{ $pages := $scratch.Get "pages" | default (slice) }}
+  {{ $sections := slice }}
+  {{ range .Site.Sections.ByTitle }}
+    {{ if gt (len (where $pages "Section" .Section)) 0 }}
+      {{ $sections = $sections | append . }}
+    {{ end }}
+  {{ end }}
+  <header class="page-header">
+    <h1>{{ .Title }}</h1>
+  </header>
+  <div class="archive-filters">
+    <button class="filter-btn active" data-filter="all">{{ $filterAll }}</button>
+    {{ range $sections }}
+      {{ $section := .Section }}
+      {{ $label := .Title }}
+      {{ if eq $section "posts" }}{{ $label = $filterPosts }}
+      {{ else if eq $section "proyectos-profesionales" }}{{ $label = $filterProfessional }}
+      {{ else if eq $section "proyectos-academicos" }}{{ $label = $filterAcademic }}
+      {{ else if eq $section "zettelkasten" }}{{ $label = $filterZettelkasten }}
+      {{ else if eq $section "lit" }}{{ $label = $filterReadings }}{{ end }}
+      <button class="filter-btn" data-filter="{{ $section }}">{{ $label }}</button>
+    {{ end }}
+  </div>
+
   {{ range $year := $pages.GroupByDate "2006" }}
     <section class="archive-year">
       <h2 id="{{ $year.Key }}">{{ $year.Key }}</h2>
@@ -39,7 +49,9 @@
             {{ else if eq $section "proyectos-profesionales" }}{{ $label = cond $isEnglish "professional" "profesional" }}
             {{ else if eq $section "proyectos-academicos" }}{{ $label = cond $isEnglish "academic" "académico" }}
             {{ else if eq $section "zettelkasten" }}{{ $label = "zettel" }}
-            {{ else if eq $section "lit" }}{{ $label = cond $isEnglish "reading" "lectura" }}{{ end }}
+            {{ else if eq $section "lit" }}{{ $label = cond $isEnglish "reading" "lectura" }}
+            {{ else if eq $section "fotografia" }}{{ $label = cond $isEnglish "photo" "foto" }}
+            {{ else if or (eq $section "books") (eq $section "libros") }}{{ $label = cond $isEnglish "book" "libro" }}{{ end }}
             <li class="archive-item" data-section="{{ $section }}">
               <span class="archive-date">{{ .Date.Format "2006-01-02" }}</span>
               <a href="{{ .RelPermalink }}">{{ .Title }}</a>
