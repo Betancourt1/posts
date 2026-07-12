@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-8388210"
 summary: "By Nicholas A. Christakis · Read · 5/5"
+tags: ["book","read","social-sciences","essays","technical-books"]
 book_author: "Nicholas A. Christakis"
 book_status: "read"
 goodreads_id: "8388210"

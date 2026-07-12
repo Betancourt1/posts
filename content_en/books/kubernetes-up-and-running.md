@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-26759355"
 summary: "By Kelsey Hightower · Read"
+tags: ["book","read","technical-books","technology"]
 book_author: "Kelsey Hightower"
 book_status: "read"
 goodreads_id: "26759355"

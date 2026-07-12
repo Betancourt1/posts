@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-58772737"
 summary: "By Kaitlyn Tiffany · Read · 5/5"
+tags: ["book","read","social-sciences"]
 book_author: "Kaitlyn Tiffany"
 book_status: "read"
 goodreads_id: "58772737"

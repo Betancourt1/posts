@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-15195"
 summary: "By Art Spiegelman · Read · 5/5"
+tags: ["book","read","comics"]
 book_author: "Art Spiegelman"
 book_status: "read"
 goodreads_id: "15195"

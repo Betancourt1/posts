@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-25170132"
 summary: "De Paul Karl Feyerabend · Leído · 5/5"
+tags: ["libro","leído"]
 book_author: "Paul Karl Feyerabend"
 book_status: "read"
 goodreads_id: "25170132"

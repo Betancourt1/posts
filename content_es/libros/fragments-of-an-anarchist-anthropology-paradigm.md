@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-51645"
 summary: "De David Graeber · Leído · 5/5"
+tags: ["libro","leído","ciencias-sociales"]
 book_author: "David Graeber"
 book_status: "read"
 goodreads_id: "51645"

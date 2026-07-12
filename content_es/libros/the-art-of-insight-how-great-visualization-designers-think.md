@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-55827593"
 summary: "De Alberto Cairo · Leyendo"
+tags: ["libro","leyendo","matemáticas","visualización-de-datos","libro-técnico"]
 book_author: "Alberto Cairo"
 book_status: "currently-reading"
 goodreads_id: "55827593"

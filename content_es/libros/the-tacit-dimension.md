@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-225665"
 summary: "De Michael Polanyi · Por leer"
+tags: ["libro","por-leer"]
 book_author: "Michael Polanyi"
 book_status: "to-read"
 goodreads_id: "225665"

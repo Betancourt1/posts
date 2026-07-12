@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-155968362"
 summary: "By Karios Mainec · Currently reading"
+tags: ["book","currently-reading"]
 book_author: "Karios Mainec"
 book_status: "currently-reading"
 goodreads_id: "155968362"

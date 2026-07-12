@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-41880609"
 summary: "By Ocean Vuong · Read · 5/5"
+tags: ["book","read","aphorisms","diaries-and-letters"]
 book_author: "Ocean Vuong"
 book_status: "read"
 goodreads_id: "41880609"

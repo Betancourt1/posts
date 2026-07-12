@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-51777543"
 summary: "By Catherine D’Ignazio · Read · 5/5"
+tags: ["book","read","essays","social-sciences","data-visualization","technology"]
 book_author: "Catherine D’Ignazio"
 book_status: "read"
 goodreads_id: "51777543"

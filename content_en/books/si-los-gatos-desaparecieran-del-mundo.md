@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-35216428"
 summary: "By Genki Kawamura · Read · 4/5"
+tags: ["book","read"]
 book_author: "Genki Kawamura"
 book_status: "read"
 goodreads_id: "35216428"

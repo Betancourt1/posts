@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-217273431"
 summary: "De Michel Nieva · Leído · 5/5"
+tags: ["libro","leído","ciencias-sociales","ensayo","tecnología"]
 book_author: "Michel Nieva"
 book_status: "read"
 goodreads_id: "217273431"

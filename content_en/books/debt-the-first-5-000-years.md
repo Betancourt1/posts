@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-6617037"
 summary: "By David Graeber · Currently reading"
+tags: ["book","currently-reading"]
 book_author: "David Graeber"
 book_status: "currently-reading"
 goodreads_id: "6617037"

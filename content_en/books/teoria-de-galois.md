@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-19383962"
 summary: "By Felipe Zaldívar · Read · 5/5"
+tags: ["book","read","mathematics","technical-books"]
 book_author: "Felipe Zaldívar"
 book_status: "read"
 goodreads_id: "19383962"

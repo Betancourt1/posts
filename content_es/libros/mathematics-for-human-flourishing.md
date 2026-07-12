@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-42863088"
 summary: "De Francis Su · Leído"
+tags: ["libro","leído","ensayo"]
 book_author: "Francis Su"
 book_status: "read"
 goodreads_id: "42863088"

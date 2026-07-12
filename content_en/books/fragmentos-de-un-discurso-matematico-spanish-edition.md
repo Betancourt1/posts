@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-6903942"
 summary: "By Pablo Amster · Read · 5/5"
+tags: ["book","read","mathematics","essays"]
 book_author: "Pablo Amster"
 book_status: "read"
 goodreads_id: "6903942"

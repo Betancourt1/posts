@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-59465612"
 summary: "De Eudald Espluga · Leído · 4/5"
+tags: ["libro","leído","ciencias-sociales"]
 book_author: "Eudald Espluga"
 book_status: "read"
 goodreads_id: "59465612"

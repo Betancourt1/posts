@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-59342743"
 summary: "By Cathy O'Neil · Read · 4/5"
+tags: ["book","read","social-sciences","essays","technology"]
 book_author: "Cathy O'Neil"
 book_status: "read"
 goodreads_id: "59342743"

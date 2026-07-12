@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-34762552"
 summary: "By Safiya Umoja Noble · Want to read"
+tags: ["book","to-read"]
 book_author: "Safiya Umoja Noble"
 book_status: "to-read"
 goodreads_id: "34762552"

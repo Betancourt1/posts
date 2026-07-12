@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-6617037"
 summary: "De David Graeber · Leyendo"
+tags: ["libro","leyendo"]
 book_author: "David Graeber"
 book_status: "currently-reading"
 goodreads_id: "6617037"

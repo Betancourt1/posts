@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-137314"
 summary: "By Alan F. Chalmers · Read · 4/5"
+tags: ["book","read"]
 book_author: "Alan F. Chalmers"
 book_status: "read"
 goodreads_id: "137314"

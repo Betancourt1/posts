@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-6763725"
 summary: "De Mark Fisher · Leído · 5/5"
+tags: ["libro","leído","ciencias-sociales"]
 book_author: "Mark Fisher"
 book_status: "read"
 goodreads_id: "6763725"

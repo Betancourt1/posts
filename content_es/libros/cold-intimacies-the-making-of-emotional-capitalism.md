@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-1088620"
 summary: "De Eva Illouz · Leyendo"
+tags: ["libro","leyendo"]
 book_author: "Eva Illouz"
 book_status: "currently-reading"
 goodreads_id: "1088620"

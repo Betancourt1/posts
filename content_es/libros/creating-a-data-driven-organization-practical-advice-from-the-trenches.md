@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-26059903"
 summary: "De Carl  Anderson · Leído · 5/5"
+tags: ["libro","leído"]
 book_author: "Carl  Anderson"
 book_status: "read"
 goodreads_id: "26059903"

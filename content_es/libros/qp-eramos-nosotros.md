@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-26054441"
 summary: "De Power Paola · Leído · 5/5"
+tags: ["libro","leído","comic"]
 book_author: "Power Paola"
 book_status: "read"
 goodreads_id: "26054441"

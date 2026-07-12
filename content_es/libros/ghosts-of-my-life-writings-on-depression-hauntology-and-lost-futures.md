@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-20863042"
 summary: "De Mark Fisher · Leído · 5/5"
+tags: ["libro","leído","ensayo"]
 book_author: "Mark Fisher"
 book_status: "read"
 goodreads_id: "20863042"

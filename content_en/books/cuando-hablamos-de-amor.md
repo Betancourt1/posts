@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-242036378"
 summary: "By Aura García-Junco · Read · 5/5"
+tags: ["book","read","social-sciences","essays"]
 book_author: "Aura García-Junco"
 book_status: "read"
 goodreads_id: "242036378"

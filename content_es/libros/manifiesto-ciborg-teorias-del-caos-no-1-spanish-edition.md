@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-55245676"
 summary: "De Donna J. Haraway · Leído · 5/5"
+tags: ["libro","leído","ensayo","ciencias-sociales"]
 book_author: "Donna J. Haraway"
 book_status: "read"
 goodreads_id: "55245676"

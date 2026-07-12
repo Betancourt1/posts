@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-31138556"
 summary: "De Yuval Noah Harari · Leído"
+tags: ["libro","leído","ensayo"]
 book_author: "Yuval Noah Harari"
 book_status: "read"
 goodreads_id: "31138556"

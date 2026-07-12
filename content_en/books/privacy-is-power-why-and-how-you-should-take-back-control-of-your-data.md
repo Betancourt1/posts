@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-51781479"
 summary: "By Carissa Véliz · Currently reading"
+tags: ["book","currently-reading","essays","social-sciences","technology"]
 book_author: "Carissa Véliz"
 book_status: "currently-reading"
 goodreads_id: "51781479"

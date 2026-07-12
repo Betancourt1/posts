@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-144342430"
 summary: "By Carla Escoffie · Read · 5/5"
+tags: ["book","read","social-sciences"]
 book_author: "Carla Escoffie"
 book_status: "read"
 goodreads_id: "144342430"

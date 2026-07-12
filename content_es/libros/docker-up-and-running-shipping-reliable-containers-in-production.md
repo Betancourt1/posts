@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-25000037"
 summary: "De Karl Matthias · Leído · 5/5"
+tags: ["libro","leído"]
 book_author: "Karl Matthias"
 book_status: "read"
 goodreads_id: "25000037"

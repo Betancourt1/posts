@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-3828902"
 summary: "De Donella H. Meadows · Leído · 5/5"
+tags: ["libro","leído"]
 book_author: "Donella H. Meadows"
 book_status: "read"
 goodreads_id: "3828902"

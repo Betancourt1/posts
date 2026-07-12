@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-44286534"
 summary: "De Janelle Shane · Por leer"
+tags: ["libro","por-leer","matemáticas","ciencias-sociales","tecnología"]
 book_author: "Janelle Shane"
 book_status: "to-read"
 goodreads_id: "44286534"

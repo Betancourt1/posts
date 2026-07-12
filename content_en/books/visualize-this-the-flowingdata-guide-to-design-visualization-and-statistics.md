@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-11054622"
 summary: "By Nathan Yau · Want to read"
+tags: ["book","to-read"]
 book_author: "Nathan Yau"
 book_status: "to-read"
 goodreads_id: "11054622"

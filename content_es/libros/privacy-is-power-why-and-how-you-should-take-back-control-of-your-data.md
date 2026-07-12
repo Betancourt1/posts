@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-51781479"
 summary: "De Carissa Véliz · Leyendo"
+tags: ["libro","leyendo","ensayo","ciencias-sociales","tecnología"]
 book_author: "Carissa Véliz"
 book_status: "currently-reading"
 goodreads_id: "51781479"

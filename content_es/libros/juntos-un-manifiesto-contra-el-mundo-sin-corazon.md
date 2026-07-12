@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-62899700"
 summary: "De Ece Temelkuran · Leído · 5/5"
+tags: ["libro","leído","ensayo"]
 book_author: "Ece Temelkuran"
 book_status: "read"
 goodreads_id: "62899700"

@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-388048"
 summary: "De Béla Bollobás · Leído · 5/5"
+tags: ["libro","leído","matemáticas"]
 book_author: "Béla Bollobás"
 book_status: "read"
 goodreads_id: "388048"

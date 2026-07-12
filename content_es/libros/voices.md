@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-710193"
 summary: "De Antonio Porchia · Leído · 5/5"
+tags: ["libro","leído","aforismos"]
 book_author: "Antonio Porchia"
 book_status: "read"
 goodreads_id: "710193"

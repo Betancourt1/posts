@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-23995376"
 summary: "By Franz Kafka · Read · 5/5"
+tags: ["book","read"]
 book_author: "Franz Kafka"
 book_status: "read"
 goodreads_id: "23995376"

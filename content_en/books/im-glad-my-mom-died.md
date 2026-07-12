@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-59366244"
 summary: "By Jennette McCurdy · Want to read"
+tags: ["book","to-read"]
 book_author: "Jennette McCurdy"
 book_status: "to-read"
 goodreads_id: "59366244"

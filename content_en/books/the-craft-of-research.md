@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-2543099"
 summary: "By Wayne C. Booth · Read · 5/5"
+tags: ["book","read","social-sciences"]
 book_author: "Wayne C. Booth"
 book_status: "read"
 goodreads_id: "2543099"

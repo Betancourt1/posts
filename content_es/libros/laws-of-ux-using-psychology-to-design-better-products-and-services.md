@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-50611580"
 summary: "De Jon Yablonski · Leído · 5/5"
+tags: ["libro","leído","visualización-de-datos","tecnología"]
 book_author: "Jon Yablonski"
 book_status: "read"
 goodreads_id: "50611580"

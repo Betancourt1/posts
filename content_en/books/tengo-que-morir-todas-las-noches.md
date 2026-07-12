@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-22457722"
 summary: "By Guillermo Osorno · Want to read"
+tags: ["book","to-read"]
 book_author: "Guillermo Osorno"
 book_status: "to-read"
 goodreads_id: "22457722"

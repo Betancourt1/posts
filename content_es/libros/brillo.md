@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-60229744"
 summary: "De Raven Leilani · Leído · 5/5"
+tags: ["libro","leído","novelas"]
 book_author: "Raven Leilani"
 book_status: "read"
 goodreads_id: "60229744"

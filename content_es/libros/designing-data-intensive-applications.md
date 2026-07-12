@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-23463279"
 summary: "De Martin Kleppmann · Leyendo"
+tags: ["libro","leyendo"]
 book_author: "Martin Kleppmann"
 book_status: "currently-reading"
 goodreads_id: "23463279"

@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-205169784"
 summary: "De Anna Pacheco · Leído · 5/5"
+tags: ["libro","leído","ciencias-sociales","ensayo"]
 book_author: "Anna Pacheco"
 book_status: "read"
 goodreads_id: "205169784"

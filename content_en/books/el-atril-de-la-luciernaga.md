@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-39862192"
 summary: "By Marco Ángel · Read · 5/5"
+tags: ["book","read","aphorisms"]
 book_author: "Marco Ángel"
 book_status: "read"
 goodreads_id: "39862192"

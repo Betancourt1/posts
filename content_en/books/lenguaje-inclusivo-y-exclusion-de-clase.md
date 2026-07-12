@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-57406497"
 summary: "By Brigitte Vasallo · Read · 5/5"
+tags: ["book","read","aphorisms","social-sciences"]
 book_author: "Brigitte Vasallo"
 book_status: "read"
 goodreads_id: "57406497"

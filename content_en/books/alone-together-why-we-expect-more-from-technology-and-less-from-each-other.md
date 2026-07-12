@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-8694125"
 summary: "By Sherry Turkle · Currently reading"
+tags: ["book","currently-reading","social-sciences","technology"]
 book_author: "Sherry Turkle"
 book_status: "currently-reading"
 goodreads_id: "8694125"

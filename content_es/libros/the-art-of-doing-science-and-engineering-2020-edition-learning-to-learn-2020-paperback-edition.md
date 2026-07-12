@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-155968362"
 summary: "De Karios Mainec · Leyendo"
+tags: ["libro","leyendo"]
 book_author: "Karios Mainec"
 book_status: "currently-reading"
 goodreads_id: "155968362"

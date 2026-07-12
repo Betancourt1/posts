@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-56060000"
 summary: "By Holly Lewis · Read · 5/5"
+tags: ["book","read","social-sciences","essays"]
 book_author: "Holly Lewis"
 book_status: "read"
 goodreads_id: "56060000"

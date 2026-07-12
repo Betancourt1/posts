@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-44135420"
 summary: "De Matthew    Skelton · Leído"
+tags: ["libro","leído","ensayo","tecnología"]
 book_author: "Matthew    Skelton"
 book_status: "read"
 goodreads_id: "44135420"

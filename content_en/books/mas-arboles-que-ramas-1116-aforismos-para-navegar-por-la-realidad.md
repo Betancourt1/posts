@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-16092314"
 summary: "By Jorge Wagensberg · Read · 5/5"
+tags: ["book","read","aphorisms"]
 book_author: "Jorge Wagensberg"
 book_status: "read"
 goodreads_id: "16092314"

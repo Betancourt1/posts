@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-517406"
 summary: "De Fyodor Dostoevsky · Leído · 5/5"
+tags: ["libro","leído","novelas"]
 book_author: "Fyodor Dostoevsky"
 book_status: "read"
 goodreads_id: "517406"

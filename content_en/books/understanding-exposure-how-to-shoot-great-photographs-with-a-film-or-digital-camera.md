@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-142239"
 summary: "By Bryan Peterson · Currently reading"
+tags: ["book","currently-reading","technical-books","photography"]
 book_author: "Bryan Peterson"
 book_status: "currently-reading"
 goodreads_id: "142239"

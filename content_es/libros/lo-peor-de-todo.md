@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-855286"
 summary: "De Ray Loriga · Leído · 3/5"
+tags: ["libro","leído"]
 book_author: "Ray Loriga"
 book_status: "read"
 goodreads_id: "855286"

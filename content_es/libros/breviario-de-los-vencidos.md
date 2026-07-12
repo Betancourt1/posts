@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-594048"
 summary: "De Emil M. Cioran · Leído · 5/5"
+tags: ["libro","leído"]
 book_author: "Emil M. Cioran"
 book_status: "read"
 goodreads_id: "594048"

@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-388052"
 summary: "De Reinhard Diestel · Leído · 5/5"
+tags: ["libro","leído","matemáticas"]
 book_author: "Reinhard Diestel"
 book_status: "read"
 goodreads_id: "388052"

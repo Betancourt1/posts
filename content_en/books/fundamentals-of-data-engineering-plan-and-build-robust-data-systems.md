@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-61218623"
 summary: "By Joe Reis · Read"
+tags: ["book","read","technical-books"]
 book_author: "Joe Reis"
 book_status: "read"
 goodreads_id: "61218623"

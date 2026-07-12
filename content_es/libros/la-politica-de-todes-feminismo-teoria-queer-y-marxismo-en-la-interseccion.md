@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-56060000"
 summary: "De Holly Lewis · Leído · 5/5"
+tags: ["libro","leído","ciencias-sociales","ensayo"]
 book_author: "Holly Lewis"
 book_status: "read"
 goodreads_id: "56060000"

@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-44286534"
 summary: "By Janelle Shane · Want to read"
+tags: ["book","to-read","mathematics","social-sciences","technology"]
 book_author: "Janelle Shane"
 book_status: "to-read"
 goodreads_id: "44286534"

@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-23692271"
 summary: "By Yuval Noah Harari · Read"
+tags: ["book","read","essays","social-sciences"]
 book_author: "Yuval Noah Harari"
 book_status: "read"
 goodreads_id: "23692271"

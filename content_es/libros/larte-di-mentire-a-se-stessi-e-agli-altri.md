@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-22241807"
 summary: "De Giorgio Nardone · Leído · 4/5"
+tags: ["libro","leído","ciencias-sociales","ensayo"]
 book_author: "Giorgio Nardone"
 book_status: "read"
 goodreads_id: "22241807"

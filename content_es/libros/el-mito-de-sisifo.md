@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-2704427"
 summary: "De Albert Camus · Leído · 5/5"
+tags: ["libro","leído","ensayo"]
 book_author: "Albert Camus"
 book_status: "read"
 goodreads_id: "2704427"

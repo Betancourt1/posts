@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-71642379"
 summary: "By Paul Karl Feyerabend · Read · 5/5"
+tags: ["book","read","essays"]
 book_author: "Paul Karl Feyerabend"
 book_status: "read"
 goodreads_id: "71642379"

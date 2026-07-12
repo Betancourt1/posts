@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-28186015"
 summary: "De Cathy O'Neil · Leído · 4/5"
+tags: ["libro","leído","ensayo","ciencias-sociales"]
 book_author: "Cathy O'Neil"
 book_status: "read"
 goodreads_id: "28186015"

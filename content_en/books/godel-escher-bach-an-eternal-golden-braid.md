@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-24113"
 summary: "By Douglas R. Hofstadter · Read · 5/5"
+tags: ["book","read","essays","social-sciences","mathematics","technology"]
 book_author: "Douglas R. Hofstadter"
 book_status: "read"
 goodreads_id: "24113"

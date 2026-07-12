@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-26535513"
 summary: "By Cole Nussbaumer Knaflic · Read · 4/5"
+tags: ["book","read","data-visualization","technology"]
 book_author: "Cole Nussbaumer Knaflic"
 book_status: "read"
 goodreads_id: "26535513"

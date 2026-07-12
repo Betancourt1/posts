@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-16092314"
 summary: "De Jorge Wagensberg · Leído · 5/5"
+tags: ["libro","leído","aforismos"]
 book_author: "Jorge Wagensberg"
 book_status: "read"
 goodreads_id: "16092314"

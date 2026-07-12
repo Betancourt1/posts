@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-25074641"
 summary: "De Federico Fabregat · Leído · 3/5"
+tags: ["libro","leído"]
 book_author: "Federico Fabregat"
 book_status: "read"
 goodreads_id: "25074641"

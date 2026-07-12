@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-57406497"
 summary: "De Brigitte Vasallo · Leído · 5/5"
+tags: ["libro","leído","aforismos","ciencias-sociales"]
 book_author: "Brigitte Vasallo"
 book_status: "read"
 goodreads_id: "57406497"

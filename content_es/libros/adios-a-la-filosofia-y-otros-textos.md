@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-579470"
 summary: "De Emil M. Cioran · Leído · 4/5"
+tags: ["libro","leído","aforismos","ensayo"]
 book_author: "Emil M. Cioran"
 book_status: "read"
 goodreads_id: "579470"

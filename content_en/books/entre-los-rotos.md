@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-53031096"
 summary: "By Alaíde Ventura · Read · 5/5"
+tags: ["book","read"]
 book_author: "Alaíde Ventura"
 book_status: "read"
 goodreads_id: "53031096"

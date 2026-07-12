@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-60373913"
 summary: "By Meryem El Mehdati · Read · 5/5"
+tags: ["book","read","novels"]
 book_author: "Meryem El Mehdati"
 book_status: "read"
 goodreads_id: "60373913"

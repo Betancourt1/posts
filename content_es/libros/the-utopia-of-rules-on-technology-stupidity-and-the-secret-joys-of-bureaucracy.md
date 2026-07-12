@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-22245334"
 summary: "De David Graeber · Leído · 4/5"
+tags: ["libro","leído","ciencias-sociales"]
 book_author: "David Graeber"
 book_status: "read"
 goodreads_id: "22245334"

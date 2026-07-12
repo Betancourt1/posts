@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-12442358"
 summary: "De Chantal Maillard · Leído · 3/5"
+tags: ["libro","leído","aforismos","diarios-y-cartas"]
 book_author: "Chantal Maillard"
 book_status: "read"
 goodreads_id: "12442358"

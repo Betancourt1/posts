@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-57581258"
 summary: "De Renata Salecl · Leído · 5/5"
+tags: ["libro","leído","ensayo","ciencias-sociales"]
 book_author: "Renata Salecl"
 book_status: "read"
 goodreads_id: "57581258"

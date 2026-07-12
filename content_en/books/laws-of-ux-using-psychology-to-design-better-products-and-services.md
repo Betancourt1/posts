@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-50611580"
 summary: "By Jon Yablonski · Read · 5/5"
+tags: ["book","read","data-visualization","technology"]
 book_author: "Jon Yablonski"
 book_status: "read"
 goodreads_id: "50611580"

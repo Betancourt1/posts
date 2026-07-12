@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-43081723"
 summary: "By Nicolas Vandeput · Read · 4/5"
+tags: ["book","read","technical-books","mathematics","technology"]
 book_author: "Nicolas Vandeput"
 book_status: "read"
 goodreads_id: "43081723"

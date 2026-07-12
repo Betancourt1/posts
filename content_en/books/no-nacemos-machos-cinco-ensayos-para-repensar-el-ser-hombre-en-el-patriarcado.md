@@ -5,6 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-35279414"
 summary: "By Guadalupe Rivera · Read · 5/5"
+tags: ["book","read","social-sciences","essays"]
 book_author: "Guadalupe Rivera"
 book_status: "read"
 goodreads_id: "35279414"
