@@ -2,7 +2,7 @@
 title: "VA Proyecciones: Librería Estadística de Pronóstico de Demanda"
 date: 2026-02-12
 draft: false
-tags: ["python", "time-series", "forecasting", "statsforecast", "privado"]
+tags: ["python","series-de-tiempo","pronóstico","statsforecast","privado"]
 ---
 
 ## Contexto

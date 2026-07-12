@@ -2,7 +2,7 @@
 title: "Una hormiga y una hoja"
 date: 2026-07-10
 draft: false
-tags: ["fotografia", "hormiga", "naturaleza", "macro"]
+tags: ["fotografía","hormiga","naturaleza","macro"]
 summary: ""
 image: "/uploads/2026/07/93277-1783712661104-nayn6-1783712663351.jpg"
 thumbnail: "/uploads/2026/07/93277-preview-1783712663286-q4lfz-1783712664962.webp"

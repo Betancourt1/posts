@@ -2,7 +2,7 @@
 title: "Somos el universo contemplándose a sí mismo"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "filosofia", "universo", "conciencia", "misterio", "cita"]
+tags: ["zettelkasten","nota","filosofía","universo","conciencia","misterio","cita"]
 summary: "Julian Gough (intro de Minecraft): las palabras cambian —espíritus, dioses, quarks, alienígenas— pero nosotros no cambiamos. Somos el universo. Somos todo lo que piensas que no eres tú. El universo nos ilumina para vernos, conocernos, ser conocido."
 ---
 

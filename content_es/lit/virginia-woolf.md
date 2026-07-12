@@ -2,7 +2,7 @@
 title: "Virginia Woolf — Carta de despedida a Leonard Woolf"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["cita", "salud-mental", "amor", "suicidio"]
+tags: ["cita","salud-mental","amor","suicidio"]
 summary: "Tengan la carta de despedida que Virginia Wolf le escribió a su esposo antes de tomar su vida:"
 aliases: ["/zettelkasten/virginia-woolf/"]
 ---

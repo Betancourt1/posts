@@ -2,7 +2,7 @@
 title: "El cielo también son los demás"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "filosofia", "vinculos", "colectivo", "cita"]
+tags: ["zettelkasten","nota","filosofía","vínculos","colectivo","cita"]
 summary: "La frase de Sartre tiene dos caras que nadie menciona: sí, \\\"el infierno son los demás\\\", pero el cielo también. El infierno es separación, egocentrismo, lujuria por el poder. El cielo es simple y difícil: cuidar a los semejantes, y eso solo se sostiene en colectividad."
 ---
 

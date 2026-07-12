@@ -2,7 +2,7 @@
 title: "IMCINE CineMX Yearbook: Open and Historical Dataset"
 date: 2026-01-27
 draft: false
-tags: ["open-source", "python", "scraping", "mexican-cinema", "dataset"]
+tags: ["open-source","python","scraping","mexican-cinema","dataset"]
 ---
 
 ## Context

@@ -2,7 +2,7 @@
 title: "La violencia inmobiliaria como condición millennial real"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "millennials", "vivienda", "capitalismo", "clase", "cita"]
+tags: ["zettelkasten","nota","millennials","vivienda","capitalismo","clase","cita"]
 summary: "La violencia inmobiliaria y la pobreza energética definen la experiencia millennial más que ningún meme cultural. Hablar de millennials en términos de Pokémon Go o shitposting oculta las condiciones materiales que los producen."
 ---
 

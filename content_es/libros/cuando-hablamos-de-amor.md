@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-242036378"
 summary: "De Aura García-Junco · Leído · 5/5"
-tags: ["libro","leído","ciencias-sociales","ensayo","amor","relaciones","feminismo","género"]
+tags: ["libro","leído","ciencias-sociales","ensayo","amor","vínculos","feminismo","género"]
 book_author: "Aura García-Junco"
 book_status: "read"
 goodreads_id: "242036378"

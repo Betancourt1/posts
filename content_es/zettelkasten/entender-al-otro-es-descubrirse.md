@@ -2,7 +2,7 @@
 title: "Entender el mundo emocional del otro es descubrirse a uno mismo"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "empatia", "emocion", "psicologia", "vinculos", "cita"]
+tags: ["zettelkasten","nota","empatía","emociones","psicología","vínculos","cita"]
 summary: "Batja Mesquita: comprender otro mundo emocional es a menudo un proceso doloroso de autodescubrimiento. El otro no es un objeto de estudio: es un espejo."
 ---
 

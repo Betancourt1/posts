@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-8994891"
 summary: "By Julian Barnes · Read · 5/5"
-tags: ["book","read","essays","mortality","religion","memory","family","memoir"]
+tags: ["book","read","essays","death","religion","memory","family"]
 book_author: "Julian Barnes"
 book_status: "read"
 goodreads_id: "8994891"

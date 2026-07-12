@@ -2,7 +2,7 @@
 title: "Monolingüismo y colonialismo lingüístico"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "lenguaje", "colonialismo", "indigenismo", "discriminacion", "racismo", "cita"]
+tags: ["zettelkasten","nota","lenguaje","colonialismo","indigenismo","discriminación","racismo","cita"]
 summary: "Yásnaya Aguilar: el monolingüismo en mixteco se considera un problema mientras que el monolingüismo en francés no. Lo que hay detrás tiene nombre: discriminación y colonialismo."
 ---
 

@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-15195"
 summary: "De Art Spiegelman · Leído · 5/5"
-tags: ["libro","leído","comic","holocausto","memoria","trauma","familia","novela-gráfica"]
+tags: ["libro","leído","cómic","holocausto","memoria","trauma","familia","novela-gráfica"]
 book_author: "Art Spiegelman"
 book_status: "read"
 goodreads_id: "15195"

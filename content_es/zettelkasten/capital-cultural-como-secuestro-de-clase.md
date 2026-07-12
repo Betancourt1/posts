@@ -2,7 +2,7 @@
 title: "El capital cultural como secuestro de identidad de clase"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "capitalismo", "clase", "clase-media", "ideologia", "cuerpo", "pretension"]
+tags: ["zettelkasten","nota","capitalismo","clase","clase-media","ideología","cuerpo","pretensión"]
 summary: "El capital cultural no se adquiere: te secuestra. A diferencia del económico, no basta con tenerlo —hay que performarlo en cada gesto, palabra, deseo y cuerpo. Por eso destruye la identidad de clase más radicalmente que la riqueza."
 ---
 

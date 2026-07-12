@@ -2,7 +2,7 @@
 title: "Esconder el yo real para ser amado"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "amor", "identidad", "vinculos", "miedo", "cita"]
+tags: ["zettelkasten","nota","amor","identidad","vínculos","miedo","cita"]
 summary: "BoJack lo dice (vía Señor Pantalones de Popó): se deja de contarle todo a alguien porque se quiere que ame quien uno cree ser, no en quien uno se está convirtiendo. El resultado es hundir cada vez más la mentira, lastimando a quienes son lo suficientemente valientes para querer."
 ---
 

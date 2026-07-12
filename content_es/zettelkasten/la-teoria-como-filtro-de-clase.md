@@ -2,7 +2,7 @@
 title: "La teoría como filtro de clase"
 date: 2026-01-26T21:50:00
 draft: false
-tags: ["zettelkasten", "nota", "clase", "teoria", "poder", "arrogancia", "cita"]
+tags: ["zettelkasten","nota","clase","teoría","poder","arrogancia","cita"]
 summary: "Presentar a la clase trabajadora como incapaz de pensamiento teórico no describe una limitación intelectual: funciona como jerarquía moral."
 ---
 

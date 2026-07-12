@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-36891927"
 summary: "De Hannah Arendt · Leído · 5/5"
-tags: ["libro","leído","poemas","amor","exilio","filosofía"]
+tags: ["libro","leído","poesía","amor","exilio","filosofía"]
 book_author: "Hannah Arendt"
 book_status: "read"
 goodreads_id: "36891927"

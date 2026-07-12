@@ -1,7 +1,7 @@
 ---
 title: "Los ricos no van a escapar"
 date: 2025-09-11
-tags: ["ensayo", "sci-fi", "capitalismo"]
+tags: ["ensayo","sci-fi","capitalismo"]
 ---
 
 # Los ricos no van a escapar

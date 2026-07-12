@@ -1,7 +1,7 @@
 ---
 title: "El derecho de existir"
 date: 2025-08-21
-tags: ["lista", "cotidiano", "subjetividad", "trabajo", "salud-mental"]
+tags: ["lista","cotidiano","subjetividad","trabajo","salud-mental"]
 ---
 # El derecho de existir
 

@@ -1,7 +1,7 @@
 ﻿---
 title: "¿Por qué?"
 date: 2025-08-09
-tags: ["reflexion"]
+tags: ["reflexión"]
 ---
 # ¿Por qué?
 

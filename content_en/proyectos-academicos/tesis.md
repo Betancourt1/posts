@@ -2,7 +2,7 @@
 title: "Bachelor's Thesis"
 date: 2026-02-13
 draft: false
-tags: ["academic", "thesis"]
+tags: ["academic","thesis"]
 ---
 
 ## Project

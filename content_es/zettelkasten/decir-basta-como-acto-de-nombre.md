@@ -2,7 +2,7 @@
 title: "Decir \\\"basta\\\" como acto que nombra el poder"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "abuso", "infancia", "poder", "lenguaje", "cita"]
+tags: ["zettelkasten","nota","abuso","infancia","poder","lenguaje","cita"]
 summary: "Vuong a los trece años dijo \\\"Para, mamá. Déjalo.\\\" La miró con dureza —como miraba a los bullies. La madre salió a comprar huevos \\\"como si no hubiera pasado nada\\\". Pero los dos sabían: ya nunca volvería a pegarle."
 ---
 

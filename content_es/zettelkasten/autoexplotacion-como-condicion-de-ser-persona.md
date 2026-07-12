@@ -2,7 +2,7 @@
 title: "La autoexplotación como condición de ser persona"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "capitalismo", "autoexplotacion", "subjetividad", "clase", "trabajo", "chat"]
+tags: ["zettelkasten","nota","capitalismo","autoexplotación","subjetividad","clase","trabajo","chat"]
 summary: "La sensación de \\\"no seré persona hasta que gane mucho dinero, tenga muchos títulos y pueda correr un maratón\\\" revela que el capitalismo ha colonizado la identidad: ser alguien depende de producir suficiente."
 ---
 

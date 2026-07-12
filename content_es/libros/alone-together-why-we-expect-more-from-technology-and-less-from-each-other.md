@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-8694125"
 summary: "De Sherry Turkle · Leyendo"
-tags: ["libro","leyendo","ciencias-sociales","tecnología","soledad","relaciones","redes-sociales","psicología"]
+tags: ["libro","leyendo","ciencias-sociales","tecnología","soledad","vínculos","redes-sociales","psicología"]
 book_author: "Sherry Turkle"
 book_status: "currently-reading"
 goodreads_id: "8694125"

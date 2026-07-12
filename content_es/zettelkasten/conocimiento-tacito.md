@@ -2,7 +2,7 @@
 title: "Conocimiento tácito: sabemos más de lo que podemos decir"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "epistemologia", "conocimiento", "lenguaje", "cita"]
+tags: ["zettelkasten","nota","epistemología","conocimiento","lenguaje","cita"]
 summary: "Michael Polanyi en una línea: \\\"Podemos saber más de lo que podemos decir.\\\" El conocimiento no es solo lo que puede articularse en proposiciones; hay una dimensión práctica, encarnada, que precede al lenguaje."
 ---
 

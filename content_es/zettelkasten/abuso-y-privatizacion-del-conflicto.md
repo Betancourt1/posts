@@ -2,7 +2,7 @@
 title: "Abuso y privatización del conflicto"
 date: 2026-01-26T14:46:17
 draft: false
-tags: ["zettelkasten", "nota", "abuso", "conflicto", "poder", "responsabilidad", "cultura"]
+tags: ["zettelkasten","nota","abuso","conflicto","poder","responsabilidad","cultura"]
 summary: "Muchos abusos se administran socialmente como si fueran un problema de habilidad individual de la víctima."
 ---
 

@@ -2,7 +2,7 @@
 title: "Moralizar el consumo oculta la estructura"
 date: 2026-02-25T21:38:22
 draft: false
-tags: ["zettelkasten", "nota", "narco", "clase", "adiccion", "politica"]
+tags: ["zettelkasten","nota","narco","clase","adicción","política"]
 summary: "Reducir el consumo de drogas a decisiones individuales desplaza la discusión de las condiciones sociales que producen adicción y violencia."
 ---
 

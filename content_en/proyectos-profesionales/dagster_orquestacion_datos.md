@@ -2,7 +2,7 @@
 title: "Data Pipeline Orchestration with Dagster"
 date: 2026-05-18
 draft: false
-tags: ["dagster", "data-engineering", "docker", "architecture", "private"]
+tags: ["dagster","data-engineering","docker","architecture","private"]
 ---
 
 ## Context

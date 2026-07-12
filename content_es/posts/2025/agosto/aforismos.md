@@ -1,7 +1,7 @@
 ---
 title: "Aforismos que he escrito estos meses"
 date: 2025-08-26
-tags: ["aforismo"]
+tags: ["aforismos"]
 ---
 # Aforismos que he escrito estos meses
 

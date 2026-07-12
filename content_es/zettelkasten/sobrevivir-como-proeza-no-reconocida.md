@@ -2,7 +2,7 @@
 title: "Sobrevivir como proeza no reconocida"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "genero", "feminismo", "sobrevivencia", "cita"]
+tags: ["zettelkasten","nota","género","feminismo","sobrevivencia","cita"]
 summary: "Raven Leilani lo articula: ser admirada por un hombre mayor que \\\"ha sobrevivido\\\" es rendirse ante algo poco especial —seguir levantándose y cepillando los dientes. Pero después de veintitrés años siendo mujer, de torsiones ováricas, préstamos, nazis de nuevo cuño, resulta que ella también sigue viva. Y esa es la proeza más importante."
 ---
 

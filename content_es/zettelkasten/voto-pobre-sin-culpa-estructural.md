@@ -2,7 +2,7 @@
 title: "El voto pobre no es culpa estructural"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "clase", "voto", "politica", "clasismo", "morena", "pri"]
+tags: ["zettelkasten","nota","clase","voto","política","clasismo","morena","pri"]
 summary: "La gente pobre que votó al PRI por décadas, o a Morena ahora, no actúa con malicia. Atribuir culpa moral al voto de los pobres revela un privilegio poco nombrado: el de extraer identidad política en lugar de beneficio."
 ---
 

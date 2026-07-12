@@ -2,7 +2,7 @@
 title: "Humanizar al creador de contenido frente a la marabunta"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "redes-sociales", "parasocial", "genero", "contenido-digital", "cita"]
+tags: ["zettelkasten","nota","redes-sociales","parasocial","género","contenido-digital","cita"]
 summary: "Quetzal lo propone: en vez de atacar o defender a una creadora como \\\"Roro\\\", reconocer que lo que vemos en pantalla es un personaje, una ficción calculada para un negocio. La persona real se cansa, no se despierta maquillada, discute con su pareja. Y ahora vive rodeada de millones de miradas, algunas perversas."
 ---
 

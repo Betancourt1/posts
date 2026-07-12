@@ -2,7 +2,7 @@
 title: "Desechabilidad obrera en la acumulación"
 date: 2026-02-25T06:44:00
 draft: false
-tags: ["zettelkasten", "nota", "politica", "poder", "trabajo", "explotacion", "cita"]
+tags: ["zettelkasten","nota","política","poder","trabajo","explotación","cita"]
 summary: "Cuando el trabajo se trata como pieza reemplazable, la vida del trabajador se valora solo por su utilidad productiva."
 ---
 

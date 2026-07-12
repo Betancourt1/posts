@@ -2,7 +2,7 @@
 title: "Nacidos de la belleza, no de la violencia"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "trauma", "origen", "belleza", "violencia", "cita"]
+tags: ["zettelkasten","nota","trauma","origen","belleza","violencia","cita"]
 summary: "Ocean Vuong corrige a sí mismo: creía que habían nacido de la guerra. Se equivocaba: nacieron de la belleza. La violencia pasó por ellos pero no los fundó. No son su fruto."
 ---
 

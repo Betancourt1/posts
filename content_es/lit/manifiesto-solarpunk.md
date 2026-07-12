@@ -2,7 +2,7 @@
 title: "Manifiesto Solarpunk"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["cita", "solarpunk", "ecologia", "futurismo", "utopia", "comunidad", "politica"]
+tags: ["cita","solarpunk","ecología","futurismo","utopía","comunidad","política"]
 summary: "1.- Somos solarpunks porque nos han arrebatado el optimismo y estamos tratando de recuperarlo."
 aliases: ["/zettelkasten/manifiesto-solarpunk/"]
 ---

@@ -2,7 +2,7 @@
 title: "El hombre que no llora: estrella de acero"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "masculinidad", "genero", "suicidio", "emociones", "microficcion", "cita"]
+tags: ["zettelkasten","nota","masculinidad","género","suicidio","emociones","microficción","cita"]
 summary: "Angélica Santa Olaya lo condensa en un microrrelato: al niño \\\"que nunca llora\\\" le enseñan que el éxito es la estrella dorada de la frente. La única estrella que termina ganando es la roja: la bala."
 ---
 

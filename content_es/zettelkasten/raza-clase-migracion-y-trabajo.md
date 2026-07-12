@@ -2,7 +2,7 @@
 title: "Raza, clase y trabajo invisible en la migración"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "raza", "clase", "migracion", "racismo", "trabajo", "cuerpo", "cita"]
+tags: ["zettelkasten","nota","raza","clase","migración","racismo","trabajo","cuerpo","cita"]
 summary: "Clyo Mendoza lo pone en palabras: el color de piel sigue pesando más que los logros, incluso en una ciudad \\\"progresista\\\". Ser músico talentoso e internacional no protege al padre moreno de que lo miren como mendigo."
 ---
 

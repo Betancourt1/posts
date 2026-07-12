@@ -2,7 +2,7 @@
 title: "Irene Vallejo"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["cita", "vinculos", "vulnerabilidad", "bondad", "capitalismo"]
+tags: ["cita","vínculos","vulnerabilidad","bondad","capitalismo"]
 summary: "La bondad asusta porque nos vuelve conscientes de la vulnerabilidad ajena, y de la propia. No queremos afrontar la fragilidad acechante de nuestros cuerpos. Preferimos el ideal de suficiencia, menos promiscuo, que pro..."
 aliases: ["/zettelkasten/irene-vallejo/"]
 ---

@@ -2,7 +2,7 @@
 title: "Vinos América Data API: Database Integration and Custom GPTs"
 date: 2024-11-20
 draft: false
-tags: ["fastapi", "python", "sap-hana", "gpt-integration", "private"]
+tags: ["fastapi","python","sap-hana","gpt-integration","private"]
 ---
 
 ## Context

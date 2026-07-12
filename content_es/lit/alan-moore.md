@@ -2,7 +2,7 @@
 title: "Alan Moore — *Writing for Comics*"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["cita", "escritura", "etica", "conocimiento", "literatura"]
+tags: ["cita","escritura","ética","conocimiento","literatura"]
 summary: "Finalmente, si de verdad quieres ser un gran escritor, quizás valga la pena recordar que incluso en este medio, es más importante ser un buen humano que un buen escritor. Los artistas... escritores, pintores, músicos...."
 aliases: ["/zettelkasten/alan-moore/"]
 ---

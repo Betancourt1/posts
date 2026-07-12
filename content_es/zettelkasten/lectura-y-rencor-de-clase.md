@@ -2,7 +2,7 @@
 title: "Lectura y rencor de clase"
 date: 2026-02-25T06:41:00
 draft: false
-tags: ["zettelkasten", "nota", "clase", "lectura", "resentimiento", "cita"]
+tags: ["zettelkasten","nota","clase","lectura","resentimiento","cita"]
 summary: "Cuando las personas pobres leen y nombran su experiencia, se vuelve más difícil sostener la ficción de que no hay conflicto."
 ---
 

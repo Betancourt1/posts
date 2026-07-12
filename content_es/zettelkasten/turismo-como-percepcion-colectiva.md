@@ -2,7 +2,7 @@
 title: "Turismo como percepción colectiva"
 date: 2026-01-24T01:01:00
 draft: false
-tags: ["zettelkasten", "nota", "turismo", "percepcion", "colectivo", "ritual", "cita"]
+tags: ["zettelkasten","nota","turismo","percepción","colectivo","ritual","cita"]
 summary: "Turistear puede vivirse como una rendición: uno mira con ojos prestados (lo que otros vieron y registraron antes), y esa percepción colectiva colorea la experiencia."
 ---
 

@@ -2,7 +2,7 @@
 title: "Batja Mesquita"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["cita", "empatia", "emocion", "psicologia", "vinculos"]
+tags: ["cita","empatía","emociones","psicología","vínculos"]
 summary: "To understand another emotional world is an often painful process of self-discovery as well."
 aliases: ["/zettelkasten/batja-mesquita/"]
 ---

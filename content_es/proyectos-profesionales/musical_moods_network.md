@@ -2,7 +2,7 @@
 title: "Musical Moods: Análisis de Redes de Sentimiento Musical"
 date: 2022-03-30
 draft: false
-tags: ["open-source", "data-science", "network-analysis", "graphs", "visualizacion"]
+tags: ["open-source","ciencia-de-datos","grafos","visualización-de-datos"]
 ---
 
 ## Contexto

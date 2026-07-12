@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-388048"
 summary: "By Béla Bollobás · Read · 5/5"
-tags: ["book","read","mathematics","graph-theory","discrete-mathematics","networks","combinatorics"]
+tags: ["book","read","mathematics","graphs","discrete-mathematics","combinatorics"]
 book_author: "Béla Bollobás"
 book_status: "read"
 goodreads_id: "388048"

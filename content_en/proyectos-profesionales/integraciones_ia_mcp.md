@@ -2,7 +2,7 @@
 title: "AI Integrations with Model Context Protocol (MCP)"
 date: 2026-05-14
 draft: false
-tags: ["mcp", "artificial-intelligence", "ai", "technology", "data-warehouse", "architecture", "private"]
+tags: ["mcp","artificial-intelligence","technology","data-warehouse","architecture","private"]
 ---
 
 ## Context

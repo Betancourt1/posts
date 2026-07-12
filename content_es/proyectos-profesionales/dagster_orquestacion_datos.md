@@ -2,7 +2,7 @@
 title: "Orquestación de Pipelines de Datos con Dagster"
 date: 2026-05-18
 draft: false
-tags: ["dagster", "data-engineering", "docker", "arquitectura", "privado"]
+tags: ["dagster","ingeniería-de-datos","docker","arquitectura","privado"]
 ---
 
 ## Contexto

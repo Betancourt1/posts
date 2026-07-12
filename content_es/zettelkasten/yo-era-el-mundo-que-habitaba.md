@@ -2,7 +2,7 @@
 title: "El yo como el mundo que se habita"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten", "nota", "filosofia", "percepcion", "subjetividad", "poesia", "cita"]
+tags: ["zettelkasten","nota","filosofía","percepción","subjetividad","poesía","cita"]
 summary: "Wallace Stevens: \\\"I was the world in which I walked, and what I saw / Or heard or felt came not but from myself.\\\" No hay separación entre el sujeto y su mundo: el mundo percibido es una construcción del que lo percibe."
 ---
 

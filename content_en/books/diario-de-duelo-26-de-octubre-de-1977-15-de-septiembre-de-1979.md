@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-15846290"
 summary: "By Roland Barthes · Read · 5/5"
-tags: ["book","read","diaries-and-letters","grief","death","memory","mourning"]
+tags: ["book","read","diaries-and-letters","grief","death","memory"]
 book_author: "Roland Barthes"
 book_status: "read"
 goodreads_id: "15846290"

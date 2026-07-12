@@ -2,7 +2,7 @@
 title: "Musical Moods: Musical Sentiment Network Analysis"
 date: 2022-03-30
 draft: false
-tags: ["open-source", "data-science", "network-analysis", "graphs", "visualization"]
+tags: ["open-source","data-science","graphs","data-visualization"]
 ---
 
 ## Context
