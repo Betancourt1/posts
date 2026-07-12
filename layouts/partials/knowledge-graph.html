@@ -5,7 +5,7 @@
 {{ $graphEntries := slice }}
 {{ $graphTagLinks := dict }}
 {{ $focusTags := slice }}
-{{ $graphIgnoredTags := slice "book" "read" "currently-reading" "to-read" "libro" "leído" "leyendo" "por-leer" }}
+{{ $graphIgnoredTags := slice "book" "read" "currently-reading" "to-read" "essays" "libro" "leído" "leyendo" "por-leer" "ensayo" }}
 {{ if $isSidebar }}
   {{ with $page.Params.tags }}
     {{ range . }}
