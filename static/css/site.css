@@ -696,7 +696,7 @@ h3 { font-size: 1.2rem; color: var(--ink); }
   align-items: center;
   width: max-content;
   margin: 0.15rem 0;
-  color: var(--ink-muted);
+  color: var(--ink-dim);
   font-size: 0.72rem;
   cursor: pointer;
 }
