@@ -13,6 +13,7 @@ import {
   pageHasArenaMapping,
   syncArenaPage,
 } from "../functions/_lib/arena.js";
+import { normalizeBookFrontMatter } from "../functions/_lib/book-content.js";
 import { imageEditorHtml } from "../functions/_lib/image-editor-template.js";
 import { editorCoreClientScript } from "../functions/_lib/editor-core-client.js";
 import { resolveEditorPath } from "../functions/_lib/editor-routing.js";
@@ -685,6 +686,7 @@ function createPost(payload) {
     frontMatter.images = images;
   }
 
+  normalizeBookFrontMatter(relativePath, frontMatter, body);
   normalizePhotoFrontMatter(relativePath, frontMatter);
 
   if (payload.hidden) {
@@ -729,6 +731,7 @@ function savePage(payload) {
   });
   const body = String(payload.body || "");
 
+  normalizeBookFrontMatter(relativePath, frontMatter, body);
   normalizePhotoFrontMatter(relativePath, frontMatter);
   const nextContent = formatMarkdown(frontMatter, body);
   const { absolutePath } = safeContentPath(relativePath);

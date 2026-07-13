@@ -367,6 +367,7 @@
       mode: "new",
       notebook: notebook,
       format: format,
+      template: trigger && trigger.dataset.editorTemplate ? trigger.dataset.editorTemplate : "",
     });
     return true;
   }
@@ -423,6 +424,7 @@
       mode: "edit",
       kind: "post",
       path: path,
+      template: /^content_(?:en\/books|es\/libros)\//.test(path) ? "book" : "",
     });
     return true;
   }
@@ -553,6 +555,9 @@
     }
     if (params.format) {
       query.set("format", params.format);
+    }
+    if (params.template) {
+      query.set("template", params.template);
     }
 
     window.location.assign(apiBase + "/editor?" + query.toString());

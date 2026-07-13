@@ -1,4 +1,5 @@
 import { deleteGitHubFile, readGitHubFile, readRepositoryTree, writeGitHubFile, writeGitHubFileBase64 } from "./github.js";
+import { normalizeBookFrontMatter } from "./book-content.js";
 import { formatMarkdown, splitMarkdown, tagsFromValue } from "./markdown.js";
 import {
   CONTENT_ROOTS,
@@ -396,6 +397,7 @@ export async function createPost(env, payload) {
     frontMatter.images = images;
   }
 
+  normalizeBookFrontMatter(path, frontMatter, body);
   normalizePhotoFrontMatter(path, frontMatter);
 
   await writeGitHubFile(env, {
@@ -483,9 +485,11 @@ export async function savePage(env, payload) {
     if (value === null) delete frontMatter[key];
   });
 
+  const body = String(payload.body || "");
+  normalizeBookFrontMatter(path, frontMatter, body);
   normalizePhotoFrontMatter(path, frontMatter);
 
-  const content = formatMarkdown(frontMatter, String(payload.body || ""));
+  const content = formatMarkdown(frontMatter, body);
 
   if (content === current.content) {
     return {

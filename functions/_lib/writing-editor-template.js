@@ -1740,6 +1740,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       var mode = params.get("mode") || "new";
       var editorController = ${JSON.stringify(editorController)};
       var postFormat = params.get("format") || "";
+      var editorTemplate = params.get("template") || "";
       var theme = params.get("theme") === "light" ? "light" : "dark";
       var grayscale = params.get("grayscale") === "true";
       var siteOrigin = params.get("site") || ${JSON.stringify(SITE_ORIGIN)};
@@ -1870,7 +1871,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         document.body.dataset.editorKind = editorController.kind;
         document.body.classList.toggle("is-grayscale", grayscale);
         applyEditorSize(readEditorSize());
-        applyViewMode(readViewMode());
+        applyViewMode(editorTemplate === "book" ? "markdown" : readViewMode());
         bind();
         syncSettingsState();
         syncWritingState();
@@ -2346,10 +2347,77 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.arenaDetailsBackdrop.hidden = true;
       }
 
+      function isBookEditor() {
+        return editorTemplate === "book" || /^content_(?:en\\/books|es\\/libros)\\//.test(sourcePath);
+      }
+
+      function isEnglishBook() {
+        var contentPath = sourcePath || preferredNotebook || els.notebook.value;
+        return contentPath.indexOf("content_en/books") === 0;
+      }
+
+      function bookTemplateBody() {
+        if (isEnglishBook()) {
+          return [
+            "# ",
+            "",
+            "**Author:** ",
+            "**Progress:** 0%",
+            "**My rating:** ",
+            "",
+            "## My review",
+            "",
+          ].join("\\n");
+        }
+
+        return [
+          "# ",
+          "",
+          "**Autor:** ",
+          "**Progreso:** 0%",
+          "**Mi calificación:** ",
+          "",
+          "## Mi reseña",
+          "",
+        ].join("\\n");
+      }
+
+      function bookBodyWithProgressSyntax(value) {
+        var body = String(value || "");
+        if (/^\\*\\*(?:Progress|Progreso):\\*\\*/mi.test(body)) return body;
+
+        var english = isEnglishBook();
+        var storedProgress = Number(frontMatter.book_progress);
+        var progress = Number.isFinite(storedProgress) && storedProgress >= 0 && storedProgress <= 100
+          ? storedProgress + "%"
+          : frontMatter.book_status === "read"
+            ? "100%"
+            : frontMatter.book_status === "to-read"
+              ? "0%"
+              : english ? "reading" : "leyendo";
+        var progressLine = "**" + (english ? "Progress" : "Progreso") + ":** " + progress;
+        var statusPattern = /^\\*\\*(?:Status|Estado):\\*\\*.*$/mi;
+
+        if (statusPattern.test(body)) {
+          return body.replace(statusPattern, progressLine);
+        }
+
+        var authorPattern = /^\\*\\*(?:Author|Autor):\\*\\*.*$/mi;
+        if (authorPattern.test(body)) {
+          return body.replace(authorPattern, function (line) {
+            return line + "\\n" + progressLine;
+          });
+        }
+
+        return progressLine + "\\n" + body;
+      }
+
       function setupNewPost() {
         els.notebookField.hidden = false;
         els.title.value = "";
-        els.body.value = "";
+        els.summary.value = "";
+        els.body.value = isBookEditor() ? bookTemplateBody() : "";
+        els.tags.value = isBookEditor() ? (isEnglishBook() ? "book" : "libro") : "";
         slugTouched = false;
         els.slug.value = "";
         syncGeneratedSlug();
@@ -2373,7 +2441,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         savedSnapshot = currentSaveSnapshot();
         saveInProgress = false;
         saveFailed = false;
-        setStatus("New post");
+        setStatus(isBookEditor() ? "New book" : "New post");
         setPublicationState("idle", "Publica para iniciar el proceso.");
         resetBodyHistory();
         syncSavedState();
@@ -2427,7 +2495,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
             lastSyncedAt: "",
             error: "",
           });
-          els.body.value = payload.body || "";
+          els.body.value = isBookEditor() ? bookBodyWithProgressSyntax(payload.body || "") : payload.body || "";
           els.path.textContent = payload.path || "";
           savedSnapshot = currentSaveSnapshot();
           saveInProgress = false;
@@ -2973,6 +3041,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         window.setTimeout(function () {
           if (activeViewMode === "markdown") {
             els.markdownCanvas.focus();
+            if (isBookEditor() && mode === "new" && !els.title.value.trim() && els.markdownCanvas.value.indexOf("# ") === 0) {
+              els.markdownCanvas.setSelectionRange(2, 2);
+            }
             return;
           }
           if (els.title.value.trim()) {

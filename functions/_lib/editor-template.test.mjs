@@ -59,6 +59,18 @@ test("text editor injects its API base and cannot save before content hydration"
   assert.match(html, /result\.deletedUrl/);
 });
 
+test("text editor reuses Markdown mode for book templates", () => {
+  const html = postEditorHtml();
+  const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+
+  assert.doesNotThrow(() => new Function(script));
+  assert.match(html, /var editorTemplate = params\.get\("template"\) \|\| "";/);
+  assert.match(html, /editorTemplate === "book" \? "markdown" : readViewMode\(\)/);
+  assert.match(html, /"\*\*Progress:\*\* 0%"/);
+  assert.match(html, /"\*\*Progreso:\*\* 0%"/);
+  assert.match(html, /bookBodyWithProgressSyntax/);
+});
+
 test("image editor uses one explicit save action and lightweight previews", () => {
   const html = imageEditorHtml({
     siteOrigin: "https://example.com/admin",

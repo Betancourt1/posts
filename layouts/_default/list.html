@@ -1,5 +1,10 @@
 {{ define "main" }}
   {{ $isEnglish := eq .Site.Language.Lang "en" }}
+  {{ $isBookSection := or (eq .Section "books") (eq .Section "libros") }}
+  {{ $newContentLabel := cond $isEnglish "New post" "Nuevo post" }}
+  {{ if $isBookSection }}
+    {{ $newContentLabel = cond $isEnglish "New book" "Nuevo libro" }}
+  {{ end }}
   <header class="page-header">
     <div class="page-header-row">
       <h1>{{ .Title }}</h1>
@@ -9,8 +14,9 @@
             type="button"
             class="author-action-button"
             data-author-action="add-post"
-            aria-label="{{ if $isEnglish }}New post{{ else }}Nuevo post{{ end }}"
-            title="{{ if $isEnglish }}New post{{ else }}Nuevo post{{ end }}"
+            {{ if $isBookSection }}data-editor-template="book"{{ end }}
+            aria-label="{{ $newContentLabel }}"
+            title="{{ $newContentLabel }}"
           >
             {{ partial "author_icon.html" "file-plus" }}
           </button>
@@ -62,12 +68,12 @@
     {{ end }}
   </header>
 
-  {{ if or (eq .Section "books") (eq .Section "libros") }}
+  {{ if $isBookSection }}
     {{ $pages := where .Pages.ByDate.Reverse "Params.hidden" "ne" true }}
     {{ $groups := slice
-      (dict "status" "currently-reading" "label" (cond $isEnglish "Now reading" "Leyendo ahora") "statusLabel" (cond $isEnglish "Reading" "Leyendo") "filled" 3 "value" 1 "preview" 2)
-      (dict "status" "read" "label" (cond $isEnglish "Read" "Leídos") "statusLabel" (cond $isEnglish "Read" "Leído") "filled" 7 "value" 3 "preview" 4)
-      (dict "status" "to-read" "label" (cond $isEnglish "Want to read" "Por leer") "statusLabel" (cond $isEnglish "Want to read" "Por leer") "filled" 0 "value" 0 "preview" 2)
+      (dict "status" "currently-reading" "label" (cond $isEnglish "Now reading" "Leyendo ahora") "statusLabel" (cond $isEnglish "Reading" "Leyendo") "filled" 3 "preview" 2)
+      (dict "status" "read" "label" (cond $isEnglish "Read" "Leídos") "statusLabel" (cond $isEnglish "Read" "Leído") "filled" 7 "preview" 4)
+      (dict "status" "to-read" "label" (cond $isEnglish "Want to read" "Por leer") "statusLabel" (cond $isEnglish "Want to read" "Por leer") "filled" 0 "preview" 2)
     }}
     <div class="book-library" aria-label="{{ if $isEnglish }}Books by reading status{{ else }}Libros por estado de lectura{{ end }}">
       {{ range $groups }}
