@@ -51,21 +51,6 @@
   <p class="knowledge-graph-hint knowledge-graph-hint--intro{{ if $isSidebar }} sidebar-graph-lead{{ end }}">{{ i18n "knowledgeGraphHint" }}</p>
   {{ if not $isSidebar }}
     <div class="knowledge-graph-tools" id="knowledge-graph-tools" aria-label="{{ i18n "knowledgeGraphToolsLabel" }}">
-      <button type="button" class="button graph-tool" data-graph-action="zoom-out" aria-label="{{ i18n "knowledgeGraphZoomOutLabel" }}" title="{{ i18n "knowledgeGraphZoomOutLabel" }}">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="11" cy="11" r="6.5"></circle>
-          <path d="M16 16L21 21"></path>
-          <path d="M8 11H14"></path>
-        </svg>
-      </button>
-      <button type="button" class="button graph-tool" data-graph-action="zoom-in" aria-label="{{ i18n "knowledgeGraphZoomInLabel" }}" title="{{ i18n "knowledgeGraphZoomInLabel" }}">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="11" cy="11" r="6.5"></circle>
-          <path d="M16 16L21 21"></path>
-          <path d="M8 11H14"></path>
-          <path d="M11 8V14"></path>
-        </svg>
-      </button>
       <button type="button" class="button graph-tool" data-graph-action="reset-view" aria-label="{{ i18n "knowledgeGraphResetViewLabel" }}" title="{{ i18n "knowledgeGraphResetViewLabel" }}">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="12" cy="12" r="7"></circle>

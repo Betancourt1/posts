@@ -256,6 +256,11 @@
       downScreenY: 0,
       panStartOffsetX: 0,
       panStartOffsetY: 0,
+      touchPointers: new Map(),
+      pinching: false,
+      pinchDistance: 0,
+      pinchCenterX: 0,
+      pinchCenterY: 0,
       fallbackMaximized: false,
       maximized: false,
       searchNode: null,
@@ -369,6 +374,19 @@
       state.offsetX = screenX - worldBefore.x * state.zoom;
       state.offsetY = screenY - worldBefore.y * state.zoom;
       drawIfIdle();
+    }
+
+    function getPinchMetrics() {
+      var points = Array.from(state.touchPointers.values());
+      if (points.length < 2) {
+        return null;
+      }
+
+      return {
+        distance: Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y),
+        centerX: (points[0].x + points[1].x) / 2,
+        centerY: (points[0].y + points[1].y) / 2
+      };
     }
 
     function recenterGraph() {
@@ -760,10 +778,34 @@
     }
 
     canvas.addEventListener("pointerdown", function (event) {
+      var pos = pointerXY(event);
+      if (event.pointerType === "touch") {
+        event.preventDefault();
+        if (state.touchPointers.size >= 2) {
+          return;
+        }
+
+        state.touchPointers.set(event.pointerId, pos);
+        canvas.setPointerCapture(event.pointerId);
+
+        if (state.touchPointers.size === 2) {
+          var pinch = getPinchMetrics();
+          state.pointerId = null;
+          state.draggingNode = null;
+          state.panning = false;
+          state.moved = true;
+          state.pinching = true;
+          state.pinchDistance = pinch.distance;
+          state.pinchCenterX = pinch.centerX;
+          state.pinchCenterY = pinch.centerY;
+          container.classList.toggle("is-grabbing", true);
+          return;
+        }
+      }
+
       if (state.pointerId !== null) {
         return;
       }
-      var pos = pointerXY(event);
       var world = screenToWorld(pos.x, pos.y);
       var pickedNode = pickNode(world.x, world.y);
 
@@ -782,12 +824,42 @@
         pickedNode.vy = 0;
       }
 
-      canvas.setPointerCapture(event.pointerId);
+      if (event.pointerType !== "touch") {
+        canvas.setPointerCapture(event.pointerId);
+      }
       wakeSimulation();
     });
 
     canvas.addEventListener("pointermove", function (event) {
       var pos = pointerXY(event);
+
+      if (event.pointerType === "touch" && state.touchPointers.has(event.pointerId)) {
+        state.touchPointers.set(event.pointerId, pos);
+
+        if (state.pinching) {
+          event.preventDefault();
+          var pinch = getPinchMetrics();
+          if (!pinch || state.pinchDistance === 0) {
+            return;
+          }
+
+          var worldBeforePinch = screenToWorld(state.pinchCenterX, state.pinchCenterY);
+          state.zoom = clamp(
+            state.zoom * (pinch.distance / state.pinchDistance),
+            state.minZoom,
+            state.maxZoom
+          );
+          state.offsetX = pinch.centerX - worldBeforePinch.x * state.zoom;
+          state.offsetY = pinch.centerY - worldBeforePinch.y * state.zoom;
+          state.pinchDistance = pinch.distance;
+          state.pinchCenterX = pinch.centerX;
+          state.pinchCenterY = pinch.centerY;
+          state.moved = true;
+          drawIfIdle();
+          return;
+        }
+      }
+
       var world = screenToWorld(pos.x, pos.y);
 
       if (event.pointerId === state.pointerId && (state.draggingNode || state.panning)) {
@@ -819,11 +891,31 @@
     });
 
     function onPointerUp(event) {
+      if (event.pointerType === "touch") {
+        state.touchPointers.delete(event.pointerId);
+      }
+
+      if (canvas.hasPointerCapture(event.pointerId)) {
+        canvas.releasePointerCapture(event.pointerId);
+      }
+
+      if (state.pinching) {
+        if (state.touchPointers.size < 2) {
+          state.pinching = false;
+          state.pinchDistance = 0;
+          state.pointerId = null;
+          state.draggingNode = null;
+          state.panning = false;
+          container.classList.toggle("is-grabbing", false);
+          wakeSimulation();
+        }
+        return;
+      }
+
       if (state.pointerId !== event.pointerId) {
         return;
       }
 
-      canvas.releasePointerCapture(event.pointerId);
       state.pointerId = null;
       state.draggingNode = null;
       state.panning = false;
@@ -903,16 +995,6 @@
         }
 
         var action = button.getAttribute("data-graph-action");
-        var cx = width / 2;
-        var cy = height / 2;
-        if (action === "zoom-in") {
-          applyZoomByFactor(1.16, cx, cy);
-          return;
-        }
-        if (action === "zoom-out") {
-          applyZoomByFactor(0.86, cx, cy);
-          return;
-        }
         if (action === "reset-view") {
           recenterGraph();
           return;
