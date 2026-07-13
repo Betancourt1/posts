@@ -133,7 +133,7 @@
     <aside class="column nav-column">
       {{ partial "nav.html" . }}
     </aside>
-    <main class="column content-column">
+    <main class="column content-column{{ if or (eq .Section "books") (eq .Section "libros") }} content-column--books{{ end }}">
       <div class="content-inner">
         {{ block "main" . }}{{ end }}
       </div>

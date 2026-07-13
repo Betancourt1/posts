@@ -1,0 +1,43 @@
+{{ $page := .page }}
+{{ $group := .group }}
+{{ $isEnglish := .isEnglish }}
+{{ $review := "" }}
+{{ if in $page.RawContent "## My review" }}
+  {{ $parts := split $page.RawContent "## My review" }}
+  {{ if gt (len $parts) 1 }}{{ $review = index $parts 1 }}{{ end }}
+{{ else if in $page.RawContent "## Mi reseña" }}
+  {{ $parts := split $page.RawContent "## Mi reseña" }}
+  {{ if gt (len $parts) 1 }}{{ $review = index $parts 1 }}{{ end }}
+{{ end }}
+{{ $review = $review | markdownify | plainify | strings.TrimSpace }}
+
+<article class="book-shelf-row{{ if $review }} has-opinion{{ end }}">
+  <div class="book-identity">
+    <h3><a href="{{ $page.RelPermalink }}">{{ $page.Title }}</a></h3>
+    <p>{{ $page.Params.book_author }}</p>
+  </div>
+  <div class="book-progress">
+    <span class="book-progress-label">{{ $group.statusLabel }}</span>
+    <div
+      class="book-progress-track"
+      role="progressbar"
+      aria-valuemin="0"
+      aria-valuemax="3"
+      aria-valuenow="{{ $group.value }}"
+      aria-valuetext="{{ $group.statusLabel }}"
+    >
+      {{ range seq 7 }}
+        <span class="book-progress-segment{{ if le . $group.filled }} is-filled{{ end }}" aria-hidden="true"></span>
+      {{ end }}
+    </div>
+  </div>
+  {{ if $review }}
+    <div class="book-opinion">
+      <div class="book-opinion-heading">
+        <span>{{ if $isEnglish }}My opinion{{ else }}Mi opinión{{ end }}</span>
+        {{ with $page.Params.rating }}<span>{{ . }}/5</span>{{ end }}
+      </div>
+      <p>{{ $review | truncate 92 }}</p>
+    </div>
+  {{ end }}
+</article>

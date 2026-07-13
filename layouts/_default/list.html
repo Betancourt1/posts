@@ -62,31 +62,75 @@
     {{ end }}
   </header>
 
-  <section class="post-list">
-    {{ range .Pages.ByDate.Reverse }}
-      {{ $isHidden := partial "is_hidden.html" . }}
-      {{ if not $isHidden }}
-        {{ $summary := .Params.summary }}
-        {{ if not $summary }}
-          {{ $summary = .Plain | truncate 220 }}
+  {{ if or (eq .Section "books") (eq .Section "libros") }}
+    {{ $pages := where .Pages.ByDate.Reverse "Params.hidden" "ne" true }}
+    {{ $groups := slice
+      (dict "status" "currently-reading" "label" (cond $isEnglish "Now reading" "Leyendo ahora") "statusLabel" (cond $isEnglish "Reading" "Leyendo") "filled" 3 "value" 1 "preview" 2)
+      (dict "status" "read" "label" (cond $isEnglish "Read" "Leídos") "statusLabel" (cond $isEnglish "Read" "Leído") "filled" 7 "value" 3 "preview" 4)
+      (dict "status" "to-read" "label" (cond $isEnglish "Want to read" "Por leer") "statusLabel" (cond $isEnglish "Want to read" "Por leer") "filled" 0 "value" 0 "preview" 2)
+    }}
+    <div class="book-library" aria-label="{{ if $isEnglish }}Books by reading status{{ else }}Libros por estado de lectura{{ end }}">
+      {{ range $groups }}
+        {{ $group := . }}
+        {{ $groupPages := where $pages "Params.book_status" $group.status }}
+        {{ if eq $group.status "read" }}
+          {{ $reviewedPages := where $groupPages "RawContent" "like" `(?m)^## (My review|Mi reseña)\s*$` }}
+          {{ $unreviewedPages := collections.Complement $reviewedPages $groupPages }}
+          {{ $groupPages = union $reviewedPages $unreviewedPages }}
         {{ end }}
-        <article class="post-card">
-          <div class="post-card-top">
-            <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
+        {{ $previewPages := first $group.preview $groupPages }}
+        {{ $remainingPages := after $group.preview $groupPages }}
+        <section class="book-shelf" aria-labelledby="book-shelf-{{ $group.status }}">
+          <div class="book-shelf-heading">
+            <h2 id="book-shelf-{{ $group.status }}">{{ $group.label }}</h2>
           </div>
-          <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-          {{ with .Params.tags }}
-            <div class="tag-list">
-              {{ range . }}
-                <a class="tag" href="{{ printf "tags/%s/" (. | urlize) | relLangURL }}">#{{ . }}</a>
-              {{ end }}
-            </div>
-          {{ end }}
-          {{ with $summary }}
-            <p class="post-summary">{{ . }}</p>
-          {{ end }}
-        </article>
+          <div class="book-shelf-list">
+            {{ range $previewPages }}
+              {{ partial "book_row.html" (dict "page" . "group" $group "isEnglish" $isEnglish) }}
+            {{ end }}
+            {{ if $remainingPages }}
+              <details class="book-shelf-more">
+                <summary>
+                  {{ if $isEnglish }}Show {{ len $remainingPages }} more{{ else }}Mostrar {{ len $remainingPages }} más{{ end }}
+                </summary>
+                <div class="book-shelf-more-list">
+                  {{ range $remainingPages }}
+                    {{ partial "book_row.html" (dict "page" . "group" $group "isEnglish" $isEnglish) }}
+                  {{ end }}
+                </div>
+              </details>
+            {{ end }}
+          </div>
+        </section>
       {{ end }}
-    {{ end }}
-  </section>
+    </div>
+  {{ else }}
+    <section class="post-list">
+      {{ range .Pages.ByDate.Reverse }}
+        {{ $isHidden := partial "is_hidden.html" . }}
+        {{ if not $isHidden }}
+          {{ $summary := .Params.summary }}
+          {{ if not $summary }}
+            {{ $summary = .Plain | truncate 220 }}
+          {{ end }}
+          <article class="post-card">
+            <div class="post-card-top">
+              <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
+            </div>
+            <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+            {{ with .Params.tags }}
+              <div class="tag-list">
+                {{ range . }}
+                  <a class="tag" href="{{ printf "tags/%s/" (. | urlize) | relLangURL }}">#{{ . }}</a>
+                {{ end }}
+              </div>
+            {{ end }}
+            {{ with $summary }}
+              <p class="post-summary">{{ . }}</p>
+            {{ end }}
+          </article>
+        {{ end }}
+      {{ end }}
+    </section>
+  {{ end }}
 {{ end }}

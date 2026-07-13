@@ -47,6 +47,55 @@ final result: passed
 
 ---
 
+# Books status shelves design QA
+
+## Evidence
+
+- Source visual truth: `/Users/betancourt/.codex/generated_images/019f5da5-1b24-7791-a7e6-57416dc9fe84/exec-36df320a-a08b-42b5-9b75-139c2ea54e47.png`
+- Browser-rendered English desktop: `/private/tmp/posts-books-option-2-desktop-final-v4.png`
+- Browser-rendered Spanish desktop: `/private/tmp/posts-libros-option-2-desktop-final.png`
+- Browser-rendered English mobile: `/private/tmp/posts-books-option-2-mobile-final-v4.png`
+- Normalized full-view comparison: `/private/tmp/posts-books-option-2-comparison-final-v4.png`
+- Viewports: 1440 x 1024 and 390 x 844 CSS pixels.
+- State: dark theme, collapsed reading-status shelves, public English and Spanish routes.
+
+The reference and implementation were opened together in the normalized comparison. A separate focused crop was not needed because both full-size captures were also inspected at original resolution, where titles, authors, status labels, progress segments, ratings, and review excerpts were legible.
+
+## Findings
+
+No actionable P0, P1, or P2 differences remain.
+
+- Fonts and typography: the implementation reuses the site's JetBrains Mono/IBM Plex Mono stack and preserves the reference hierarchy between headings, titles, authors, status labels, and opinion copy.
+- Spacing and layout: all three shelves appear in the first desktop viewport. The two-column rows without opinions and three-column reviewed rows match the reference's scanning pattern without horizontal overflow.
+- Colors and tokens: the implementation uses the existing black background, mint accent, muted text, and hairline separators in dark and light-theme-compatible variables.
+- Image and asset fidelity: the change adds no replacement imagery or custom icon assets. The existing dynamic graph remains untouched as part of the surrounding site shell.
+- Copy and content: labels are localized for English and Spanish. Opinion excerpts are rendered only from real `My review` or `Mi reseña` content, with the stored rating when available.
+- Accessibility: shelf regions have headings, status rails expose progressbar semantics and text labels, disclosure controls are keyboard-native, and mobile summaries keep a 44 px touch target.
+- Responsive behavior: the desktop grid collapses to two columns and then one column without clipping; the 390 px viewport has zero horizontal overflow.
+
+## Primary interactions tested
+
+- Open and close the `Now reading` disclosure; confirm the remaining seven current books appear and collapse again.
+- Open `Cold Intimacies` from the shelf and confirm the book detail route loads, then return to `/books/`.
+- Open `/es/libros/` and confirm `Leyendo ahora`, `Leídos`, `Por leer`, and `Mi opinión` render from the same data.
+- Check browser warnings and errors after desktop, Spanish, interaction, and mobile passes.
+
+## Comparison history
+
+1. The first implementation rendered all 96 books at once, which pushed opinions and later shelves below the first viewport and made no-opinion progress tracks too close to titles.
+2. The shelves gained native disclosure controls, review-first ordering inside `Read`, and a two-column layout for rows without opinions.
+3. The description and excerpt density were tightened so all three shelf headings, five real opinions, and the first `Want to read` row are visible in the desktop viewport.
+4. Disclosure controls moved into the shelf heading line on desktop while remaining full-height controls on mobile. The final comparison found no P0/P1/P2 mismatch.
+
+## Follow-up polish
+
+- P3: the reference uses a curated eight-book sample, while the implementation uses live library data and adds subtle `Show more` controls so all 96 books remain reachable.
+- P3: the dynamic knowledge graph differs between screenshots because its simulation state is not deterministic; it was outside the changed Books surface.
+
+final result: passed
+
+---
+
 # Compact mobile editor header design QA
 
 ## Evidence

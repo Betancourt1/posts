@@ -560,6 +560,230 @@ h3 { font-size: 1.2rem; color: var(--ink); }
   gap: 18px;
 }
 
+.content-column--books .content-inner {
+  max-width: none;
+}
+
+.content-column--books .page-header .lead {
+  display: none;
+}
+
+.book-library {
+  display: grid;
+  gap: 1.15rem;
+  margin-top: 1.4rem;
+}
+
+.book-shelf {
+  position: relative;
+}
+
+.book-shelf-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.book-shelf-heading::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--accent);
+}
+
+.book-shelf-heading h2 {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.book-shelf-list {
+  border-bottom: 1px solid var(--line);
+}
+
+.book-shelf-row {
+  display: grid;
+  grid-template-columns: minmax(14rem, 1.15fr) minmax(9rem, 0.72fr) minmax(17rem, 1.35fr);
+  gap: 1.1rem;
+  align-items: center;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.book-shelf-row:not(.has-opinion) {
+  grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.54fr);
+}
+
+.book-shelf-row:last-child {
+  border-bottom: 0;
+}
+
+.book-identity {
+  min-width: 0;
+}
+
+.book-identity h3 {
+  margin: 0;
+  font-size: 1.04rem;
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
+.book-identity p {
+  margin: 0.18rem 0 0;
+  color: var(--ink-dim);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.book-progress {
+  min-width: 0;
+}
+
+.book-progress-label,
+.book-opinion-heading {
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.book-progress-track {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+  width: 100%;
+  margin-top: 0.38rem;
+}
+
+.book-progress-segment {
+  height: 0.42rem;
+  border: 1px solid var(--line);
+}
+
+.book-progress-segment.is-filled {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.book-opinion {
+  min-width: 0;
+  align-self: start;
+}
+
+.book-opinion-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.book-opinion p {
+  margin: 0.25rem 0 0;
+  color: var(--ink-dim);
+  font-size: 0.76rem;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.book-shelf-more summary {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  width: max-content;
+  margin: 0.15rem 0;
+  color: var(--ink-muted);
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.book-shelf-more:not([open]) {
+  height: 0;
+}
+
+.book-shelf-more:not([open]) summary {
+  position: absolute;
+  top: -0.35rem;
+  right: 0;
+  z-index: 1;
+  padding-left: 0.6rem;
+  background: var(--bg);
+}
+
+.book-shelf-more summary:hover,
+.book-shelf-more summary:focus-visible {
+  color: var(--accent);
+}
+
+.book-shelf-more summary:focus-visible {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+
+.book-shelf-more[open] summary {
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+@media (max-width: 720px) {
+  .book-library {
+    gap: 2rem;
+    margin-top: 1.6rem;
+  }
+
+  .book-shelf-row {
+    grid-template-columns: minmax(0, 1fr) minmax(8rem, 0.7fr);
+    gap: 0.8rem 1rem;
+    padding: 1rem 0;
+  }
+
+  .book-shelf-row:not(.has-opinion) {
+    grid-template-columns: minmax(0, 1fr) minmax(8rem, 0.7fr);
+  }
+
+  .book-shelf-more summary {
+    min-height: 44px;
+  }
+
+  .book-shelf-more:not([open]) {
+    height: auto;
+  }
+
+  .book-shelf-more:not([open]) summary {
+    position: static;
+    padding-left: 0;
+    background: transparent;
+  }
+
+  .book-opinion {
+    grid-column: 1 / -1;
+    padding-left: 0.75rem;
+    border-left: 1px solid var(--accent);
+  }
+}
+
+@media (max-width: 480px) {
+  .book-shelf-row {
+    grid-template-columns: 1fr;
+  }
+
+  .book-shelf-row:not(.has-opinion) {
+    grid-template-columns: 1fr;
+  }
+
+  .book-progress {
+    width: min(13rem, 100%);
+  }
+
+  .book-opinion {
+    grid-column: auto;
+  }
+}
+
 .portfolio-grid {
   display: grid;
   gap: 18px;
