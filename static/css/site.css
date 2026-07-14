@@ -2508,7 +2508,7 @@ body.zen-mode-returning .layout {
     visibility: visible;
     transform: translateX(0);
     overflow: hidden;
-    transition: transform 0.48s ease-out, visibility 0s linear;
+    transition: transform 0.42s ease-out, visibility 0s linear;
   }
 
   .sidebar-column {
@@ -2517,7 +2517,7 @@ body.zen-mode-returning .layout {
     visibility: visible;
     transform: translateX(0);
     overflow: hidden;
-    transition: transform 0.48s ease-out, visibility 0s linear;
+    transition: transform 0.42s ease-out, visibility 0s linear;
   }
 
   body.zen-mode-fading .nav-column,
