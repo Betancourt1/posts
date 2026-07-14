@@ -537,8 +537,8 @@ body.code-index .site-header-actions {
   --ink: #cfcfd2;
   --ink-dim: #a8abb2;
   --ink-muted: #7b7f88;
-  --accent: oklch(0.686 0.058 169.334);
-  --accent-2: oklch(0.767 0.054 171.465);
+  --accent: oklch(0.764125 0.126939 168.096);
+  --accent-2: oklch(0.704724 0.128811 167.116);
   --line: #1c2025;
   --code-bg: #07080a;
   --table-stripe: #0f1115;
@@ -548,14 +548,14 @@ body.code-index .site-header-actions {
   --search-drawer-bg: linear-gradient(180deg, rgba(11,12,15,.95) 0%, rgba(0,0,0,.95) 100%);
   --result-separator: rgba(123,127,136,.25);
   --nested-separator: rgba(123,127,136,.35);
-  --graph-tag: oklch(0.686 0.058 169.334);
-  --graph-tag-hover: oklch(0.767 0.054 171.465);
+  --graph-tag: oklch(0.764125 0.126939 168.096);
+  --graph-tag-hover: oklch(0.704724 0.128811 167.116);
   --graph-link-active: #f5f7fb;
   --graph-bg: #000000;
 
   /* Badge design tokens (Dark Mode) */
   --badge-bg: var(--bg-soft);
-  --badge-posts-border: oklch(0.686 0.058 169.334 / 0.35);
+  --badge-posts-border: oklch(0.764125 0.126939 168.096 / 0.35);
   --badge-posts-text: var(--accent);
   --badge-prof-border: rgba(85, 172, 238, 0.45);
   --badge-prof-text: #55acee;
@@ -584,8 +584,8 @@ body.code-index .site-header-actions {
   --ink: #16202b;
   --ink-dim: #2b3743;
   --ink-muted: #495562;
-  --accent: oklch(0.496 0.075 169.234);
-  --accent-2: oklch(0.426 0.064 169.484);
+  --accent: oklch(0.518651 0.098082 164.775);
+  --accent-2: oklch(0.424886 0.080437 164.733);
   --line: #dde3ea;
   --code-bg: #eef1f5;
   --table-stripe: #f0f3f6;
@@ -595,14 +595,14 @@ body.code-index .site-header-actions {
   --search-drawer-bg: linear-gradient(180deg, rgba(247,248,250,.97) 0%, rgba(236,239,243,.97) 100%);
   --result-separator: rgba(73,85,98,.3);
   --nested-separator: rgba(73,85,98,.42);
-  --graph-tag: oklch(0.496 0.075 169.234);
-  --graph-tag-hover: oklch(0.426 0.064 169.484);
+  --graph-tag: oklch(0.518651 0.098082 164.775);
+  --graph-tag-hover: oklch(0.424886 0.080437 164.733);
   --graph-link-active: #0f171f;
   --graph-bg: #f4f6f8;
 
   /* Badge design tokens (Light Mode - high contrast) */
   --badge-bg: rgba(255, 255, 255, 0.65);
-  --badge-posts-border: oklch(0.496 0.075 169.234 / 0.45);
+  --badge-posts-border: oklch(0.518651 0.098082 164.775 / 0.45);
   --badge-posts-text: var(--accent);
   --badge-prof-border: rgba(26, 85, 153, 0.45);
   --badge-prof-text: #1a5599;
@@ -2070,7 +2070,7 @@ tr:nth-child(even) { background: var(--table-stripe); }
   font-size: 0.9rem;
 }
 
-button:not(.graph-tool):not(.nav-toggle):not(.author-action-button), .button:not(.graph-tool), a.button {
+button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-trigger), .button:not(.graph-tool), a.button {
   display: inline-block;
   border: 1px solid var(--accent);
   border-radius: 8px;
@@ -2081,12 +2081,12 @@ button:not(.graph-tool):not(.nav-toggle):not(.author-action-button), .button:not
   cursor: pointer;
 }
 
-button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):hover, .button:not(.graph-tool):hover, a.button:hover {
+button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-trigger):hover, .button:not(.graph-tool):hover, a.button:hover {
   background: rgba(78,204,163,.08);
   color: var(--accent-2);
 }
 
-button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):focus-visible, .button:not(.graph-tool):focus-visible, a.button:focus-visible {
+button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-trigger):focus-visible, .button:not(.graph-tool):focus-visible, a.button:focus-visible {
   outline: 2px dashed var(--accent);
   outline-offset: 3px;
 }
@@ -2421,6 +2421,16 @@ body.search-active {
 
 /* 2. Disparador de Búsqueda y Modo Zen */
 .search-trigger {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.35rem 0.65rem;
+  background: transparent;
+  color: var(--ink-dim);
+  font-size: 0.8rem;
+  line-height: 1.25;
+  cursor: pointer;
   min-height: 40px;
   transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
@@ -2462,6 +2472,11 @@ body.search-active {
 /* Normal state: show normal eye, hide eye-off */
 .zen-toggle-btn .zen-icon-normal { display: block; }
 .zen-toggle-btn .zen-icon-active { display: none; }
+
+.zen-toggle-btn svg {
+  width: 17px;
+  height: 17px;
+}
 
 /* Active Zen state: show eye-off, hide normal eye */
 .zen-toggle-btn.is-active .zen-icon-normal { display: none; }

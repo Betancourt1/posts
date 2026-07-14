@@ -80,7 +80,7 @@ async function syntheticPage(db, route, options = {}) {
       kind: "tags",
       lang: route.lang,
       path: route.path,
-      title: route.lang === "es" ? "Etiquetas" : "Tags",
+      title: "Tags",
       tags,
       page: null,
       layout: "tags",
@@ -94,12 +94,13 @@ async function syntheticPage(db, route, options = {}) {
   if (!items.length) return null;
 
   const label = items[0]?.tagLabel || route.slug;
+  const title = label ? label.charAt(0).toLocaleUpperCase(route.lang) + label.slice(1) : label;
   return {
     ...chrome,
     kind: "tag",
     lang: route.lang,
     path: route.path,
-    title: `#${label}`,
+    title,
     tag: { label, slug: route.slug },
     items,
     page: null,
@@ -136,7 +137,7 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
     ? archiveItems(db, document.lang, options)
     : Promise.resolve(null);
   const itemsPromise = ["list", "books", "photography", "code"].includes(layout)
-    ? sectionItems(db, document.lang, document.section, { ...options, body: layout === "books" })
+    ? sectionItems(db, document.lang, document.section, { ...options, body: ["list", "books"].includes(layout) })
     : Promise.resolve([]);
   const backlinksPromise = layout === "single" && ["posts", "zettelkasten"].includes(document.section)
     ? backlinks(db, document.id, options)

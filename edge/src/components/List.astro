@@ -10,6 +10,7 @@ interface Props {
   lang?: Language;
   authorMode?: boolean;
   notebook?: string;
+  showTags?: boolean;
 }
 
 const {
@@ -19,6 +20,7 @@ const {
   lang = "en",
   authorMode = false,
   notebook,
+  showTags = true,
 } = Astro.props;
 const visibleItems = items.filter((item) => !item.hidden);
 const addLabel = lang === "es" ? "Nuevo post" : "New post";
@@ -51,8 +53,10 @@ const addLabel = lang === "es" ? "Nuevo post" : "New post";
         <div class="post-card-meta">{displayDate(item.date)}</div>
       </div>
       <h2><a href={item.href}>{item.title}</a></h2>
-      <TagList tags={item.tags} lang={lang} />
-      {item.summary && <p class="post-summary">{item.summary}</p>}
+      {showTags && <TagList tags={item.tags} lang={lang} />}
+      {!showTags && item.summaryHtml
+        ? <Fragment set:html={item.summaryHtml} />
+        : item.summary && <p class="post-summary">{item.summary}</p>}
     </article>
   ))}
 </section>

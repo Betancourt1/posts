@@ -12,8 +12,8 @@ const { data, lang = "en", variant = "home" } = Astro.props;
 const sidebar = variant === "sidebar";
 const copy = lang === "es"
   ? {
-      title: sidebar ? "Conexiones" : "Grafo de conocimiento",
-      hint: "Explora las conexiones entre temas.",
+      title: sidebar ? "Grafo" : "Grafo de conocimiento",
+      hint: "Cada enlace conecta tags que aparecen juntos en una publicación. Arrastra nodos, usa zoom y abre con click o toque.",
       tools: "Controles del grafo de conocimiento",
       reset: "Restablecer vista",
       maximize: "Maximizar grafo",
@@ -24,8 +24,8 @@ const copy = lang === "es"
       map: "Mapa interactivo de temas",
     }
   : {
-      title: sidebar ? "Connections" : "Knowledge graph",
-      hint: "Explore the connections between topics.",
+      title: sidebar ? "Graph" : "Knowledge graph",
+      hint: "Each link connects tags that appear together in a post. Drag nodes, zoom, and click or tap to open.",
       tools: "Knowledge graph controls",
       reset: "Reset view",
       maximize: "Maximize graph",

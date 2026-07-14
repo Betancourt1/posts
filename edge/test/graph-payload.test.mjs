@@ -45,11 +45,11 @@ test("the edge build ships the mature graph client as its source of truth", asyn
   assert.match(graphClient, /return url === "\/" \? "\/admin\/" : "\/admin" \+ url/);
 });
 
-test("the site and graph share the restored softer palette", async () => {
+test("the site and graph share the restored vivid palette", async () => {
   const stylesheet = await readFile(new URL("../../static/css/site.css", import.meta.url), "utf8");
 
-  assert.match(stylesheet, /--accent: oklch\(0\.686 0\.058 169\.334\)/);
-  assert.match(stylesheet, /--graph-tag: oklch\(0\.686 0\.058 169\.334\)/);
-  assert.match(stylesheet, /--accent: oklch\(0\.496 0\.075 169\.234\)/);
-  assert.match(stylesheet, /--graph-tag-hover: oklch\(0\.426 0\.064 169\.484\)/);
+  assert.match(stylesheet, /--accent: oklch\(0\.764125 0\.126939 168\.096\)/);
+  assert.match(stylesheet, /--graph-tag: oklch\(0\.764125 0\.126939 168\.096\)/);
+  assert.match(stylesheet, /--accent: oklch\(0\.518651 0\.098082 164\.775\)/);
+  assert.match(stylesheet, /--graph-tag-hover: oklch\(0\.424886 0\.080437 164\.733\)/);
 });

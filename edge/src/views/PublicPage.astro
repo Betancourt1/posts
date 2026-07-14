@@ -12,6 +12,7 @@ import Photography from "../components/Photography.astro";
 import Single from "../components/Single.astro";
 import Tags from "../components/Tags.astro";
 import SiteLayout from "../layouts/SiteLayout.astro";
+import { renderMarkdownSummary } from "../lib/content-projector.mjs";
 import { adminPathForPublicRoute } from "../lib/public-page.mjs";
 import type { ShellPage } from "../components/types";
 
@@ -52,6 +53,19 @@ function listItem(document: any) {
     section: document.section,
     hidden: document.hidden,
   };
+}
+
+function taxonomyItem(document: any) {
+  return {
+    ...listItem(document),
+    summaryHtml: document.summary
+      ? renderMarkdownSummary(document.summary)
+      : renderMarkdownSummary(document.bodyMarkdown || "", { wordLimit: 70 }),
+  };
+}
+
+function restoreLegacyLinkSpacing(html: string) {
+  return String(html || "").replace(/<\/a>(?=[.,;:!?])/g, "</a>\n");
 }
 
 function navigationItems(sections: any[]) {
@@ -106,6 +120,10 @@ const layout = ["books", "photography", "code", "not-found"].includes(model.layo
   ? model.layout
   : "default";
 const emptyGraph = { posts: [], tagLinks: {} };
+const ignoredGraphTags = new Set([
+  "book", "read", "currently-reading", "to-read", "essays",
+  "libro", "leído", "leyendo", "por-leer", "ensayo", "nota", "zettelkasten", "cita",
+]);
 const canonical = new URL(model.path, Astro.site || Astro.url.origin).href;
 const shellPage: ShellPage = {
   section: page.section,
@@ -119,9 +137,11 @@ const shellPage: ShellPage = {
   updatedAt: model.updatedAt || page.updatedAt,
   graphData: {
     ...emptyGraph,
-    focusTags: model.tag?.label
-      ? [model.tag.label]
-      : tagsFor(page).map((tag: any) => tag.label),
+    focusTags: model.layout === "tag"
+      ? []
+      : tagsFor(page)
+          .map((tag: any) => tag.label)
+          .filter((tag: string) => !ignoredGraphTags.has(tag.toLowerCase())),
   },
   infrastructureTree: { type: "dir", name: "/", children: [] },
 };
@@ -142,7 +162,7 @@ const description = model.description || undefined;
   description={description}
   authorMode={authorMode}
   canonical={canonical}
-  showSearch={model.kind !== "not-found"}
+  showSearch
 >
   {model.layout === "home" && (
     <>
@@ -157,7 +177,7 @@ const description = model.description || undefined;
         </div>
         <p class="lead">{description}</p>
       </header>
-      {page.bodyHtml && <section class="post-body" set:html={page.bodyHtml}></section>}
+      {page.bodyHtml && <section class="post-body" set:html={restoreLegacyLinkSpacing(page.bodyHtml)}></section>}
       <KnowledgeGraph data={emptyGraph} lang={lang} variant="home" />
     </>
   )}
@@ -169,7 +189,7 @@ const description = model.description || undefined;
       section={page.section}
       summary={page.summary}
       tags={tagsFor(page)}
-      bodyHtml={page.bodyHtml || ""}
+      bodyHtml={restoreLegacyLinkSpacing(page.bodyHtml || "")}
       bodyMarkdown={page.bodyMarkdown || ""}
       sourcePath={page.sourcePath}
       slug={frontMatter.slug}
@@ -280,7 +300,9 @@ const description = model.description || undefined;
     />
   )}
 
-  {model.layout === "tag" && <List title={title} items={items} lang={lang} />}
+  {model.layout === "tag" && (
+    <List title={title} items={(model.items || []).map(taxonomyItem)} lang={lang} showTags={false} />
+  )}
 
   {model.layout === "not-found" && <NotFound lang={lang} homeHref={contentHref(lang === "es" ? "/es/" : "/")} />}
 </SiteLayout>

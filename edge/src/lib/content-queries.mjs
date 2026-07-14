@@ -235,8 +235,8 @@ export async function sectionItems(db, lang, section, options = {}) {
     ORDER BY
       CASE WHEN d.date IS NULL OR d.date = '' THEN 1 ELSE 0 END,
       d.date DESC,
-      d.title COLLATE NOCASE,
-      canonical.path
+      d.title COLLATE NOCASE DESC,
+      canonical.path DESC
     LIMIT ?
   `).bind(
     language(lang),
@@ -294,13 +294,14 @@ export async function archiveItems(db, lang, options = {}) {
     WHERE d.lang = ?
       AND d.kind = 'page'
       AND d.section <> ''
+      AND d.section <> 'about'
       AND (? = 1 OR d.draft = 0)
       AND (? = 1 OR d.hidden = 0)
     ORDER BY
       CASE WHEN d.date IS NULL OR d.date = '' THEN 1 ELSE 0 END,
       d.date DESC,
-      d.title COLLATE NOCASE,
-      canonical.path
+      d.title COLLATE NOCASE DESC,
+      canonical.path DESC
     LIMIT ?
   `).bind(language(lang), includeDrafts, includeHidden, limit).all();
 
@@ -338,7 +339,7 @@ export async function tagResults(db, lang, slug, options = {}) {
 
   const result = await db.prepare(`
     SELECT
-      ${documentColumns("d")},
+      ${documentColumns("d", { body: true })},
       canonical.path AS path,
       selected_tag.label AS tagLabel,
       selected_tag.slug AS tagSlug
@@ -356,8 +357,8 @@ export async function tagResults(db, lang, slug, options = {}) {
     ORDER BY
       CASE WHEN d.date IS NULL OR d.date = '' THEN 1 ELSE 0 END,
       d.date DESC,
-      d.title COLLATE NOCASE,
-      canonical.path
+      d.title COLLATE NOCASE DESC,
+      canonical.path DESC
     LIMIT ?
   `).bind(
     language(lang),

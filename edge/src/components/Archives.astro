@@ -12,8 +12,8 @@ interface Props {
 const { title, items, lang = "en", sectionLabels = {} } = Astro.props;
 const visibleItems = items
   .filter((item) => !item.hidden && displayDate(item.date))
-  .sort((left, right) => displayDate(right.date).localeCompare(displayDate(left.date)));
-const sections = [...new Set(visibleItems.map((item) => item.section))];
+  .sort((left, right) => displayDate(right.date).localeCompare(displayDate(left.date))
+    || right.title.localeCompare(left.title, lang));
 const defaultFilterLabels: Record<string, string> = {
   posts: lang === "es" ? "Escritos" : "Posts",
   "proyectos-profesionales": lang === "es" ? "Código" : "Code",
@@ -34,6 +34,11 @@ const badgeLabels: Record<string, string> = {
   books: lang === "es" ? "libro" : "book",
   libros: lang === "es" ? "libro" : "book",
 };
+const sectionOrder = lang === "es"
+  ? ["proyectos-academicos", "lit", "proyectos-profesionales", "posts", "fotografia", "libros"]
+  : ["proyectos-academicos", "books", "proyectos-profesionales"];
+const availableSections = new Set(visibleItems.map((item) => item.section));
+const sections = sectionOrder.filter((section) => availableSections.has(section));
 const years = [...visibleItems.reduce((yearMap, item) => {
   const date = displayDate(item.date);
   const yearKey = date.slice(0, 4);

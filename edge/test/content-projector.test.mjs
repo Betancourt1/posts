@@ -8,6 +8,7 @@ import {
   parseMarkdown,
   projectSource,
   renderMarkdown,
+  renderMarkdownSummary,
   routeForSource,
 } from "../src/lib/content-projector.mjs";
 
@@ -47,6 +48,21 @@ test("treats legacy Markdown without front matter as body content", () => {
 
   assert.deepEqual(parsed.frontMatter, {});
   assert.equal(parsed.bodyMarkdown, "Legacy title\n\nText");
+});
+
+test("renders Hugo-style taxonomy summaries", () => {
+  assert.equal(
+    renderMarkdownSummary('Quote "one" and escaped \\"two\\"... [note](/note/)'),
+    '<p>Quote “one” and escaped &quot;two&quot;… <a href="/note/">note</a>\n</p>\n',
+  );
+
+  const automatic = renderMarkdownSummary(
+    `# Heading\n\n> ${"summary ".repeat(70).trim()}\n\nThis block is outside the summary.`,
+    { wordLimit: 70 },
+  );
+  assert.match(automatic, /<h1>Heading<\/h1>/);
+  assert.match(automatic, /<blockquote>/);
+  assert.doesNotMatch(automatic, /outside the summary/);
 });
 
 test("derives localized routes, content kinds, and visibility", () => {

@@ -67,7 +67,7 @@ SAFE_RENDERER.html = () => "<!-- raw HTML omitted -->";
 SAFE_RENDERER.link = function link(token) {
   const href = safeMarkdownUrl(token.href);
   if (!href) return this.parser.parseInline(token.tokens || []);
-  return renderSafeLink({ ...token, href });
+  return `${renderSafeLink({ ...token, href })}\n`;
 };
 SAFE_RENDERER.image = function image(token) {
   const href = safeMarkdownUrl(token.href);
@@ -308,6 +308,32 @@ export function renderMarkdown(bodyMarkdown, canonicalPath = "/") {
     bodyText: textFromTokens(tokens).replace(/[ \t]+\n/g, "\n").trim(),
     links,
   };
+}
+
+function applyLegacySummaryTypography(markdown) {
+  const escapedQuote = "\uE000";
+  return String(markdown ?? "")
+    .replaceAll('\\"', escapedQuote)
+    .replace(/"([^"\n]+)"/g, "“$1”")
+    .replaceAll("...", "…")
+    .replaceAll(escapedQuote, '"');
+}
+
+export function renderMarkdownSummary(markdown, { wordLimit } = {}) {
+  const tokens = marked.lexer(applyLegacySummaryTypography(markdown), MARKED_OPTIONS);
+  if (!wordLimit) {
+    return marked.parser(tokens, { ...MARKED_OPTIONS, renderer: SAFE_RENDERER });
+  }
+
+  const summaryTokens = [];
+  let words = 0;
+  for (const token of tokens) {
+    summaryTokens.push(token);
+    if (token.type === "space") continue;
+    words += textFromTokens([token]).trim().split(/\s+/).filter(Boolean).length;
+    if (words >= wordLimit) break;
+  }
+  return marked.parser(summaryTokens, { ...MARKED_OPTIONS, renderer: SAFE_RENDERER });
 }
 
 function createDocument({

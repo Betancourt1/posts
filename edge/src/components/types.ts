@@ -59,6 +59,7 @@ export interface ContentListItem {
   href: string;
   date?: string | Date | null;
   summary?: string | null;
+  summaryHtml?: string | null;
   tags?: TagItem[];
   section?: string;
   hidden?: boolean;
