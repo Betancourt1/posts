@@ -62,7 +62,7 @@
     {{ end }}
   </header>
 
-  <section class="photo-grid">
+  <section class="photo-grid" data-photo-grid>
     {{ range .Pages.ByDate.Reverse }}
       {{ $isHidden := partial "is_hidden.html" . }}
       {{ if not $isHidden }}

@@ -158,6 +158,9 @@
   {{ if $isCodeIndex }}
     <script src="{{ "js/code-portfolio.js" | relURL }}" defer></script>
   {{ end }}
+  {{ if $isPhotographyIndex }}
+    <script src="{{ "js/photography-grid.js" | relURL }}?v={{ now.UnixNano }}" defer></script>
+  {{ end }}
   {{ if partial "author_enabled.html" . }}
     {{ $authorToolsSrc := "js/author-tools.js" | relURL }}
     {{ if hugo.IsServer }}

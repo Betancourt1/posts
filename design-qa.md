@@ -78,6 +78,49 @@ final result: passed
 
 ---
 
+# Photography Justified Packing Design QA
+
+- Source visual truth: `/var/folders/yg/rt8w41_56d30cbn9r6gbggyw0000gn/T/codex-clipboard-03961d8f-04c3-44c5-b346-b2f4cc630b92.png`
+- Desktop implementation: `/private/tmp/posts-photography-justified-qa/screenshots/photography-desktop.png`
+- Mobile implementation: `/private/tmp/posts-photography-justified-qa/screenshots/photography-mobile.png`
+- Same-size implementation state: `/private/tmp/posts-photography-justified-qa/screenshots/photography-source-state.png`
+- Full-view comparison: `/private/tmp/posts-photography-justified-comparison-full.png`
+- Focused gallery comparison: `/private/tmp/posts-photography-justified-comparison-focus.png`
+- Viewports: `1536 x 1024` desktop, `390 x 844` mobile, and `2048 x 1280` comparison state
+- State: Spanish photography index, dark theme, default navigation state
+
+## Findings
+
+No actionable P0, P1, or P2 issue remains.
+
+- Spacing and layout rhythm: The rejected CSS Grid version inherited each row height from its tallest card, creating large empty regions. The replacement calculates justified rows from the real image ratios and fills every completed row to the container edge. Measured residual space is at most `0.03px` across desktop and mobile rows.
+- Image quality and asset fidelity: All 11 thumbnails keep their original aspect ratio with `object-fit: contain`. The largest measured natural-versus-rendered ratio difference is `0.0001`, so no image is cropped or visibly distorted.
+- Variable sizing: The desktop gallery resolves to rows of 3, 4, and 4 images; mobile resolves to 2, 2, 2, 3, and 2. Widths vary from each image's intrinsic shape rather than fixed card spans.
+- Fonts and typography: Existing monospaced metadata, titles, line clamping, and hierarchy remain unchanged.
+- Colors and visual tokens: The black surface, mint links, muted metadata, and existing image outlines remain unchanged.
+- Copy and content: Titles, dates, summaries, image counts, links, graph, and archives continue to use the existing Hugo content.
+- Responsive behavior: A live resize repacks the gallery from 3 desktop rows to 5 mobile rows. Automated checks found no page-level horizontal overflow, undersized mobile controls, or browser console errors.
+- Interaction: The first image card still navigates to `/es/fotografia/ninfas/` after the responsive repack.
+
+## Comparison History
+
+1. P1 source finding: the no-crop CSS Grid preserved complete images but created unacceptable vertical voids around portrait and wide cards.
+2. Fix: replaced fixed tracks and manual spans with a justified-row packing pass that chooses row breaks from the full set of aspect ratios and exactly distributes each row across the available width.
+3. Post-fix evidence: the focused comparison shows the same photo set in three dense desktop rows, with no large gaps and no cropping. Browser measurements confirm the visual result numerically.
+
+## Implementation Checklist
+
+- [x] Preserve every photograph's complete composition.
+- [x] Keep visibly different image widths.
+- [x] Eliminate large unused grid regions.
+- [x] Repack automatically when the content column changes width.
+- [x] Preserve existing links, metadata, graph, and archive sidebar.
+- [x] Verify desktop, mobile, navigation, console output, and horizontal overflow.
+
+final result: passed
+
+---
+
 # GitHub wall square-cell design QA
 
 ## Evidence
@@ -303,13 +346,14 @@ final result: passed
 
 ---
 
-# Photography No-Crop Follow-up QA
+# Photography No-Crop Follow-up QA — Rejected Grid Pass
 
 - User feedback: the selected varied-size mosaic cropped parts of some photographs.
 - Desktop capture: `/private/tmp/posts-photography-no-crop-qa/screenshots/photography-source.png`
 - Mobile capture: `/private/tmp/posts-photography-no-crop-qa/screenshots/photography-mobile.png`
 - Viewports: `1536 x 1024` desktop and `390 x 844` mobile
 - State: Spanish photography index, dark theme, default navigation state
+- Outcome: Superseded by the justified packing implementation after the user rejected the large empty regions.
 
 ## Findings
 
