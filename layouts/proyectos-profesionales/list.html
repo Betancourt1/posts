@@ -50,7 +50,7 @@
 
     <section class="code-github" aria-labelledby="code-github-title">
       <div class="code-section-heading">
-        <h2 id="code-github-title">GitHub activity <span>· {{ if $isEnglish }}last 12 months{{ else }}últimos 12 meses{{ end }}</span></h2>
+        <h2 id="code-github-title">GitHub activity <span>· {{ if $isEnglish }}last 24 months{{ else }}últimos 24 meses{{ end }}</span></h2>
         <a href="{{ $github.profile_url }}" target="_blank" rel="noopener noreferrer">
           @{{ $github.username }}
         </a>
@@ -67,7 +67,7 @@
           <span data-github-snapshot>{{ time.AsTime $github.snapshot_end | time.Format ":date_medium" }}</span>.
         </span>
         <span class="code-github-scroll" aria-hidden="true">
-          <span class="code-github-chart">
+          <span class="code-github-chart" style="--github-week-count: {{ $github.week_count }}">
             <span class="code-github-months" data-github-months>
               {{ range $github.months }}
                 <span style="grid-column: {{ .column }}">{{ if $isEnglish }}{{ .en }}{{ else }}{{ .es }}{{ end }}</span>

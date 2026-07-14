@@ -47,6 +47,37 @@ final result: passed
 
 ---
 
+# 24-month GitHub wall design QA
+
+## Source and implementation
+
+- Source state: `/Users/betancourt/.codex/visualizations/2026/07/13/019f5de2-d3cc-7703-8ff6-a969bfedcb61/code-wall-square-cells-desktop-1976x1170.png`
+- Desktop implementation: `/Users/betancourt/.codex/visualizations/2026/07/13/019f5de2-d3cc-7703-8ff6-a969bfedcb61/code-wall-24-months-desktop-1976x1170.png`
+- Mobile implementation: `/Users/betancourt/.codex/visualizations/2026/07/13/019f5de2-d3cc-7703-8ff6-a969bfedcb61/code-wall-24-months-mobile-390x844.png`
+- Full combined comparison: `/Users/betancourt/.codex/visualizations/2026/07/13/019f5de2-d3cc-7703-8ff6-a969bfedcb61/code-wall-24-months-comparison-full.png`
+- Focused combined comparison: `/Users/betancourt/.codex/visualizations/2026/07/13/019f5de2-d3cc-7703-8ff6-a969bfedcb61/code-wall-24-months-comparison-focus.png`
+- Viewports: `1976 x 1170` desktop and `390 x 844` mobile.
+- State: Spanish Code index, dark theme, checked-in GitHub fallback data.
+
+## Comparison history
+
+1. The square-cell version used only 12 months, leaving about half of the desktop activity section empty.
+2. The wall was expanded to 24 months and reduced to 10px cells with 2px gaps, preserving perfect squares while using the available width.
+3. The fallback was rebuilt from 730 days of public GitHub activity. Production now requests two adjacent yearly GraphQL ranges and merges them chronologically.
+4. The final desktop comparison shows 24 month labels across 105 week columns. The mobile wall remains horizontally scrollable inside its section.
+
+## Final checks
+
+- No page-level horizontal overflow at either tested viewport.
+- No undersized interactive controls reported by the responsive audit.
+- Fonts, contribution colors, project content, and surrounding layout remain unchanged.
+- The local preview emits the expected 404 for the production-only contribution endpoint and displays the checked-in fallback without visual failure.
+- No remaining P0, P1, or P2 visual findings.
+
+final result: passed
+
+---
+
 # GitHub wall square-cell design QA
 
 ## Evidence

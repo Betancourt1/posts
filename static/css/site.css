@@ -210,14 +210,15 @@ body.code-index .site-header-actions {
 }
 
 .code-github-chart {
-  --github-cell-size: 11px;
-  --github-cell-gap: 3px;
+  --github-cell-size: 10px;
+  --github-cell-gap: 2px;
+  --github-week-count: 53;
   width: max-content;
 }
 
 .code-github-months {
   display: grid;
-  grid-template-columns: repeat(53, var(--github-cell-size));
+  grid-template-columns: repeat(var(--github-week-count), var(--github-cell-size));
   gap: var(--github-cell-gap);
   margin-left: 34px;
   color: var(--ink-dim);

@@ -3,8 +3,9 @@
   var months = document.querySelector("[data-github-months]");
   var snapshot = document.querySelector("[data-github-snapshot]");
   var portfolio = document.querySelector("[data-code-portfolio]");
+  var chart = document.querySelector(".code-github-chart");
 
-  if (!grid || !months || !portfolio) return;
+  if (!grid || !months || !portfolio || !chart) return;
 
   var language = portfolio.dataset.language === "es" ? "es-MX" : "en-US";
   var monthFormatter = new Intl.DateTimeFormat(language, {
@@ -53,6 +54,10 @@
       if (!Array.isArray(payload.days) || !payload.days.length) return;
       renderDays(payload.days);
       renderMonths(payload.months || []);
+      chart.style.setProperty(
+        "--github-week-count",
+        String(payload.weekCount || Math.ceil(payload.days.length / 7)),
+      );
       if (snapshot && payload.endDate) {
         snapshot.textContent = dateFormatter.format(new Date(payload.endDate + "T00:00:00Z"));
       }

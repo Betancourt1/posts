@@ -6,27 +6,39 @@ const CONTRIBUTION_LEVELS = {
   FOURTH_QUARTILE: 4,
 };
 
+const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
+const WALL_WEEKS = 104;
+
 const CONTRIBUTIONS_QUERY = `
-  query ContributionCalendar($login: String!) {
+  query ContributionCalendar(
+    $login: String!
+    $earlierFrom: DateTime!
+    $earlierTo: DateTime!
+    $recentFrom: DateTime!
+    $recentTo: DateTime!
+  ) {
     user(login: $login) {
-      contributionsCollection {
-        contributionCalendar {
-          totalContributions
-          months {
-            firstDay
-            name
-            totalWeeks
-            year
-          }
-          weeks {
-            firstDay
-            contributionDays {
-              contributionCount
-              contributionLevel
-              date
-              weekday
-            }
-          }
+      earlier: contributionsCollection(from: $earlierFrom, to: $earlierTo) {
+        ...CalendarFields
+      }
+      recent: contributionsCollection(from: $recentFrom, to: $recentTo) {
+        ...CalendarFields
+      }
+    }
+  }
+
+  fragment CalendarFields on ContributionsCollection {
+    contributionCalendar {
+      totalContributions
+      months {
+        firstDay
+      }
+      weeks {
+        contributionDays {
+          contributionCount
+          contributionLevel
+          date
+          weekday
         }
       }
     }
@@ -46,19 +58,49 @@ function requiredToken(env) {
 }
 
 function monthColumn(firstDate, monthDate) {
-  const millisecondsPerWeek = 7 * 24 * 60 * 60 * 1000;
+  const millisecondsPerWeek = 7 * DAY_IN_MILLISECONDS;
   return Math.floor((Date.parse(monthDate) - Date.parse(firstDate)) / millisecondsPerWeek) + 1;
 }
 
-export function normalizeContributionCalendar(username, calendar) {
-  const days = (calendar.weeks || [])
-    .flatMap((week) => week.contributionDays || [])
-    .map((day) => ({
-      date: day.date,
-      count: day.contributionCount,
-      level: CONTRIBUTION_LEVELS[day.contributionLevel] ?? 0,
-      weekday: day.weekday,
-    }));
+export function contributionRanges(now = new Date()) {
+  const end = new Date(now);
+  end.setUTCHours(23, 59, 59, 999);
+
+  const latestSunday = new Date(Date.UTC(
+    end.getUTCFullYear(),
+    end.getUTCMonth(),
+    end.getUTCDate() - end.getUTCDay(),
+  ));
+  const earlierFrom = new Date(latestSunday.getTime() - (WALL_WEEKS * 7 * DAY_IN_MILLISECONDS));
+  const recentFrom = new Date(earlierFrom);
+  recentFrom.setUTCFullYear(recentFrom.getUTCFullYear() + 1);
+  const earlierTo = new Date(recentFrom.getTime() - 1);
+
+  return {
+    earlierFrom: earlierFrom.toISOString(),
+    earlierTo: earlierTo.toISOString(),
+    recentFrom: recentFrom.toISOString(),
+    recentTo: end.toISOString(),
+  };
+}
+
+export function normalizeContributionCalendars(username, calendars) {
+  const daysByDate = new Map();
+
+  calendars.forEach((calendar) => {
+    (calendar.weeks || [])
+      .flatMap((week) => week.contributionDays || [])
+      .forEach((day) => {
+        daysByDate.set(day.date, {
+          date: day.date,
+          count: day.contributionCount,
+          level: CONTRIBUTION_LEVELS[day.contributionLevel] ?? 0,
+          weekday: day.weekday,
+        });
+      });
+  });
+
+  const days = [...daysByDate.values()].sort((left, right) => left.date.localeCompare(right.date));
 
   if (!days.length) {
     throw new Error("GitHub returned an empty contribution calendar.");
@@ -66,24 +108,34 @@ export function normalizeContributionCalendar(username, calendar) {
 
   const firstDate = days[0].date;
   const lastDate = days[days.length - 1].date;
-  const months = (calendar.months || [])
+  const weekCount = Math.ceil(days.length / 7);
+  const monthDates = new Set(calendars.flatMap((calendar) => (
+    (calendar.months || []).map((month) => month.firstDay)
+  )));
+  const months = [...monthDates]
+    .sort()
     .map((month) => ({
-      firstDay: month.firstDay,
-      column: monthColumn(firstDate, month.firstDay),
+      firstDay: month,
+      column: monthColumn(firstDate, month),
     }))
-    .filter((month) => month.column >= 1 && month.column <= 53);
+    .filter((month) => month.column >= 1 && month.column <= weekCount);
 
   return {
     username,
-    totalContributions: calendar.totalContributions,
+    totalContributions: calendars.reduce((total, calendar) => total + calendar.totalContributions, 0),
     startDate: firstDate,
     endDate: lastDate,
+    weekCount,
     months,
     days,
   };
 }
 
-export async function fetchGitHubContributions(env) {
+export function normalizeContributionCalendar(username, calendar) {
+  return normalizeContributionCalendars(username, [calendar]);
+}
+
+export async function fetchGitHubContributions(env, now = new Date()) {
   const username = String(env.GITHUB_USERNAME || env.GITHUB_OWNER || "Betancourt1").trim();
   const response = await fetch("https://api.github.com/graphql", {
     method: "POST",
@@ -95,7 +147,7 @@ export async function fetchGitHubContributions(env) {
     },
     body: JSON.stringify({
       query: CONTRIBUTIONS_QUERY,
-      variables: { login: username },
+      variables: { login: username, ...contributionRanges(now) },
     }),
   });
   const payload = await response.json();
@@ -106,12 +158,22 @@ export async function fetchGitHubContributions(env) {
     throw error;
   }
 
-  const calendar = payload.data?.user?.contributionsCollection?.contributionCalendar;
-  if (!calendar) {
+  if (!payload.data?.user) {
     const error = new Error(`GitHub user ${username} was not found.`);
     error.status = 404;
     throw error;
   }
 
-  return normalizeContributionCalendar(username, calendar);
+  const calendars = [
+    payload.data.user.earlier?.contributionCalendar,
+    payload.data.user.recent?.contributionCalendar,
+  ].filter(Boolean);
+
+  if (calendars.length !== 2) {
+    const error = new Error("GitHub returned an incomplete contribution history.");
+    error.status = 502;
+    throw error;
+  }
+
+  return normalizeContributionCalendars(username, calendars);
 }
