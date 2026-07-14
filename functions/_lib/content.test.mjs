@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { deletePage, invalidateNotebooksCache, listNotebooks, savePage } from "./content.js";
+import { deleteNotebook, deletePage, invalidateNotebooksCache, listNotebooks, savePage } from "./content.js";
 import { formatMarkdown, splitMarkdown } from "./markdown.js";
 
 const env = {
@@ -144,6 +144,109 @@ test("deletePage removes referenced images from R2 when the media binding is pre
     });
     assert.deepEqual(deletedKeys, ["uploads/2026/07/photo.webp"]);
     assert.deepEqual(result.deletedImages, ["static/uploads/2026/07/photo.webp"]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("deleteNotebook removes a large notebook in one GitHub commit", async () => {
+  const originalFetch = globalThis.fetch;
+  const files = [
+    {
+      type: "blob",
+      mode: "100644",
+      path: "content_es/zettelkasten/_index.md",
+      sha: "index",
+    },
+    ...Array.from({ length: 60 }, (_, index) => ({
+      type: "blob",
+      mode: "100644",
+      path: `content_es/zettelkasten/note-${index}.md`,
+      sha: `note-${index}`,
+    })),
+  ];
+  const requests = [];
+  const deletedKeys = [];
+  const notebookEnv = {
+    ...env,
+    DB: {
+      prepare(sql) {
+        assert.match(sql, /FROM sources WHERE path LIKE/);
+        return {
+          bind(pattern) {
+            assert.equal(pattern, "content_es/zettelkasten/%");
+            return {
+              async all() {
+                return {
+                  results: files.map((file, index) => ({
+                    path: file.path,
+                    raw_markdown: formatMarkdown(
+                      index === 1 ? { title: "Con imagen", image: "/uploads/note.webp" } : { title: "Nota" },
+                      "Contenido\n",
+                    ),
+                  })),
+                };
+              },
+            };
+          },
+        };
+      },
+    },
+    MEDIA: {
+      async head(key) {
+        return key === "uploads/note.webp" ? { key } : null;
+      },
+      async delete(key) {
+        deletedKeys.push(key);
+      },
+    },
+  };
+
+  globalThis.fetch = async (url, options = {}) => {
+    const method = options.method || "GET";
+    const request = { url: String(url), method, body: options.body ? JSON.parse(options.body) : null };
+    requests.push(request);
+
+    if (method === "GET" && request.url.includes("/git/ref/heads/main")) {
+      return jsonResponse(200, { object: { sha: "head" } });
+    }
+    if (method === "GET" && request.url.includes("/git/commits/head")) {
+      return jsonResponse(200, { tree: { sha: "base-tree" } });
+    }
+    if (method === "GET" && request.url.includes("/git/trees/base-tree?recursive=1")) {
+      return jsonResponse(200, { tree: files });
+    }
+    if (method === "POST" && request.url.endsWith("/git/trees")) {
+      return jsonResponse(201, { sha: "next-tree" });
+    }
+    if (method === "POST" && request.url.endsWith("/git/commits")) {
+      return jsonResponse(201, { sha: "next-commit" });
+    }
+    if (method === "PATCH" && request.url.endsWith("/git/refs/heads/main")) {
+      return jsonResponse(200, { object: { sha: "next-commit" } });
+    }
+    throw new Error(`Unexpected request: ${method} ${url}`);
+  };
+
+  try {
+    const result = await deleteNotebook(notebookEnv, {
+      path: "content_es/zettelkasten",
+      deleteImages: true,
+    });
+    const treeRequest = requests.find((request) => request.method === "POST" && request.url.endsWith("/git/trees"));
+    const commitRequest = requests.find((request) => request.method === "POST" && request.url.endsWith("/git/commits"));
+    const refRequest = requests.find((request) => request.method === "PATCH");
+
+    assert.equal(requests.length, 6);
+    assert.equal(requests.some((request) => request.method === "DELETE"), false);
+    assert.equal(treeRequest.body.base_tree, "base-tree");
+    assert.equal(treeRequest.body.tree.length, files.length);
+    assert.equal(treeRequest.body.tree.every((entry) => entry.sha === null), true);
+    assert.deepEqual(commitRequest.body.parents, ["head"]);
+    assert.equal(refRequest.body.force, false);
+    assert.equal(result.deletedFiles.length, files.length);
+    assert.deepEqual(result.deletedImages, ["static/uploads/note.webp"]);
+    assert.deepEqual(deletedKeys, ["uploads/note.webp"]);
   } finally {
     globalThis.fetch = originalFetch;
   }

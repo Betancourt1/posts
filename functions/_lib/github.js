@@ -133,11 +133,50 @@ export async function deleteGitHubFile(env, { path, message, sha }) {
   });
 }
 
-export async function readRepositoryTree(env) {
+export async function readRepositorySnapshot(env) {
   const { branch } = githubConfig(env);
   const ref = await githubRequest(env, repoPath(env, `/git/ref/heads/${encodeURIComponent(branch)}`));
   const commit = await githubRequest(env, repoPath(env, `/git/commits/${ref.object.sha}`));
   const tree = await githubRequest(env, repoPath(env, `/git/trees/${commit.tree.sha}?recursive=1`));
 
-  return tree.tree || [];
+  return {
+    commitSha: ref.object.sha,
+    treeSha: commit.tree.sha,
+    tree: tree.tree || [],
+  };
+}
+
+export async function readRepositoryTree(env) {
+  return (await readRepositorySnapshot(env)).tree;
+}
+
+export async function deleteGitHubFiles(env, { files, message, commitSha, treeSha }) {
+  const { branch } = githubConfig(env);
+  const nextTree = await githubRequest(env, repoPath(env, "/git/trees"), {
+    method: "POST",
+    body: JSON.stringify({
+      base_tree: treeSha,
+      tree: files.map((file) => ({
+        path: file.path,
+        mode: file.mode || "100644",
+        type: file.type || "blob",
+        sha: null,
+      })),
+    }),
+  });
+  const commit = await githubRequest(env, repoPath(env, "/git/commits"), {
+    method: "POST",
+    body: JSON.stringify({
+      message,
+      tree: nextTree.sha,
+      parents: [commitSha],
+    }),
+  });
+
+  await githubRequest(env, repoPath(env, `/git/refs/heads/${encodeURIComponent(branch)}`), {
+    method: "PATCH",
+    body: JSON.stringify({ sha: commit.sha, force: false }),
+  });
+
+  return commit;
 }

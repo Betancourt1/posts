@@ -1,4 +1,12 @@
-import { deleteGitHubFile, readGitHubFile, readRepositoryTree, writeGitHubFile, writeGitHubFileBase64 } from "./github.js";
+import {
+  deleteGitHubFile,
+  deleteGitHubFiles,
+  readGitHubFile,
+  readRepositorySnapshot,
+  readRepositoryTree,
+  writeGitHubFile,
+  writeGitHubFileBase64,
+} from "./github.js";
 import { normalizeBookFrontMatter } from "./book-content.js";
 import { formatMarkdown, splitMarkdown, tagsFromValue } from "./markdown.js";
 import {
@@ -267,6 +275,17 @@ async function deleteUploadPath(env, path) {
   });
 
   return true;
+}
+
+async function projectedNotebookMarkdown(env, notebook) {
+  if (!env.DB?.prepare) return new Map();
+
+  const result = await env.DB
+    .prepare("SELECT path, raw_markdown FROM sources WHERE path LIKE ?")
+    .bind(`${notebook}/%`)
+    .all();
+
+  return new Map((result.results || []).map((row) => [row.path, row.raw_markdown]));
 }
 
 export async function readPage(env, path) {
@@ -629,8 +648,8 @@ export async function deleteNotebook(env, payload) {
     throw new Error("Este notebook base no se borra desde el editor.");
   }
 
-  const tree = await readRepositoryTree(env);
-  const files = tree
+  const snapshot = await readRepositorySnapshot(env);
+  const files = snapshot.tree
     .filter((entry) => entry.type === "blob" && entry.path.startsWith(`${notebook}/`))
     .sort((a, b) => b.path.localeCompare(a.path));
 
@@ -641,22 +660,29 @@ export async function deleteNotebook(env, payload) {
   const imagePaths = new Set();
 
   if (payload.deleteImages) {
+    const projectedMarkdown = await projectedNotebookMarkdown(env, notebook);
+
     for (const entry of files) {
       if (!entry.path.endsWith(".md")) continue;
-      const current = await readGitHubFile(env, entry.path);
-      if (!current) continue;
-      const parsed = splitMarkdown(current.content);
+      let markdown = projectedMarkdown.get(entry.path);
+
+      if (markdown === undefined) {
+        const current = await readGitHubFile(env, entry.path);
+        if (!current) continue;
+        markdown = current.content;
+      }
+
+      const parsed = splitMarkdown(markdown);
       collectUploadReferences(parsed.frontMatter, parsed.body).forEach((path) => imagePaths.add(path));
     }
   }
 
-  for (const entry of files) {
-    await deleteGitHubFile(env, {
-      path: entry.path,
-      message: commitMessage("Elimina", entry.path),
-      sha: entry.sha,
-    });
-  }
+  await deleteGitHubFiles(env, {
+    files,
+    message: commitMessage("Elimina notebook", notebook),
+    commitSha: snapshot.commitSha,
+    treeSha: snapshot.treeSha,
+  });
 
   const deletedImages = [];
 
