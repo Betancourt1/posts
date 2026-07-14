@@ -45,13 +45,8 @@
     return cleanTags;
   }
 
-  function parsePayload(scriptEl) {
-    if (!scriptEl) {
-      return { posts: [], tagLinks: {}, focusTags: [] };
-    }
-
+  function normalizePayload(parsed) {
     try {
-      var parsed = JSON.parse(scriptEl.textContent || "{}");
       if (typeof parsed === "string") {
         parsed = JSON.parse(parsed);
       }
@@ -65,6 +60,59 @@
     }
   }
 
+  function parsePayload(scriptEl) {
+    if (!scriptEl) {
+      return normalizePayload({});
+    }
+
+    try {
+      return normalizePayload(JSON.parse(scriptEl.textContent || "{}"));
+    } catch (error) {
+      return normalizePayload({});
+    }
+  }
+
+  function pageLanguage() {
+    return (document.documentElement.lang || (location.pathname.indexOf("/es/") === 0 ? "es" : "en"))
+      .toLowerCase()
+      .split("-")[0];
+  }
+
+  function authorUrl(url) {
+    if (
+      location.pathname.indexOf("/admin/") !== 0 ||
+      typeof url !== "string" ||
+      url.indexOf("/") !== 0 ||
+      url.indexOf("/admin/") === 0
+    ) {
+      return url;
+    }
+    return url === "/" ? "/admin/" : "/admin" + url;
+  }
+
+  async function loadPayload(container, dataEl) {
+    var embedded = parsePayload(dataEl);
+    if (embedded.posts.length > 0) {
+      return embedded;
+    }
+
+    try {
+      var endpoint = container.dataset.graphEndpoint || "/api/graph";
+      var url = new URL(endpoint, location.origin);
+      url.searchParams.set("lang", pageLanguage());
+      url.searchParams.set("format", "posts");
+      var response = await fetch(url, { headers: { Accept: "application/json" } });
+      if (!response.ok) {
+        return embedded;
+      }
+      var projected = normalizePayload(await response.json());
+      projected.focusTags = embedded.focusTags;
+      return projected;
+    } catch (error) {
+      return embedded;
+    }
+  }
+
   function buildGraph(posts, tagLinks) {
     var normalizedTagLinks = {};
     if (tagLinks && typeof tagLinks === "object") {
@@ -73,7 +121,7 @@
         if (!normalizedTag || typeof tagLinks[tagName] !== "string") {
           return;
         }
-        normalizedTagLinks[normalizedTag] = tagLinks[tagName];
+        normalizedTagLinks[normalizedTag] = authorUrl(tagLinks[tagName]);
       });
     }
 
@@ -197,7 +245,30 @@
     };
   }
 
-  function init() {
+  function filterGraphToRepeatedTags(graph) {
+    var includedNodes = graph.nodes.filter(function (node) {
+      return node.count > 1;
+    });
+    var includedNodeSet = new Set(includedNodes);
+    var includedLinks = graph.links.filter(function (link) {
+      return includedNodeSet.has(link.source) && includedNodeSet.has(link.target);
+    });
+
+    includedNodes.forEach(function (node) {
+      node.neighbors = new Set();
+    });
+    includedLinks.forEach(function (link) {
+      link.source.neighbors.add(link.target);
+      link.target.neighbors.add(link.source);
+    });
+
+    return {
+      nodes: includedNodes,
+      links: includedLinks
+    };
+  }
+
+  async function init() {
     var container = document.getElementById("knowledge-graph");
     var dataEl = document.getElementById("knowledge-graph-data");
     var toolsEl = document.getElementById("knowledge-graph-tools");
@@ -212,8 +283,11 @@
     }
     var homeGraphSection = container.closest(".home-graph");
 
-    var payload = parsePayload(dataEl);
-    var graph = filterGraphToEgoNetwork(buildGraph(payload.posts, payload.tagLinks), payload.focusTags);
+    var payload = await loadPayload(container, dataEl);
+    var graph = buildGraph(payload.posts, payload.tagLinks);
+    graph = cleanTagList(payload.focusTags).length > 0
+      ? filterGraphToEgoNetwork(graph, payload.focusTags)
+      : filterGraphToRepeatedTags(graph);
     var nodes = graph.nodes;
     var links = graph.links;
 
@@ -301,9 +375,9 @@
         line: readVar("--line", "#2a2f36"),
         ink: readVar("--ink", "#cfcfd2"),
         inkDim: readVar("--ink-dim", "#a8abb2"),
-        tag: readVar("--graph-tag", readVar("--accent", "#4ecca3")),
-        tagHover: readVar("--graph-tag-hover", readVar("--accent-2", "#35b98f")),
-        linkActive: readVar("--graph-link-active", readVar("--graph-tag-hover", readVar("--accent-2", "#35b98f"))),
+        tag: readVar("--graph-tag", readVar("--accent", "#76a694")),
+        tagHover: readVar("--graph-tag-hover", readVar("--accent-2", "#91bfaf")),
+        linkActive: readVar("--graph-link-active", readVar("--graph-tag-hover", readVar("--accent-2", "#91bfaf"))),
         bg: readVar("--graph-bg", "#0a0c10")
       };
     }

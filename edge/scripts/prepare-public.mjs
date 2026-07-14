@@ -19,6 +19,7 @@ const staticFiles = [
   "js/author-tools.js",
   "js/code-portfolio.js",
   "js/curved-scrollbar.js",
+  "js/knowledge-graph.js",
   "js/photography-grid.js",
   "js/typography.js",
   "og-image.png",

@@ -537,8 +537,8 @@ body.code-index .site-header-actions {
   --ink: #cfcfd2;
   --ink-dim: #a8abb2;
   --ink-muted: #7b7f88;
-  --accent: #4ecca3;
-  --accent-2: #35b98f;
+  --accent: oklch(0.686 0.058 169.334);
+  --accent-2: oklch(0.767 0.054 171.465);
   --line: #1c2025;
   --code-bg: #07080a;
   --table-stripe: #0f1115;
@@ -548,14 +548,14 @@ body.code-index .site-header-actions {
   --search-drawer-bg: linear-gradient(180deg, rgba(11,12,15,.95) 0%, rgba(0,0,0,.95) 100%);
   --result-separator: rgba(123,127,136,.25);
   --nested-separator: rgba(123,127,136,.35);
-  --graph-tag: #4ecca3;
-  --graph-tag-hover: #35b98f;
+  --graph-tag: oklch(0.686 0.058 169.334);
+  --graph-tag-hover: oklch(0.767 0.054 171.465);
   --graph-link-active: #f5f7fb;
   --graph-bg: #000000;
 
   /* Badge design tokens (Dark Mode) */
   --badge-bg: var(--bg-soft);
-  --badge-posts-border: rgba(78, 204, 163, 0.35);
+  --badge-posts-border: oklch(0.686 0.058 169.334 / 0.35);
   --badge-posts-text: var(--accent);
   --badge-prof-border: rgba(85, 172, 238, 0.45);
   --badge-prof-text: #55acee;
@@ -584,8 +584,8 @@ body.code-index .site-header-actions {
   --ink: #16202b;
   --ink-dim: #2b3743;
   --ink-muted: #495562;
-  --accent: #1f7a5a;
-  --accent-2: #155c43;
+  --accent: oklch(0.496 0.075 169.234);
+  --accent-2: oklch(0.426 0.064 169.484);
   --line: #dde3ea;
   --code-bg: #eef1f5;
   --table-stripe: #f0f3f6;
@@ -595,14 +595,14 @@ body.code-index .site-header-actions {
   --search-drawer-bg: linear-gradient(180deg, rgba(247,248,250,.97) 0%, rgba(236,239,243,.97) 100%);
   --result-separator: rgba(73,85,98,.3);
   --nested-separator: rgba(73,85,98,.42);
-  --graph-tag: #1f7a5a;
-  --graph-tag-hover: #155c43;
+  --graph-tag: oklch(0.496 0.075 169.234);
+  --graph-tag-hover: oklch(0.426 0.064 169.484);
   --graph-link-active: #0f171f;
   --graph-bg: #f4f6f8;
 
   /* Badge design tokens (Light Mode - high contrast) */
   --badge-bg: rgba(255, 255, 255, 0.65);
-  --badge-posts-border: rgba(31, 122, 90, 0.45);
+  --badge-posts-border: oklch(0.496 0.075 169.234 / 0.45);
   --badge-posts-text: var(--accent);
   --badge-prof-border: rgba(26, 85, 153, 0.45);
   --badge-prof-text: #1a5599;

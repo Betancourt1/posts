@@ -1,6 +1,7 @@
 ---
 import Nav from "../components/Nav.astro";
 import Sidebar from "../components/Sidebar.astro";
+import AuthorTools from "../components/AuthorTools.astro";
 import { displayDate, safeJson } from "../components/_utils";
 import type {
   ArchiveMonth,
@@ -69,6 +70,12 @@ const updatedLabel = updatedDate
 const infrastructureTree = page.infrastructureTree || { type: "dir", name: "/", children: [] };
 const languageTitle = lang === "es" ? "Switch to English" : "Cambiar a Español";
 const otherLanguage = lang === "es" ? "EN" : "ES";
+const homePath = authorMode
+  ? (lang === "es" ? "/admin/es/" : "/admin/")
+  : (lang === "es" ? "/es/" : "/");
+const archivesPath = authorMode
+  ? (lang === "es" ? "/admin/es/archives/" : "/admin/archives/")
+  : (lang === "es" ? "/es/archives/" : "/archives/");
 ---
 
 <!doctype html>
@@ -123,8 +130,9 @@ const otherLanguage = lang === "es" ? "EN" : "ES";
   </head>
 
   <body class={bodyClass || undefined}>
+    {authorMode && <AuthorTools sourcePath={page.sourcePath} lang={lang} kind={page.kind} section={page.section} />}
     <header class="site-header">
-      <p class="site-title"><a href={lang === "es" ? "/es/" : "/"}>{siteTitle}</a></p>
+      <p class="site-title"><a href={homePath}>{siteTitle}</a></p>
       <p class="site-subtitle">{subtitle}</p>
       <div class="site-header-actions">
         {translationPath && <a class="lang-toggle" href={translationPath} title={languageTitle}>{otherLanguage}</a>}
@@ -206,7 +214,7 @@ const otherLanguage = lang === "es" ? "EN" : "ES";
       </main>
       {showSidebar && (
         <aside class="column sidebar-column">
-          <Sidebar lang={lang} archives={archiveMonths} graphData={page.isHome ? null : page.graphData} />
+          <Sidebar lang={lang} archives={archiveMonths} archivesHref={archivesPath} graphData={page.isHome ? null : page.graphData} />
         </aside>
       )}
     </div>

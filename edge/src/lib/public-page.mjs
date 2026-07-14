@@ -18,6 +18,18 @@ export function languageForRoute(path) {
   return normalizeRoute(path).startsWith("/es/") ? "es" : "en";
 }
 
+export function publicPathForAdminRoute(path) {
+  const normalized = normalizeRoute(path);
+  if (normalized === "/admin/") return "/";
+  if (!normalized.startsWith("/admin/")) return normalized;
+  return normalizeRoute(normalized.slice("/admin".length));
+}
+
+export function adminPathForPublicRoute(path) {
+  const normalized = normalizeRoute(path);
+  return normalized === "/" ? "/admin/" : `/admin${normalized}`;
+}
+
 export function syntheticRoute(path) {
   const normalized = normalizeRoute(path);
   const match = normalized.match(TAG_ROUTE);
@@ -44,10 +56,10 @@ export function archiveMonths(items) {
   return [...counts].slice(0, 12).map(([key, count]) => ({ key, count }));
 }
 
-async function siteChrome(db, lang, archives = null) {
+async function siteChrome(db, lang, archives = null, options = {}) {
   const [navigation, allArchives, updatedAt] = await Promise.all([
-    navSections(db, lang),
-    archives ? Promise.resolve(archives) : archiveItems(db, lang),
+    navSections(db, lang, options),
+    archives ? Promise.resolve(archives) : archiveItems(db, lang, options),
     latestSyncTimestamp(db),
   ]);
 
@@ -58,11 +70,11 @@ async function siteChrome(db, lang, archives = null) {
   };
 }
 
-async function syntheticPage(db, route) {
-  const chromePromise = siteChrome(db, route.lang);
+async function syntheticPage(db, route, options = {}) {
+  const chromePromise = siteChrome(db, route.lang, null, options);
 
   if (route.kind === "tags") {
-    const [tags, chrome] = await Promise.all([tagIndex(db, route.lang), chromePromise]);
+    const [tags, chrome] = await Promise.all([tagIndex(db, route.lang, options), chromePromise]);
     return {
       ...chrome,
       kind: "tags",
@@ -76,7 +88,7 @@ async function syntheticPage(db, route) {
   }
 
   const [items, chrome] = await Promise.all([
-    tagResults(db, route.lang, route.slug),
+    tagResults(db, route.lang, route.slug, options),
     chromePromise,
   ]);
   if (!items.length) return null;
@@ -105,12 +117,12 @@ function layoutForDocument(document) {
   return "list";
 }
 
-export async function loadPublicPage(db, requestedPath) {
+export async function loadPublicPage(db, requestedPath, options = {}) {
   const path = normalizeRoute(requestedPath);
   const synthetic = syntheticRoute(path);
-  if (synthetic) return syntheticPage(db, synthetic);
+  if (synthetic) return syntheticPage(db, synthetic, options);
 
-  const document = await resolveDocument(db, path);
+  const document = await resolveDocument(db, path, options);
   if (!document) return null;
 
   if (document.routeKind === "alias") {
@@ -119,15 +131,15 @@ export async function loadPublicPage(db, requestedPath) {
 
   const layout = layoutForDocument(document);
   const tagsPromise = documentTags(db, document.id);
-  const translationPromise = translationPeer(db, document.id);
+  const translationPromise = translationPeer(db, document.id, options);
   const archivePromise = layout === "archives"
-    ? archiveItems(db, document.lang)
+    ? archiveItems(db, document.lang, options)
     : Promise.resolve(null);
   const itemsPromise = ["list", "books", "photography", "code"].includes(layout)
-    ? sectionItems(db, document.lang, document.section, { body: layout === "books" })
+    ? sectionItems(db, document.lang, document.section, { ...options, body: layout === "books" })
     : Promise.resolve([]);
   const backlinksPromise = layout === "single" && ["posts", "zettelkasten"].includes(document.section)
-    ? backlinks(db, document.id)
+    ? backlinks(db, document.id, options)
     : Promise.resolve([]);
 
   const [tags, translation, archives, items, linkedFrom] = await Promise.all([
@@ -137,7 +149,7 @@ export async function loadPublicPage(db, requestedPath) {
     itemsPromise,
     backlinksPromise,
   ]);
-  const chrome = await siteChrome(db, document.lang, archives);
+  const chrome = await siteChrome(db, document.lang, archives, options);
 
   return {
     ...chrome,

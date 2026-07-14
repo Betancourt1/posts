@@ -2,12 +2,18 @@ import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
 
 import { graphRows } from "../../lib/content-queries.mjs";
+import { graphPostPayload } from "../../lib/graph-payload.mjs";
 
 export const prerender = false;
 
 export const GET: APIRoute = async ({ url }) => {
   const lang = url.searchParams.get("lang") === "es" ? "es" : "en";
   const documents = await graphRows(env.DB, lang);
+  if (url.searchParams.get("format") === "posts") {
+    return Response.json(graphPostPayload(documents), {
+      headers: { "cache-control": "public, max-age=300" },
+    });
+  }
   const nodes = new Map<string, { id: string; label: string; path: string; section: string }>();
   const links = new Map<string, { source: string; target: string; type: string; weight: number }>();
 

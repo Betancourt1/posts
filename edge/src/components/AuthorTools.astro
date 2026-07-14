@@ -1,0 +1,40 @@
+---
+import type { Language } from "./types";
+
+interface Props {
+  sourcePath?: string | null;
+  lang?: Language;
+  kind?: string;
+  section?: string;
+}
+
+const {
+  sourcePath = "",
+  lang = "en",
+  kind = "",
+  section = "",
+} = Astro.props;
+---
+
+<div
+  class="author-tools"
+  id="author-tools"
+  data-api="/admin"
+  data-source-path={sourcePath}
+  data-lang={lang}
+  data-kind={kind}
+  data-section={section}
+>
+  <span class="author-status" id="author-status" hidden>checking</span>
+  <div class="author-modal" id="author-modal" hidden>
+    <div class="author-dialog" role="dialog" aria-modal="true" aria-labelledby="author-modal-title">
+      <div class="author-dialog-header">
+        <h2 id="author-modal-title">Author</h2>
+        <button class="author-close" id="author-close" type="button" aria-label="Close">&times;</button>
+      </div>
+      <div id="author-modal-body"></div>
+    </div>
+  </div>
+  <input id="author-image-input" type="file" accept="image/*" hidden />
+  <div class="author-toast" id="author-toast" role="status" hidden></div>
+</div>

@@ -2,10 +2,23 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  adminPathForPublicRoute,
   archiveMonths,
   languageForRoute,
+  publicPathForAdminRoute,
   syntheticRoute,
 } from "../src/lib/public-page.mjs";
+
+test("maps arbitrary admin content routes to their public D1 route", () => {
+  assert.equal(publicPathForAdminRoute("/admin/"), "/");
+  assert.equal(publicPathForAdminRoute("/admin/es/fotografia/"), "/es/fotografia/");
+  assert.equal(
+    publicPathForAdminRoute("/admin/es/fotografia/una-arana-a-punto-de-comer/"),
+    "/es/fotografia/una-arana-a-punto-de-comer/",
+  );
+  assert.equal(adminPathForPublicRoute("/"), "/admin/");
+  assert.equal(adminPathForPublicRoute("/es/fotografia/"), "/admin/es/fotografia/");
+});
 
 test("recognizes localized tag routes without swallowing normal pages", () => {
   assert.deepEqual(syntheticRoute("/tags/"), {

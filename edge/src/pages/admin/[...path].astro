@@ -1,0 +1,24 @@
+---
+import { env } from "cloudflare:workers";
+
+import PublicPage from "../../views/PublicPage.astro";
+import {
+  adminPathForPublicRoute,
+  loadNotFoundPage,
+  loadPublicPage,
+  publicPathForAdminRoute,
+} from "../../lib/public-page.mjs";
+
+export const prerender = false;
+
+const publicPath = publicPathForAdminRoute(Astro.url.pathname);
+let model: any = await loadPublicPage(env.DB, publicPath, { includeDrafts: true });
+const redirectPath = model?.redirect ? adminPathForPublicRoute(model.redirect) : "";
+if (redirectPath) return Astro.redirect(redirectPath, 301);
+if (!model) {
+  Astro.response.status = 404;
+  model = await loadNotFoundPage(env.DB, publicPath);
+}
+---
+
+<PublicPage model={model} authorMode={true} />
