@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
@@ -8,6 +9,8 @@ import {
   publicPathForAdminRoute,
   syntheticRoute,
 } from "../src/lib/public-page.mjs";
+
+const publicPagePath = new URL("../src/views/PublicPage.astro", import.meta.url);
 
 test("maps arbitrary admin content routes to their public D1 route", () => {
   assert.equal(publicPathForAdminRoute("/admin/"), "/");
@@ -51,4 +54,11 @@ test("derives language and recent archive counts from runtime rows", () => {
       { key: "2026-06", count: 1 },
     ],
   );
+});
+
+test("keeps the Citas title in Spanish notebook navigation", async () => {
+  const source = await readFile(publicPagePath, "utf8");
+
+  assert.match(source, /\["Citas", "\/es\/lit\/", "lit"\]/);
+  assert.doesNotMatch(source, /\["Lecturas", "\/es\/lit\/", "lit"\]/);
 });
