@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-60373913"
 summary: "By Meryem El Mehdati · Read · 5/5"
-tags: ["book","read","novels","office-work","precarious-work","capitalism","unrequited-love"]
+tags: ["book","read","novels","work","precarity","capitalism","love"]
 book_author: "Meryem El Mehdati"
 book_status: "read"
 goodreads_id: "60373913"

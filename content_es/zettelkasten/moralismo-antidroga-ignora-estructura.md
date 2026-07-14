@@ -2,7 +2,7 @@
 title: "El moralismo antidroga ignora la estructura"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten","nota","capitalismo","drogas","moralismo","estructura","política","clase"]
+tags: ["zettelkasten","nota","capitalismo","drogas","juicio-moral","estructura","política","clase"]
 summary: "Tratar el consumo de drogas como una decisión individual moralmente reprobable reproduce la retórica democristiana: avergüenza a quienes tienen adicciones y oscurece las causas estructurales (desempleo, enfermedad mental, dolor crónico, indigencia)."
 ---
 

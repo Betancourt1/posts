@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-25074641"
 summary: "By Federico Fabregat · Read · 3/5"
-tags: ["book","read","class","consumerism","everyday-life","social-theory"]
+tags: ["book","read","class","capitalism","everyday-life","social-theory"]
 book_author: "Federico Fabregat"
 book_status: "read"
 goodreads_id: "25074641"

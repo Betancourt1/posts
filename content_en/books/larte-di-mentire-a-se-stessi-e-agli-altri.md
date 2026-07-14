@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-22241807"
 summary: "By Giorgio Nardone · Read · 4/5"
-tags: ["book","read","social-sciences","essays","deception","self-deception","psychology","communication"]
+tags: ["book","read","social-sciences","essays","deception","psychology","communication"]
 book_author: "Giorgio Nardone"
 book_status: "read"
 goodreads_id: "22241807"

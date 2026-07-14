@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-7870634"
 summary: "By Ken Wilber · Read · 5/5"
-tags: ["book","read","quantum-physics","mysticism","consciousness","philosophy-of-science"]
+tags: ["book","read","science","mysticism","consciousness","philosophy-of-science"]
 book_author: "Ken Wilber"
 book_status: "read"
 goodreads_id: "7870634"

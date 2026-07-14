@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-25170132"
 summary: "By Paul Karl Feyerabend · Read · 5/5"
-tags: ["book","read","philosophy-of-science","epistemology","pluralism","rationalism"]
+tags: ["book","read","philosophy-of-science","epistemology"]
 book_author: "Paul Karl Feyerabend"
 book_status: "read"
 goodreads_id: "25170132"

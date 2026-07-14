@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-6617037"
 summary: "By David Graeber · Currently reading"
-tags: ["book","currently-reading","debt","economic-history","anthropology","capitalism"]
+tags: ["book","currently-reading","debt","history","anthropology","capitalism"]
 book_author: "David Graeber"
 book_status: "currently-reading"
 goodreads_id: "6617037"

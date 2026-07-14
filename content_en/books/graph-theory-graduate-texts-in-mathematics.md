@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-388052"
 summary: "By Reinhard Diestel · Read · 5/5"
-tags: ["book","read","mathematics","graphs","discrete-mathematics","mathematical-proofs"]
+tags: ["book","read","mathematics","graphs"]
 book_author: "Reinhard Diestel"
 book_status: "read"
 goodreads_id: "388052"

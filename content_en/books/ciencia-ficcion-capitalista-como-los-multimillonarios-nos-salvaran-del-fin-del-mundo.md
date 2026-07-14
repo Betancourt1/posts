@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-217273431"
 summary: "By Michel Nieva · Read · 5/5"
-tags: ["book","read","social-sciences","essays","technology","techno-capitalism","billionaires","climate-crisis","futurism"]
+tags: ["book","read","social-sciences","essays","technology","capitalism","climate-crisis","futurism"]
 book_author: "Michel Nieva"
 book_status: "read"
 goodreads_id: "217273431"

@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-20863042"
 summary: "By Mark Fisher · Read · 5/5"
-tags: ["book","read","essays","hauntology","music","depression","cultural-criticism","lost-futures"]
+tags: ["book","read","essays","hauntology","music","mental-health","culture","lost-futures"]
 book_author: "Mark Fisher"
 book_status: "read"
 goodreads_id: "20863042"

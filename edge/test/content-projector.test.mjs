@@ -192,7 +192,15 @@ test("generates the canonical English book as a matching Spanish document", asyn
   assert.equal(spanish.section, "libros");
   assert.equal(spanish.generated, true);
   assert.equal(spanish.summary, "De Julian Barnes · Leído · 5/5");
-  assert.deepEqual(spanish.tags.slice(0, 2), ["libro", "leído"]);
+  assert.deepEqual(spanish.tags, [
+    "libro",
+    "leído",
+    "ensayo",
+    "muerte",
+    "religión",
+    "memoria",
+    "familia",
+  ]);
   assert.equal(spanish.frontMatter.source_path, relativePath);
   assert.equal(spanish.frontMatter.source_body, english.bodyMarkdown);
   assert.match(spanish.bodyMarkdown, /\*\*Autor:\*\* Julian Barnes/);

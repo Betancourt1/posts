@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-12442358"
 summary: "By Chantal Maillard · Read · 3/5"
-tags: ["book","read","aphorisms","diaries-and-letters","travel-writing","india","spirituality","philosophy"]
+tags: ["book","read","aphorisms","diaries-and-letters","literature","india","spirituality","philosophy"]
 book_author: "Chantal Maillard"
 book_status: "read"
 goodreads_id: "12442358"

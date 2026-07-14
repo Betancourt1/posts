@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-336258"
 summary: "By Stephen Few · Currently reading"
-tags: ["book","currently-reading","data-visualization","technology","dashboards","information-design","visual-analytics","usability"]
+tags: ["book","currently-reading","data-visualization","technology","design"]
 book_author: "Stephen Few"
 book_status: "currently-reading"
 goodreads_id: "336258"

@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-61218623"
 summary: "By Joe Reis · Read"
-tags: ["book","read","technical-books","data-engineering","data-architecture","data-pipelines","cloud-computing"]
+tags: ["book","read","technical-books","data-engineering","cloud-computing"]
 book_author: "Joe Reis"
 book_status: "read"
 goodreads_id: "61218623"

@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-59342743"
 summary: "By Cathy O'Neil · Read · 4/5"
-tags: ["book","read","social-sciences","essays","technology","shame","social-media","public-shaming","psychology"]
+tags: ["book","read","social-sciences","essays","technology","shame","social-media","psychology"]
 book_author: "Cathy O'Neil"
 book_status: "read"
 goodreads_id: "59342743"

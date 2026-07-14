@@ -2,7 +2,7 @@
 title: "Clasismo y alianza policial"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten","nota","clase","clasismo","policía","guadalajara","política"]
+tags: ["zettelkasten","nota","clase","clasismo","policía","méxico","política"]
 summary: "En Guadalajara —y en muchas ciudades— el clasismo lleva a que sectores populares prefieran aliarse con la policía antes que con otro pobre. El enemigo de clase se normaliza cuando se interioriza la jerarquía."
 ---
 

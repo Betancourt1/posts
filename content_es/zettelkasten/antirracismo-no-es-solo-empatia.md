@@ -2,7 +2,7 @@
 title: "El antirracismo no puede reducirse a la empatía individual"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten","nota","racismo","antirracismo","política","woke","estructura","ideología"]
+tags: ["zettelkasten","nota","racismo","antirracismo","política","estructura","ideología"]
 summary: "Reducir el antirracismo a un acto de empatía despolitiza la lucha: implica que el racismo es solo falta de sensibilidad individual, cuando en realidad opera como estructura sistémica."
 ---
 

@@ -5,7 +5,7 @@ draft: false
 search: true
 translationKey: "goodreads-137314"
 summary: "By Alan F. Chalmers · Read · 4/5"
-tags: ["book","read","philosophy-of-science","scientific-method","epistemology","falsifiability"]
+tags: ["book","read","philosophy-of-science","epistemology"]
 book_author: "Alan F. Chalmers"
 book_status: "read"
 goodreads_id: "137314"

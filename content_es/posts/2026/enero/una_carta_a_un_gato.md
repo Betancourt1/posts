@@ -1,7 +1,7 @@
 ---
 title: "Una carta a un gato"
 date: 2026-01-10
-tags: ["carta","gatos"]
+tags: ["escritura","amor","vínculos"]
 ---
 
 # Una carta a un gato

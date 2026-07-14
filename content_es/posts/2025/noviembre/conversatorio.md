@@ -1,7 +1,7 @@
 ﻿---
 title: "Un conversatorio"
 date: 2025-11-19
-tags: ["conversatorio"]
+tags: ["charla","inteligencia-artificial","ética","educación"]
 ---
 # Un conversatorio
 
@@ -17,4 +17,3 @@ Recuerden que las habilidades que tenemos no son monopropósito. Volviendo al ej
 
 4. ¿Somos autores del contenido generado por la IA? 
 Depende de en qué sentido usemos la palabra "autor". Si lo preguntas a si *legalmente* lo somos, según la instancia responsable de definir eso en México, no. Hagamos un ejercicio mental. La IA escribe todo un ensayo que me parece buenísimo. Podemos vernos tentados a decir que yo no soy el autor de la obra, así que reemplazo cada una de las palabras del ensayo de modo que ahora no tiene ninguna palabra de la original. ¿Ahora sí soy el autor? Dudoso, implicaría que todos los traductores profesionales se vuelven autores de las obras que traducen, algo que rechaza la tradición en esta materia. ¿Por qué no soy el autor? Pensaríamos que es porque la *idea* del escrito sigue siendo la misma aunque haya cambiado las palabras, pero aquí está mi pega. ¿La IA tiene ideas? Pongamos otro ejercicio, yo tengo un programa que me genera una palabra al azar a la vez, cada vez yo decido si dejar la palabra o volver a intentar. Siguiendo este método, termino con el mismo ensayo. ¿Ahora yo soy el autor?, ¿quién es? No lo tengo claro, supongo que ustedes tampoco. Porque la idea de autoría es una invención imperfecta en sí misma. Hoy por hoy no disponemos de un concepto similar al de autoría que abarque todas las complejidades posibles porque la noción de que algo nos pertenezca también es una idea imperfecta. 
-

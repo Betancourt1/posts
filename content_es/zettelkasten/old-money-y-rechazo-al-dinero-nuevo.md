@@ -2,7 +2,7 @@
 title: "El old money y el rechazo al dinero nuevo"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["zettelkasten","nota","clase","old-money","capitalismo","exclusión","cultura","cita"]
+tags: ["zettelkasten","nota","clase","capitalismo","exclusión","cultura","cita"]
 summary: "Puedes ganar mucho dinero y aun así nunca ser aceptado en los círculos de quienes lo heredaron por generaciones. El old money no es solo riqueza: es un sistema de exclusión que el dinero nuevo no puede comprar."
 ---
 
