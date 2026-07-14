@@ -1,25 +1,26 @@
 ---
 title: "Cold Intimacies: The Making of Emotional Capitalism"
 date: 2026-01-04
-draft: false
-search: true
-translationKey: "goodreads-1088620"
-summary: "By Eva Illouz · Currently reading"
 tags: ["book","currently-reading","capitalism","relationships","sociology"]
+summary: "By Eva Illouz · Reading"
+binding: "Paperback"
 book_author: "Eva Illouz"
+book_progress: "20"
 book_status: "currently-reading"
+bookshelves: ["currently-reading"]
+date_added: "2026-01-04"
 goodreads_id: "1088620"
 goodreads_url: "https://www.goodreads.com/book/show/1088620"
-date_added: 2026-01-04
-bookshelves: ["currently-reading"]
-publication_year: 2022
-publisher: "Polity"
-binding: "Paperback"
-pages: 144
 isbn13: "9780745639055"
+pages: "144"
+publication_year: "2022"
+publisher: "Polity"
+search: true
+translationKey: "goodreads-1088620"
 ---
+
 **Author:** Eva Illouz
-**Progress:** not set
+**Progress:** 20%
 **Added:** 2026-01-04
 **Published:** 2022
 **Publisher:** Polity

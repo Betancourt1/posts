@@ -1,24 +1,25 @@
 ---
 title: "[The Art of Doing Science and Engineering] - 2020 Edition: Learning to Learn - 2020, Paperback Edition"
 date: 2026-01-04
-draft: false
-search: true
-translationKey: "goodreads-155968362"
-summary: "By Karios Mainec · Currently reading"
-tags: ["book","currently-reading","science","engineering","learning","problem-solving","research"]
+tags: ["book", "currently-reading", "science", "engineering", "learning", "problem-solving", "research"]
+summary: "By Karios Mainec · Reading"
+binding: "Paperback"
 book_author: "Karios Mainec"
+book_progress: "30"
 book_status: "currently-reading"
+bookshelves: ["currently-reading"]
+date_added: "2026-01-04"
 goodreads_id: "155968362"
 goodreads_url: "https://www.goodreads.com/book/show/155968362"
-date_added: 2026-01-04
-bookshelves: ["currently-reading"]
-publication_year: 2023
-binding: "Paperback"
-pages: 449
 isbn13: "9798394738418"
+pages: "449"
+publication_year: "2023"
+search: true
+translationKey: "goodreads-155968362"
 ---
+
 **Author:** Karios Mainec
-**Progress:** not set
+**Progress:** 30%
 **Added:** 2026-01-04
 **Published:** 2023
 **Format:** Paperback
