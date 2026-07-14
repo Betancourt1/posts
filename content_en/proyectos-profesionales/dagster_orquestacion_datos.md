@@ -3,6 +3,9 @@ title: "Data Pipeline Orchestration with Dagster"
 date: 2026-05-18
 draft: false
 tags: ["dagster","data-engineering","docker","architecture","private"]
+short_title: "Dagster Data Orchestration"
+summary: "An auditable multi-gRPC platform for resilient data pipelines."
+technologies: ["Python", "SQL", "Dagster", "Docker", "PostgreSQL", "gRPC"]
 ---
 
 ## Context

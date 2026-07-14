@@ -49,7 +49,7 @@ timeZone = "America/Mexico_City"
         pageRef = "/about"
         weight = 2
       [[languages.en.menu.main]]
-        name = "Professional"
+        name = "Code"
         pageRef = "/proyectos-profesionales"
         weight = 3
       [[languages.en.menu.main]]
@@ -82,7 +82,7 @@ timeZone = "America/Mexico_City"
         pageRef = "/about"
         weight = 2
       [[languages.es.menu.main]]
-        name = "Profesional"
+        name = "Código"
         pageRef = "/proyectos-profesionales"
         weight = 3
       [[languages.es.menu.main]]

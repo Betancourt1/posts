@@ -2,7 +2,7 @@
   {{ $isEnglish := eq .Site.Language.Lang "en" }}
   {{ $filterAll := cond $isEnglish "All" "Todos" }}
   {{ $filterPosts := cond $isEnglish "Posts" "Escritos" }}
-  {{ $filterProfessional := cond $isEnglish "Professional" "Profesionales" }}
+  {{ $filterProfessional := cond $isEnglish "Code" "Código" }}
   {{ $filterAcademic := cond $isEnglish "Academic" "Académicos" }}
   {{ $filterZettelkasten := "Zettelkasten" }}
   {{ $filterReadings := cond $isEnglish "Readings" "Lecturas" }}
@@ -40,7 +40,7 @@
             {{ $section := .Section }}
             {{ $label := $section }}
             {{ if eq $section "posts" }}{{ $label = cond $isEnglish "post" "escrito" }}
-            {{ else if eq $section "proyectos-profesionales" }}{{ $label = cond $isEnglish "professional" "profesional" }}
+            {{ else if eq $section "proyectos-profesionales" }}{{ $label = cond $isEnglish "code" "código" }}
             {{ else if eq $section "proyectos-academicos" }}{{ $label = cond $isEnglish "academic" "académico" }}
             {{ else if eq $section "zettelkasten" }}{{ $label = "zettel" }}
             {{ else if eq $section "lit" }}{{ $label = cond $isEnglish "reading" "lectura" }}

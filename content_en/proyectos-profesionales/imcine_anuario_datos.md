@@ -3,6 +3,9 @@ title: "IMCINE CineMX Yearbook: Open and Historical Dataset"
 date: 2026-01-27
 draft: false
 tags: ["open-source","python","scraping","mexican-cinema","dataset"]
+short_title: "IMCINE Open Data"
+summary: "A reproducible preservation pipeline for Mexican film-history datasets."
+technologies: ["Python", "Pandas", "Scraping", "CSV", "JSON"]
 ---
 
 ## Context

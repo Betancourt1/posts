@@ -1,8 +1,8 @@
 ---
-title: "Professional"
-description: "Selection of real-world projects, scope, and results."
+title: "Code"
+description: "A compendium of software projects and data work, with the technologies and access model for each one."
 date: 2026-02-13
 draft: false
 ---
 
-In this section, I present professional projects focusing on context, the implemented solution, and the results obtained.
+This section collects the systems, tools, datasets, and experiments I have built in public and in private.

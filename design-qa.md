@@ -140,3 +140,43 @@ No actionable P0, P1, or P2 differences remain.
 - P3: the enabled save button is brighter than the disabled-looking save state in the generated mockup. This is intentional state feedback and preserves usability.
 
 final result: passed
+
+---
+
+# Code section design QA
+
+## Source and implementation
+
+- Source mockup: `/Users/betancourt/.codex/generated_images/019f5de2-d3cc-7703-8ff6-a969bfedcb61/exec-a24863db-e0ad-4c7a-b93b-f064b3c57469.png`
+- Implementation capture: `/Users/betancourt/.codex/visualizations/2026/07/13/019f5de2-d3cc-7703-8ff6-a969bfedcb61/code-section-implementation-1536x1024-final.png`
+- Full combined comparison: `/Users/betancourt/.codex/visualizations/2026/07/13/019f5de2-d3cc-7703-8ff6-a969bfedcb61/code-section-comparison-final.png`
+- Focused content comparison: `/Users/betancourt/.codex/visualizations/2026/07/13/019f5de2-d3cc-7703-8ff6-a969bfedcb61/code-section-comparison-focus-final.png`
+- Viewport: 1536 x 1024
+- State: English Code index, dark theme, GitHub static fallback in local Hugo preview
+
+## Comparison history
+
+### Pass 1
+
+- Desktop composition matched the source: fixed left navigation, compact Code introduction, six-column technology summary, full-width contribution calendar, and three-column project grid.
+- Project titles, summaries, access labels, and technology lists remained legible without clipping.
+- Intentional data differences: technology percentages are derived from the seven real projects and the contribution chart uses a real public GitHub snapshot rather than the illustrative values in the mockup.
+- P2 responsive finding: the English mobile navigation toggle switched to Spanish labels after initialization.
+- Fix: localized the JavaScript toggle labels through the existing Hugo language context.
+
+### Final pass
+
+- Full and focused side-by-side comparisons show no remaining P0, P1, or P2 visual mismatch.
+- Desktop has no horizontal overflow at 1536 px. The project grid resolves to three equal columns and the technology strip to six equal columns.
+- Mobile has no page-level horizontal overflow at 390 px. Technologies resolve to two columns, projects to one column, and the contribution chart scrolls inside its own region.
+- English mobile navigation changes from `Show notebooks` to `Hide notebooks`, updates `aria-expanded`, and reveals the navigation list.
+- Project links navigate to their existing detail pages.
+- Browser console: no warnings or errors in the tested desktop or mobile states.
+
+## Functional wall behavior
+
+- The checked-in contribution snapshot is rendered immediately and remains available when the live request fails.
+- In production, the browser requests the same-origin endpoint; the endpoint uses `GITHUB_TOKEN` server-side and returns normalized GitHub contribution data with cache headers.
+- The token is not returned to the client.
+
+final result: passed

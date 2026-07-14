@@ -3,6 +3,9 @@ title: "VA Proyecciones: Demand Forecasting Statistical Library"
 date: 2026-02-12
 draft: false
 tags: ["python","time-series","forecasting","statsforecast","private"]
+short_title: "VA Forecasting"
+summary: "A statistical library for demand forecasting and backtesting."
+technologies: ["Python", "StatsForecast", "Pandas", "NumPy"]
 ---
 
 ## Context

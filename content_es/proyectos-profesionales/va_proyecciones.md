@@ -3,6 +3,9 @@ title: "VA Proyecciones: Librería Estadística de Pronóstico de Demanda"
 date: 2026-02-12
 draft: false
 tags: ["python","series-de-tiempo","pronóstico","statsforecast","privado"]
+short_title: "VA Proyecciones"
+summary: "Una librería estadística para pronóstico de demanda y backtesting."
+technologies: ["Python", "StatsForecast", "Pandas", "NumPy"]
 ---
 
 ## Contexto

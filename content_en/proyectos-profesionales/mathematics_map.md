@@ -3,7 +3,9 @@ title: "Mathematical Dependency Interface: 3D Dependency Viewer for Lean 4"
 date: 2026-05-30
 draft: false
 tags: ["open-source","three-js","javascript","lean4","data-visualization"]
-summary: ""
+short_title: "Mathematical Dependency Interface"
+summary: "A fast 3D explorer for Lean 4 and mathlib dependency graphs."
+technologies: ["Python", "Lean 4", "JavaScript", "Three.js"]
 ---
 
 ## Context

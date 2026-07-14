@@ -1,0 +1,51 @@
+github:
+  username: "Betancourt1"
+  profile_url: "https://github.com/Betancourt1"
+  snapshot_start: "2025-07-13"
+  snapshot_end: "2026-07-13"
+  levels: "100111000000100000000000110000001000110000000000000001100000000010001001111100010120111111010001001110110000001001011101111111111011001111101001110011111000001100100010000000101101110111100000011111100000010110000010111111111111110011011001101100111110011110001101000110110001111011101111200102111100001101100121110111011101100000000110010110011011100111111223324111"
+  months:
+    - column: 3
+      en: "Aug"
+      es: "Ago"
+    - column: 8
+      en: "Sep"
+      es: "Sep"
+    - column: 12
+      en: "Oct"
+      es: "Oct"
+    - column: 16
+      en: "Nov"
+      es: "Nov"
+    - column: 21
+      en: "Dec"
+      es: "Dic"
+    - column: 25
+      en: "Jan"
+      es: "Ene"
+    - column: 30
+      en: "Feb"
+      es: "Feb"
+    - column: 34
+      en: "Mar"
+      es: "Mar"
+    - column: 38
+      en: "Apr"
+      es: "Abr"
+    - column: 42
+      en: "May"
+      es: "May"
+    - column: 47
+      en: "Jun"
+      es: "Jun"
+    - column: 51
+      en: "Jul"
+      es: "Jul"
+
+technologies:
+  - "Python"
+  - "SQL"
+  - "JavaScript"
+  - "Docker"
+  - "FastAPI"
+  - "Dagster"

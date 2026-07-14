@@ -9,6 +9,521 @@
   font-display: swap;
 }
 
+/* Code index */
+body.code-index {
+  --github-level-0: #17191d;
+  --github-level-1: #173a2f;
+  --github-level-2: #21664e;
+  --github-level-3: #329a72;
+  --github-level-4: var(--accent);
+}
+
+:root[data-theme="light"] body.code-index {
+  --github-level-0: #e2e6ea;
+  --github-level-1: #b8e5d4;
+  --github-level-2: #6fc6a5;
+  --github-level-3: #318f6b;
+  --github-level-4: var(--accent);
+}
+
+body.code-index .site-header {
+  min-height: 68px;
+  padding: 17px 32px 15px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+body.code-index .site-title a {
+  font-size: 2.55rem;
+}
+
+body.code-index .site-subtitle,
+body.code-index .site-header-controls {
+  display: none !important;
+}
+
+body.code-index .site-header-actions {
+  top: 14px;
+}
+
+.layout.layout--code-index {
+  grid-template-columns: minmax(10rem, 12rem) minmax(0, 1fr);
+  gap: 28px;
+  max-width: 1600px;
+  padding-top: 22px;
+}
+
+.content-column.content-column--code-index {
+  padding: 0;
+}
+
+.content-column--code-index .content-inner {
+  max-width: none;
+}
+
+.code-portfolio {
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+
+.code-portfolio-header {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.code-portfolio-header h1 {
+  margin: 0;
+  color: var(--accent);
+  font-size: 2rem;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+
+.code-portfolio-header p {
+  max-width: 88ch;
+  margin: 0.5rem 0 0;
+  color: var(--ink-dim);
+}
+
+.code-technologies,
+.code-github {
+  padding: 0.95rem 0 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.code-technologies h2,
+.code-section-heading h2 {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.98rem;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.code-technologies h2 span,
+.code-section-heading h2 span {
+  color: var(--ink-muted);
+  font-weight: 400;
+}
+
+.code-technology-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin-top: 0.6rem;
+}
+
+.code-technology {
+  min-width: 0;
+  padding: 0 1rem;
+  border-right: 1px solid var(--line);
+}
+
+.code-technology:first-child {
+  padding-left: 0;
+}
+
+.code-technology:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+
+.code-technology-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.7rem;
+  color: var(--accent);
+  font-size: 0.75rem;
+}
+
+.code-technology-label span:last-child {
+  color: var(--ink-dim);
+}
+
+.code-technology-meter {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+  margin-top: 0.45rem;
+}
+
+.code-technology-meter span {
+  height: 4px;
+  background: var(--line);
+}
+
+.code-technology-meter span.is-active {
+  background: var(--accent);
+}
+
+.code-section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.code-section-heading > a {
+  color: var(--ink-muted);
+  font-size: 0.72rem;
+}
+
+.code-github-link {
+  display: block;
+  margin-top: 0.55rem;
+  color: inherit;
+}
+
+.code-github-link:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
+.code-github-link:focus-visible {
+  outline-offset: 5px;
+}
+
+.code-github-description {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.code-github-scroll,
+.code-github-chart,
+.code-github-months,
+.code-github-body,
+.code-github-weekdays,
+.code-github-grid,
+.code-github-legend {
+  display: block;
+}
+
+.code-github-scroll {
+  overflow-x: auto;
+  scrollbar-color: var(--accent) var(--line);
+  scrollbar-width: thin;
+}
+
+.code-github-chart {
+  min-width: 760px;
+}
+
+.code-github-months {
+  display: grid;
+  grid-template-columns: repeat(53, minmax(0, 1fr));
+  margin-left: 34px;
+  color: var(--ink-dim);
+  font-size: 0.68rem;
+  line-height: 1;
+}
+
+.code-github-months span {
+  white-space: nowrap;
+}
+
+.code-github-body {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 6px;
+  margin-top: 0.35rem;
+}
+
+.code-github-weekdays {
+  display: grid;
+  grid-template-rows: repeat(7, 11px);
+  gap: 3px;
+  color: var(--ink-muted);
+  font-size: 0.62rem;
+  line-height: 11px;
+}
+
+.code-github-grid {
+  display: grid;
+  grid-template-rows: repeat(7, 11px);
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(9px, 1fr);
+  gap: 3px;
+}
+
+.code-github-day {
+  display: block;
+  min-width: 8px;
+  min-height: 8px;
+  background: var(--github-level-0);
+}
+
+.code-github-day--1 { background: var(--github-level-1); }
+.code-github-day--2 { background: var(--github-level-2); }
+.code-github-day--3 { background: var(--github-level-3); }
+.code-github-day--4 { background: var(--github-level-4); }
+
+.code-github-legend {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0.55rem 0 0 34px;
+  color: var(--ink-muted);
+  font-size: 0.65rem;
+}
+
+.code-github-legend .code-github-day {
+  width: 11px;
+  height: 11px;
+}
+
+.code-project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.code-project {
+  min-width: 0;
+  min-height: 9.8rem;
+  padding: 1rem 1.1rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.code-project:nth-child(3n + 1) {
+  padding-left: 0;
+}
+
+.code-project:nth-child(3n) {
+  padding-right: 0;
+  border-right: 0;
+}
+
+.code-project-heading {
+  display: grid;
+  grid-template-columns: 2ch minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.code-project-index {
+  color: var(--accent);
+  font-size: 0.75rem;
+  line-height: 1.45rem;
+}
+
+.code-project h2 {
+  margin: 0;
+  color: var(--accent);
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  text-wrap: pretty;
+}
+
+.code-project h2 a {
+  color: inherit;
+}
+
+.code-project-summary {
+  margin: 0.55rem 0 0 2.75rem;
+  color: var(--ink-dim);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.code-project-technologies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.12rem 0.45rem;
+  margin: 0.45rem 0 0 2.75rem;
+  padding: 0;
+  color: var(--accent);
+  font-size: 0.69rem;
+  line-height: 1.45;
+  list-style: none;
+}
+
+.code-project-technologies li + li::before {
+  content: "·";
+  margin-right: 0.45rem;
+  color: var(--ink-muted);
+}
+
+.code-project-access {
+  margin: 0.45rem 0 0 2.75rem;
+  color: var(--ink-muted);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+@media (min-width: 1001px) {
+  .layout--code-index .nav-column {
+    width: auto;
+  }
+}
+
+@media (max-width: 1200px) and (min-width: 1001px) {
+  .code-technology-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9rem 0;
+  }
+
+  .code-technology:nth-child(3) {
+    padding-right: 0;
+    border-right: 0;
+  }
+
+  .code-technology:nth-child(4) {
+    padding-left: 0;
+  }
+
+  .code-project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .code-project:nth-child(3n + 1) {
+    padding-left: 1.1rem;
+  }
+
+  .code-project:nth-child(3n) {
+    padding-right: 1.1rem;
+    border-right: 1px solid var(--line);
+  }
+
+  .code-project:nth-child(2n + 1) {
+    padding-left: 0;
+  }
+
+  .code-project:nth-child(2n) {
+    padding-right: 0;
+    border-right: 0;
+  }
+}
+
+@media (max-width: 1000px) {
+  body.code-index .site-header {
+    padding: 16px;
+  }
+
+  body.code-index .site-header-actions {
+    position: absolute;
+    top: 13px;
+    right: 16px;
+    margin: 0;
+    gap: 4px;
+  }
+
+  body.code-index .site-header-actions .typo-container,
+  body.code-index .site-header-actions .infra-toggle,
+  body.code-index .site-header-actions .grayscale-toggle {
+    display: none;
+  }
+
+  .layout.layout--code-index {
+    grid-template-columns: 1fr;
+    padding-top: 16px;
+  }
+
+  .content-column.content-column--code-index {
+    padding: 0;
+  }
+
+  .code-technology-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9rem 0;
+  }
+
+  .code-technology:nth-child(3) {
+    padding-right: 0;
+    border-right: 0;
+  }
+
+  .code-technology:nth-child(4) {
+    padding-left: 0;
+  }
+
+  .code-project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .code-project:nth-child(3n + 1) {
+    padding-left: 1.1rem;
+  }
+
+  .code-project:nth-child(3n) {
+    padding-right: 1.1rem;
+    border-right: 1px solid var(--line);
+  }
+
+  .code-project:nth-child(2n + 1) {
+    padding-left: 0;
+  }
+
+  .code-project:nth-child(2n) {
+    padding-right: 0;
+    border-right: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  body.code-index .site-title a {
+    font-size: 2.25rem;
+  }
+
+  .code-portfolio-header h1 {
+    font-size: 1.7rem;
+  }
+
+  .code-technologies,
+  .code-github {
+    padding-top: 1.1rem;
+  }
+
+  .code-technology-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .code-technology:nth-child(3) {
+    padding-right: 1rem;
+    border-right: 1px solid var(--line);
+  }
+
+  .code-technology:nth-child(4) {
+    padding-left: 1rem;
+  }
+
+  .code-technology:nth-child(2n + 1) {
+    padding-left: 0;
+  }
+
+  .code-technology:nth-child(2n) {
+    padding-right: 0;
+    border-right: 0;
+  }
+
+  .code-section-heading {
+    display: block;
+  }
+
+  .code-section-heading > a {
+    display: inline-block;
+    margin-top: 0.25rem;
+  }
+
+  .code-project-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .code-project,
+  .code-project:nth-child(n) {
+    min-height: 0;
+    padding: 1rem 0;
+    border-right: 0;
+  }
+}
+
 :root{
   color-scheme: dark;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);

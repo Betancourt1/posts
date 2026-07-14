@@ -70,6 +70,8 @@
     var list = document.getElementById("primary-navigation");
     var mobileLayout = window.matchMedia("(max-width: 1000px)");
     var storageKey = "notebooks_navigation_expanded";
+    var showLabel = "{{ if eq .Site.Language.Lang "en" }}Show notebooks{{ else }}Mostrar notebooks{{ end }}";
+    var hideLabel = "{{ if eq .Site.Language.Lang "en" }}Hide notebooks{{ else }}Ocultar notebooks{{ end }}";
     if (!toggle || !list) return;
 
     function readExpanded() {
@@ -91,7 +93,7 @@
     function setExpanded(expanded, remember) {
       toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
       list.hidden = !expanded;
-      toggle.textContent = expanded ? "Ocultar notebooks" : "Mostrar notebooks";
+      toggle.textContent = expanded ? hideLabel : showLabel;
       if (remember) rememberExpanded(expanded);
     }
 

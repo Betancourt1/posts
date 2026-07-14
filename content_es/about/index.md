@@ -15,7 +15,7 @@ Si estás aquí, sabes mi nombre. Se supone que debo escribir aquí algo de mí 
 
 ## Cómo usar este sitio
 
-- **Profesional**: Proyectos aplicados, decisiones técnicas y resultados.
+- **Código**: Proyectos de software, sistemas de datos, decisiones técnicas y resultados.
 - **Académico**: Tesis, ejercicios de investigación y trabajo metodológico, ensayos académicos de los que esté particularmente orgulloso.
 - **Escritos**: Textos libres, notas y reflexiones.
 - **Zettelkasten**: Notas de mi zettelkasten que considero que pueden ser leídas por otra gente.

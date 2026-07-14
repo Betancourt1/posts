@@ -3,6 +3,9 @@ title: "IMCINE Anuario CineMX: Dataset Abierto e Histórico"
 date: 2026-01-27
 draft: false
 tags: ["open-source","python","scraping","cine-mexicano","dataset"]
+short_title: "Datos Abiertos de IMCINE"
+summary: "Un pipeline reproducible para preservar datos históricos del cine mexicano."
+technologies: ["Python", "Pandas", "Scraping", "CSV", "JSON"]
 ---
 
 ## Contexto
@@ -71,4 +74,3 @@ El pipeline lee las fichas individuales, realiza tareas de normalización de tex
 * **Licencia Abierta:** Liberado en su totalidad bajo la licencia **Creative Commons Attribution 4.0 International (CC BY 4.0)**, permitiendo su libre distribución, remezcla y uso comercial siempre que se reconozca la autoría del proyecto.
 * **Repositorio en GitHub:** Puedes consultar el pipeline, los scripts de procesamiento y descargar los datasets estructurados directamente desde el repositorio público:
   [github.com/Betancourt1/imcine_datos_abiertos](https://github.com/Betancourt1/imcine_datos_abiertos)
-

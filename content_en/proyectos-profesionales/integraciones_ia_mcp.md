@@ -3,6 +3,9 @@ title: "AI Integrations with Model Context Protocol (MCP)"
 date: 2026-05-14
 draft: false
 tags: ["mcp","artificial-intelligence","technology","data-warehouse","architecture","private"]
+short_title: "AI Integrations with MCP"
+summary: "Governed AI tools connecting language models to enterprise data."
+technologies: ["Python", "SQL", "FastAPI", "MCP", "Docker", "PostgreSQL"]
 ---
 
 ## Context
