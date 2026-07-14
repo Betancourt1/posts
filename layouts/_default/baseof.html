@@ -9,6 +9,7 @@
 </head>
 
 {{ $isCodeIndex := and .IsSection (eq .Section "proyectos-profesionales") }}
+{{ $isPhotographyIndex := and .IsSection (eq .Section "fotografia") }}
 <body{{ if $isCodeIndex }} class="code-index"{{ end }}>
   {{ $showSearch := partial "search_enabled.html" . }}
   {{ if partial "author_enabled.html" . }}
@@ -137,7 +138,7 @@
     <aside class="column nav-column">
       {{ partial "nav.html" . }}
     </aside>
-    <main class="column content-column{{ if or (eq .Section "books") (eq .Section "libros") }} content-column--books{{ end }}{{ if $isCodeIndex }} content-column--code-index{{ end }}">
+    <main class="column content-column{{ if or (eq .Section "books") (eq .Section "libros") }} content-column--books{{ end }}{{ if $isCodeIndex }} content-column--code-index{{ end }}{{ if $isPhotographyIndex }} content-column--photo-index{{ end }}">
       <div class="content-inner">
         {{ block "main" . }}{{ end }}
       </div>

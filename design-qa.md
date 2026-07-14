@@ -257,3 +257,46 @@ final result: passed
 - The token is not returned to the client.
 
 final result: passed
+
+---
+
+# Photography Mosaic Design QA
+
+- Source visual truth: `/Users/betancourt/.codex/generated_images/019f5e2c-dc6f-7d61-9503-ba4bc3ca2888/exec-d1102b70-2ec3-4582-b0d9-5b3670b08dc1.png`
+- Implementation screenshot: `/private/tmp/posts-photography-mosaic-final-v2-qa/screenshots/photography-source.png`
+- Responsive screenshot: `/private/tmp/posts-photography-mosaic-final-v2-qa/screenshots/photography-mobile.png`
+- Full-view comparison: `/private/tmp/posts-photography-mosaic-comparison-v2.png`
+- Focused grid comparison: `/private/tmp/posts-photography-mosaic-grid-comparison.png`
+- Viewport: `1536 x 1024` desktop, `390 x 844` mobile
+- State: Spanish photography index, dark theme, default navigation state
+
+## Findings
+
+No actionable P0, P1, or P2 differences remain.
+
+- Fonts and typography: The implementation preserves the site's display wordmark and monospaced hierarchy. Photo metadata and titles match the mockup's compact scale.
+- Spacing and layout rhythm: The lead panorama, portrait center image, right-hand stack, smaller butterfly, and narrow city image reproduce the mockup's variable-size rhythm. The implementation keeps larger real-photo crops where the source mockup invented additional archive items.
+- Colors and visual tokens: Black, off-white, muted gray, and mint tokens match the source and the existing site.
+- Image quality and asset fidelity: The implementation uses the real photography assets and responsive `object-fit: cover` crops. The Violeta portrait crop is tighter than the generated mockup because the real source is landscape; preserving the real image is the intentional constraint.
+- Copy and content: Titles, dates, image counts, description, navigation, graph, and archive content come from the current Hugo site rather than mock data.
+- Responsive behavior: At 390 px, the lead photo spans both columns and supporting photos form a two-column gallery. Automated checks found no horizontal overflow, undersized controls, or console errors.
+
+## Comparison History
+
+1. Initial implementation: the butterfly used the same width as the lead image, and the city photo started on the following row.
+2. Fix: reduced the butterfly to one grid track and moved the city photo into a narrow two-row track beside it.
+3. Post-fix evidence: the final full-view and focused comparisons show the intended large-to-small hierarchy with no remaining P0/P1/P2 mismatch.
+
+## Follow-up Polish
+
+- P3: A future content edit could provide a portrait-specific thumbnail for Violeta to reduce the current tight crop without changing the mosaic layout.
+
+## Implementation Checklist
+
+- [x] Preserve existing photography content and links.
+- [x] Match the selected variable-size desktop mosaic.
+- [x] Preserve graph and archive sidebar.
+- [x] Provide a responsive mobile hierarchy.
+- [x] Verify console output and horizontal overflow.
+
+final result: passed
