@@ -8,7 +8,7 @@
     {
       "binding": "DB",
       "database_name": "posts-edge-preview",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "7e64c8f5-b3f4-4735-91b3-01e43c17b2e3",
       "migrations_dir": "db/migrations"
     }
   ],
