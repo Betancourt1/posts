@@ -3012,12 +3012,15 @@ html.infra-mode .post-header .post-summary { display: none; }
   font-size: 0.78rem;
 }
 
-/* Terminal open button (document bottom-right) */
+/* Terminal open button (viewport bottom-left) */
 .ssh-terminal-open-btn {
-  position: static;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 9998;
   width: 40px;
   height: 40px;
-  margin: 0 16px 16px auto;
+  margin: 0;
   background: transparent !important;
   border: none !important;
   color: var(--ink-dim) !important;
