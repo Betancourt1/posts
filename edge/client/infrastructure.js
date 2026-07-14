@@ -1,7 +1,6 @@
 (function () {
   "use strict";
 
-  var MODE_KEY = "infra_mode_enabled";
   var TERMINAL_KEY = "infra_terminal_open";
   var terminal = { cwd: "/", history: [], historyIndex: 0, root: null };
 
@@ -84,30 +83,6 @@
     } catch (error) {
       return embeddedRoot();
     }
-  }
-
-  function updateToggle(button, active) {
-    var english = language() === "en";
-    var label = active
-      ? (english ? "Disable infrastructure mode" : "Desactivar modo infraestructura")
-      : (english ? "Enable infrastructure mode" : "Activar modo infraestructura");
-    button.classList.toggle("is-active", active);
-    button.setAttribute("aria-label", label);
-    button.setAttribute("title", label);
-  }
-
-  function initMode() {
-    var button = document.getElementById("infra-toggle");
-    var active = localStorage.getItem(MODE_KEY) === "true";
-    document.documentElement.classList.toggle("infra-mode", active);
-    if (!button) return;
-    updateToggle(button, active);
-    button.addEventListener("click", function () {
-      active = !document.documentElement.classList.contains("infra-mode");
-      document.documentElement.classList.toggle("infra-mode", active);
-      localStorage.setItem(MODE_KEY, String(active));
-      updateToggle(button, active);
-    });
   }
 
   function resolvePath(cwd, target) {
@@ -326,7 +301,6 @@
   }
 
   function init() {
-    initMode();
     initTerminal();
   }
 
