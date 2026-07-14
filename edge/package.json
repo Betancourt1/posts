@@ -7,7 +7,12 @@
     "types": "WRANGLER_LOG=none wrangler types",
     "build": "npm run types && WRANGLER_LOG=none ASTRO_TELEMETRY_DISABLED=1 astro check && WRANGLER_LOG=none ASTRO_TELEMETRY_DISABLED=1 astro build",
     "preview": "WRANGLER_LOG=none ASTRO_TELEMETRY_DISABLED=1 astro preview --host 127.0.0.1 --port 4321",
-    "db:migrate:local": "WRANGLER_LOG=none wrangler d1 migrations apply DB --local"
+    "test": "node --test",
+    "db:migrate:local": "WRANGLER_LOG=none wrangler d1 migrations apply DB --local",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
+    "db:seed:sql": "node scripts/build-seed-sql.mjs",
+    "db:seed:local": "npm run db:migrate:local && npm run db:seed:sql && WRANGLER_LOG=none wrangler d1 execute DB --local --file .generated/seed.sql",
+    "db:seed:remote": "npm run db:migrate:remote && npm run db:seed:sql && wrangler d1 execute DB --remote --file .generated/seed.sql"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.1.3",
@@ -17,6 +22,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.9",
+    "miniflare": "4.20260708.1",
     "typescript": "6.0.3",
     "wrangler": "4.110.0"
   }
