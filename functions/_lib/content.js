@@ -245,6 +245,15 @@ function normalizePhotoFrontMatter(path, frontMatter) {
 
 async function deleteUploadPath(env, path) {
   const safePath = safeUploadPath(path);
+
+  if (env.MEDIA) {
+    const key = safePath.replace(/^static\//, "");
+    const current = await env.MEDIA.head(key);
+    if (!current) return false;
+    await env.MEDIA.delete(key);
+    return true;
+  }
+
   const current = await readGitHubFile(env, safePath);
 
   if (!current) {

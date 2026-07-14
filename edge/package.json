@@ -9,6 +9,8 @@
     "types": "WRANGLER_LOG=none wrangler types",
     "prebuild": "npm run prepare:public",
     "build": "npm run types && WRANGLER_LOG=none ASTRO_TELEMETRY_DISABLED=1 astro check && WRANGLER_LOG=none ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "deploy": "npm run build && wrangler deploy",
+    "deploy:dry-run": "npm run build && wrangler deploy --dry-run",
     "prepreview": "npm run prepare:public",
     "preview": "WRANGLER_LOG=none ASTRO_TELEMETRY_DISABLED=1 astro preview --host 127.0.0.1 --port 4321",
     "test": "node --test",
@@ -16,7 +18,10 @@
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
     "db:seed:sql": "node scripts/build-seed-sql.mjs",
     "db:seed:local": "npm run db:migrate:local && npm run db:seed:sql && WRANGLER_LOG=none wrangler d1 execute DB --local --file .generated/seed.sql",
-    "db:seed:remote": "npm run db:migrate:remote && npm run db:seed:sql && wrangler d1 execute DB --remote --file .generated/seed.sql"
+    "db:seed:remote": "npm run db:migrate:remote && npm run db:seed:sql && wrangler d1 execute DB --remote --file .generated/seed.sql",
+    "media:sync": "node scripts/sync-media.mjs",
+    "media:sync:local": "node scripts/sync-media.mjs --local",
+    "media:sync:dry-run": "node scripts/sync-media.mjs --dry-run"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.1.3",

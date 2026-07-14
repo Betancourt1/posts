@@ -106,6 +106,49 @@ test("deletePage returns the exact deleted URL separately from its fallback", as
   }
 });
 
+test("deletePage removes referenced images from R2 when the media binding is present", async () => {
+  const originalFetch = globalThis.fetch;
+  const current = formatMarkdown(
+    { title: "Foto", image: "/uploads/2026/07/photo.webp" },
+    "Contenido\n",
+  );
+  const deletedKeys = [];
+  const r2Env = {
+    ...env,
+    MEDIA: {
+      async head(key) {
+        return key === "uploads/2026/07/photo.webp" ? { key } : null;
+      },
+      async delete(key) {
+        deletedKeys.push(key);
+      },
+    },
+  };
+
+  globalThis.fetch = async (_url, options = {}) => {
+    if ((options.method || "GET") === "DELETE") {
+      return jsonResponse(200, { commit: { sha: "deleted" } });
+    }
+    return jsonResponse(200, {
+      type: "file",
+      path: "content_es/fotografia/photo.md",
+      sha: "old",
+      content: encoded(current),
+    });
+  };
+
+  try {
+    const result = await deletePage(r2Env, {
+      path: "content_es/fotografia/photo.md",
+      deleteImages: true,
+    });
+    assert.deepEqual(deletedKeys, ["uploads/2026/07/photo.webp"]);
+    assert.deepEqual(result.deletedImages, ["static/uploads/2026/07/photo.webp"]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("listNotebooks reuses its short-lived repository cache", async () => {
   const originalFetch = globalThis.fetch;
   let treeReads = 0;
