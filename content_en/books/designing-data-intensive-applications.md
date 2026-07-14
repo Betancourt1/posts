@@ -18,7 +18,7 @@ binding: "ebook"
 pages: 562
 ---
 **Author:** Martin Kleppmann
-**Status:** Currently reading
+**Progress:** not set
 **Added:** 2025-12-30
 **Published:** 2015
 **Publisher:** O'Reilly

@@ -2394,7 +2394,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
             ? "100%"
             : frontMatter.book_status === "to-read"
               ? "0%"
-              : english ? "reading" : "leyendo";
+              : english ? "not set" : "sin registrar";
         var progressLine = "**" + (english ? "Progress" : "Progreso") + ":** " + progress;
         var statusPattern = /^\\*\\*(?:Status|Estado):\\*\\*.*$/mi;
 

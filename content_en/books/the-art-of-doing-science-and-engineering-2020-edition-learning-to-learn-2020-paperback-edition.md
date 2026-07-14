@@ -18,7 +18,7 @@ pages: 449
 isbn13: "9798394738418"
 ---
 **Author:** Karios Mainec
-**Status:** Currently reading
+**Progress:** not set
 **Added:** 2026-01-04
 **Published:** 2023
 **Format:** Paperback

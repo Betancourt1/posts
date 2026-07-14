@@ -19,7 +19,7 @@ pages: 360
 isbn13: "9780465010219"
 ---
 **Author:** Sherry Turkle
-**Status:** Currently reading
+**Progress:** not set
 **Added:** 2025-02-17
 **Published:** 2011
 **Publisher:** Basic Books

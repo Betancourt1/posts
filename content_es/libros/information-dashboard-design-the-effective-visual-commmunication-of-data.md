@@ -19,7 +19,7 @@ pages: 211
 isbn13: "9780596100162"
 ---
 **Autor:** Stephen Few
-**Estado:** Leyendo
+**Progreso:** sin registrar
 **Añadido:** 2025-12-24
 **Publicado:** 2010
 **Editorial:** O'REILLY & ASSOCIATES

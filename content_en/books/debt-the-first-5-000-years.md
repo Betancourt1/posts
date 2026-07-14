@@ -19,7 +19,7 @@ pages: 534
 isbn13: "9781933633862"
 ---
 **Author:** David Graeber
-**Status:** Currently reading
+**Progress:** not set
 **Added:** 2025-02-17
 **Published:** 2011
 **Publisher:** Melville House

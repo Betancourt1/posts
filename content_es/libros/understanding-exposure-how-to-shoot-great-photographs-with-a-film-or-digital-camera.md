@@ -19,7 +19,7 @@ pages: 160
 isbn13: "9780817463007"
 ---
 **Autor:** Bryan Peterson
-**Estado:** Leyendo
+**Progreso:** sin registrar
 **Añadido:** 2025-06-24
 **Publicado:** 1990
 **Editorial:** Amphoto Books

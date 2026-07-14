@@ -69,6 +69,7 @@ test("text editor reuses Markdown mode for book templates", () => {
   assert.match(html, /"\*\*Progress:\*\* 0%"/);
   assert.match(html, /"\*\*Progreso:\*\* 0%"/);
   assert.match(html, /bookBodyWithProgressSyntax/);
+  assert.match(html, /english \? "not set" : "sin registrar"/);
 });
 
 test("image editor uses one explicit save action and lightweight previews", () => {

@@ -73,7 +73,26 @@ test("legacy currently-reading books can keep progress unquantified", () => {
   normalizeBookFrontMatter(
     "content_en/books/legacy-book.md",
     frontMatter,
-    "**Author:** Author\n**Progress:** reading\n",
+    "**Author:** Author\n**Progress:** not set\n",
+  );
+
+  assert.equal(frontMatter.book_progress, undefined);
+  assert.equal(frontMatter.book_status, "currently-reading");
+});
+
+test("Spanish books can keep currently-reading progress unset", () => {
+  const frontMatter = {
+    title: "Libro en curso",
+    book_author: "Autor",
+    book_status: "currently-reading",
+    book_progress: 50,
+    tags: ["libro", "leyendo"],
+  };
+
+  normalizeBookFrontMatter(
+    "content_es/libros/libro-en-curso.md",
+    frontMatter,
+    "**Autor:** Autor\n**Progreso:** sin registrar\n",
   );
 
   assert.equal(frontMatter.book_progress, undefined);

@@ -18,7 +18,7 @@ binding: "ebook"
 pages: 562
 ---
 **Autor:** Martin Kleppmann
-**Estado:** Leyendo
+**Progreso:** sin registrar
 **Añadido:** 2025-12-30
 **Publicado:** 2015
 **Editorial:** O'Reilly

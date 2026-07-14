@@ -60,7 +60,7 @@ export function normalizeBookFrontMatter(path, frontMatter, body) {
   if (progressMatch) {
     const rawProgress = progressMatch[1].trim().toLowerCase();
 
-    if (["reading", "leyendo"].includes(rawProgress)) {
+    if (["not set", "sin registrar", "reading", "leyendo"].includes(rawProgress)) {
       frontMatter.book_status = "currently-reading";
       delete frontMatter.book_progress;
     } else {

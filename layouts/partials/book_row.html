@@ -18,6 +18,8 @@
 {{ $progressLabel := $group.statusLabel }}
 {{ if $hasProgress }}
   {{ $progressLabel = printf "%d%%" $progress }}
+{{ else if eq $group.status "currently-reading" }}
+  {{ $progressLabel = cond $isEnglish "Progress not set" "Progreso sin registrar" }}
 {{ end }}
 
 <article class="book-shelf-row{{ if $review }} has-opinion{{ end }}">
@@ -33,10 +35,10 @@
       aria-valuemin="0"
       aria-valuemax="100"
       {{ if $hasProgress }}aria-valuenow="{{ $progress }}"{{ end }}
-      aria-valuetext="{{ if $hasProgress }}{{ $progress }}%, {{ end }}{{ $group.statusLabel }}"
+      aria-valuetext="{{ $progressLabel }}"
     >
       {{ range seq 7 }}
-        {{ $filled := le . $group.filled }}
+        {{ $filled := and (ne $group.status "currently-reading") (le . $group.filled) }}
         {{ if $hasProgress }}
           {{ $filled = le (mul . 100) (mul $progress 7) }}
         {{ end }}

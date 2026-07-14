@@ -19,7 +19,7 @@ pages: 144
 isbn13: "9780745639055"
 ---
 **Author:** Eva Illouz
-**Status:** Currently reading
+**Progress:** not set
 **Added:** 2026-01-04
 **Published:** 2022
 **Publisher:** Polity

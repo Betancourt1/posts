@@ -19,7 +19,7 @@ pages: 224
 isbn13: "9781787634046"
 ---
 **Author:** Carissa Véliz
-**Status:** Currently reading
+**Progress:** not set
 **Added:** 2025-02-17
 **Published:** 2020
 **Publisher:** Bantam Press

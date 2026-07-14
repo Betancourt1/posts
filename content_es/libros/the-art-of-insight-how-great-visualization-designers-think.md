@@ -21,7 +21,7 @@ isbn13: "9781119797241"
 ---
 **Autor:** Alberto Cairo
 **Colaboradores adicionales:** Alyssa Flowers
-**Estado:** Leyendo
+**Progreso:** sin registrar
 **Añadido:** 2025-02-17
 **Publicado:** 2022
 **Editorial:** Wiley
