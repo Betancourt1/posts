@@ -1,4 +1,4 @@
-const BOOK_PATH_PATTERN = /^content_(?:en\/books|es\/libros)\/[^/]+\.md$/;
+const BOOK_PATH_PATTERN = /^content_en\/books\/[^/]+\.md$/;
 const BOOK_TAGS = new Set([
   "book",
   "libro",
@@ -21,20 +21,12 @@ function statusFromProgress(progress) {
   return "currently-reading";
 }
 
-function normalizeTags(tags, english, status) {
-  const formatTag = english ? "book" : "libro";
-  const statusTag = english
-    ? status
-    : {
-        read: "leído",
-        "currently-reading": "leyendo",
-        "to-read": "por-leer",
-      }[status];
+function normalizeTags(tags, status) {
   const thematicTags = (Array.isArray(tags) ? tags : [])
     .map((tag) => String(tag).trim())
     .filter((tag) => tag && !BOOK_TAGS.has(tag));
 
-  return [formatTag, statusTag, ...thematicTags].filter(Boolean);
+  return ["book", status, ...thematicTags].filter(Boolean);
 }
 
 function bookSlug(path) {
@@ -44,7 +36,6 @@ function bookSlug(path) {
 export function normalizeBookFrontMatter(path, frontMatter, body) {
   if (!isBookContentPath(path)) return frontMatter;
 
-  const english = String(path).startsWith("content_en/books/");
   const markdown = String(body || "");
   const authorMatch = markdown.match(/^\*\*(?:Author|Autor):\*\*\s*(.*?)\s*$/mi);
   const progressMatch = markdown.match(/^\*\*(?:Progress|Progreso):\*\*\s*(.*?)\s*$/mi);
@@ -96,26 +87,20 @@ export function normalizeBookFrontMatter(path, frontMatter, body) {
     }
   }
 
-  const statusLabel = english
-    ? {
-        read: "Read",
-        "currently-reading": "Reading",
-        "to-read": "Want to read",
-      }[frontMatter.book_status]
-    : {
-        read: "Leído",
-        "currently-reading": "Leyendo",
-        "to-read": "Por leer",
-      }[frontMatter.book_status];
+  const statusLabel = {
+    read: "Read",
+    "currently-reading": "Reading",
+    "to-read": "Want to read",
+  }[frontMatter.book_status];
   const summaryParts = [
-    `${english ? "By" : "De"} ${frontMatter.book_author}`,
+    `By ${frontMatter.book_author}`,
     statusLabel,
   ];
 
   if (frontMatter.rating) summaryParts.push(`${frontMatter.rating}/5`);
 
   frontMatter.summary = summaryParts.filter(Boolean).join(" · ");
-  frontMatter.tags = normalizeTags(frontMatter.tags, english, frontMatter.book_status);
+  frontMatter.tags = normalizeTags(frontMatter.tags, frontMatter.book_status);
   frontMatter.translationKey ||= `book-${bookSlug(path)}`;
 
   return frontMatter;

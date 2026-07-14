@@ -1,0 +1,71 @@
+{{ $adapter := . }}
+{{ range os.ReadDir "content_en/books" }}
+  {{ if and (not .IsDir) (strings.HasSuffix .Name ".md") (ne .Name "_index.md") }}
+    {{ $sourcePath := path.Join "content_en/books" .Name }}
+    {{ $raw := os.ReadFile $sourcePath }}
+    {{ $parts := split (strings.TrimPrefix "---\n" $raw) "\n---\n" }}
+    {{ $frontMatter := index $parts 0 | transform.Unmarshal }}
+    {{ $body := delimit (after 1 $parts) "\n---\n" }}
+
+    {{ $replacements := slice
+      (dict "from" "**Progress:** not set" "to" "**Progreso:** sin registrar")
+      (dict "from" "**Status:** Currently reading" "to" "**Estado:** Leyendo")
+      (dict "from" "**Status:** Want to read" "to" "**Estado:** Por leer")
+      (dict "from" "**Status:** Read" "to" "**Estado:** Leído")
+      (dict "from" "**Additional contributors:**" "to" "**Colaboradores adicionales:**")
+      (dict "from" "**Author:**" "to" "**Autor:**")
+      (dict "from" "**Progress:**" "to" "**Progreso:**")
+      (dict "from" "**My rating:**" "to" "**Mi calificación:**")
+      (dict "from" "**Added:**" "to" "**Añadido:**")
+      (dict "from" "**Finished:**" "to" "**Terminado:**")
+      (dict "from" "**Published:**" "to" "**Publicado:**")
+      (dict "from" "**Publisher:**" "to" "**Editorial:**")
+      (dict "from" "**Format:**" "to" "**Formato:**")
+      (dict "from" "**Pages:**" "to" "**Páginas:**")
+      (dict "from" "## My review" "to" "## Mi reseña")
+      (dict "from" "[View on Goodreads]" "to" "[Ver en Goodreads]")
+    }}
+    {{ range $replacements }}
+      {{ $body = replace $body .from .to }}
+    {{ end }}
+
+    {{ $statusLabel := index (dict
+      "read" "Leído"
+      "currently-reading" "Leyendo"
+      "to-read" "Por leer"
+    ) $frontMatter.book_status }}
+    {{ $summary := printf "De %s · %s" $frontMatter.book_author $statusLabel }}
+    {{ with $frontMatter.rating }}
+      {{ $summary = printf "%s · %v/5" $summary . }}
+    {{ end }}
+
+    {{ $tagTranslations := dict
+      "book" "libro"
+      "read" "leído"
+      "currently-reading" "leyendo"
+      "to-read" "por-leer"
+    }}
+    {{ $tags := slice }}
+    {{ range $frontMatter.tags }}
+      {{ $tags = $tags | append (index $tagTranslations . | default .) }}
+    {{ end }}
+
+    {{ $params := merge $frontMatter (dict
+      "source_body" (delimit (after 1 $parts) "\n---\n")
+      "source_path" $sourcePath
+      "summary" $summary
+      "tags" $tags
+    ) }}
+    {{ $page := dict
+      "content" (dict "mediaType" "text/markdown" "value" $body)
+      "dates" (dict "date" (time.AsTime $frontMatter.date))
+      "draft" ($frontMatter.draft | default false)
+      "kind" "page"
+      "params" $params
+      "path" (strings.TrimSuffix ".md" .Name)
+      "title" $frontMatter.title
+      "translationKey" $frontMatter.translationKey
+    }}
+    {{ $adapter.AddPage $page }}
+  {{ end }}
+{{ end }}

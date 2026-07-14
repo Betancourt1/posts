@@ -1,5 +1,8 @@
 <!doctype html>
-<html lang="{{ .Site.Language.Lang }}" {{ with .File }}data-infra-path="/{{ .Dir }}{{ .BaseFileName }}.md"{{ end }}>
+{{ $infraPath := "" }}
+{{ with .File }}{{ $infraPath = printf "/%s%s.md" .Dir .BaseFileName }}{{ end }}
+{{ with .Params.source_path }}{{ $infraPath = printf "/%s" . }}{{ end }}
+<html lang="{{ .Site.Language.Lang }}"{{ with $infraPath }} data-infra-path="{{ . }}"{{ end }}>
 
 <head>
   {{ partial "head.html" . }}

@@ -4,6 +4,9 @@
 {{- with .File -}}
   {{- $sourcePath = printf "%s/%s" $contentRoot .Path -}}
 {{- end -}}
+{{- with .Params.source_path -}}
+  {{- $sourcePath = . -}}
+{{- end -}}
 <div
   class="author-tools"
   id="author-tools"

@@ -9,16 +9,25 @@
   {{ $alt := or .Params.image_alt .Title }}
   {{ $caption := .Params.caption }}
   {{ $hasContentTitle := gt (len (findRE `(?m)^\s*#\s+\S` .RawContent 1)) 0 }}
+  {{ $contentRoot := cond (eq .Site.Language.Lang "es") "content_es" "content_en" }}
+  {{ $sourcePath := "" }}
+  {{ with .File }}
+    {{ $sourcePath = printf "%s/%s" $contentRoot .Path }}
+  {{ end }}
+  {{ with .Params.source_path }}
+    {{ $sourcePath = . }}
+  {{ end }}
   <article class="post" {{ if $excludeFromSearch }}data-pagefind-ignore="all"{{ else }}data-pagefind-body{{ end }}>
     <header class="post-header">
       <div class="post-header-top" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 8px;">
         <div class="post-card-meta">{{ .Date.Format "2006-01-02" }}</div>
         <div class="post-header-actions">
-          {{ if and (partial "author_enabled.html" .) .File }}
+          {{ if and (partial "author_enabled.html" .) $sourcePath }}
             <button
               type="button"
               class="author-action-button"
               data-author-action="edit-post"
+              data-source-path="{{ $sourcePath }}"
               aria-label="{{ if eq .Site.Language.Lang "en" }}Edit page{{ else }}Editar página{{ end }}"
               title="{{ if eq .Site.Language.Lang "en" }}Edit page{{ else }}Editar página{{ end }}"
             >
@@ -28,6 +37,7 @@
               type="button"
               class="author-action-button author-action-button--danger"
               data-author-action="delete-post"
+              data-source-path="{{ $sourcePath }}"
               aria-label="{{ if eq .Site.Language.Lang "en" }}Delete page{{ else }}Eliminar página{{ end }}"
               title="{{ if eq .Site.Language.Lang "en" }}Delete page{{ else }}Eliminar página{{ end }}"
             >

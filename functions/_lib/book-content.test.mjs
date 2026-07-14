@@ -1,11 +1,20 @@
 import assert from "node:assert/strict";
+import { readdir } from "node:fs/promises";
 import test from "node:test";
 import { isBookContentPath, normalizeBookFrontMatter } from "./book-content.js";
 
-test("book paths are limited to the bilingual book sections", () => {
+test("book paths are limited to the canonical book section", () => {
   assert.equal(isBookContentPath("content_en/books/a-wizard-of-earthsea.md"), true);
-  assert.equal(isBookContentPath("content_es/libros/un-mago-de-terramar.md"), true);
+  assert.equal(isBookContentPath("content_es/libros/un-mago-de-terramar.md"), false);
   assert.equal(isBookContentPath("content_es/posts/book.md"), false);
+});
+
+test("Spanish book pages are generated instead of duplicated as Markdown", async () => {
+  const files = await readdir("content_es/libros");
+  const bookMarkdown = files.filter((file) => file.endsWith(".md") && file !== "_index.md");
+
+  assert.deepEqual(bookMarkdown, []);
+  assert.equal(files.includes("_content.gotmpl"), true);
 });
 
 test("book Markdown derives progress, status, rating, summary, and tags", () => {
@@ -37,7 +46,7 @@ test("book Markdown derives progress, status, rating, summary, and tags", () => 
   assert.equal(frontMatter.translationKey, "book-a-wizard-of-earthsea");
 });
 
-test("Spanish books localize generated tags and support an empty rating", () => {
+test("canonical books accept Spanish Markdown labels", () => {
   const frontMatter = {
     title: "Los desposeídos",
     tags: ["libro", "leyendo", "ciencia-ficción"],
@@ -45,7 +54,7 @@ test("Spanish books localize generated tags and support an empty rating", () => 
   };
 
   normalizeBookFrontMatter(
-    "content_es/libros/los-desposeidos.md",
+    "content_en/books/los-desposeidos.md",
     frontMatter,
     [
       "**Autor:** Ursula K. Le Guin",
@@ -57,8 +66,8 @@ test("Spanish books localize generated tags and support an empty rating", () => 
   assert.equal(frontMatter.book_progress, 100);
   assert.equal(frontMatter.book_status, "read");
   assert.equal(frontMatter.rating, undefined);
-  assert.equal(frontMatter.summary, "De Ursula K. Le Guin · Leído");
-  assert.deepEqual(frontMatter.tags, ["libro", "leído", "ciencia-ficción"]);
+  assert.equal(frontMatter.summary, "By Ursula K. Le Guin · Read");
+  assert.deepEqual(frontMatter.tags, ["book", "read", "ciencia-ficción"]);
 });
 
 test("legacy currently-reading books can keep progress unquantified", () => {
@@ -80,7 +89,7 @@ test("legacy currently-reading books can keep progress unquantified", () => {
   assert.equal(frontMatter.book_status, "currently-reading");
 });
 
-test("Spanish books can keep currently-reading progress unset", () => {
+test("canonical books accept Spanish unset progress", () => {
   const frontMatter = {
     title: "Libro en curso",
     book_author: "Autor",
@@ -90,7 +99,7 @@ test("Spanish books can keep currently-reading progress unset", () => {
   };
 
   normalizeBookFrontMatter(
-    "content_es/libros/libro-en-curso.md",
+    "content_en/books/libro-en-curso.md",
     frontMatter,
     "**Autor:** Autor\n**Progreso:** sin registrar\n",
   );

@@ -14,7 +14,7 @@
             type="button"
             class="author-action-button"
             data-author-action="add-post"
-            {{ if $isBookSection }}data-editor-template="book"{{ end }}
+            {{ if $isBookSection }}data-editor-template="book" data-notebook="content_en/books"{{ end }}
             aria-label="{{ $newContentLabel }}"
             title="{{ $newContentLabel }}"
           >
