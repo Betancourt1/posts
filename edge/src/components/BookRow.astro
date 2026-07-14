@@ -1,5 +1,5 @@
 ---
-import { plainExcerpt } from "./_utils";
+import { normalizeBookProgress, plainExcerpt } from "./_utils";
 import type { BookItem, Language } from "./types";
 
 interface Props {
@@ -10,8 +10,7 @@ interface Props {
 }
 
 const { book, lang, statusLabel, defaultFilled } = Astro.props;
-const hasProgress = typeof book.progress === "number" && Number.isFinite(book.progress);
-const progress = hasProgress ? Math.max(0, Math.min(100, Math.round(book.progress as number))) : null;
+const progress = normalizeBookProgress(book.progress);
 const progressLabel = progress !== null
   ? `${progress}%`
   : book.status === "currently-reading"

@@ -33,3 +33,11 @@ export function plainExcerpt(value: string, length = 92): string {
     .trim();
   return plain.length > length ? `${plain.slice(0, length - 1).trimEnd()}…` : plain;
 }
+
+export function normalizeBookProgress(value?: number | string | null): number | null {
+  if (value == null || (typeof value === "string" && !value.trim())) return null;
+
+  const progress = Number(value);
+  if (!Number.isFinite(progress)) return null;
+  return Math.max(0, Math.min(100, Math.round(progress)));
+}

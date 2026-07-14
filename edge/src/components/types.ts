@@ -68,7 +68,7 @@ export interface ContentListItem {
 export interface BookItem extends ContentListItem {
   author?: string | null;
   status?: "currently-reading" | "read" | "to-read" | string | null;
-  progress?: number | null;
+  progress?: number | string | null;
   rating?: number | string | null;
   review?: string | null;
 }
