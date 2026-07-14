@@ -1018,10 +1018,6 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   padding: 0.2rem 0.4rem;
 }
 
-.nav-list a:hover {
-  background: rgba(78,204,163,.08);
-}
-
 .nav-list a.active {
   color: var(--accent);
   font-weight: 700;
