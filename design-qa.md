@@ -47,6 +47,52 @@ final result: passed
 
 ---
 
+# GitHub wall square-cell design QA
+
+## Evidence
+
+- Source visual truth: `/var/folders/yg/rt8w41_56d30cbn9r6gbggyw0000gn/T/codex-clipboard-70e38866-71c1-4041-a509-b42a152e2a1f.png`
+- Browser-rendered implementation: `/Users/betancourt/.codex/visualizations/2026/07/13/019f5de2-d3cc-7703-8ff6-a969bfedcb61/code-wall-square-cells-desktop-1976x1170.png`
+- Full-view comparison: `/Users/betancourt/.codex/visualizations/2026/07/13/019f5de2-d3cc-7703-8ff6-a969bfedcb61/code-wall-square-cells-comparison-full.png`
+- Focused wall comparison: `/Users/betancourt/.codex/visualizations/2026/07/13/019f5de2-d3cc-7703-8ff6-a969bfedcb61/code-wall-square-cells-comparison-focus.png`
+- Mobile implementation: `/Users/betancourt/.codex/visualizations/2026/07/13/019f5de2-d3cc-7703-8ff6-a969bfedcb61/code-wall-square-cells-mobile-390x844.png`
+- Viewports: 1976 x 1170 desktop and 390 x 844 mobile CSS pixels.
+- State: Spanish Code index, dark theme, GitHub snapshot fallback.
+
+The source screenshot was normalized to 1976px wide for the full comparison because it includes macOS and browser chrome. The focused comparison aligns the GitHub activity regions and makes the requested cell geometry directly readable.
+
+## Comparison history
+
+### Initial finding
+
+- P2: contribution cells stretched horizontally with the available content width while their height remained fixed at 11px. The source focus shows visibly rectangular cells, weakening the contribution-wall rhythm.
+
+### Fix
+
+- Defined one 11px cell-size token and one 3px gap token on the contribution chart.
+- Applied the same fixed size to week columns, weekday rows, month columns, and legend cells.
+- Changed the chart to intrinsic width so wide screens no longer deform the calendar.
+
+### Post-fix evidence
+
+- All 366 rendered contribution cells measure exactly 11 x 11px at desktop and mobile widths.
+- The desktop document has no horizontal overflow.
+- At 390px, the wall viewport is 358px wide and its 773px calendar scrolls within that region; the page itself does not overflow.
+- Browser console: no warnings or errors.
+- No remaining P0, P1, or P2 findings.
+
+## Required fidelity surfaces
+
+- Fonts and typography: unchanged.
+- Spacing and layout rhythm: the calendar now uses a consistent square grid and aligned month labels.
+- Colors and visual tokens: existing contribution-level colors are unchanged.
+- Image and asset fidelity: no image or icon assets were introduced or replaced.
+- Copy and content: labels, dates, project content, and contribution data are unchanged.
+
+final result: passed
+
+---
+
 # Books status shelves design QA
 
 ## Evidence
