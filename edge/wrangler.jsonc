@@ -23,6 +23,7 @@
     "GITHUB_OWNER": "Betancourt1",
     "GITHUB_REPO": "posts",
     "GITHUB_BRANCH": "main",
-    "PUBLIC_SITE_ORIGIN": "https://fbetancourt.work"
+    "PUBLIC_SITE_ORIGIN": "https://fbetancourt.work",
+    "AUTHOR_MODE": "false"
   }
 }

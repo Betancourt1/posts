@@ -1,0 +1,88 @@
+---
+import BookRow from "./BookRow.astro";
+import type { BookItem, Language } from "./types";
+
+interface Props {
+  title: string;
+  description?: string | null;
+  books: BookItem[];
+  lang?: Language;
+  authorMode?: boolean;
+}
+
+const {
+  title,
+  description = null,
+  books,
+  lang = "en",
+  authorMode = false,
+} = Astro.props;
+const visibleBooks = books.filter((book) => !book.hidden);
+const groups = [
+  {
+    status: "currently-reading",
+    label: lang === "es" ? "Leyendo ahora" : "Now reading",
+    statusLabel: lang === "es" ? "Leyendo" : "Reading",
+    filled: 3,
+    preview: 2,
+  },
+  {
+    status: "read",
+    label: lang === "es" ? "Leídos" : "Read",
+    statusLabel: lang === "es" ? "Leído" : "Read",
+    filled: 7,
+    preview: 4,
+  },
+  {
+    status: "to-read",
+    label: lang === "es" ? "Por leer" : "Want to read",
+    statusLabel: lang === "es" ? "Por leer" : "Want to read",
+    filled: 0,
+    preview: 2,
+  },
+];
+const addLabel = lang === "es" ? "Nuevo libro" : "New book";
+---
+
+<header class="page-header">
+  <div class="page-header-row">
+    <h1>{title}</h1>
+    {authorMode && (
+      <div class="author-inline-actions">
+        <button type="button" class="author-action-button" data-author-action="add-post" data-editor-template="book" data-notebook="content_en/books" aria-label={addLabel} title={addLabel}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"></path><path d="M4 5.5v14"></path><path d="M12 7v6"></path><path d="M9 10h6"></path></svg>
+        </button>
+        <button type="button" class="author-action-button" data-author-action="edit-notebook" aria-label={lang === "es" ? "Editar notebook" : "Edit notebook"} title={lang === "es" ? "Editar notebook" : "Edit notebook"}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"></path></svg>
+        </button>
+      </div>
+    )}
+  </div>
+  {description && <p class="lead">{description}</p>}
+</header>
+
+<div class="book-library" aria-label={lang === "es" ? "Libros por estado de lectura" : "Books by reading status"}>
+  {groups.map((group) => {
+    const groupBooks = visibleBooks
+      .filter((book) => book.status === group.status)
+      .sort((left, right) => group.status === "read" ? Number(Boolean(right.review)) - Number(Boolean(left.review)) : 0);
+    const previewBooks = groupBooks.slice(0, group.preview);
+    const remainingBooks = groupBooks.slice(group.preview);
+    return (
+      <section class="book-shelf" aria-labelledby={`book-shelf-${group.status}`}>
+        <div class="book-shelf-heading"><h2 id={`book-shelf-${group.status}`}>{group.label}</h2></div>
+        <div class="book-shelf-list">
+          {previewBooks.map((book) => <BookRow book={book} lang={lang} statusLabel={group.statusLabel} defaultFilled={group.filled} />)}
+          {remainingBooks.length > 0 && (
+            <details class="book-shelf-more">
+              <summary>{lang === "es" ? `Mostrar ${remainingBooks.length} más` : `Show ${remainingBooks.length} more`}</summary>
+              <div class="book-shelf-more-list">
+                {remainingBooks.map((book) => <BookRow book={book} lang={lang} statusLabel={group.statusLabel} defaultFilled={group.filled} />)}
+              </div>
+            </details>
+          )}
+        </div>
+      </section>
+    );
+  })}
+</div>

@@ -6,11 +6,11 @@ import { loadNotFoundPage, loadPublicPage } from "../lib/public-page.mjs";
 
 export const prerender = false;
 
-let model: any = await loadPublicPage(env.DB, "/");
+let model: any = await loadPublicPage(env.DB, Astro.url.pathname);
 if (model?.redirect) return Astro.redirect(model.redirect, 301);
 if (!model) {
   Astro.response.status = 404;
-  model = await loadNotFoundPage(env.DB, "/");
+  model = await loadNotFoundPage(env.DB, Astro.url.pathname);
 }
 const authorMode = String(env.AUTHOR_MODE) === "true";
 ---

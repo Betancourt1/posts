@@ -6,7 +6,7 @@ export default defineConfig({
     imageService: "passthrough",
   }),
   output: "server",
-  publicDir: "./public",
+  publicDir: "./.generated/public",
   session: {
     driver: sessionDrivers.null(),
   },

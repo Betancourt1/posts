@@ -1,0 +1,106 @@
+---
+import { displayDate } from "./_utils";
+import type { ArchiveItem, Language } from "./types";
+
+interface Props {
+  title: string;
+  items: ArchiveItem[];
+  lang?: Language;
+  sectionLabels?: Record<string, string>;
+}
+
+const { title, items, lang = "en", sectionLabels = {} } = Astro.props;
+const visibleItems = items
+  .filter((item) => !item.hidden && displayDate(item.date))
+  .sort((left, right) => displayDate(right.date).localeCompare(displayDate(left.date)));
+const sections = [...new Set(visibleItems.map((item) => item.section))];
+const defaultFilterLabels: Record<string, string> = {
+  posts: lang === "es" ? "Escritos" : "Posts",
+  "proyectos-profesionales": lang === "es" ? "Código" : "Code",
+  "proyectos-academicos": lang === "es" ? "Académicos" : "Academic",
+  zettelkasten: "Zettelkasten",
+  lit: lang === "es" ? "Lecturas" : "Readings",
+  fotografia: lang === "es" ? "Fotografía" : "Photography",
+  books: lang === "es" ? "Libros" : "Books",
+  libros: lang === "es" ? "Libros" : "Books",
+};
+const badgeLabels: Record<string, string> = {
+  posts: lang === "es" ? "escrito" : "post",
+  "proyectos-profesionales": lang === "es" ? "código" : "code",
+  "proyectos-academicos": lang === "es" ? "académico" : "academic",
+  zettelkasten: "zettel",
+  lit: lang === "es" ? "lectura" : "reading",
+  fotografia: lang === "es" ? "foto" : "photo",
+  books: lang === "es" ? "libro" : "book",
+  libros: lang === "es" ? "libro" : "book",
+};
+const years = [...visibleItems.reduce((yearMap, item) => {
+  const date = displayDate(item.date);
+  const yearKey = date.slice(0, 4);
+  const monthKey = date.slice(0, 7);
+  if (!yearMap.has(yearKey)) yearMap.set(yearKey, new Map<string, ArchiveItem[]>());
+  const monthMap = yearMap.get(yearKey)!;
+  if (!monthMap.has(monthKey)) monthMap.set(monthKey, []);
+  monthMap.get(monthKey)!.push(item);
+  return yearMap;
+}, new Map<string, Map<string, ArchiveItem[]>>()).entries()].map(([year, monthMap]) => ({
+  year,
+  months: [...monthMap.entries()].map(([month, monthItems]) => ({ month, items: monthItems })),
+}));
+---
+
+<header class="page-header"><h1>{title}</h1></header>
+<div class="archive-filters">
+  <button class="filter-btn active" data-filter="all">{lang === "es" ? "Todos" : "All"}</button>
+  {sections.map((section) => <button class="filter-btn" data-filter={section}>{sectionLabels[section] || defaultFilterLabels[section] || section}</button>)}
+</div>
+
+{years.map((year) => (
+  <section class="archive-year">
+    <h2 id={year.year}>{year.year}</h2>
+    {year.months.map((month) => (
+      <>
+        <h3 id={month.month}>{month.month}</h3>
+        <ul class="archive-list">
+          {month.items.map((item) => (
+            <li class="archive-item" data-section={item.section}>
+              <span class="archive-date">{displayDate(item.date)}</span>
+              <a href={item.href}>{item.title}</a>
+              <span class={`archive-badge archive-badge--${item.section}`}>{badgeLabels[item.section] || item.section}</span>
+            </li>
+          ))}
+        </ul>
+      </>
+    ))}
+  </section>
+))}
+
+<script is:inline>
+  document.addEventListener("DOMContentLoaded", function () {
+    var buttons = document.querySelectorAll(".filter-btn");
+    var items = document.querySelectorAll(".archive-item");
+    var lists = document.querySelectorAll(".archive-list");
+    var years = document.querySelectorAll(".archive-year");
+
+    buttons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        buttons.forEach(function (item) { item.classList.remove("active"); });
+        button.classList.add("active");
+        var filter = button.getAttribute("data-filter");
+        items.forEach(function (item) {
+          item.style.display = filter === "all" || item.getAttribute("data-section") === filter ? "" : "none";
+        });
+        lists.forEach(function (list) {
+          var visible = Array.from(list.querySelectorAll(".archive-item")).some(function (item) { return item.style.display !== "none"; });
+          list.style.display = visible ? "" : "none";
+          var heading = list.previousElementSibling;
+          if (heading && heading.tagName === "H3") heading.style.display = visible ? "" : "none";
+        });
+        years.forEach(function (year) {
+          var visible = Array.from(year.querySelectorAll(".archive-item")).some(function (item) { return item.style.display !== "none"; });
+          year.style.display = visible ? "" : "none";
+        });
+      });
+    });
+  });
+</script>

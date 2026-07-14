@@ -1,0 +1,331 @@
+---
+import Nav from "../components/Nav.astro";
+import Sidebar from "../components/Sidebar.astro";
+import { displayDate, safeJson } from "../components/_utils";
+import type {
+  ArchiveMonth,
+  Language,
+  NavItem,
+  ShellPage,
+} from "../components/types";
+
+interface Props {
+  page: ShellPage;
+  lang: Language;
+  currentPath: string;
+  translationPath?: string | null;
+  navigation: NavItem[];
+  archiveMonths?: ArchiveMonth[];
+  title: string;
+  description?: string;
+  pageClass?: string;
+  showSidebar?: boolean;
+  showSearch?: boolean;
+  authorMode?: boolean;
+  siteTitle?: string;
+  subtitle?: string;
+  socialImage?: string;
+  canonical?: string;
+  enableInfrastructure?: boolean;
+}
+
+const {
+  page,
+  lang,
+  currentPath,
+  translationPath = lang === "es" ? "/" : "/es/",
+  navigation,
+  archiveMonths = [],
+  title,
+  description = lang === "es"
+    ? "Lecturas, zettelkasten y textos de Francisco Betancourt."
+    : "Readings, zettelkasten, and essays of Francisco Betancourt.",
+  pageClass = "",
+  showSidebar = page.layout !== "code" && page.layout !== "not-found",
+  showSearch = true,
+  authorMode = false,
+  siteTitle = "betancourt",
+  subtitle = lang === "es" ? "aquí escribo cosas" : "here I write things",
+  socialImage = page.socialImage || "/og-image.png",
+  canonical = page.canonical || Astro.url.href,
+  enableInfrastructure = true,
+} = Astro.props;
+
+const pageTitle = page.isHome ? siteTitle : `${title} | ${siteTitle}`;
+const origin = Astro.site || new URL(Astro.url.origin);
+const socialImageUrl = /^https?:\/\//.test(socialImage)
+  ? socialImage
+  : new URL(socialImage, origin).toString();
+const isCode = page.layout === "code";
+const isBooks = page.layout === "books";
+const isPhotography = page.layout === "photography";
+const isNotFound = page.layout === "not-found";
+const bodyClass = [pageClass, isCode ? "code-index" : "", isNotFound ? "not-found" : ""].filter(Boolean).join(" ");
+const updatedAt = page.updatedAt || new Date();
+const updatedDate = displayDate(updatedAt);
+const updatedLabel = updatedDate
+  ? `${updatedDate.slice(8, 10)}/${updatedDate.slice(5, 7)}/${updatedDate.slice(0, 4)}`
+  : "";
+const infrastructureTree = page.infrastructureTree || { type: "dir", name: "/", children: [] };
+const languageTitle = lang === "es" ? "Switch to English" : "Cambiar a Español";
+const otherLanguage = lang === "es" ? "EN" : "ES";
+---
+
+<!doctype html>
+<html lang={lang} data-infra-path={page.sourcePath || undefined}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {page.noindex && <meta name="robots" content="noindex" />}
+    <script is:inline>
+      (function () {
+        var theme = "dark";
+        try {
+          var savedTheme = localStorage.getItem("site_theme");
+          if (savedTheme === "light" || savedTheme === "dark") theme = savedTheme;
+          if (localStorage.getItem("grayscale_mode_enabled") === "true") {
+            document.documentElement.classList.add("grayscale-mode");
+          }
+          var size = localStorage.getItem("site_font_size");
+          if (size) document.documentElement.style.setProperty("--site-font-size", size + "%");
+          var font = localStorage.getItem("site_font_type");
+          var stacks = {
+            mono: '"JetBrains Mono", "IBM Plex Mono", monospace',
+            sans: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            serif: 'Georgia, Cambria, "Times New Roman", Times, serif'
+          };
+          if (stacks[font]) document.documentElement.style.setProperty("--article-font-family", stacks[font]);
+        } catch (error) {}
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:locale" content={lang === "es" ? "es_MX" : "en_US"} />
+    <meta property="og:site_name" content={siteTitle} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content={page.kind === "page" ? "article" : "website"} />
+    <meta property="og:image" content={socialImageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImageUrl} />
+    <link rel="preload" href="/fonts/Jersey10-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/css/site.css" />
+    {showSearch && <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />}
+    <link rel="apple-touch-icon" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+  </head>
+
+  <body class={bodyClass || undefined}>
+    <header class="site-header">
+      <p class="site-title"><a href={lang === "es" ? "/es/" : "/"}>{siteTitle}</a></p>
+      <p class="site-subtitle">{subtitle}</p>
+      <div class="site-header-actions">
+        {translationPath && <a class="lang-toggle" href={translationPath} title={languageTitle}>{otherLanguage}</a>}
+        <div class="typo-container">
+          <button class="typo-toggle" id="typo-toggle" type="button" aria-label={lang === "es" ? "Ajustes de texto" : "Text settings"} title={lang === "es" ? "Ajustes de texto" : "Text settings"}>Aa</button>
+          <div class="typo-dropdown" id="typo-dropdown">
+            <div class="typo-title">{lang === "es" ? "TEXTO" : "TEXT"}</div>
+            <div class="typo-section">
+              <span class="typo-label">{lang === "es" ? "Tamaño" : "Size"}</span>
+              <div class="typo-control-row">
+                <button type="button" id="font-size-dec" class="typo-btn" title={lang === "es" ? "Disminuir tamaño" : "Decrease font size"}>A-</button>
+                <button type="button" id="font-size-reset" class="typo-btn" title={lang === "es" ? "Restablecer tamaño" : "Reset font size"}>100%</button>
+                <button type="button" id="font-size-inc" class="typo-btn" title={lang === "es" ? "Aumentar tamaño" : "Increase font size"}>A+</button>
+              </div>
+            </div>
+            <div class="typo-section" style="margin-top: 12px;">
+              <span class="typo-label">{lang === "es" ? "Fuente" : "Font"}</span>
+              <div class="typo-control-row">
+                <button type="button" class="typo-btn-choice" data-font="mono" title="Monospace"><span class="font-preview-mono">Mono</span></button>
+                <button type="button" class="typo-btn-choice" data-font="sans" title="Sans-Serif"><span class="font-preview-sans">Sans</span></button>
+                <button type="button" class="typo-btn-choice" data-font="serif" title="Serif"><span class="font-preview-serif">Serif</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="infra-toggle" id="infra-toggle" type="button" aria-label={lang === "es" ? "Modo infraestructura" : "Infrastructure mode"} title={lang === "es" ? "Modo infraestructura" : "Infrastructure mode"}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line>
+          </svg>
+        </button>
+        <button class="grayscale-toggle" id="grayscale-toggle" type="button" aria-label={lang === "es" ? "Modo escala de grises" : "Grayscale mode"} title={lang === "es" ? "Modo escala de grises" : "Grayscale mode"}>
+          <svg class="grayscale-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 0 20V2z" fill="currentColor"></path>
+          </svg>
+        </button>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label={lang === "es" ? "Cambiar tema" : "Change theme"}>
+          <span class="theme-icon-wrapper">
+            <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          </span>
+        </button>
+      </div>
+      {showSearch && (
+        <div class="site-header-controls" style="margin-top: 10px; display: flex; justify-content: center; gap: 10px; align-items: center;">
+          <button class="search-trigger" id="search-trigger" type="button" aria-label={lang === "es" ? "Buscar (Ctrl+K)" : "Search (Ctrl+K)"} aria-controls="search-modal" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px; margin-right: 6px;" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>{lang === "es" ? "Buscar..." : "Search..."}</span>
+            <kbd class="search-kbd" style="margin-left: 8px; font-size: 0.7rem; padding: 1px 4px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-weight: normal; color: var(--ink-dim);">Ctrl K</kbd>
+          </button>
+        </div>
+      )}
+    </header>
+
+    {showSearch && (
+      <div class="search-modal-overlay" id="search-modal-overlay" aria-hidden="true" inert>
+        <div class="search-modal" id="search-modal" role="dialog" aria-modal="true" aria-labelledby="search-modal-title" tabindex="-1">
+          <div class="search-modal-header">
+            <span class="search-modal-title" id="search-modal-title">{lang === "es" ? "Búsqueda global" : "Global search"}</span>
+            <button class="search-modal-close" id="search-modal-close" type="button" aria-label={lang === "es" ? "Cerrar búsqueda" : "Close search"}>&times;</button>
+          </div>
+          <div class="site-search" id="search">
+            <slot name="search">
+              <p class="site-search-message">{lang === "es" ? "Cargando motor de búsqueda..." : "Loading search engine..."}</p>
+            </slot>
+          </div>
+          <div class="search-modal-footer"><span>{lang === "es" ? "Presiona Esc para cerrar" : "Press Esc to close"}</span></div>
+        </div>
+      </div>
+    )}
+
+    <div class:list={["layout", { "layout--code-index": isCode }]}>
+      <aside class="column nav-column">
+        <Nav items={navigation} lang={lang} activePath={currentPath} activeSection={page.section} authorMode={authorMode} />
+      </aside>
+      <main class:list={["column", "content-column", { "content-column--books": isBooks, "content-column--code-index": isCode, "content-column--photo-index": isPhotography }]}>
+        <div class="content-inner"><slot /></div>
+      </main>
+      {showSidebar && (
+        <aside class="column sidebar-column">
+          <Sidebar lang={lang} archives={archiveMonths} graphData={page.isHome ? null : page.graphData} />
+        </aside>
+      )}
+    </div>
+
+    <footer class="site-footer">
+      <p class="site-footer-updated">
+        {lang === "es" ? "Última actualización del sitio:" : "Last updated:"}
+        {" "}<time datetime={updatedDate}>{updatedLabel}</time>
+      </p>
+    </footer>
+
+    {enableInfrastructure && (
+      <>
+        <script is:inline type="application/json" id="infra-sitemap" set:html={safeJson(infrastructureTree)}></script>
+        <button class="ssh-terminal-open-btn" id="ssh-terminal-open" type="button" aria-label={lang === "es" ? "Abrir terminal, Ctrl más acento grave" : "Open terminal, Ctrl backtick"} title="Terminal (Ctrl+`)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+        </button>
+        <div class="ssh-terminal-overlay" id="ssh-terminal-overlay">
+          <div class="ssh-terminal-drag-handle" id="ssh-terminal-drag-handle"></div>
+          <div class="ssh-terminal">
+            <div class="ssh-terminal-titlebar">
+              <span class="ssh-terminal-title">visitor@betancourt.work — bash</span>
+              <button class="ssh-terminal-close" id="ssh-terminal-close" type="button" aria-label={lang === "es" ? "Cerrar terminal" : "Close terminal"}>&times;</button>
+            </div>
+            <div class="ssh-terminal-body">
+              <div class="ssh-terminal-output" id="ssh-terminal-output"></div>
+              <div class="ssh-terminal-input-line">
+                <span class="ssh-terminal-prompt" id="ssh-terminal-prompt"></span>
+                <input type="text" class="ssh-terminal-input" id="ssh-terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    )}
+
+    <script is:inline>
+      document.addEventListener("DOMContentLoaded", function () {
+        var root = document.documentElement;
+        var themeToggle = document.getElementById("theme-toggle");
+        var grayscaleToggle = document.getElementById("grayscale-toggle");
+
+        function applyTheme(theme) {
+          root.setAttribute("data-theme", theme);
+          if (themeToggle) themeToggle.setAttribute("aria-label", theme === "light" ? "Change to dark theme" : "Change to light theme");
+        }
+        if (themeToggle) {
+          applyTheme(root.getAttribute("data-theme") || "dark");
+          themeToggle.addEventListener("click", function () {
+            var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+            applyTheme(next);
+            try { localStorage.setItem("site_theme", next); } catch (error) {}
+          });
+        }
+
+        function applyGrayscale(enabled) {
+          root.classList.toggle("grayscale-mode", enabled);
+          if (grayscaleToggle) grayscaleToggle.classList.toggle("is-active", enabled);
+        }
+        var grayscale = root.classList.contains("grayscale-mode");
+        applyGrayscale(grayscale);
+        if (grayscaleToggle) {
+          grayscaleToggle.addEventListener("click", function () {
+            grayscale = !grayscale;
+            applyGrayscale(grayscale);
+            try { localStorage.setItem("grayscale_mode_enabled", grayscale ? "true" : "false"); } catch (error) {}
+          });
+        }
+
+        var overlay = document.getElementById("search-modal-overlay");
+        var modal = document.getElementById("search-modal");
+        var trigger = document.getElementById("search-trigger");
+        var close = document.getElementById("search-modal-close");
+        var previousFocus = null;
+        if (!overlay || !modal) return;
+
+        function openSearch() {
+          previousFocus = document.activeElement;
+          overlay.removeAttribute("inert");
+          overlay.setAttribute("aria-hidden", "false");
+          overlay.classList.add("is-visible");
+          document.body.classList.add("search-active");
+          if (trigger) trigger.setAttribute("aria-expanded", "true");
+          setTimeout(function () {
+            var input = modal.querySelector('input[type="search"]');
+            (input || modal).focus();
+          }, 60);
+        }
+
+        function closeSearch() {
+          overlay.classList.remove("is-visible");
+          overlay.setAttribute("aria-hidden", "true");
+          overlay.setAttribute("inert", "");
+          document.body.classList.remove("search-active");
+          if (trigger) trigger.setAttribute("aria-expanded", "false");
+          if (previousFocus && previousFocus.isConnected) previousFocus.focus();
+          previousFocus = null;
+        }
+
+        if (trigger) trigger.addEventListener("click", openSearch);
+        if (close) close.addEventListener("click", closeSearch);
+        overlay.addEventListener("click", function (event) { if (event.target === overlay) closeSearch(); });
+        document.addEventListener("keydown", function (event) {
+          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+            event.preventDefault();
+            overlay.classList.contains("is-visible") ? closeSearch() : openSearch();
+          } else if (event.key === "Escape" && overlay.classList.contains("is-visible")) {
+            closeSearch();
+          }
+        });
+      });
+    </script>
+    <script is:inline src="/js/knowledge-graph.js" defer></script>
+    <script is:inline src="/js/infrastructure.js" defer></script>
+    {showSearch && <script is:inline src="/js/search.js" defer></script>}
+    <script is:inline src="/js/typography.js" defer></script>
+    <script is:inline src="/js/curved-scrollbar.js" defer></script>
+    {isCode && <script is:inline src="/js/code-portfolio.js" defer></script>}
+    {isPhotography && <script is:inline src="/js/photography-grid.js" defer></script>}
+    {authorMode && <script is:inline src="/js/author-tools.js" defer></script>}
+  </body>
+</html>

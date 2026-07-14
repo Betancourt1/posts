@@ -1,0 +1,88 @@
+---
+import { safeJson } from "./_utils";
+import type { GraphData, Language } from "./types";
+
+interface Props {
+  data: GraphData;
+  lang?: Language;
+  variant?: "home" | "sidebar";
+}
+
+const { data, lang = "en", variant = "home" } = Astro.props;
+const sidebar = variant === "sidebar";
+const copy = lang === "es"
+  ? {
+      title: sidebar ? "Conexiones" : "Grafo de conocimiento",
+      hint: "Explora las conexiones entre temas.",
+      tools: "Controles del grafo de conocimiento",
+      reset: "Restablecer vista",
+      maximize: "Maximizar grafo",
+      labels: "Mostrar etiquetas",
+      spacing: "Espaciado",
+      search: "Buscar temas",
+      searchPlaceholder: "Buscar un tema…",
+      map: "Mapa interactivo de temas",
+    }
+  : {
+      title: sidebar ? "Connections" : "Knowledge graph",
+      hint: "Explore the connections between topics.",
+      tools: "Knowledge graph controls",
+      reset: "Reset view",
+      maximize: "Maximize graph",
+      labels: "Show labels",
+      spacing: "Spacing",
+      search: "Search topics",
+      searchPlaceholder: "Search a topic…",
+      map: "Interactive topic map",
+    };
+---
+
+<section class:list={["home-section", "home-graph", { "sidebar-graph": sidebar }]}>
+  <div class="home-section-head">
+    <h2>{copy.title}</h2>
+  </div>
+  <p class:list={["knowledge-graph-hint", "knowledge-graph-hint--intro", { "sidebar-graph-lead": sidebar }]}>
+    {copy.hint}
+  </p>
+  {!sidebar && (
+    <div class="knowledge-graph-tools" id="knowledge-graph-tools" aria-label={copy.tools}>
+      <button type="button" class="button graph-tool" data-graph-action="reset-view" aria-label={copy.reset} title={copy.reset}>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="7"></circle>
+          <path d="M12 3V7"></path><path d="M12 17V21"></path>
+          <path d="M3 12H7"></path><path d="M17 12H21"></path>
+          <circle cx="12" cy="12" r="1.5"></circle>
+        </svg>
+      </button>
+      <button type="button" class="button graph-tool" id="graph-toggle-maximize" data-graph-action="toggle-maximize" aria-pressed="false" aria-label={copy.maximize} title={copy.maximize}>
+        <svg class="graph-icon graph-icon-maximize" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M8 3.5H3.5V8"></path><path d="M3.5 3.5L9 9"></path>
+          <path d="M16 3.5H20.5V8"></path><path d="M20.5 3.5L15 9"></path>
+          <path d="M8 20.5H3.5V16"></path><path d="M3.5 20.5L9 15"></path>
+          <path d="M16 20.5H20.5V16"></path><path d="M20.5 20.5L15 15"></path>
+        </svg>
+        <svg class="graph-icon graph-icon-restore" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3.5 9H9V3.5"></path><path d="M9 9L3.5 3.5"></path>
+          <path d="M20.5 9H15V3.5"></path><path d="M15 9L20.5 3.5"></path>
+          <path d="M3.5 15H9V20.5"></path><path d="M9 15L3.5 20.5"></path>
+          <path d="M20.5 15H15V20.5"></path><path d="M15 15L20.5 20.5"></path>
+        </svg>
+      </button>
+      <button type="button" class="button graph-tool" id="graph-toggle-labels" data-graph-action="toggle-labels" aria-pressed="false" aria-label={copy.labels} title={copy.labels}>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.59 13.41L11 3.83A2 2 0 0 0 9.59 3H4A1 1 0 0 0 3 4V9.59A2 2 0 0 0 3.59 11L13.17 20.59A2 2 0 0 0 16 20.59L20.59 16A2 2 0 0 0 20.59 13.41Z"></path>
+          <circle cx="7" cy="7" r="1"></circle>
+        </svg>
+      </button>
+      <label class="graph-range" for="graph-spacing">{copy.spacing}
+        <input id="graph-spacing" type="range" min="30" max="200" step="2" value="72" />
+      </label>
+    </div>
+  )}
+  <div class="graph-search" id="graph-search">
+    <input id="graph-node-search" class="graph-search-input" type="search" placeholder={copy.searchPlaceholder} aria-label={copy.search} autocomplete="off" spellcheck="false" />
+    <p class="graph-search-status" id="graph-search-status" aria-live="polite"></p>
+  </div>
+  <div class="knowledge-graph" id="knowledge-graph" role="img" aria-label={copy.map}></div>
+  <script is:inline id="knowledge-graph-data" type="application/json" set:html={safeJson({ ...data, focusTags: data.focusTags ?? [] })}></script>
+</section>

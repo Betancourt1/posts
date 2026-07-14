@@ -1,0 +1,262 @@
+---
+import YAML from "yaml";
+import portfolioSource from "../../../data/code_portfolio.yaml?raw";
+
+import Archives from "../components/Archives.astro";
+import Books from "../components/Books.astro";
+import CodePortfolio from "../components/CodePortfolio.astro";
+import KnowledgeGraph from "../components/KnowledgeGraph.astro";
+import List from "../components/List.astro";
+import NotFound from "../components/NotFound.astro";
+import Photography from "../components/Photography.astro";
+import Single from "../components/Single.astro";
+import Tags from "../components/Tags.astro";
+import SiteLayout from "../layouts/SiteLayout.astro";
+import type { ShellPage } from "../components/types";
+
+interface Props {
+  model: any;
+  authorMode?: boolean;
+}
+
+const { model, authorMode = false } = Astro.props;
+const lang = model.lang === "es" ? "es" : "en";
+const page = model.page || {};
+const frontMatter = page.frontMatter || {};
+const portfolio = YAML.parse(portfolioSource);
+
+function tagHref(slug: string) {
+  return `${lang === "es" ? "/es" : ""}/tags/${slug}/`;
+}
+
+function tagsFor(document: any) {
+  return (document.tags || []).map((tag: any) => ({
+    label: tag.label,
+    slug: tag.slug,
+    href: tagHref(tag.slug),
+  }));
+}
+
+function listItem(document: any) {
+  return {
+    title: document.title,
+    href: document.path,
+    date: document.date,
+    summary: document.summary || document.description || document.bodyText?.slice(0, 220),
+    tags: tagsFor(document),
+    section: document.section,
+    hidden: document.hidden,
+  };
+}
+
+function navigationItems(sections: any[]) {
+  const visiblePaths = new Set(sections.map((section) => section.path));
+  const preferred = lang === "es"
+    ? [
+        ["Inicio", "/es/", ""],
+        ["Sobre mí", "/es/about/", "about"],
+        ["Código", "/es/proyectos-profesionales/", "proyectos-profesionales"],
+        ["Académico", "/es/proyectos-academicos/", "proyectos-academicos"],
+        ["Escritos", "/es/posts/", "posts"],
+        ["Zettelkasten", "/es/zettelkasten/", "zettelkasten"],
+        ["Lecturas", "/es/lit/", "lit"],
+        ["CV", "/es/cv/", "cv"],
+      ]
+    : [
+        ["Home", "/", ""],
+        ["About", "/about/", "about"],
+        ["Code", "/proyectos-profesionales/", "proyectos-profesionales"],
+        ["Academic", "/proyectos-academicos/", "proyectos-academicos"],
+        ["CV", "/cv/", "cv"],
+      ];
+  const items = preferred
+    .filter(([, href]) => visiblePaths.has(href))
+    .map(([title, href, section]) => ({ title, href, section }));
+  const represented = new Set(items.map((item) => item.href));
+
+  for (const section of sections) {
+    if (represented.has(section.path)) continue;
+    items.push({ title: section.title, href: section.path, section: section.section });
+  }
+  return items;
+}
+
+function photoImages(value: unknown) {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((image: any) => image?.src ? [{
+    src: image.src,
+    alt: image.alt || image.image_alt || null,
+    caption: image.caption || null,
+  }] : []);
+}
+
+const layout = ["books", "photography", "code", "not-found"].includes(model.layout)
+  ? model.layout
+  : "default";
+const emptyGraph = { posts: [], tagLinks: {} };
+const canonical = new URL(model.path, Astro.site || Astro.url.origin).href;
+const shellPage: ShellPage = {
+  section: page.section,
+  kind: model.kind,
+  layout,
+  sourcePath: page.sourcePath,
+  canonical,
+  socialImage: frontMatter.image || "/og-image.png",
+  noindex: page.hidden || page.draft || model.kind === "not-found",
+  isHome: model.layout === "home",
+  updatedAt: page.updatedAt,
+  graphData: emptyGraph,
+  infrastructureTree: { type: "dir", name: "/", children: [] },
+};
+const navigation = navigationItems(model.navigation || []);
+const items = (model.items || []).map(listItem);
+const title = model.title || (lang === "es" ? "Sin título" : "Untitled");
+const description = model.description || undefined;
+---
+
+<SiteLayout
+  page={shellPage}
+  lang={lang}
+  currentPath={model.path}
+  translationPath={model.translationPath}
+  navigation={navigation}
+  archiveMonths={model.archiveMonths || []}
+  title={title}
+  description={description}
+  authorMode={authorMode}
+  canonical={canonical}
+  showSearch={model.kind !== "not-found"}
+>
+  {model.layout === "home" && (
+    <>
+      <header class="page-header">
+        <h1>{title}</h1>
+        <p class="lead">{description}</p>
+      </header>
+      {page.bodyHtml && <section class="post-body" set:html={page.bodyHtml}></section>}
+      <KnowledgeGraph data={emptyGraph} lang={lang} variant="home" />
+    </>
+  )}
+
+  {model.layout === "single" && (
+    <Single
+      title={title}
+      date={page.date}
+      section={page.section}
+      summary={page.summary}
+      tags={tagsFor(page)}
+      bodyHtml={page.bodyHtml || ""}
+      bodyMarkdown={page.bodyMarkdown || ""}
+      sourcePath={page.sourcePath}
+      slug={frontMatter.slug}
+      permalink={page.path}
+      image={frontMatter.image}
+      imageAlt={frontMatter.image_alt}
+      caption={frontMatter.caption}
+      images={photoImages(frontMatter.images)}
+      titleInBody={/^\s*#\s+\S/m.test(page.bodyMarkdown || "")}
+      hidden={page.hidden}
+      searchable={page.searchable}
+      authorMode={authorMode}
+      lang={lang}
+      backlinks={(model.backlinks || []).map((backlink: any) => ({
+        title: backlink.title,
+        href: backlink.path,
+        date: backlink.date,
+      }))}
+    />
+  )}
+
+  {model.layout === "list" && (
+    <List
+      title={title}
+      description={description}
+      items={items}
+      lang={lang}
+      authorMode={authorMode}
+      notebook={page.sourcePath?.replace(/\/_index\.md$/, "")}
+    />
+  )}
+
+  {model.layout === "books" && (
+    <Books
+      title={title}
+      description={description}
+      lang={lang}
+      authorMode={authorMode}
+      books={(model.items || []).map((book: any) => ({
+        ...listItem(book),
+        author: book.frontMatter?.book_author,
+        status: book.frontMatter?.book_status,
+        progress: book.frontMatter?.progress,
+        rating: book.frontMatter?.rating,
+        review: /^## (?:My review|Mi reseña)\s*$/m.test(book.bodyMarkdown || "") ? "review" : null,
+      }))}
+    />
+  )}
+
+  {model.layout === "photography" && (
+    <Photography
+      title={title}
+      description={description}
+      lang={lang}
+      authorMode={authorMode}
+      photos={(model.items || []).map((photo: any) => {
+        const gallery = photoImages(photo.frontMatter?.images);
+        const first = gallery[0];
+        return {
+          ...listItem(photo),
+          image: photo.frontMatter?.image || first?.src,
+          thumbnail: photo.frontMatter?.thumbnail || photo.frontMatter?.thumb,
+          imageAlt: photo.frontMatter?.image_alt || first?.alt,
+          caption: photo.frontMatter?.caption,
+          imageCount: gallery.length,
+          width: photo.frontMatter?.width,
+          height: photo.frontMatter?.height,
+        };
+      })}
+    />
+  )}
+
+  {model.layout === "code" && (
+    <CodePortfolio
+      title={title}
+      description={description}
+      lang={lang}
+      projects={(model.items || []).map((project: any) => ({
+        ...listItem(project),
+        shortTitle: project.frontMatter?.short_title,
+        technologies: project.frontMatter?.technologies || [],
+        private: tagsFor(project).some((tag: any) => ["private", "privado"].includes(tag.label.toLowerCase())),
+      }))}
+      technologies={portfolio.technologies || []}
+      github={{
+        username: portfolio.github.username,
+        profileUrl: portfolio.github.profile_url,
+        snapshotEnd: portfolio.github.snapshot_end,
+        weekCount: portfolio.github.week_count,
+        levels: portfolio.github.levels,
+        months: portfolio.github.months,
+      }}
+    />
+  )}
+
+  {model.layout === "archives" && <Archives title={title} items={items} lang={lang} />}
+
+  {model.layout === "tags" && (
+    <Tags
+      title={title}
+      lang={lang}
+      terms={(model.tags || []).map((tag: any) => ({
+        label: tag.label,
+        slug: tag.slug,
+        count: Number(tag.count),
+        href: tagHref(tag.slug),
+      }))}
+    />
+  )}
+
+  {model.layout === "tag" && <List title={title} items={items} lang={lang} />}
+
+  {model.layout === "not-found" && <NotFound lang={lang} />}
+</SiteLayout>

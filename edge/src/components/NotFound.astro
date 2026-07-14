@@ -1,0 +1,35 @@
+---
+import type { Language } from "./types";
+
+interface Props {
+  lang?: Language;
+  homeHref?: string;
+}
+
+const { lang = "en", homeHref = lang === "es" ? "/es/" : "/" } = Astro.props;
+---
+
+<header class="page-header">
+  <h1>{lang === "es" ? "Página no encontrada" : "Page not found"}</h1>
+  <p class="post-summary">
+    {lang === "es" ? "La página que buscas no existe o cambió de lugar." : "The page you are looking for does not exist or moved."}
+  </p>
+</header>
+<p><a class="button" href={homeHref}>{lang === "es" ? "Volver al inicio" : "Go home"}</a></p>
+
+<style is:global>
+  body.not-found .nav-column,
+  body.not-found .sidebar-column {
+    display: none;
+  }
+
+  body.not-found .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body.not-found .content-column {
+    grid-column: 1;
+    width: min(100%, 52.5rem);
+    justify-self: center;
+  }
+</style>

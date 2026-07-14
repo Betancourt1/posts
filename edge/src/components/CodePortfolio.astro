@@ -1,0 +1,118 @@
+---
+import type {
+  CodeProject,
+  GithubSnapshot,
+  Language,
+} from "./types";
+
+interface Props {
+  title: string;
+  description?: string | null;
+  projects: CodeProject[];
+  technologies: string[];
+  github: GithubSnapshot;
+  lang?: Language;
+}
+
+const {
+  title,
+  description = null,
+  projects,
+  technologies,
+  github,
+  lang = "en",
+} = Astro.props;
+const visibleProjects = projects.filter((project) => !project.hidden);
+const projectCount = visibleProjects.length;
+const levels = (github.levels || "").split("").filter((level) => /^[0-4]$/.test(level));
+const weekCount = github.weekCount || Math.max(1, Math.ceil(levels.length / 7));
+let snapshotLabel = github.snapshotEnd || "";
+if (github.snapshotEnd) {
+  snapshotLabel = new Intl.DateTimeFormat(lang === "es" ? "es-MX" : "en-US", {
+    dateStyle: "medium",
+    timeZone: "UTC",
+  }).format(new Date(`${github.snapshotEnd}T00:00:00Z`));
+}
+---
+
+<section class="code-portfolio" data-code-portfolio data-language={lang}>
+  <header class="code-portfolio-header">
+    <h1>{title}</h1>
+    {description && <p>{description}</p>}
+  </header>
+
+  <section class="code-technologies" aria-labelledby="code-technologies-title">
+    <h2 id="code-technologies-title">
+      {lang === "es" ? "Tecnologías principales" : "Top technologies"}
+      <span> · {lang === "es" ? "en todos los proyectos" : "across all projects"}</span>
+    </h2>
+    <div class="code-technology-grid">
+      {technologies.map((technology) => {
+        const usage = visibleProjects.filter((project) => project.technologies?.includes(technology)).length;
+        const percentage = projectCount > 0 ? Math.floor((usage * 100) / projectCount) : 0;
+        return (
+          <div class="code-technology">
+            <div class="code-technology-label"><span>{technology}</span><span>{percentage}%</span></div>
+            <div class="code-technology-meter" aria-label={`${technology}: ${usage} ${lang === "es" ? "de" : "of"} ${projectCount} ${lang === "es" ? "proyectos" : "projects"}`}>
+              {Array.from({ length: projectCount }, (_, index) => <span class:list={{ "is-active": index < usage }}></span>)}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </section>
+
+  <section class="code-github" aria-labelledby="code-github-title">
+    <div class="code-section-heading">
+      <h2 id="code-github-title">GitHub activity <span>· {lang === "es" ? "últimos 24 meses" : "last 24 months"}</span></h2>
+      <a href={github.profileUrl} target="_blank" rel="noopener noreferrer">@{github.username}</a>
+    </div>
+    <a class="code-github-link" href={github.profileUrl} target="_blank" rel="noopener noreferrer" aria-label={`${lang === "es" ? "Abrir el calendario actual de contribuciones en GitHub de" : "Open the current GitHub contribution calendar for"} ${github.username}`}>
+      <span class="code-github-description">
+        {lang === "es" ? "Snapshot de contribuciones hasta el" : "Contribution snapshot through"}
+        {" "}<span data-github-snapshot>{snapshotLabel}</span>.
+      </span>
+      <span class="code-github-scroll" aria-hidden="true">
+        <span class="code-github-chart" style={`--github-week-count: ${weekCount}`}>
+          <span class="code-github-months" data-github-months>
+            {(github.months || []).map((month) => <span style={`grid-column: ${month.column}`}>{month.label || (lang === "es" ? month.es : month.en)}</span>)}
+          </span>
+          <span class="code-github-body">
+            <span class="code-github-weekdays">
+              <span></span><span>{lang === "es" ? "Lun" : "Mon"}</span><span></span><span>{lang === "es" ? "Mié" : "Wed"}</span><span></span><span>{lang === "es" ? "Vie" : "Fri"}</span><span></span>
+            </span>
+            <span class="code-github-grid" data-github-grid>
+              {levels.map((level) => <span class={`code-github-day code-github-day--${level}`}></span>)}
+            </span>
+          </span>
+          <span class="code-github-legend">
+            <span>{lang === "es" ? "Menos" : "Less"}</span>
+            {[0, 1, 2, 3, 4].map((level) => <span class={`code-github-day code-github-day--${level}`}></span>)}
+            <span>{lang === "es" ? "Más" : "More"}</span>
+          </span>
+        </span>
+      </span>
+    </a>
+  </section>
+
+  <section class="code-project-grid" aria-label={lang === "es" ? "Proyectos de código" : "Code projects"}>
+    {visibleProjects.map((project, index) => {
+      const privateProject = project.private || project.tags?.some((tag) => ["private", "privado"].includes(tag.label.toLocaleLowerCase()));
+      return (
+        <article class="code-project">
+          <div class="code-project-heading">
+            <span class="code-project-index">{String(index + 1).padStart(2, "0")}</span>
+            <h2><a href={project.href}>{project.shortTitle || project.title}</a></h2>
+          </div>
+          {project.summary && <p class="code-project-summary">{project.summary}</p>}
+          {(project.technologies?.length || 0) > 0 && (
+            <ul class="code-project-technologies" aria-label={lang === "es" ? "Tecnologías" : "Technologies"}>
+              {project.technologies?.map((technology) => <li>{technology}</li>)}
+            </ul>
+          )}
+          <p class="code-project-access">{privateProject ? (lang === "es" ? "Privado" : "Private") : (lang === "es" ? "Público" : "Public")}</p>
+        </article>
+      );
+    })}
+  </section>
+</section>

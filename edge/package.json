@@ -3,9 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prepare:public": "node scripts/prepare-public.mjs",
+    "predev": "npm run prepare:public",
     "dev": "WRANGLER_LOG=none ASTRO_TELEMETRY_DISABLED=1 astro dev --host 127.0.0.1 --port 4321",
     "types": "WRANGLER_LOG=none wrangler types",
+    "prebuild": "npm run prepare:public",
     "build": "npm run types && WRANGLER_LOG=none ASTRO_TELEMETRY_DISABLED=1 astro check && WRANGLER_LOG=none ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "prepreview": "npm run prepare:public",
     "preview": "WRANGLER_LOG=none ASTRO_TELEMETRY_DISABLED=1 astro preview --host 127.0.0.1 --port 4321",
     "test": "node --test",
     "db:migrate:local": "WRANGLER_LOG=none wrangler d1 migrations apply DB --local",

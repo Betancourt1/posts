@@ -1,0 +1,58 @@
+---
+import TagList from "./TagList.astro";
+import { displayDate } from "./_utils";
+import type { ContentListItem, Language } from "./types";
+
+interface Props {
+  title: string;
+  description?: string | null;
+  items: ContentListItem[];
+  lang?: Language;
+  authorMode?: boolean;
+  notebook?: string;
+}
+
+const {
+  title,
+  description = null,
+  items,
+  lang = "en",
+  authorMode = false,
+  notebook,
+} = Astro.props;
+const visibleItems = items.filter((item) => !item.hidden);
+const addLabel = lang === "es" ? "Nuevo post" : "New post";
+---
+
+<header class="page-header">
+  <div class="page-header-row">
+    <h1>{title}</h1>
+    {authorMode && (
+      <div class="author-inline-actions">
+        <button type="button" class="author-action-button" data-author-action="add-post" data-notebook={notebook} aria-label={addLabel} title={addLabel}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M12 12v6"></path><path d="M9 15h6"></path></svg>
+        </button>
+        <button type="button" class="author-action-button" data-author-action="add-image-post" aria-label={lang === "es" ? "Nueva publicación con imagen" : "New image post"} title={lang === "es" ? "Nueva publicación con imagen" : "New image post"}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="m21 15-5-5L5 21"></path><path d="M17 2v6"></path><path d="M14 5h6"></path></svg>
+        </button>
+        <button type="button" class="author-action-button" data-author-action="edit-notebook" aria-label={lang === "es" ? "Editar notebook" : "Edit notebook"} title={lang === "es" ? "Editar notebook" : "Edit notebook"}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"></path></svg>
+        </button>
+      </div>
+    )}
+  </div>
+  {description && <p class="lead">{description}</p>}
+</header>
+
+<section class="post-list">
+  {visibleItems.map((item) => (
+    <article class="post-card">
+      <div class="post-card-top">
+        <div class="post-card-meta">{displayDate(item.date)}</div>
+      </div>
+      <h2><a href={item.href}>{item.title}</a></h2>
+      <TagList tags={item.tags} lang={lang} />
+      {item.summary && <p class="post-summary">{item.summary}</p>}
+    </article>
+  ))}
+</section>

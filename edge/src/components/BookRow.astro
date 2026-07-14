@@ -1,0 +1,44 @@
+---
+import { plainExcerpt } from "./_utils";
+import type { BookItem, Language } from "./types";
+
+interface Props {
+  book: BookItem;
+  lang: Language;
+  statusLabel: string;
+  defaultFilled: number;
+}
+
+const { book, lang, statusLabel, defaultFilled } = Astro.props;
+const hasProgress = typeof book.progress === "number" && Number.isFinite(book.progress);
+const progress = hasProgress ? Math.max(0, Math.min(100, Math.round(book.progress as number))) : null;
+const progressLabel = progress !== null
+  ? `${progress}%`
+  : book.status === "currently-reading"
+    ? (lang === "es" ? "Progreso sin registrar" : "Progress not set")
+    : statusLabel;
+const filledSegments = progress === null ? defaultFilled : Math.floor((progress * 7) / 100);
+const opinion = book.review ? plainExcerpt(book.review) : "";
+---
+
+<article class:list={["book-shelf-row", { "has-opinion": Boolean(opinion) }]}>
+  <div class="book-identity">
+    <h3><a href={book.href}>{book.title}</a></h3>
+    {book.author && <p>{book.author}</p>}
+  </div>
+  <div class="book-progress">
+    <span class="book-progress-label">{progressLabel}</span>
+    <div class="book-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={progress ?? undefined} aria-valuetext={progressLabel}>
+      {[1, 2, 3, 4, 5, 6, 7].map((segment) => <span class:list={["book-progress-segment", { "is-filled": segment <= filledSegments }]} aria-hidden="true"></span>)}
+    </div>
+  </div>
+  {opinion && (
+    <div class="book-opinion">
+      <div class="book-opinion-heading">
+        <span>{lang === "es" ? "Mi opinión" : "My opinion"}</span>
+        {book.rating != null && <span>{book.rating}/5</span>}
+      </div>
+      <p>{opinion}</p>
+    </div>
+  )}
+</article>

@@ -1,0 +1,23 @@
+---
+import { tagHref } from "./_utils";
+import type { Language, TagItem } from "./types";
+
+interface Props {
+  tags?: TagItem[];
+  lang?: Language;
+  cloud?: boolean;
+}
+
+const { tags = [], lang = "en", cloud = false } = Astro.props;
+---
+
+{tags.length > 0 && (
+  <div class={cloud ? "tag-cloud" : "tag-list"}>
+    {tags.map((tag) => (
+      <a class="tag" href={tagHref(tag, lang)}>
+        #{tag.label}
+        {typeof tag.count === "number" && <span class="count">{tag.count}</span>}
+      </a>
+    ))}
+  </div>
+)}
