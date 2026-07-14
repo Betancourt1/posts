@@ -3,6 +3,13 @@
 /.dev.vars
 /tmp/
 /node_modules/
+/edge/node_modules/
+/edge/dist/
+/edge/.astro/
+/edge/.wrangler/
+/edge/.generated/
+/edge/.dev.vars
+/edge/worker-configuration.d.ts
 /tools/hugo/
 /public/
 .hugo_build.lock

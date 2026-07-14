@@ -1,0 +1,57 @@
+---
+const checks = [
+  "Astro server rendering",
+  "Cloudflare Workers adapter",
+  "D1 content projection",
+  "R2 media binding",
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex" />
+    <title>posts edge preview</title>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">Migration preview</p>
+      <h1>posts edge runtime</h1>
+      <p>The isolated Worker scaffold is ready for route and content projection work.</p>
+      <ul>
+        {checks.map((check) => <li>{check}</li>)}
+      </ul>
+    </main>
+  </body>
+</html>
+
+<style>
+  :global(html) {
+    color-scheme: dark;
+    background: #10110f;
+    color: #e9eee7;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  main {
+    width: min(42rem, calc(100% - 2rem));
+    margin: 12vh auto;
+  }
+
+  .eyebrow {
+    color: #9ce8b5;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 8vw, 4rem);
+    margin-block: 0.35rem 1rem;
+  }
+
+  li {
+    margin-block: 0.45rem;
+  }
+</style>
