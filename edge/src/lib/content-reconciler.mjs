@@ -10,7 +10,7 @@ import { readBlob, readContentTree } from "./github-content.mjs";
 
 const MAX_BLOB_REQUESTS = 35;
 const MAX_CHANGED_SOURCES = 3;
-const MAX_HEAD_PASSES = 3;
+const MAX_HEAD_PASSES = 2;
 
 async function startRun(db, { deliveryId, commitSha, trigger }) {
   const inserted = await db.prepare(`
@@ -33,7 +33,11 @@ async function startRun(db, { deliveryId, commitSha, trigger }) {
 
   const stale = existing?.status === "running" && Number(existing.age_seconds) >= 300;
   if (!existing || (existing.status !== "failed" && !stale)) {
-    return { id: existing?.id, duplicate: true };
+    return {
+      id: existing?.id,
+      duplicate: true,
+      inProgress: existing?.status === "running",
+    };
   }
 
   await db.prepare(`
@@ -72,7 +76,11 @@ export async function reconcileContent(env, options = {}) {
   });
 
   if (run.duplicate) {
-    return { duplicate: true, stats: await contentStats(env.DB) };
+    return {
+      duplicate: true,
+      inProgress: run.inProgress,
+      stats: await contentStats(env.DB),
+    };
   }
 
   try {

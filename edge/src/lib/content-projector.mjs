@@ -1,5 +1,5 @@
 import YAML from "yaml";
-import { marked, walkTokens } from "marked";
+import { marked, Renderer, walkTokens } from "marked";
 
 const CONTENT_ROOTS = {
   content_en: "en",
@@ -41,6 +41,38 @@ const BOOK_BODY_REPLACEMENTS_ES = [
 const MARKED_OPTIONS = {
   breaks: true,
   gfm: true,
+};
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function safeMarkdownUrl(value) {
+  const url = String(value || "").trim();
+  if (!url) return null;
+  if (/^(?:https?:|mailto:|tel:|\/\/|\/|\.\.?\/|#|\?)/i.test(url)) return url;
+  return url.includes(":") ? null : url;
+}
+
+const SAFE_RENDERER = new Renderer();
+const renderSafeLink = SAFE_RENDERER.link.bind(SAFE_RENDERER);
+const renderSafeImage = SAFE_RENDERER.image.bind(SAFE_RENDERER);
+
+SAFE_RENDERER.html = () => "<!-- raw HTML omitted -->";
+SAFE_RENDERER.link = function link(token) {
+  const href = safeMarkdownUrl(token.href);
+  if (!href) return this.parser.parseInline(token.tokens || []);
+  return renderSafeLink({ ...token, href });
+};
+SAFE_RENDERER.image = function image(token) {
+  const href = safeMarkdownUrl(token.href);
+  if (!href) return escapeHtml(token.text);
+  return renderSafeImage({ ...token, href });
 };
 
 export function normalizeMarkdown(rawMarkdown) {
@@ -272,7 +304,7 @@ export function renderMarkdown(bodyMarkdown, canonicalPath = "/") {
   });
 
   return {
-    bodyHtml: marked.parser(tokens, MARKED_OPTIONS),
+    bodyHtml: marked.parser(tokens, { ...MARKED_OPTIONS, renderer: SAFE_RENDERER }),
     bodyText: textFromTokens(tokens).replace(/[ \t]+\n/g, "\n").trim(),
     links,
   };

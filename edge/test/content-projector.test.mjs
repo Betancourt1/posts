@@ -139,6 +139,23 @@ test("localizes aliases and extracts links from Marked tokens", async () => {
   ]);
 });
 
+test("blocks raw HTML and unsafe Markdown URL schemes", () => {
+  const rendered = renderMarkdown(`Before
+
+<script>alert("raw")</script>
+
+[unsafe](jav&#x61;script:alert(1))
+
+![unsafe image](data:text/html,boom)
+
+[safe](https://example.com)
+`);
+
+  assert.doesNotMatch(rendered.bodyHtml, /<script|javascript:|data:text\/html/i);
+  assert.match(rendered.bodyHtml, /<!-- raw HTML omitted -->/);
+  assert.match(rendered.bodyHtml, /<a href="https:\/\/example\.com">safe<\/a>/);
+});
+
 test("generates the canonical English book as a matching Spanish document", async () => {
   const relativePath = "content_en/books/nada-que-temer.md";
   const projected = projectSource({

@@ -54,6 +54,9 @@ export const POST: APIRoute = async ({ request }) => {
       commitSha: payload.after,
       trigger: "webhook",
     });
+    if (result.inProgress) {
+      return response({ ok: false, retryable: true, error: "Delivery is still running." }, 503);
+    }
     return response({ ok: true, ...result });
   } catch (error) {
     console.error("Content reconciliation failed", error);
