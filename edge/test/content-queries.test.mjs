@@ -134,7 +134,7 @@ La ética de datos necesita cuidado.
 title: Destination
 date: 2026-07-08
 draft: false
-tags: [knowledge]
+tags: [knowledge, nota]
 ---
 The linked destination.
 `],
@@ -255,6 +255,9 @@ test("reads the projected public site through the real D1 API", async (t) => {
     assert.equal(section[0].frontMatter.translationKey, "ethical-data");
     assert.equal(section[0].tags[0].slug, "ethics");
 
+    const sectionWithBody = await sectionItems(db, "en", "posts", { body: true });
+    assert.match(sectionWithBody[0].bodyMarkdown, /Ethical systems need care/);
+
     assert.deepEqual(
       (await navSections(db, "en")).map((document) => document.title),
       ["Books", "Home", "Writing"],
@@ -301,6 +304,11 @@ test("reads the projected public site through the real D1 API", async (t) => {
       graph.find((document) => document.title === "Ethical Data").tags,
       [{ label: "ethics", slug: "ethics", path: "/tags/ethics/" }],
       "generic book status tags are omitted from the graph",
+    );
+    assert.deepEqual(
+      graph.find((document) => document.title === "Destination").tags,
+      [{ label: "knowledge", slug: "knowledge", path: "/tags/knowledge/" }],
+      "generic note tags are omitted from the graph",
     );
 
     const infrastructure = await infrastructureRows(db, "en");

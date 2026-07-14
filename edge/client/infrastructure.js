@@ -252,17 +252,7 @@
     var closeButton = document.getElementById("ssh-terminal-close");
     if (!overlay || !output || !input) return;
 
-    terminal.root = await loadRoot();
-    if (!terminal.root) {
-      output.textContent = language() === "es"
-        ? "No fue posible cargar el árbol de contenido."
-        : "The content tree could not be loaded.";
-      return;
-    }
-
-    var currentPath = document.documentElement.getAttribute("data-infra-path") || "";
-    var section = currentPath.split("/").filter(Boolean).filter(function (part) { return !/^content_/.test(part); })[0];
-    if (section && getNode("/" + section)) terminal.cwd = "/" + section;
+    var rootPromise = null;
 
     function updatePrompt() {
       if (promptElement) promptElement.innerHTML = prompt();
@@ -270,6 +260,24 @@
     function append(html) {
       output.innerHTML += html;
       output.scrollTop = output.scrollHeight;
+    }
+    async function ensureRoot() {
+      if (terminal.root) return true;
+      if (!rootPromise) rootPromise = loadRoot();
+      terminal.root = await rootPromise;
+      if (!terminal.root) {
+        output.textContent = language() === "es"
+          ? "No fue posible cargar el árbol de contenido."
+          : "The content tree could not be loaded.";
+        return false;
+      }
+
+      var currentPath = document.documentElement.getAttribute("data-infra-path") || "";
+      var section = currentPath.split("/").filter(Boolean).filter(function (part) { return !/^content_/.test(part); })[0];
+      if (section && getNode("/" + section)) terminal.cwd = "/" + section;
+      append('<div class="term-result term-welcome">betancourt.work — infrastructure mode\nType "help" for available commands.\n</div>');
+      updatePrompt();
+      return true;
     }
     function process() {
       var value = input.value;
@@ -284,8 +292,6 @@
       updatePrompt();
     }
 
-    append('<div class="term-result term-welcome">betancourt.work — infrastructure mode\nType "help" for available commands.\n</div>');
-    updatePrompt();
     input.addEventListener("keydown", function (event) {
       if (event.key === "Enter") {
         event.preventDefault();
@@ -301,17 +307,22 @@
       }
     });
     overlay.querySelector(".ssh-terminal-body")?.addEventListener("click", function () { input.focus(); });
-    if (openButton) openButton.addEventListener("click", function () { toggleTerminal(true); });
+    if (openButton) openButton.addEventListener("click", async function () {
+      if (await ensureRoot()) toggleTerminal(true);
+    });
     if (closeButton) closeButton.addEventListener("click", function () { toggleTerminal(false); });
-    document.addEventListener("keydown", function (event) {
+    document.addEventListener("keydown", async function (event) {
       if (event.ctrlKey && event.key === "`") {
         event.preventDefault();
-        toggleTerminal(!overlay.classList.contains("is-open"), true);
+        var opening = !overlay.classList.contains("is-open");
+        if (!opening || await ensureRoot()) toggleTerminal(opening, true);
       } else if (event.key === "Escape" && overlay.classList.contains("is-open")) {
         toggleTerminal(false, true);
       }
     });
-    if (localStorage.getItem(TERMINAL_KEY) === "true") toggleTerminal(true, true);
+    if (localStorage.getItem(TERMINAL_KEY) === "true") {
+      ensureRoot().then(function (ready) { if (ready) toggleTerminal(true, true); });
+    }
   }
 
   function init() {

@@ -327,6 +327,8 @@ function createDocument({
     kind === "page" && !draft && !hidden && frontMatter.search !== false;
   const aliases = normalizeAliases(frontMatter.aliases, lang, canonicalPath);
   const rendered = renderMarkdown(bodyMarkdown, canonicalPath);
+  const explicitTranslationKey = optionalText(frontMatter.translationKey)?.trim();
+  const implicitTranslationKey = `source:${sourceParts(sourcePath).relativeParts.join("/")}`;
 
   return {
     documentKey: `${sourcePath}::${lang}`,
@@ -338,7 +340,7 @@ function createDocument({
     date: optionalText(frontMatter.date),
     summary: optionalText(frontMatter.summary),
     description: optionalText(frontMatter.description),
-    translationKey: optionalText(frontMatter.translationKey),
+    translationKey: explicitTranslationKey || implicitTranslationKey,
     bodyMarkdown,
     bodyText: rendered.bodyText,
     bodyHtml: rendered.bodyHtml,

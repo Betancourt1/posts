@@ -63,6 +63,10 @@ test("derives localized routes, content kinds, and visibility", () => {
   assert.equal(document.lang, "es");
   assert.equal(document.kind, "page");
   assert.equal(document.section, "posts");
+  assert.equal(
+    document.translationKey,
+    "source:posts/2026/julio/no_post_secret.md",
+  );
   assert.equal(document.hidden, true);
   assert.equal(document.draft, false);
   assert.equal(document.searchable, false);

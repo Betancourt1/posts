@@ -90,6 +90,28 @@
     return { nodes: Array.from(nodesById.values()), links: links };
   }
 
+  function filterToFocus(graph, focusTags) {
+    var focusNames = new Set((Array.isArray(focusTags) ? focusTags : []).map(normalizedText).filter(Boolean));
+    if (focusNames.size === 0) return graph;
+
+    var focusIds = new Set(graph.nodes
+      .filter(function (node) { return focusNames.has(normalizedText(node.label)); })
+      .map(function (node) { return node.id; }));
+    if (focusIds.size === 0) return graph;
+
+    var includedIds = new Set(focusIds);
+    var links = graph.links.filter(function (link) {
+      if (!focusIds.has(link.source) && !focusIds.has(link.target)) return false;
+      includedIds.add(link.source);
+      includedIds.add(link.target);
+      return true;
+    });
+    return {
+      nodes: graph.nodes.filter(function (node) { return includedIds.has(node.id); }),
+      links: links,
+    };
+  }
+
   function initCanvas(container, graph) {
     var tools = document.getElementById("knowledge-graph-tools");
     var searchBox = document.getElementById("graph-search");
@@ -389,16 +411,20 @@
     var endpoint = container.dataset.graphEndpoint || "/api/graph";
     var url = new URL(endpoint, location.origin);
     url.searchParams.set("lang", language());
+    var fallbackPayload = embeddedPayload();
     var payload = null;
     try {
       var response = await fetch(url, { headers: { Accept: "application/json" } });
       if (!response.ok) throw new Error("Graph returned " + response.status);
       payload = await response.json();
     } catch (error) {
-      payload = embeddedPayload();
+      payload = fallbackPayload;
     }
 
     var graph = normalizeGraph(payload, language());
+    if (container.closest(".sidebar-graph")) {
+      graph = filterToFocus(graph, fallbackPayload && fallbackPayload.focusTags);
+    }
     if (graph.nodes.length === 0) {
       loading.textContent = language() === "es"
         ? "Aún no hay contenido suficiente para construir el grafo."

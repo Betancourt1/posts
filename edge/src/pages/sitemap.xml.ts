@@ -45,7 +45,8 @@ export const GET: APIRoute = async ({ request }) => {
       updatedAt: null,
     })),
   ];
-  const urls = rows.map(({ path, updatedAt }) => {
+  const uniqueRows = [...new Map(rows.map((row) => [row.path, row])).values()];
+  const urls = uniqueRows.map(({ path, updatedAt }) => {
     const location = xml(new URL(path, `${origin}/`).href);
     const lastModified = updatedAt
       ? `\n    <lastmod>${xml(updatedAt.slice(0, 10))}</lastmod>`

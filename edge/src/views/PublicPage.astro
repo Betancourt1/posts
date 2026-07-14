@@ -90,6 +90,13 @@ function photoImages(value: unknown) {
   }] : []);
 }
 
+function bookReview(markdown: string) {
+  const match = String(markdown || "").match(
+    /(?:^|\n)## (?:My review|Mi reseña)\s*\n+([\s\S]*?)(?=\n##\s|$)/,
+  );
+  return match?.[1]?.trim() || null;
+}
+
 const layout = ["books", "photography", "code", "not-found"].includes(model.layout)
   ? model.layout
   : "default";
@@ -104,8 +111,13 @@ const shellPage: ShellPage = {
   socialImage: frontMatter.image || "/og-image.png",
   noindex: page.hidden || page.draft || model.kind === "not-found",
   isHome: model.layout === "home",
-  updatedAt: page.updatedAt,
-  graphData: emptyGraph,
+  updatedAt: model.updatedAt || page.updatedAt,
+  graphData: {
+    ...emptyGraph,
+    focusTags: model.tag?.label
+      ? [model.tag.label]
+      : tagsFor(page).map((tag: any) => tag.label),
+  },
   infrastructureTree: { type: "dir", name: "/", children: [] },
 };
 const navigation = navigationItems(model.navigation || []);
@@ -118,7 +130,7 @@ const description = model.description || undefined;
   page={shellPage}
   lang={lang}
   currentPath={model.path}
-  translationPath={model.translationPath}
+  translationPath={model.translationPath || (lang === "es" ? "/" : "/es/")}
   navigation={navigation}
   archiveMonths={model.archiveMonths || []}
   title={title}
@@ -188,9 +200,9 @@ const description = model.description || undefined;
         ...listItem(book),
         author: book.frontMatter?.book_author,
         status: book.frontMatter?.book_status,
-        progress: book.frontMatter?.progress,
+        progress: book.frontMatter?.book_progress,
         rating: book.frontMatter?.rating,
-        review: /^## (?:My review|Mi reseña)\s*$/m.test(book.bodyMarkdown || "") ? "review" : null,
+        review: bookReview(book.bodyMarkdown),
       }))}
     />
   )}

@@ -276,47 +276,6 @@ const otherLanguage = lang === "es" ? "EN" : "ES";
           });
         }
 
-        var overlay = document.getElementById("search-modal-overlay");
-        var modal = document.getElementById("search-modal");
-        var trigger = document.getElementById("search-trigger");
-        var close = document.getElementById("search-modal-close");
-        var previousFocus = null;
-        if (!overlay || !modal) return;
-
-        function openSearch() {
-          previousFocus = document.activeElement;
-          overlay.removeAttribute("inert");
-          overlay.setAttribute("aria-hidden", "false");
-          overlay.classList.add("is-visible");
-          document.body.classList.add("search-active");
-          if (trigger) trigger.setAttribute("aria-expanded", "true");
-          setTimeout(function () {
-            var input = modal.querySelector('input[type="search"]');
-            (input || modal).focus();
-          }, 60);
-        }
-
-        function closeSearch() {
-          overlay.classList.remove("is-visible");
-          overlay.setAttribute("aria-hidden", "true");
-          overlay.setAttribute("inert", "");
-          document.body.classList.remove("search-active");
-          if (trigger) trigger.setAttribute("aria-expanded", "false");
-          if (previousFocus && previousFocus.isConnected) previousFocus.focus();
-          previousFocus = null;
-        }
-
-        if (trigger) trigger.addEventListener("click", openSearch);
-        if (close) close.addEventListener("click", closeSearch);
-        overlay.addEventListener("click", function (event) { if (event.target === overlay) closeSearch(); });
-        document.addEventListener("keydown", function (event) {
-          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
-            event.preventDefault();
-            overlay.classList.contains("is-visible") ? closeSearch() : openSearch();
-          } else if (event.key === "Escape" && overlay.classList.contains("is-visible")) {
-            closeSearch();
-          }
-        });
       });
     </script>
     <script is:inline src="/js/knowledge-graph.js" defer></script>

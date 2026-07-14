@@ -198,7 +198,7 @@
       var typing = target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName);
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        open();
+        overlay.classList.contains("is-visible") ? close() : open();
       } else if (event.key === "Escape" && overlay.classList.contains("is-visible")) {
         close();
       } else if (event.key === "/" && !typing && !overlay.classList.contains("is-visible")) {

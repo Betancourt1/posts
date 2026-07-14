@@ -9,6 +9,9 @@ const GRAPH_IGNORED_TAGS = new Set([
   "leyendo",
   "por-leer",
   "ensayo",
+  "nota",
+  "zettelkasten",
+  "cita",
 ]);
 
 function documentColumns(alias, { body = false } = {}) {
@@ -214,10 +217,11 @@ export async function translationPeer(db, id, options = {}) {
 
 export async function sectionItems(db, lang, section, options = {}) {
   const { includeDrafts, includeHidden } = visibilityOptions(options);
+  const includeBody = options.body === true;
   const limit = positiveLimit(options.limit, 500);
   const result = await db.prepare(`
     SELECT
-      ${documentColumns("d")},
+      ${documentColumns("d", { body: includeBody })},
       canonical.path AS path
     FROM documents AS d
     JOIN routes AS canonical

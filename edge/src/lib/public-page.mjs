@@ -2,6 +2,7 @@ import {
   archiveItems,
   backlinks,
   documentTags,
+  latestSyncTimestamp,
   navSections,
   normalizeRoute,
   resolveDocument,
@@ -44,14 +45,16 @@ export function archiveMonths(items) {
 }
 
 async function siteChrome(db, lang, archives = null) {
-  const [navigation, allArchives] = await Promise.all([
+  const [navigation, allArchives, updatedAt] = await Promise.all([
     navSections(db, lang),
     archives ? Promise.resolve(archives) : archiveItems(db, lang),
+    latestSyncTimestamp(db),
   ]);
 
   return {
     navigation,
     archiveMonths: archiveMonths(allArchives),
+    updatedAt,
   };
 }
 
@@ -121,7 +124,7 @@ export async function loadPublicPage(db, requestedPath) {
     ? archiveItems(db, document.lang)
     : Promise.resolve(null);
   const itemsPromise = ["list", "books", "photography", "code"].includes(layout)
-    ? sectionItems(db, document.lang, document.section)
+    ? sectionItems(db, document.lang, document.section, { body: layout === "books" })
     : Promise.resolve([]);
   const backlinksPromise = layout === "single" && ["posts", "zettelkasten"].includes(document.section)
     ? backlinks(db, document.id)
