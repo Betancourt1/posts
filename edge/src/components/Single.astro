@@ -167,9 +167,29 @@ const rawSource = [
     if (!button) return;
     var body = document.body;
     var key = "zen_mode_enabled";
+    var returnFrame = null;
 
     function setZen(enabled) {
-      body.classList.toggle("zen-mode", enabled);
+      if (returnFrame !== null) {
+        cancelAnimationFrame(returnFrame);
+        returnFrame = null;
+      }
+
+      if (enabled) {
+        body.classList.remove("zen-mode-returning");
+        body.classList.add("zen-mode");
+      } else if (body.classList.contains("zen-mode")) {
+        body.classList.add("zen-mode-returning");
+        body.classList.remove("zen-mode");
+        void body.offsetWidth;
+        returnFrame = requestAnimationFrame(function () {
+          body.classList.remove("zen-mode-returning");
+          returnFrame = null;
+        });
+      } else {
+        body.classList.remove("zen-mode", "zen-mode-returning");
+      }
+
       button.classList.toggle("is-active", enabled);
       try { localStorage.setItem(key, enabled ? "true" : "false"); } catch (error) {}
     }

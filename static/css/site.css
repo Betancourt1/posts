@@ -2508,7 +2508,7 @@ body.zen-mode-returning .layout {
     visibility: visible;
     transform: translateX(0);
     overflow: hidden;
-    transition: transform 0.42s cubic-bezier(0.8, 0, 0.6, 1), visibility 0s linear;
+    transition: transform 0.48s ease-out, visibility 0s linear;
   }
 
   .sidebar-column {
@@ -2517,18 +2517,23 @@ body.zen-mode-returning .layout {
     visibility: visible;
     transform: translateX(0);
     overflow: hidden;
-    transition: transform 0.42s cubic-bezier(0.8, 0, 0.6, 1), visibility 0s linear;
+    transition: transform 0.48s ease-out, visibility 0s linear;
   }
 
   body.zen-mode-fading .nav-column,
   body.zen-mode-fading .sidebar-column,
-  body.zen-mode-returning .nav-column,
-  body.zen-mode-returning .sidebar-column,
   body.zen-mode .nav-column,
   body.zen-mode .sidebar-column {
     pointer-events: none;
     visibility: hidden;
     transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.42s;
+  }
+
+  body.zen-mode-returning .nav-column,
+  body.zen-mode-returning .sidebar-column {
+    pointer-events: none;
+    visibility: visible;
+    transition: none;
   }
 
   body.zen-mode .nav-column {
