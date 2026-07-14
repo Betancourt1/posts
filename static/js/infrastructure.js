@@ -1,69 +1,8 @@
-/* Infrastructure Mode — exposed raw content + SSH-like terminal navigation */
+/* SSH-like terminal navigation */
 (function () {
   "use strict";
 
-  var STORAGE_KEY = "infra_mode_enabled";
   var TERMINAL_STORAGE_KEY = "infra_terminal_open";
-
-  /* ── helpers ── */
-  function isInfraMode() {
-    return document.documentElement.classList.contains("infra-mode");
-  }
-
-  /* ── Infrastructure mode toggle ── */
-  function updateInfraToggleState(btn, active) {
-    var lang = document.documentElement.lang || "es";
-    if (active) {
-      btn.classList.add("is-active");
-      if (lang === "en") {
-        btn.setAttribute("aria-label", "Disable infrastructure mode");
-        btn.setAttribute("title", "Disable infrastructure mode");
-      } else {
-        btn.setAttribute("aria-label", "Desactivar modo infraestructura");
-        btn.setAttribute("title", "Desactivar modo infraestructura");
-      }
-    } else {
-      btn.classList.remove("is-active");
-      if (lang === "en") {
-        btn.setAttribute("aria-label", "Enable infrastructure mode");
-        btn.setAttribute("title", "Enable infrastructure mode");
-      } else {
-        btn.setAttribute("aria-label", "Activar modo infraestructura");
-        btn.setAttribute("title", "Activar modo infraestructura");
-      }
-    }
-  }
-
-  function initInfraToggle() {
-    var btn = document.getElementById("infra-toggle");
-    if (!btn) return;
-
-    var isActive = localStorage.getItem(STORAGE_KEY) === "true";
-    if (isActive) {
-      enableInfra();
-    }
-    updateInfraToggleState(btn, isActive);
-
-    btn.addEventListener("click", function () {
-      var active = !isInfraMode();
-      if (active) {
-        enableInfra();
-        localStorage.setItem(STORAGE_KEY, "true");
-      } else {
-        disableInfra();
-        localStorage.setItem(STORAGE_KEY, "false");
-      }
-      updateInfraToggleState(btn, active);
-    });
-  }
-
-  function enableInfra() {
-    document.documentElement.classList.add("infra-mode");
-  }
-
-  function disableInfra() {
-    document.documentElement.classList.remove("infra-mode");
-  }
 
   /* ── SSH Terminal ── */
   var terminal = {
@@ -489,7 +428,6 @@
 
   /* ── Init ── */
   document.addEventListener("DOMContentLoaded", function () {
-    initInfraToggle();
     initTerminal();
     initDragResize();
   });
