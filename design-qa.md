@@ -260,7 +260,7 @@ final result: passed
 
 ---
 
-# Photography Mosaic Design QA
+# Photography Mosaic Design QA — Initial Crop Pass
 
 - Source visual truth: `/Users/betancourt/.codex/generated_images/019f5e2c-dc6f-7d61-9503-ba4bc3ca2888/exec-d1102b70-2ec3-4582-b0d9-5b3670b08dc1.png`
 - Implementation screenshot: `/private/tmp/posts-photography-mosaic-final-v2-qa/screenshots/photography-source.png`
@@ -287,9 +287,9 @@ No actionable P0, P1, or P2 differences remain.
 2. Fix: reduced the butterfly to one grid track and moved the city photo into a narrow two-row track beside it.
 3. Post-fix evidence: the final full-view and focused comparisons show the intended large-to-small hierarchy with no remaining P0/P1/P2 mismatch.
 
-## Follow-up Polish
+## Follow-up
 
-- P3: A future content edit could provide a portrait-specific thumbnail for Violeta to reduce the current tight crop without changing the mosaic layout.
+- Superseded by the no-crop implementation documented below after direct user feedback.
 
 ## Implementation Checklist
 
@@ -298,5 +298,36 @@ No actionable P0, P1, or P2 differences remain.
 - [x] Preserve graph and archive sidebar.
 - [x] Provide a responsive mobile hierarchy.
 - [x] Verify console output and horizontal overflow.
+
+final result: passed
+
+---
+
+# Photography No-Crop Follow-up QA
+
+- User feedback: the selected varied-size mosaic cropped parts of some photographs.
+- Desktop capture: `/private/tmp/posts-photography-no-crop-qa/screenshots/photography-source.png`
+- Mobile capture: `/private/tmp/posts-photography-no-crop-qa/screenshots/photography-mobile.png`
+- Viewports: `1536 x 1024` desktop and `390 x 844` mobile
+- State: Spanish photography index, dark theme, default navigation state
+
+## Findings
+
+No actionable P0, P1, or P2 issue remains.
+
+- The fixed row heights and portrait-shaped crop slots were removed.
+- Every image now renders with `height: auto` and `object-fit: contain`.
+- Automated browser measurements confirmed that all 11 rendered aspect ratios match their source aspect ratios, including landscape, portrait, and square images.
+- The first, sixth, and tenth cards still span two grid columns, preserving the requested variation in image size without cropping.
+- The hover zoom was removed so the full composition remains visible during pointer interaction.
+- Responsive checks found no horizontal overflow, undersized mobile controls, or browser console errors.
+
+## Implementation Checklist
+
+- [x] Preserve the varied-size mosaic.
+- [x] Show every photograph in full.
+- [x] Preserve existing photography content and links.
+- [x] Verify desktop and mobile behavior.
+- [x] Verify all rendered aspect ratios against the source images.
 
 final result: passed

@@ -1707,58 +1707,29 @@ body.graph-maximized .ssh-terminal-overlay {
 .photo-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-template-rows: repeat(2, 14.5rem);
-  grid-auto-rows: 11.5rem;
   grid-auto-flow: dense;
+  align-items: start;
   gap: 1rem 0.9rem;
   margin-top: 1.4rem;
 }
 
 .photo-card {
-  height: 100%;
   min-width: 0;
   display: flex;
   flex-direction: column;
 }
 
 .photo-card:nth-child(1) {
-  grid-column: 1 / 3;
-  grid-row: 1;
+  grid-column: span 2;
 }
 
-.photo-card:nth-child(2) {
-  grid-column: 3;
-  grid-row: 1 / 3;
-}
-
-.photo-card:nth-child(3) {
-  grid-column: 4;
-  grid-row: 1;
-}
-
-.photo-card:nth-child(4) {
-  grid-column: 4;
-  grid-row: 2;
-}
-
-.photo-card:nth-child(5) {
-  grid-column: 1;
-  grid-row: 2;
-}
-
-.photo-card:nth-child(6) {
-  grid-column: 2;
-  grid-row: 2 / 4;
-}
-
-.photo-card:nth-child(7),
+.photo-card:nth-child(6),
 .photo-card:nth-child(10) {
   grid-column: span 2;
 }
 
 .photo-card-image {
-  flex: 1;
-  min-height: 0;
+  flex: none;
   display: block;
   position: relative;
   overflow: hidden;
@@ -1768,12 +1739,11 @@ body.graph-maximized .ssh-terminal-overlay {
 
 .photo-card-image img {
   width: 100%;
-  height: 100%;
+  height: auto;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
   outline: 1px solid oklch(1 0 0 / 0.1);
   outline-offset: -1px;
-  transition: transform 0.18s var(--ease-out);
 }
 
 :root[data-theme="light"] .photo-card-image img {
@@ -1904,15 +1874,6 @@ body.graph-maximized .ssh-terminal-overlay {
 
   .photo-card:nth-child(1) {
     grid-column: 1 / -1;
-  }
-
-  .photo-card-image {
-    flex: none;
-    aspect-ratio: 4 / 3;
-  }
-
-  .photo-card:nth-child(1) .photo-card-image {
-    aspect-ratio: 16 / 9;
   }
 
   .photo-card-meta {
@@ -3714,10 +3675,6 @@ html.infra-mode .infra-raw-block {
     animation: cursorBlink 1s infinite step-end;
   }
 
-  .photo-card-image:hover img {
-    transform: scale(1.025);
-  }
-
   .ssh-terminal-open-btn:hover {
     transform: scale(1.04);
   }
@@ -3758,7 +3715,6 @@ html.infra-mode .infra-raw-block {
   .lang-toggle:hover,
   .infra-toggle:hover,
   .typo-toggle:hover,
-  .photo-card-image:hover img,
   .ssh-terminal-open-btn:hover {
     transform: none !important;
   }
