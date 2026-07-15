@@ -4,6 +4,9 @@ date: 2026-04-19T14:14:22-06:00
 draft: false
 tags: ["cita","género","feminismo","privilegio","masculinidad"]
 summary: "Algunos hombres buenos no te chistan ni te incomodan. Son buenos hombres. Levantan los pies cuando pasas la escoba por el hueco que hay entre el sofá y la mesa del salón. Vacían el lavaplatos. Hacen la cena a veces. N..."
+quotes:
+  - text: "Algunos hombres buenos no te chistan ni te incomodan. Son buenos hombres. Levantan los pies cuando pasas la escoba por el hueco que hay entre el sofá y la mesa del salón. Vacían el lavaplatos. Hacen la cena a veces. No piensan que estés por debajo de ellos, pero no se plantean por qué de los diez directivos que hay en la empresa en la que trabajan nueve son hombres."
+    author: "Meryem El Mehdati"
 aliases: ["/zettelkasten/meryem-el-mehdati/"]
 ---
 

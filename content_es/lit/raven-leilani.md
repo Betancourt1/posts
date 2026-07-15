@@ -4,6 +4,9 @@ date: 2026-04-19T14:14:22-06:00
 draft: false
 tags: ["cita","género","feminismo","sobrevivencia"]
 summary: "Eric es lo más obvio que me ha pasado jamás, y por toda la ciudad les está sucediendo lo mismo a otras mujeres tontas y a medio formar que se dejan emocionar por hombres que simplemente han cumplido con el requisito d..."
+quotes:
+  - text: "Eric es lo más obvio que me ha pasado jamás, y por toda la ciudad les está sucediendo lo mismo a otras mujeres tontas y a medio formar que se dejan emocionar por hombres que simplemente han cumplido con el requisito de haber vivido un poco más de vida, algo tan terriblemente poco especial que no es más que lo que pasa cuando sigues levantándote por la mañana y cepillándote los dientes y yendo a trabajar e ignorando el susurro que aparece en mitad de la noche y te dice que sería más sencillo estar muerto."
+    author: "Raven Leilani"
 aliases: ["/zettelkasten/raven-leilani/"]
 ---
 

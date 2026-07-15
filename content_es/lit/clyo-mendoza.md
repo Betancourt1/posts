@@ -4,6 +4,9 @@ date: 2026-04-19T14:14:22-06:00
 draft: false
 tags: ["cita","raza","clase","migración","racismo","trabajo","cuerpo"]
 summary: "¿Qué trabajos te ofrecen cuando te miran? Mano de obra, albañil. Porque, aunque ya no te quiero como antes sigo pensando que eres el hombre más fuerte que conozco. Y las manos delicadas de tus jefes son para contar la..."
+quotes:
+  - text: "¿Qué trabajos te ofrecen cuando te miran? Mano de obra, albañil. Porque, aunque ya no te quiero como antes sigo pensando que eres el hombre más fuerte que conozco. Y las manos delicadas de tus jefes son para contar la plata que han hecho y siguen haciendo a costa del trabajo duro de personas como tú."
+    author: "Clyo Mendoza"
 aliases: ["/zettelkasten/clyo-mendoza/"]
 ---
 

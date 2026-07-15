@@ -4,6 +4,9 @@ date: 2026-04-19T14:14:22-06:00
 draft: false
 tags: ["cita","diseño","tecnología","inteligencia-artificial","artesanía","creatividad"]
 summary: "Es cada vez más difícil imaginar un mundo que valore la artesanía. Todo debe hacerse más rápido, más barato y a gran escala. Las marcas se difuminan entre sí. Los pocos que eligen crear con cuidado e intención a menud..."
+quotes:
+  - text: "Es cada vez más difícil imaginar un mundo que valore la artesanía. Todo debe hacerse más rápido, más barato y a gran escala. Las marcas se difuminan entre sí. Los pocos que eligen crear con cuidado e intención a menudo se desvanecen en el trasfondo, desplazados por la automatización."
+    author: "Luis Hermosilla"
 aliases: ["/zettelkasten/luis-hermosilla/"]
 ---
 

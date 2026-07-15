@@ -4,6 +4,9 @@ date: 2026-04-19T14:14:22-06:00
 draft: false
 tags: ["cita","redes-sociales","parasocial","género","contenido-digital"]
 summary: "Pero se me ocurre un ejercicio que igual iría bien, igual refrescará las mentes de todos los bandos en este trend veraniego. ¿Qué os parecería el ejercicio radical de humanizar a Roro? ¿Qué tal si en lugar de tirarnos..."
+quotes:
+  - text: "Pero se me ocurre un ejercicio que igual iría bien, igual refrescará las mentes de todos los bandos en este trend veraniego. ¿Qué os parecería el ejercicio radical de humanizar a Roro? ¿Qué tal si en lugar de tirarnos sobre ella a atacar o a defenderla como si afectara a nuestras vidas, reconocemos que lo que vemos en pantalla es un personaje?"
+    author: "Quetzal"
 aliases: ["/zettelkasten/quetzal/"]
 ---
 

@@ -4,6 +4,11 @@ date: 2026-04-19T14:14:22-06:00
 draft: false
 tags: ["cita","anarquismo","política","género","historia"]
 summary: "Cada vez que tratas a otro ser humano con consideración y respeto, estás siendo anarquista. Cada vez que resuelves tus divergencias con otros, llegando a un arreglo razonable, escuchando lo que todos tienen que decir,..."
+quotes:
+  - text: "Cada vez que tratas a otro ser humano con consideración y respeto, estás siendo anarquista. Cada vez que resuelves tus divergencias con otros, llegando a un arreglo razonable, escuchando lo que todos tienen que decir, en lugar de dejar que sea una persona la que decida por el resto, estás siendo anarquista."
+    author: "David Graeber"
+  - text: "Sería fascinante —aunque seguramente imposible— confeccionar un catálogo de libros, diseños, planes, discursos y documentos atribuidos a hombres famosos que en realidad fueron redactados por sus secretarias."
+    author: "David Graeber"
 aliases: ["/zettelkasten/david-graeber/"]
 ---
 

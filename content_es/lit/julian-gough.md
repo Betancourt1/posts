@@ -4,6 +4,9 @@ date: 2026-04-19T14:14:22-06:00
 draft: false
 tags: ["cita","filosofía","universo","conciencia","misterio"]
 summary: "¿Quiénes somos? Una vez nos llamaron el espíritu de la montaña. Padre sol, madre luna. Espíritus ancestrales, espíritus animales. Genios. Fantasmas. El hombre verde. Y dioses, demonios. Ángeles. Poltergeists. Alieníge..."
+quotes:
+  - text: "¿Quiénes somos? Una vez nos llamaron el espíritu de la montaña. Padre sol, madre luna. Espíritus ancestrales, espíritus animales. Genios. Fantasmas. El hombre verde. Y dioses, demonios. Ángeles. Poltergeists. Alienígenas, extraterrestres."
+    author: "Julian Gough"
 aliases: ["/zettelkasten/julian-gough/"]
 ---
 

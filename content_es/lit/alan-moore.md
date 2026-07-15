@@ -4,6 +4,9 @@ date: 2026-04-19T14:14:22-06:00
 draft: false
 tags: ["cita","escritura","ética","conocimiento","literatura"]
 summary: "Finalmente, si de verdad quieres ser un gran escritor, quizás valga la pena recordar que incluso en este medio, es más importante ser un buen humano que un buen escritor. Los artistas... escritores, pintores, músicos...."
+quotes:
+  - text: "Finalmente, si de verdad quieres ser un gran escritor, quizás valga la pena recordar que incluso en este medio, es más importante ser un buen humano que un buen escritor."
+    author: "Alan Moore"
 aliases: ["/zettelkasten/alan-moore/"]
 ---
 

@@ -4,6 +4,9 @@ date: 2026-04-19T14:14:22-06:00
 draft: false
 tags: ["cita","amor","duelo","ausencia"]
 summary: "Yo también te extraño mucho. Olvídate de todas las cosas feas que te tengo dichas y las veces que yo no te entendía. Solamente quiero que vuelvas. Quiero que estemos juntos por un rato aunque sea y quiero decirte que..."
+quotes:
+  - text: "Yo también te extraño mucho. Olvídate de todas las cosas feas que te tengo dichas y las veces que yo no te entendía. Solamente quiero que vuelvas. Quiero que estemos juntos por un rato aunque sea y quiero decirte que sos lo mejor que me ha pasado en la vida."
+    author: "Eduardo Galeano"
 aliases: ["/zettelkasten/eduardo-galeano/"]
 ---
 

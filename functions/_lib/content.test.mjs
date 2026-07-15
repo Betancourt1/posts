@@ -78,6 +78,24 @@ test("savePage skips an empty GitHub commit when content is unchanged", async ()
   }
 });
 
+test("quote metadata arrays survive Markdown formatting", () => {
+  const quotes = [
+    {
+      text: "Podemos saber más de lo que podemos decir.",
+      author: "Michael Polanyi",
+      source: "The Tacit Dimension",
+      year: "1966",
+    },
+    {
+      text: "El trabajo me otorgaría el estatus de persona real.",
+      author: "Mark Fisher",
+    },
+  ];
+  const markdown = formatMarkdown({ title: "Citas", quotes }, "> Texto\n");
+
+  assert.deepEqual(splitMarkdown(markdown).frontMatter.quotes, quotes);
+});
+
 test("deletePage returns the exact deleted URL separately from its fallback", async () => {
   const originalFetch = globalThis.fetch;
   const current = formatMarkdown({ title: "Temporal", tags: ["qa"] }, "Contenido\n");

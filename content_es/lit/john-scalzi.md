@@ -4,6 +4,9 @@ date: 2026-04-19T14:14:22-06:00
 draft: false
 tags: ["cita","ética","juicio-moral","vínculos","complejidad"]
 summary: "Toda persona que alguna vez has admirado ha cometido errores, a veces muy graves. Todos aquellos a quienes has admirado tienen secretos, y es posible que algunos de esos secretos cambiarían materialmente tu opinión so..."
+quotes:
+  - text: "Toda persona que alguna vez has admirado ha cometido errores, a veces muy graves. Todos aquellos a quienes has admirado tienen secretos, y es posible que algunos de esos secretos cambiarían materialmente tu opinión sobre ellos, no siempre para mejor."
+    author: "John Scalzi"
 aliases: ["/zettelkasten/john-scalzi/"]
 ---
 

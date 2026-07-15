@@ -4,6 +4,9 @@ date: 2026-04-19T14:14:22-06:00
 draft: false
 tags: ["cita","salud-mental","amor","suicidio"]
 summary: "Tengan la carta de despedida que Virginia Wolf le escribió a su esposo antes de tomar su vida:"
+quotes:
+  - text: "Estoy segura de que me vuelvo loca de nuevo. Creo que no puedo pasar por otra de esas espantosas temporadas. Esta vez no voy a recuperarme. Empiezo a oír voces y no puedo concentrarme."
+    author: "Virginia Woolf"
 aliases: ["/zettelkasten/virginia-woolf/"]
 ---
 

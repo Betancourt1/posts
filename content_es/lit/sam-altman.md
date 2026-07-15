@@ -4,6 +4,9 @@ date: 2026-04-19T14:14:22-06:00
 draft: false
 tags: ["cita","trabajo","futuro","tecnología","historia"]
 summary: "Un agricultor de hace mil años miraría lo que muchos de nosotros hacemos y diría que tenemos trabajos falsos, y pensaría que simplemente estamos jugando para entretenernos, dado que tenemos abundancia de comida y lujo..."
+quotes:
+  - text: "Un agricultor de hace mil años miraría lo que muchos de nosotros hacemos y diría que tenemos trabajos falsos, y pensaría que simplemente estamos jugando para entretenernos, dado que tenemos abundancia de comida y lujos inimaginables."
+    author: "Sam Altman"
 aliases: ["/zettelkasten/sam-altman/"]
 ---
 
