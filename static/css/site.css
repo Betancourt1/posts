@@ -1240,6 +1240,7 @@ h3 { font-size: 1.2rem; color: var(--ink); }
   line-height: 1.48;
   letter-spacing: -0.02em;
   text-wrap: pretty;
+  white-space: pre-line;
 }
 
 .quote-index-text:hover {
