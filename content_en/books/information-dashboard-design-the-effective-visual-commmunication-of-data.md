@@ -1,25 +1,26 @@
 ---
 title: "Information Dashboard Design: The Effective Visual Commmunication of Data"
 date: 2025-12-24
-draft: false
-search: true
-translationKey: "goodreads-336258"
-summary: "By Stephen Few · Currently reading"
-tags: ["book","currently-reading","data-visualization","technology","dashboards","information-design","visual-analytics","usability"]
+tags: ["book", "read", "data-visualization", "technology", "dashboards", "information-design", "visual-analytics", "usability"]
+summary: "By Stephen Few · Read"
+binding: "Paperback"
 book_author: "Stephen Few"
-book_status: "currently-reading"
+book_progress: "100"
+book_status: "read"
+bookshelves: ["currently-reading", "visualización-de-datos", "tecnología"]
+date_added: "2025-12-24"
 goodreads_id: "336258"
 goodreads_url: "https://www.goodreads.com/book/show/336258"
-date_added: 2025-12-24
-bookshelves: ["currently-reading", "visualización-de-datos", "tecnología"]
-publication_year: 2010
-publisher: "O'REILLY & ASSOCIATES"
-binding: "Paperback"
-pages: 211
 isbn13: "9780596100162"
+pages: "211"
+publication_year: "2010"
+publisher: "O'REILLY & ASSOCIATES"
+search: true
+translationKey: "goodreads-336258"
 ---
+
 **Author:** Stephen Few
-**Progress:** not set
+**Progress:** 100%
 **Added:** 2025-12-24
 **Published:** 2010
 **Publisher:** O'REILLY & ASSOCIATES
