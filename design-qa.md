@@ -47,6 +47,53 @@ final result: passed
 
 ---
 
+# Quotes Length-Aware Mosaic Design QA
+
+## Source and implementation
+
+- Source mockup: `/var/folders/yg/rt8w41_56d30cbn9r6gbggyw0000gn/T/codex-clipboard-375ed3a4-0620-436c-823b-a836a59b718c.png`
+- Desktop implementation: `/private/tmp/quotes-mosaic-desktop-final.png`
+- Mobile implementation: `/private/tmp/quotes-mosaic-mobile-final.png`
+- Full combined comparison: `/private/tmp/quotes-mosaic-reference-vs-final.png`
+- Focused mosaic comparison: `/private/tmp/quotes-mosaic-focused-reference-vs-final.png`
+- Viewports: `1586 x 992` desktop and `390 x 844` mobile
+- State: Spanish public Citas index, dark theme, newest-first order
+
+The reference and implementation were inspected together at the same desktop viewport. The focused comparison excludes the archive rail so the quote widths, font hierarchy, border rhythm, and natural-height packing can be judged directly.
+
+## Findings
+
+No actionable P0, P1, or P2 differences remain.
+
+- Structure: the implementation matches the compact 50 px header, 12 rem order rail, edge-to-edge mint mosaic, and 15.75 rem archive rail from the source.
+- Packing: all 74 real quote records render immediately. The first two three-card bands use complementary `5 / 4 / 3` spans, then the skyline packer assigns length-aware spans without propagating the tallest card height across a row.
+- Completeness: automated browser measurements found zero clipped quote bodies, zero card overlaps, and zero horizontal overflow. Quote text keeps authored line breaks through `white-space: pre-line`.
+- Typography: a featured quote can reach 1.3 rem, ordinary short quotes use 1 rem, long desktop passages use a 0.76–0.82 rem compact scale, and compact mobile text rises to 0.88 rem.
+- Interactions: newest, oldest, and random ordering update the pressed state and repack the same 74 records. The mobile menu opens and closes without introducing horizontal overflow.
+- Intentional data differences: the source uses illustrative quotations and archive counts; the implementation preserves current D1 quote text, authors, sources, tags, and archive totals. Natural-height packing leaves small skyline pockets where real quote lengths differ, without recreating row-height waste.
+- Browser console: no warnings or errors in the final desktop state.
+
+## Comparison history
+
+1. The first implementation retained the large centered site header and narrow three-column shell; it was replaced with the selected compact top navigation and two-rail full-width layout.
+2. The initial pack showed only five cards and used a disclosure button; the final version renders the complete 74-record archive immediately.
+3. A 12-column fixed-span pass left the opening row one track short; complementary `5 / 4 / 3` spans now fill the first two bands before natural-height packing continues.
+4. Mobile QA found a 50 px header overflow and misleading notebook toggle copy. The menu was relabeled and the compact header spacing was tightened; both closed and open states now report zero overflow.
+
+## Validation checklist
+
+- [x] Compare source and rendered desktop together at `1586 x 992`.
+- [x] Compare the focused order-rail and mosaic region together.
+- [x] Render all 74 quote records with no clipping.
+- [x] Verify newest, oldest, and random ordering.
+- [x] Verify no card overlap or horizontal overflow.
+- [x] Verify the `390 x 844` single-column mobile fallback and menu states.
+- [x] Check browser warnings and errors.
+
+final result: passed
+
+---
+
 # Quotes Typographic Mosaic Design QA
 
 - Source visual truth: `/var/folders/yg/rt8w41_56d30cbn9r6gbggyw0000gn/T/codex-clipboard-196256d5-4e74-41bd-b1b3-b2f08d9a404b.png`

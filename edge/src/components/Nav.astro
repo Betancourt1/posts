@@ -7,6 +7,7 @@ interface Props {
   activePath?: string;
   activeSection?: string;
   authorMode?: boolean;
+  menuMode?: boolean;
 }
 
 const {
@@ -15,9 +16,15 @@ const {
   activePath = Astro.url.pathname,
   activeSection = "",
   authorMode = false,
+  menuMode = false,
 } = Astro.props;
-const showLabel = lang === "es" ? "Mostrar notebooks" : "Show notebooks";
-const hideLabel = lang === "es" ? "Ocultar notebooks" : "Hide notebooks";
+const showLabel = menuMode
+  ? (lang === "es" ? "Menú" : "Menu")
+  : (lang === "es" ? "Mostrar notebooks" : "Show notebooks");
+const hideLabel = menuMode
+  ? (lang === "es" ? "Cerrar" : "Close")
+  : (lang === "es" ? "Ocultar notebooks" : "Hide notebooks");
+const toggleLabel = menuMode ? (lang === "es" ? "Menú" : "Menu") : "Notebooks";
 const newNotebook = lang === "es" ? "Nuevo notebook" : "New notebook";
 ---
 
@@ -31,7 +38,7 @@ const newNotebook = lang === "es" ? "Nuevo notebook" : "New notebook";
   <div class:list={["nav-author-row", { "nav-author-row--public": !authorMode }]}>
     {authorMode && <span class="nav-title">Notebooks</span>}
     <button type="button" class="nav-toggle" aria-controls="primary-navigation" aria-expanded="false" hidden>
-      Notebooks
+      {toggleLabel}
     </button>
     {authorMode && (
       <button type="button" class="author-action-button" data-author-action="add-notebook" aria-label={newNotebook} title={newNotebook}>

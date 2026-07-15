@@ -15,7 +15,6 @@ interface DisplayQuote extends QuoteRecord {
   date: string;
   tags: TagItem[];
   key: string;
-  intensityRank: number;
   sizeClass: string;
   spanClass: string;
 }
@@ -28,7 +27,8 @@ function quoteSizeClass(length: number) {
 }
 
 function quoteSpanClass(length: number) {
-  if (length >= 260) return "quote-span-wide";
+  if (length >= 700) return "quote-span-extra-wide";
+  if (length >= 360) return "quote-span-wide";
   if (length >= 180) return "quote-span-medium";
   return "quote-span-standard";
 }
@@ -63,16 +63,15 @@ const editorialSelection = [
 const selectedQuotes = editorialSelection
   .map((selection) => allQuotes.find((quote) => quote.author === selection.author
     && (!selection.source || quote.source === selection.source)))
-  .filter((quote): quote is Omit<DisplayQuote, "intensityRank" | "sizeClass" | "spanClass"> => Boolean(quote));
+  .filter((quote): quote is Omit<DisplayQuote, "sizeClass" | "spanClass"> => Boolean(quote));
 const selectedKeys = new Set(selectedQuotes.map((quote) => quote.key));
 const remainingQuotes = allQuotes
   .filter((quote) => !selectedKeys.has(quote.key))
   .sort((left, right) => left.text.length - right.text.length
     || left.author.localeCompare(right.author, lang));
 const quoteItems: DisplayQuote[] = [...selectedQuotes, ...remainingQuotes]
-  .map((quote, index) => ({
+  .map((quote) => ({
     ...quote,
-    intensityRank: index,
     sizeClass: quoteSizeClass(quote.text.length),
     spanClass: quoteSpanClass(quote.text.length),
   }));
@@ -97,58 +96,61 @@ const quoteItems: DisplayQuote[] = [...selectedQuotes, ...remainingQuotes]
       {description && <p class="lead">{description}</p>}
     </div>
 
-    <label class="quotes-order" for="quotes-order">
-      <span>{lang === "es" ? "orden:" : "order:"}</span>
-      <select id="quotes-order" data-quotes-order>
-        <option value="intensity">{lang === "es" ? "intensidad" : "intensity"}</option>
-        <option value="recent">{lang === "es" ? "recientes" : "recent"}</option>
-        <option value="author">{lang === "es" ? "autor" : "author"}</option>
-      </select>
-    </label>
   </header>
 
-  <div class="quotes-grid" data-quotes-grid>
-    {quoteItems.map((quote, index) => (
-      <article
-        class:list={["quote-index-entry", quote.sizeClass, quote.spanClass, { "is-featured": index === 0 }]}
-        data-quote-entry
-        data-length={quote.text.length}
-        data-intensity={quote.intensityRank}
-        data-date={quote.date}
-        data-author={quote.author.toLocaleLowerCase(lang)}
-        data-key={quote.key}
-      >
-        <span class="quote-index-mark" aria-hidden="true">“</span>
-        <a class="quote-index-text" href={quote.href}>{quote.text}</a>
-        <div class="quote-index-rule" aria-hidden="true"></div>
-        <a class="quote-index-author" href={quote.href}>{quote.author}</a>
-        {(quote.source || quote.year || quote.page) && (
-          <p class="quote-index-source">
-            {quote.source && <cite>{quote.source}</cite>}
-            {quote.source && quote.year && ", "}
-            {quote.year}
-            {quote.page && ` · p. ${quote.page}`}
-          </p>
-        )}
-        {quote.tags.length > 0 && (
-          <p class="quote-index-tags">
-            {quote.tags.map((tag, tagIndex) => (
-              <>
-                {tagIndex > 0 && <span aria-hidden="true"> · </span>}
-                <a href={tag.href}>{tag.label}</a>
-              </>
-            ))}
-          </p>
-        )}
-      </article>
-    ))}
-  </div>
+  <div class="quotes-catalog">
+    <div class="quotes-order" role="group" aria-label={lang === "es" ? "Ordenar citas" : "Order quotes"}>
+      <span class="quotes-order-label">{lang === "es" ? "ordenar por" : "order by"}</span>
+      <button class="quotes-order-option" type="button" data-quotes-order="recent" aria-pressed="true">
+        {lang === "es" ? "más reciente" : "newest"}
+      </button>
+      <button class="quotes-order-option" type="button" data-quotes-order="oldest" aria-pressed="false">
+        {lang === "es" ? "más antiguo" : "oldest"}
+      </button>
+      <button class="quotes-order-option" type="button" data-quotes-order="random" aria-pressed="false">
+        {lang === "es" ? "aleatorio" : "random"}
+      </button>
+    </div>
 
-  {quoteItems.length > 5 && (
-    <button class="quotes-index-toggle" type="button" data-quotes-toggle aria-expanded="false">
-      {lang === "es" ? "ver índice completo" : "view full index"}
-    </button>
-  )}
+    <div class="quotes-results">
+      <div class="quotes-grid" data-quotes-grid>
+        {quoteItems.map((quote, index) => (
+          <article
+            class:list={["quote-index-entry", quote.sizeClass, quote.spanClass, { "is-featured": index === 0 }]}
+            data-quote-entry
+            data-length={quote.text.length}
+            data-date={quote.date}
+            data-author={quote.author.toLocaleLowerCase(lang)}
+            data-key={quote.key}
+          >
+            <span class="quote-index-mark" aria-hidden="true">“</span>
+            <a class="quote-index-text" href={quote.href}>{quote.text}</a>
+            <div class="quote-index-rule" aria-hidden="true"></div>
+            <a class="quote-index-author" href={quote.href}>{quote.author}</a>
+            {(quote.source || quote.year || quote.page) && (
+              <p class="quote-index-source">
+                {quote.source && <cite>{quote.source}</cite>}
+                {quote.source && quote.year && ", "}
+                {quote.year}
+                {quote.page && ` · p. ${quote.page}`}
+              </p>
+            )}
+            {quote.tags.length > 0 && (
+              <p class="quote-index-tags">
+                {quote.tags.map((tag, tagIndex) => (
+                  <>
+                    {tagIndex > 0 && <span aria-hidden="true"> · </span>}
+                    <a href={tag.href}>{tag.label}</a>
+                  </>
+                ))}
+              </p>
+            )}
+          </article>
+        ))}
+      </div>
+
+    </div>
+  </div>
 </section>
 
 <script is:inline>
@@ -156,49 +158,128 @@ const quoteItems: DisplayQuote[] = [...selectedQuotes, ...remainingQuotes]
     var root = document.querySelector("[data-quotes-index]");
     if (!root) return;
     var grid = root.querySelector("[data-quotes-grid]");
-    var order = root.querySelector("[data-quotes-order]");
-    var toggle = root.querySelector("[data-quotes-toggle]");
-    if (!grid || !order) return;
+    var orderOptions = Array.from(root.querySelectorAll("[data-quotes-order]"));
+    if (!grid || !orderOptions.length) return;
 
-    var expanded = false;
     var entries = Array.from(grid.querySelectorAll("[data-quote-entry]"));
+    var layoutFrame = 0;
+    var lastGridWidth = 0;
 
     function value(entry, name) {
       return entry.getAttribute(name) || "";
     }
 
-    function sortEntries(mode) {
-      root.classList.toggle("is-curated", mode === "intensity");
-      entries.sort(function (left, right) {
-        if (mode === "author") return value(left, "data-author").localeCompare(value(right, "data-author"));
-        if (mode === "recent") return value(right, "data-date").localeCompare(value(left, "data-date"))
-          || value(left, "data-author").localeCompare(value(right, "data-author"));
-        return Number(value(left, "data-intensity")) - Number(value(right, "data-intensity"))
-          || value(left, "data-author").localeCompare(value(right, "data-author"));
+    function spanFor(entry, index, columns) {
+      if (columns <= 1) return 1;
+      if (columns === 8) return Number(value(entry, "data-length")) >= 260 ? 8 : 4;
+      if (index < 6) return [5, 4, 3, 5, 4, 3][index];
+      var length = Number(value(entry, "data-length"));
+      if (length >= 700) return 8;
+      if (length >= 360) return 6;
+      if (length >= 180) return 4;
+      if (length >= 90) return 3;
+      return 2;
+    }
+
+    function packEntries() {
+      layoutFrame = 0;
+      var columns = Number(getComputedStyle(grid).getPropertyValue("--quote-columns")) || 1;
+      var visibleEntries = entries.filter(function (entry) {
+        return getComputedStyle(entry).display !== "none";
       });
+
+      grid.classList.remove("is-packed");
+      grid.style.height = "";
+      entries.forEach(function (entry) {
+        entry.style.width = "";
+        entry.style.transform = "";
+      });
+
+      if (columns <= 1) return;
+
+      var columnWidth = grid.clientWidth / columns;
+      var heights = Array(columns).fill(0);
+      grid.classList.add("is-packed");
+
+      visibleEntries.forEach(function (entry, index) {
+        var span = Math.min(spanFor(entry, index, columns), columns);
+        var width = columnWidth * span;
+        entry.style.width = width + "px";
+
+        var bestStart = 0;
+        var bestTop = Infinity;
+        for (var start = 0; start <= columns - span; start += 1) {
+          var top = Math.max.apply(null, heights.slice(start, start + span));
+          if (top < bestTop) {
+            bestTop = top;
+            bestStart = start;
+          }
+        }
+
+        entry.style.transform = "translate(" + (bestStart * columnWidth) + "px, " + bestTop + "px)";
+        var bottom = bestTop + entry.offsetHeight;
+        for (var column = bestStart; column < bestStart + span; column += 1) {
+          heights[column] = bottom;
+        }
+      });
+
+      grid.style.height = Math.max.apply(null, heights) + "px";
+    }
+
+    function scheduleLayout() {
+      if (layoutFrame) cancelAnimationFrame(layoutFrame);
+      layoutFrame = requestAnimationFrame(packEntries);
+    }
+
+    function sortEntries(mode) {
+      orderOptions.forEach(function (option) {
+        option.setAttribute("aria-pressed", value(option, "data-quotes-order") === mode ? "true" : "false");
+      });
+      if (mode === "random") {
+        for (var index = entries.length - 1; index > 0; index -= 1) {
+          var swapIndex = Math.floor(Math.random() * (index + 1));
+          var current = entries[index];
+          entries[index] = entries[swapIndex];
+          entries[swapIndex] = current;
+        }
+      } else {
+        entries.sort(function (left, right) {
+          var dateOrder = mode === "oldest"
+            ? value(left, "data-date").localeCompare(value(right, "data-date"))
+            : value(right, "data-date").localeCompare(value(left, "data-date"));
+          return dateOrder || value(left, "data-author").localeCompare(value(right, "data-author"));
+        });
+      }
       entries.forEach(function (entry, index) {
         entry.classList.toggle("is-featured", index === 0);
         grid.appendChild(entry);
       });
+      scheduleLayout();
     }
 
-    function syncExpansion() {
-      root.classList.toggle("is-expanded", expanded);
-      if (!toggle) return;
-      toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
-      toggle.textContent = expanded ? "mostrar selección" : "ver índice completo";
-    }
+    orderOptions.forEach(function (option) {
+      option.addEventListener("click", function () { sortEntries(value(option, "data-quotes-order")); });
+    });
+    sortEntries("recent");
 
-    order.addEventListener("change", function () { sortEntries(order.value); });
-    if (toggle) {
-      toggle.addEventListener("click", function () {
-        expanded = !expanded;
-        syncExpansion();
+    if ("ResizeObserver" in window) {
+      var resizeObserver = new ResizeObserver(function () {
+        var width = grid.clientWidth;
+        if (Math.abs(width - lastGridWidth) > 0.5) {
+          lastGridWidth = width;
+          scheduleLayout();
+        }
       });
+      resizeObserver.observe(grid);
+    } else {
+      window.addEventListener("resize", scheduleLayout);
     }
-    sortEntries(order.value);
-    syncExpansion();
+    new MutationObserver(scheduleLayout).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class", "style"],
+    });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(scheduleLayout);
   });
 </script>
 
-<noscript><style>.quote-index-entry { display: block !important; }</style></noscript>
+<noscript><style>.quotes-order { display: none !important; }.quotes-catalog, .quotes-grid { --quote-columns: 1; grid-template-columns: 1fr; }.quote-index-entry { display: block !important; grid-column: 1 / -1 !important; }</style></noscript>
