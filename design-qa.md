@@ -47,6 +47,45 @@ final result: passed
 
 ---
 
+# Quotes Typographic Mosaic Design QA
+
+- Source visual truth: `/var/folders/yg/rt8w41_56d30cbn9r6gbggyw0000gn/T/codex-clipboard-196256d5-4e74-41bd-b1b3-b2f08d9a404b.png`
+- Desktop implementation: `/tmp/quotes-mosaic-refined.png`
+- Mobile implementation: `/tmp/quotes-mosaic-mobile-chrome.png`
+- Full desktop comparison: `/tmp/quotes-mosaic-comparison.png`
+- Focused quote-grid comparison: `/tmp/quotes-mosaic-focus-comparison.png`
+- Viewports: `1487 x 1058` desktop and `390 x 844` mobile
+- State: Spanish quotes index, dark theme, intensity order, curated five-quote view
+
+## Findings
+
+No actionable P0, P1, or P2 differences remain.
+
+- The desktop composition follows the selected 12-column typographic mosaic: `4 / 5 / 3` tracks on the first row and `4 / 8` tracks on the second.
+- Quote type scales by text length. Short quotations receive display type while longer passages step down through large, regular, and compact sizes.
+- Long passages use medium or wide grid spans and render in full. The previous line clamp and source ellipsis were removed.
+- The normalized repository quotes remain the content source. Their exact copy and wrapping intentionally differ from the illustrative text generated in the mockup.
+- The existing `ver índice completo` disclosure remains available even though it is absent from the mockup, preserving access to all 52 quote records.
+- At 390 px, the mosaic becomes one 358 px column with no page-level horizontal overflow. All five curated quotes remain complete and readable.
+- The terminal was closed for the mobile evidence capture so the fixed terminal panel did not obscure the content.
+
+## Comparison History
+
+1. First desktop pass placed the second row at `y = 685` and the footer at `y = 1031`, making the quote area taller than the source.
+2. The text scale in the two narrow first-row slots and the grid row gap were tightened.
+3. The final pass places the second row at `y = 621` and the footer at `y = 1005`, within a few pixels of the selected mockup.
+
+## Interaction and Console Checks
+
+- Author sorting places Alan Moore first; restoring intensity order restores the curated mosaic.
+- Expanding the index reveals all 52 quote records, including 19 wide records; collapsing restores the selected five.
+- The toggle updates `aria-expanded` in both states.
+- Browser console: no warnings or errors in the tested desktop and mobile states.
+
+final result: passed
+
+---
+
 # Quotes editorial index design QA
 
 ## Evidence

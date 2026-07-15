@@ -16,6 +16,21 @@ interface DisplayQuote extends QuoteRecord {
   tags: TagItem[];
   key: string;
   intensityRank: number;
+  sizeClass: string;
+  spanClass: string;
+}
+
+function quoteSizeClass(length: number) {
+  if (length <= 70) return "quote-size-display";
+  if (length <= 140) return "quote-size-large";
+  if (length <= 260) return "quote-size-regular";
+  return "quote-size-compact";
+}
+
+function quoteSpanClass(length: number) {
+  if (length >= 260) return "quote-span-wide";
+  if (length >= 180) return "quote-span-medium";
+  return "quote-span-standard";
 }
 
 const {
@@ -48,14 +63,19 @@ const editorialSelection = [
 const selectedQuotes = editorialSelection
   .map((selection) => allQuotes.find((quote) => quote.author === selection.author
     && (!selection.source || quote.source === selection.source)))
-  .filter((quote): quote is Omit<DisplayQuote, "intensityRank"> => Boolean(quote));
+  .filter((quote): quote is Omit<DisplayQuote, "intensityRank" | "sizeClass" | "spanClass"> => Boolean(quote));
 const selectedKeys = new Set(selectedQuotes.map((quote) => quote.key));
 const remainingQuotes = allQuotes
   .filter((quote) => !selectedKeys.has(quote.key))
   .sort((left, right) => left.text.length - right.text.length
     || left.author.localeCompare(right.author, lang));
 const quoteItems: DisplayQuote[] = [...selectedQuotes, ...remainingQuotes]
-  .map((quote, index) => ({ ...quote, intensityRank: index }));
+  .map((quote, index) => ({
+    ...quote,
+    intensityRank: index,
+    sizeClass: quoteSizeClass(quote.text.length),
+    spanClass: quoteSpanClass(quote.text.length),
+  }));
 ---
 
 <section class="quotes-index" data-quotes-index>
@@ -90,7 +110,7 @@ const quoteItems: DisplayQuote[] = [...selectedQuotes, ...remainingQuotes]
   <div class="quotes-grid" data-quotes-grid>
     {quoteItems.map((quote, index) => (
       <article
-        class:list={["quote-index-entry", { "is-featured": index === 0 }]}
+        class:list={["quote-index-entry", quote.sizeClass, quote.spanClass, { "is-featured": index === 0 }]}
         data-quote-entry
         data-length={quote.text.length}
         data-intensity={quote.intensityRank}
@@ -148,6 +168,7 @@ const quoteItems: DisplayQuote[] = [...selectedQuotes, ...remainingQuotes]
     }
 
     function sortEntries(mode) {
+      root.classList.toggle("is-curated", mode === "intensity");
       entries.sort(function (left, right) {
         if (mode === "author") return value(left, "data-author").localeCompare(value(right, "data-author"));
         if (mode === "recent") return value(right, "data-date").localeCompare(value(left, "data-date"))
