@@ -7,7 +7,6 @@ interface Props {
   archives?: ArchiveMonth[];
   archivesHref?: string;
   graphData?: GraphData | null;
-  friendlyArchiveLabels?: boolean;
 }
 
 const {
@@ -15,18 +14,7 @@ const {
   archives = [],
   archivesHref = lang === "es" ? "/es/archives/" : "/archives/",
   graphData = null,
-  friendlyArchiveLabels = false,
 } = Astro.props;
-const monthNames = lang === "es"
-  ? ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
-  : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-function archiveLabel(key: string) {
-  if (!friendlyArchiveLabels) return key;
-  const [year, month] = key.split("-");
-  const index = Number(month) - 1;
-  return monthNames[index] && year ? `${monthNames[index]} ${year}` : key;
-}
 ---
 
 {graphData && (
@@ -40,14 +28,12 @@ function archiveLabel(key: string) {
   <ul class="sidebar-list">
     {archives.slice(0, 12).map((month) => (
       <li>
-        <a href={`${archivesHref}#${month.key}`}>{archiveLabel(month.key)}</a>
+        <a href={`${archivesHref}#${month.key}`}>{month.key}</a>
         <span class="count">{month.count}</span>
       </li>
     ))}
   </ul>
   <a class="sidebar-more" href={archivesHref}>
-    {friendlyArchiveLabels
-      ? (lang === "es" ? "Ver todos los archivos" : "View all archives")
-      : (lang === "es" ? "Ver todos" : "View all")}
+    {lang === "es" ? "Ver todos" : "View all"}
   </a>
 </div>

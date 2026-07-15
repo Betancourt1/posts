@@ -1,3 +1,41 @@
+# Quotes central-only mosaic design QA
+
+## Evidence
+
+- Selected mockup: `/Users/betancourt/.codex/visualizations/2026/07/15/019f645d-18d4-7fb2-8bcf-ec480578a3e4/quotes-central-only-mockup.png`
+- Desktop implementation: `/private/tmp/quotes-central-final-interaction.png`
+- Mobile implementation: `/private/tmp/quotes-central-mobile.png`
+- Full combined comparison: `/private/tmp/quotes-central-final-comparison.png`
+- Focused central comparison: `/private/tmp/quotes-central-final-focus-comparison.png`
+- Viewports: `1224 x 768` desktop and `500 x 845` mobile window captures.
+- State: Spanish Citas author index, dark theme, recent order, built Astro Worker preview.
+
+The reference and implementation were inspected together in both combined comparison images. The full comparison treats the header, Notebook navigation, graph, archive rail, footer, and terminal control as locked surfaces; the focused comparison judges only the central quote area.
+
+## Findings
+
+No actionable P0, P1, or P2 visual difference remains.
+
+- Locked shell: the centered `betancourt` title, subtitle, search, settings, left Notebook menu, right graph and archives, footer, and terminal control continue to use the shared site components. No quote-specific selector changes those regions.
+- Central-only change: `Citas`, its description, inline ordering controls, and the quote mosaic are contained inside the existing content column.
+- Density: the first band now follows the same four-card rhythm as the selected mockup. The length-aware 12-column packer gives short quotes narrow blocks and longer passages wider blocks without inheriting a row's tallest height.
+- Completeness: every runtime quote body is rendered directly, with authored line breaks preserved and no line clamp, ellipsis, fixed card height, or overflow clipping.
+- Typography: quote length selects display, large, regular, or compact text while metadata stays visually subordinate. The implementation keeps the site's existing monospace family, mint accent, and hairline borders.
+- Interactions: recent, oldest, and random ordering all update the selected state. Returning to recent after random restores a deterministic order.
+- Responsive behavior: at the mobile capture width, the shared Notebook menu collapses normally and the quote mosaic becomes one column. Opening and closing the Notebook menu does not alter quote content.
+- Intentional data differences: the mockup uses an illustrative ordering. The implementation displays the current D1 quote texts, authors, sources, tags, and archive totals.
+
+## Comparison history
+
+1. The prior implementation replaced the global shell with a quote-specific header and side rails; those overrides were removed so the shared shell is restored.
+2. The first central-only pass still forced a `5 / 4 / 3` hero band and oversized its first quote, producing only three cards across the opening row.
+3. The final pass derives every span from quote length, producing the denser four-card opening band visible in the selected mockup.
+4. Browser interaction QA found that random order could leak into same-date recent ordering; a stable source sequence now resolves ties.
+
+final result: passed
+
+---
+
 # Notebook publishing and photography design QA
 
 ## Evidence

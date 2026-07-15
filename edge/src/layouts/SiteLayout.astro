@@ -133,12 +133,7 @@ const archivesPath = authorMode
   <body class={bodyClass || undefined}>
     {authorMode && <AuthorTools sourcePath={page.sourcePath} lang={lang} kind={page.kind} section={page.section} />}
     <header class="site-header">
-      <p class="site-title"><a href={homePath}>{isQuotes ? `${siteTitle}.work` : siteTitle}</a></p>
-      {isQuotes && (
-        <div class="quotes-header-navigation">
-          <Nav items={navigation} lang={lang} activePath={currentPath} activeSection={page.section} authorMode={authorMode} menuMode={true} />
-        </div>
-      )}
+      <p class="site-title"><a href={homePath}>{siteTitle}</a></p>
       <p class="site-subtitle">{subtitle}</p>
       <div class="site-header-actions">
         {translationPath && <a class="lang-toggle" href={translationPath} title={languageTitle}>{otherLanguage}</a>}
@@ -207,30 +202,24 @@ const archivesPath = authorMode
     )}
 
     <div class:list={["layout", { "layout--code-index": isCode, "layout--quotes-index": isQuotes }]}>
-      {!isQuotes && (
-        <aside class="column nav-column">
-          <Nav items={navigation} lang={lang} activePath={currentPath} activeSection={page.section} authorMode={authorMode} />
-        </aside>
-      )}
+      <aside class="column nav-column">
+        <Nav items={navigation} lang={lang} activePath={currentPath} activeSection={page.section} authorMode={authorMode} />
+      </aside>
       <main class:list={["column", "content-column", { "content-column--books": isBooks, "content-column--code-index": isCode, "content-column--photo-index": isPhotography, "content-column--quotes-index": isQuotes }]}>
         <div class="content-inner"><slot /></div>
       </main>
       {showSidebar && (
         <aside class="column sidebar-column">
-          <Sidebar lang={lang} archives={archiveMonths} archivesHref={archivesPath} graphData={page.isHome ? null : page.graphData} friendlyArchiveLabels={isQuotes} />
+          <Sidebar lang={lang} archives={archiveMonths} archivesHref={archivesPath} graphData={page.isHome ? null : page.graphData} />
         </aside>
       )}
     </div>
 
     <footer class="site-footer">
-      {isQuotes ? (
-        <p class="site-footer-updated">© {new Date().getFullYear()} betancourt.work · {lang === "es" ? "Hecho con texto, café y curiosidad." : "Made with text, coffee, and curiosity."}</p>
-      ) : (
-        <p class="site-footer-updated">
-          {lang === "es" ? "Última actualización del sitio:" : "Last updated:"}
-          {" "}<time datetime={updatedDate}>{updatedLabel}</time>
-        </p>
-      )}
+      <p class="site-footer-updated">
+        {lang === "es" ? "Última actualización del sitio:" : "Last updated:"}
+        {" "}<time datetime={updatedDate}>{updatedLabel}</time>
+      </p>
     </footer>
 
     {enableInfrastructure && (

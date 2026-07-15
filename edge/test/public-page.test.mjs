@@ -12,6 +12,10 @@ import {
 } from "../src/lib/public-page.mjs";
 
 const publicPagePath = new URL("../src/views/PublicPage.astro", import.meta.url);
+const siteLayoutPath = new URL("../src/layouts/SiteLayout.astro", import.meta.url);
+const quotesPath = new URL("../src/components/Quotes.astro", import.meta.url);
+const sidebarPath = new URL("../src/components/Sidebar.astro", import.meta.url);
+const siteCssPath = new URL("../../static/css/site.css", import.meta.url);
 
 test("maps arbitrary admin content routes to their public D1 route", () => {
   assert.equal(publicPathForAdminRoute("/admin/"), "/");
@@ -67,4 +71,46 @@ test("keeps the Citas title in Spanish notebook navigation", async () => {
 test("routes the quote notebook to its dedicated layout", () => {
   assert.equal(layoutForDocument({ kind: "section", section: "lit" }), "quotes");
   assert.equal(layoutForDocument({ kind: "section", section: "posts" }), "list");
+});
+
+test("keeps the quote archive inside the standard site shell", async () => {
+  const [publicPage, layout, sidebar, css] = await Promise.all([
+    readFile(publicPagePath, "utf8"),
+    readFile(siteLayoutPath, "utf8"),
+    readFile(sidebarPath, "utf8"),
+    readFile(siteCssPath, "utf8"),
+  ]);
+
+  assert.match(layout, /<p class="site-title"><a href=\{homePath\}>\{siteTitle\}<\/a><\/p>/);
+  assert.match(layout, /authorMode \? "author-mode" : ""/);
+  assert.match(layout, /<aside class="column nav-column">[\s\S]*?<Nav items=\{navigation\}/);
+  assert.doesNotMatch(layout, /quotes-header-navigation|friendlyArchiveLabels|\{!isQuotes/);
+  assert.doesNotMatch(publicPage, /layout === "quotes" \? null|quoteNavigationSections/);
+  assert.match(sidebar, />\{month\.key\}<\/a>/);
+
+  for (const selector of [
+    ".layout.layout--quotes-index",
+    ".quotes-index-page .site-header",
+    ".quotes-index-page .sidebar-column",
+    ".quotes-index-page .site-footer",
+    ".quotes-index-page .ssh-terminal-open-btn",
+  ]) {
+    assert.equal(css.includes(selector), false, `${selector} must not override the shared shell`);
+  }
+});
+
+test("renders every complete quote in the central mosaic", async () => {
+  const [quotes, css] = await Promise.all([
+    readFile(quotesPath, "utf8"),
+    readFile(siteCssPath, "utf8"),
+  ]);
+
+  assert.match(quotes, /<header class="quotes-page-header">[\s\S]*class="quotes-order"[\s\S]*<\/header>/);
+  assert.match(quotes, /data-length=\{quote\.text\.length\}/);
+  assert.match(quotes, /data-sequence=\{index\}/);
+  assert.match(quotes, /<a class="quote-index-text" href=\{quote\.href\}>\{quote\.text\}<\/a>/);
+  assert.match(quotes, /Number\(value\(left, "data-sequence"\)\) - Number\(value\(right, "data-sequence"\)\)/);
+  assert.doesNotMatch(css, /\.quote-index-text\s*\{[^}]*?(?:line-clamp|text-overflow|overflow:\s*hidden)/s);
+  assert.match(css, /\.quote-index-text\s*\{[^}]*white-space:\s*pre-line/s);
+  assert.match(css, /\.content-column--quotes-index \.content-inner\s*\{[^}]*max-width:\s*none/s);
 });

@@ -136,7 +136,7 @@ const shellPage: ShellPage = {
   noindex: page.hidden || page.draft || model.kind === "not-found",
   isHome: model.layout === "home",
   updatedAt: model.updatedAt || page.updatedAt,
-  graphData: layout === "quotes" ? null : {
+  graphData: {
     ...emptyGraph,
     focusTags: model.layout === "tag"
       ? []
@@ -146,9 +146,7 @@ const shellPage: ShellPage = {
   },
   infrastructureTree: { type: "dir", name: "/", children: [] },
 };
-const quoteNavigationSections = new Set(["", "about", "proyectos-profesionales", "proyectos-academicos", "posts", "zettelkasten", "lit", "cv"]);
-const navigation = navigationItems(model.navigation || [])
-  .filter((item) => layout !== "quotes" || quoteNavigationSections.has(item.section || ""));
+const navigation = navigationItems(model.navigation || []);
 const items = (model.items || []).map(listItem);
 const title = model.title || (lang === "es" ? "Sin título" : "Untitled");
 const description = model.description || undefined;

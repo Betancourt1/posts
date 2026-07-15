@@ -95,60 +95,56 @@ const quoteItems: DisplayQuote[] = [...selectedQuotes, ...remainingQuotes]
       </div>
       {description && <p class="lead">{description}</p>}
     </div>
-
-  </header>
-
-  <div class="quotes-catalog">
     <div class="quotes-order" role="group" aria-label={lang === "es" ? "Ordenar citas" : "Order quotes"}>
-      <span class="quotes-order-label">{lang === "es" ? "ordenar por" : "order by"}</span>
+      <span class="quotes-order-label">{lang === "es" ? "orden:" : "order:"}</span>
       <button class="quotes-order-option" type="button" data-quotes-order="recent" aria-pressed="true">
-        {lang === "es" ? "más reciente" : "newest"}
+        {lang === "es" ? "recientes" : "newest"}
       </button>
       <button class="quotes-order-option" type="button" data-quotes-order="oldest" aria-pressed="false">
-        {lang === "es" ? "más antiguo" : "oldest"}
+        {lang === "es" ? "antiguas" : "oldest"}
       </button>
       <button class="quotes-order-option" type="button" data-quotes-order="random" aria-pressed="false">
         {lang === "es" ? "aleatorio" : "random"}
       </button>
     </div>
+  </header>
 
-    <div class="quotes-results">
-      <div class="quotes-grid" data-quotes-grid>
-        {quoteItems.map((quote, index) => (
-          <article
-            class:list={["quote-index-entry", quote.sizeClass, quote.spanClass, { "is-featured": index === 0 }]}
-            data-quote-entry
-            data-length={quote.text.length}
-            data-date={quote.date}
-            data-author={quote.author.toLocaleLowerCase(lang)}
-            data-key={quote.key}
-          >
-            <span class="quote-index-mark" aria-hidden="true">“</span>
-            <a class="quote-index-text" href={quote.href}>{quote.text}</a>
-            <div class="quote-index-rule" aria-hidden="true"></div>
-            <a class="quote-index-author" href={quote.href}>{quote.author}</a>
-            {(quote.source || quote.year || quote.page) && (
-              <p class="quote-index-source">
-                {quote.source && <cite>{quote.source}</cite>}
-                {quote.source && quote.year && ", "}
-                {quote.year}
-                {quote.page && ` · p. ${quote.page}`}
-              </p>
-            )}
-            {quote.tags.length > 0 && (
-              <p class="quote-index-tags">
-                {quote.tags.map((tag, tagIndex) => (
-                  <>
-                    {tagIndex > 0 && <span aria-hidden="true"> · </span>}
-                    <a href={tag.href}>{tag.label}</a>
-                  </>
-                ))}
-              </p>
-            )}
-          </article>
-        ))}
-      </div>
-
+  <div class="quotes-catalog">
+    <div class="quotes-grid" data-quotes-grid>
+      {quoteItems.map((quote, index) => (
+        <article
+          class:list={["quote-index-entry", quote.sizeClass, quote.spanClass]}
+          data-quote-entry
+          data-length={quote.text.length}
+          data-date={quote.date}
+          data-author={quote.author.toLocaleLowerCase(lang)}
+          data-sequence={index}
+          data-key={quote.key}
+        >
+          <span class="quote-index-mark" aria-hidden="true">“</span>
+          <a class="quote-index-text" href={quote.href}>{quote.text}</a>
+          <div class="quote-index-rule" aria-hidden="true"></div>
+          <a class="quote-index-author" href={quote.href}>{quote.author}</a>
+          {(quote.source || quote.year || quote.page) && (
+            <p class="quote-index-source">
+              {quote.source && <cite>{quote.source}</cite>}
+              {quote.source && quote.year && ", "}
+              {quote.year}
+              {quote.page && ` · p. ${quote.page}`}
+            </p>
+          )}
+          {quote.tags.length > 0 && (
+            <p class="quote-index-tags">
+              {quote.tags.map((tag, tagIndex) => (
+                <>
+                  {tagIndex > 0 && <span aria-hidden="true"> · </span>}
+                  <a href={tag.href}>{tag.label}</a>
+                </>
+              ))}
+            </p>
+          )}
+        </article>
+      ))}
     </div>
   </div>
 </section>
@@ -169,10 +165,9 @@ const quoteItems: DisplayQuote[] = [...selectedQuotes, ...remainingQuotes]
       return entry.getAttribute(name) || "";
     }
 
-    function spanFor(entry, index, columns) {
+    function spanFor(entry, columns) {
       if (columns <= 1) return 1;
       if (columns === 8) return Number(value(entry, "data-length")) >= 260 ? 8 : 4;
-      if (index < 6) return [5, 4, 3, 5, 4, 3][index];
       var length = Number(value(entry, "data-length"));
       if (length >= 700) return 8;
       if (length >= 360) return 6;
@@ -201,8 +196,8 @@ const quoteItems: DisplayQuote[] = [...selectedQuotes, ...remainingQuotes]
       var heights = Array(columns).fill(0);
       grid.classList.add("is-packed");
 
-      visibleEntries.forEach(function (entry, index) {
-        var span = Math.min(spanFor(entry, index, columns), columns);
+      visibleEntries.forEach(function (entry) {
+        var span = Math.min(spanFor(entry, columns), columns);
         var width = columnWidth * span;
         entry.style.width = width + "px";
 
@@ -247,11 +242,12 @@ const quoteItems: DisplayQuote[] = [...selectedQuotes, ...remainingQuotes]
           var dateOrder = mode === "oldest"
             ? value(left, "data-date").localeCompare(value(right, "data-date"))
             : value(right, "data-date").localeCompare(value(left, "data-date"));
-          return dateOrder || value(left, "data-author").localeCompare(value(right, "data-author"));
+          return dateOrder
+            || value(left, "data-author").localeCompare(value(right, "data-author"))
+            || Number(value(left, "data-sequence")) - Number(value(right, "data-sequence"));
         });
       }
-      entries.forEach(function (entry, index) {
-        entry.classList.toggle("is-featured", index === 0);
+      entries.forEach(function (entry) {
         grid.appendChild(entry);
       });
       scheduleLayout();
@@ -282,4 +278,4 @@ const quoteItems: DisplayQuote[] = [...selectedQuotes, ...remainingQuotes]
   });
 </script>
 
-<noscript><style>.quotes-order { display: none !important; }.quotes-catalog, .quotes-grid { --quote-columns: 1; grid-template-columns: 1fr; }.quote-index-entry { display: block !important; grid-column: 1 / -1 !important; }</style></noscript>
+<noscript><style>.quotes-order { display: none !important; }.quotes-grid { --quote-columns: 1; grid-template-columns: 1fr; }.quote-index-entry { display: block !important; grid-column: 1 / -1 !important; }</style></noscript>
