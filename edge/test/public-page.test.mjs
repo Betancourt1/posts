@@ -5,6 +5,7 @@ import test from "node:test";
 import {
   adminPathForPublicRoute,
   archiveMonths,
+  layoutForDocument,
   languageForRoute,
   publicPathForAdminRoute,
   syntheticRoute,
@@ -61,4 +62,9 @@ test("keeps the Citas title in Spanish notebook navigation", async () => {
 
   assert.match(source, /\["Citas", "\/es\/lit\/", "lit"\]/);
   assert.doesNotMatch(source, /\["Lecturas", "\/es\/lit\/", "lit"\]/);
+});
+
+test("routes the quote notebook to its dedicated layout", () => {
+  assert.equal(layoutForDocument({ kind: "section", section: "lit" }), "quotes");
+  assert.equal(layoutForDocument({ kind: "section", section: "posts" }), "list");
 });

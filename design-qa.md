@@ -47,6 +47,43 @@ final result: passed
 
 ---
 
+# Quotes editorial index design QA
+
+## Evidence
+
+- Source visual truth: `/var/folders/yg/rt8w41_56d30cbn9r6gbggyw0000gn/T/codex-clipboard-70aef374-1197-461d-ba61-9231d43cc4b8.png`
+- Browser-rendered desktop: `/tmp/quotes-final-desktop.png`
+- Full-view side-by-side comparison: `/tmp/quotes-final-comparison.png`
+- Browser-rendered mobile: `/tmp/quotes-final-mobile.png`
+- Viewports: `1487 x 1058` desktop and `390 x 844` mobile CSS pixels.
+- State: Spanish quotes index, dark theme, intensity order, five-card selection.
+
+The reference and implementation were inspected together at the same desktop viewport. The implementation uses the normalized repository content, so quote lengths, source names, tags, archive counts, and dates intentionally differ from the visual mockup's sample data.
+
+## Findings
+
+No actionable P0, P1, or P2 visual differences remain.
+
+- Layout and spacing: the left navigation divider, main grid, archive divider, header controls, and footer align with the reference. The final footer begins at `1007px` versus approximately `1001px` in the source.
+- Typography and color: the existing Jersey wordmark, monospace body hierarchy, black background, mint accent, muted metadata, and hairline dividers are preserved.
+- Content: the opening selection uses real normalized passages from Michael Polanyi, bell hooks, Virginia Woolf, Mark Fisher, and Luis Hermosilla. Long passages and source titles are excerpted visually in the index but remain complete in the linked quote page.
+- Controls: intensity, recent, and author sorting all reorder the same 52 normalized quote records. The full-index disclosure expands and collapses without replacing the page.
+- Responsive behavior: the grid becomes one column at `390px`; the page and body both measured `390px` wide with no horizontal overflow.
+- Accessibility: sorting uses a labelled native select, the index disclosure exposes `aria-expanded`, quote excerpts remain links to their full pages, and focus styles use the site accent.
+- Browser diagnostics: no console warnings or errors were reported after the desktop, interaction, and mobile checks.
+
+## Comparison history
+
+1. The first pass inherited wider navigation and header measurements and selected the five shortest records automatically.
+2. The shell was measured against the reference and corrected to the target dividers, search width, header height, content origin, and three-column proportions.
+3. The initial grid was replaced by the intended editorial author sequence using the real normalized records.
+4. Long real passages were clamped as index excerpts, bringing the second row, disclosure, and footer into the reference's first-viewport composition.
+5. The final side-by-side comparison and interaction pass found no blocking visual, behavioral, or responsive mismatch.
+
+final result: passed
+
+---
+
 # 24-month GitHub wall design QA
 
 ## Source and implementation

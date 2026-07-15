@@ -108,12 +108,13 @@ async function syntheticPage(db, route, options = {}) {
   };
 }
 
-function layoutForDocument(document) {
+export function layoutForDocument(document) {
   if (document.kind === "home") return "home";
   if (document.kind === "page") return "single";
   if (["books", "libros"].includes(document.section)) return "books";
   if (document.section === "fotografia") return "photography";
   if (document.section === "proyectos-profesionales") return "code";
+  if (document.section === "lit") return "quotes";
   if (document.section === "archives") return "archives";
   return "list";
 }
@@ -136,7 +137,7 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
   const archivePromise = layout === "archives"
     ? archiveItems(db, document.lang, options)
     : Promise.resolve(null);
-  const itemsPromise = ["list", "books", "photography", "code"].includes(layout)
+  const itemsPromise = ["list", "books", "photography", "code", "quotes"].includes(layout)
     ? sectionItems(db, document.lang, document.section, { ...options, body: ["list", "books"].includes(layout) })
     : Promise.resolve([]);
   const backlinksPromise = layout === "single" && ["posts", "zettelkasten"].includes(document.section)

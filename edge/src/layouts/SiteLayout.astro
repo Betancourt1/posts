@@ -60,8 +60,9 @@ const socialImageUrl = /^https?:\/\//.test(socialImage)
 const isCode = page.layout === "code";
 const isBooks = page.layout === "books";
 const isPhotography = page.layout === "photography";
+const isQuotes = page.layout === "quotes";
 const isNotFound = page.layout === "not-found";
-const bodyClass = [pageClass, isCode ? "code-index" : "", isNotFound ? "not-found" : ""].filter(Boolean).join(" ");
+const bodyClass = [pageClass, isCode ? "code-index" : "", isQuotes ? "quotes-index-page" : "", isNotFound ? "not-found" : ""].filter(Boolean).join(" ");
 const updatedAt = page.updatedAt || new Date();
 const updatedDate = displayDate(updatedAt);
 const updatedLabel = updatedDate
@@ -200,25 +201,29 @@ const archivesPath = authorMode
       </div>
     )}
 
-    <div class:list={["layout", { "layout--code-index": isCode }]}>
+    <div class:list={["layout", { "layout--code-index": isCode, "layout--quotes-index": isQuotes }]}>
       <aside class="column nav-column">
         <Nav items={navigation} lang={lang} activePath={currentPath} activeSection={page.section} authorMode={authorMode} />
       </aside>
-      <main class:list={["column", "content-column", { "content-column--books": isBooks, "content-column--code-index": isCode, "content-column--photo-index": isPhotography }]}>
+      <main class:list={["column", "content-column", { "content-column--books": isBooks, "content-column--code-index": isCode, "content-column--photo-index": isPhotography, "content-column--quotes-index": isQuotes }]}>
         <div class="content-inner"><slot /></div>
       </main>
       {showSidebar && (
         <aside class="column sidebar-column">
-          <Sidebar lang={lang} archives={archiveMonths} archivesHref={archivesPath} graphData={page.isHome ? null : page.graphData} />
+          <Sidebar lang={lang} archives={archiveMonths} archivesHref={archivesPath} graphData={page.isHome ? null : page.graphData} friendlyArchiveLabels={isQuotes} />
         </aside>
       )}
     </div>
 
     <footer class="site-footer">
-      <p class="site-footer-updated">
-        {lang === "es" ? "Última actualización del sitio:" : "Last updated:"}
-        {" "}<time datetime={updatedDate}>{updatedLabel}</time>
-      </p>
+      {isQuotes ? (
+        <p class="site-footer-updated">© {new Date().getFullYear()} betancourt.work · {lang === "es" ? "Hecho con texto, café y curiosidad." : "Made with text, coffee, and curiosity."}</p>
+      ) : (
+        <p class="site-footer-updated">
+          {lang === "es" ? "Última actualización del sitio:" : "Last updated:"}
+          {" "}<time datetime={updatedDate}>{updatedLabel}</time>
+        </p>
+      )}
     </footer>
 
     {enableInfrastructure && (

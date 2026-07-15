@@ -43,7 +43,7 @@ export interface InfrastructureNode {
 export interface ShellPage {
   section?: string;
   kind?: string;
-  layout?: "default" | "books" | "photography" | "code" | "not-found";
+  layout?: "default" | "books" | "photography" | "code" | "quotes" | "not-found";
   sourcePath?: string | null;
   canonical?: string | null;
   socialImage?: string | null;
@@ -63,6 +63,18 @@ export interface ContentListItem {
   tags?: TagItem[];
   section?: string;
   hidden?: boolean;
+}
+
+export interface QuoteRecord {
+  text: string;
+  author: string;
+  source?: string | null;
+  year?: string | null;
+  page?: string | null;
+}
+
+export interface QuoteItem extends ContentListItem {
+  quotes: QuoteRecord[];
 }
 
 export interface BookItem extends ContentListItem {

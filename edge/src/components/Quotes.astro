@@ -1,0 +1,183 @@
+---
+import type { Language, QuoteItem, QuoteRecord, TagItem } from "./types";
+
+interface Props {
+  title: string;
+  description?: string | null;
+  items: QuoteItem[];
+  lang?: Language;
+  authorMode?: boolean;
+  notebook?: string;
+}
+
+interface DisplayQuote extends QuoteRecord {
+  href: string;
+  date: string;
+  tags: TagItem[];
+  key: string;
+  intensityRank: number;
+}
+
+const {
+  title,
+  description = null,
+  items,
+  lang = "es",
+  authorMode = false,
+  notebook,
+} = Astro.props;
+const addLabel = lang === "es" ? "Nueva cita" : "New quote";
+const allQuotes = items
+  .filter((item) => !item.hidden)
+  .flatMap((item) => item.quotes.map((quote, index) => ({
+    ...quote,
+    href: item.href,
+    date: String(item.date || ""),
+    tags: (item.tags || []).filter((tag) => tag.label.toLowerCase() !== "cita").slice(0, 2),
+    key: `${item.href}#${index + 1}`,
+  })))
+  .filter((quote) => quote.text?.trim() && quote.author?.trim());
+
+const editorialSelection = [
+  { author: "Michael Polanyi" },
+  { author: "bell hooks" },
+  { author: "Virginia Woolf" },
+  { author: "Mark Fisher", source: "Good for Nothing" },
+  { author: "Luis Hermosilla" },
+];
+const selectedQuotes = editorialSelection
+  .map((selection) => allQuotes.find((quote) => quote.author === selection.author
+    && (!selection.source || quote.source === selection.source)))
+  .filter((quote): quote is Omit<DisplayQuote, "intensityRank"> => Boolean(quote));
+const selectedKeys = new Set(selectedQuotes.map((quote) => quote.key));
+const remainingQuotes = allQuotes
+  .filter((quote) => !selectedKeys.has(quote.key))
+  .sort((left, right) => left.text.length - right.text.length
+    || left.author.localeCompare(right.author, lang));
+const quoteItems: DisplayQuote[] = [...selectedQuotes, ...remainingQuotes]
+  .map((quote, index) => ({ ...quote, intensityRank: index }));
+---
+
+<section class="quotes-index" data-quotes-index>
+  <header class="quotes-page-header">
+    <div class="quotes-page-heading">
+      <div class="page-header-row">
+        <h1>{title}</h1>
+        {authorMode && (
+          <div class="author-inline-actions">
+            <button type="button" class="author-action-button" data-author-action="add-post" data-notebook={notebook} aria-label={addLabel} title={addLabel}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M12 12v6"></path><path d="M9 15h6"></path></svg>
+            </button>
+            <button type="button" class="author-action-button" data-author-action="edit-notebook" aria-label={lang === "es" ? "Editar notebook" : "Edit notebook"} title={lang === "es" ? "Editar notebook" : "Edit notebook"}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"></path></svg>
+            </button>
+          </div>
+        )}
+      </div>
+      {description && <p class="lead">{description}</p>}
+    </div>
+
+    <label class="quotes-order" for="quotes-order">
+      <span>{lang === "es" ? "orden:" : "order:"}</span>
+      <select id="quotes-order" data-quotes-order>
+        <option value="intensity">{lang === "es" ? "intensidad" : "intensity"}</option>
+        <option value="recent">{lang === "es" ? "recientes" : "recent"}</option>
+        <option value="author">{lang === "es" ? "autor" : "author"}</option>
+      </select>
+    </label>
+  </header>
+
+  <div class="quotes-grid" data-quotes-grid>
+    {quoteItems.map((quote, index) => (
+      <article
+        class:list={["quote-index-entry", { "is-featured": index === 0 }]}
+        data-quote-entry
+        data-length={quote.text.length}
+        data-intensity={quote.intensityRank}
+        data-date={quote.date}
+        data-author={quote.author.toLocaleLowerCase(lang)}
+        data-key={quote.key}
+      >
+        <span class="quote-index-mark" aria-hidden="true">“</span>
+        <a class="quote-index-text" href={quote.href}>{quote.text}</a>
+        <div class="quote-index-rule" aria-hidden="true"></div>
+        <a class="quote-index-author" href={quote.href}>{quote.author}</a>
+        {(quote.source || quote.year || quote.page) && (
+          <p class="quote-index-source">
+            {quote.source && <cite>{quote.source}</cite>}
+            {quote.source && quote.year && ", "}
+            {quote.year}
+            {quote.page && ` · p. ${quote.page}`}
+          </p>
+        )}
+        {quote.tags.length > 0 && (
+          <p class="quote-index-tags">
+            {quote.tags.map((tag, tagIndex) => (
+              <>
+                {tagIndex > 0 && <span aria-hidden="true"> · </span>}
+                <a href={tag.href}>{tag.label}</a>
+              </>
+            ))}
+          </p>
+        )}
+      </article>
+    ))}
+  </div>
+
+  {quoteItems.length > 5 && (
+    <button class="quotes-index-toggle" type="button" data-quotes-toggle aria-expanded="false">
+      {lang === "es" ? "ver índice completo" : "view full index"}
+    </button>
+  )}
+</section>
+
+<script is:inline>
+  document.addEventListener("DOMContentLoaded", function () {
+    var root = document.querySelector("[data-quotes-index]");
+    if (!root) return;
+    var grid = root.querySelector("[data-quotes-grid]");
+    var order = root.querySelector("[data-quotes-order]");
+    var toggle = root.querySelector("[data-quotes-toggle]");
+    if (!grid || !order) return;
+
+    var expanded = false;
+    var entries = Array.from(grid.querySelectorAll("[data-quote-entry]"));
+
+    function value(entry, name) {
+      return entry.getAttribute(name) || "";
+    }
+
+    function sortEntries(mode) {
+      entries.sort(function (left, right) {
+        if (mode === "author") return value(left, "data-author").localeCompare(value(right, "data-author"));
+        if (mode === "recent") return value(right, "data-date").localeCompare(value(left, "data-date"))
+          || value(left, "data-author").localeCompare(value(right, "data-author"));
+        return Number(value(left, "data-intensity")) - Number(value(right, "data-intensity"))
+          || value(left, "data-author").localeCompare(value(right, "data-author"));
+      });
+      entries.forEach(function (entry, index) {
+        entry.classList.toggle("is-featured", index === 0);
+        grid.appendChild(entry);
+      });
+    }
+
+    function syncExpansion() {
+      root.classList.toggle("is-expanded", expanded);
+      if (!toggle) return;
+      toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+      toggle.textContent = expanded ? "mostrar selección" : "ver índice completo";
+    }
+
+    order.addEventListener("change", function () { sortEntries(order.value); });
+    if (toggle) {
+      toggle.addEventListener("click", function () {
+        expanded = !expanded;
+        syncExpansion();
+      });
+    }
+    sortEntries(order.value);
+    syncExpansion();
+  });
+</script>
+
+<noscript><style>.quote-index-entry { display: block !important; }</style></noscript>

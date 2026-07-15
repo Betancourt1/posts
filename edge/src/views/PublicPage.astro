@@ -9,6 +9,7 @@ import KnowledgeGraph from "../components/KnowledgeGraph.astro";
 import List from "../components/List.astro";
 import NotFound from "../components/NotFound.astro";
 import Photography from "../components/Photography.astro";
+import Quotes from "../components/Quotes.astro";
 import Single from "../components/Single.astro";
 import Tags from "../components/Tags.astro";
 import SiteLayout from "../layouts/SiteLayout.astro";
@@ -116,7 +117,7 @@ function bookReview(markdown: string) {
   return match?.[1]?.trim() || null;
 }
 
-const layout = ["books", "photography", "code", "not-found"].includes(model.layout)
+const layout = ["books", "photography", "code", "quotes", "not-found"].includes(model.layout)
   ? model.layout
   : "default";
 const emptyGraph = { posts: [], tagLinks: {} };
@@ -135,7 +136,7 @@ const shellPage: ShellPage = {
   noindex: page.hidden || page.draft || model.kind === "not-found",
   isHome: model.layout === "home",
   updatedAt: model.updatedAt || page.updatedAt,
-  graphData: {
+  graphData: layout === "quotes" ? null : {
     ...emptyGraph,
     focusTags: model.layout === "tag"
       ? []
@@ -145,7 +146,9 @@ const shellPage: ShellPage = {
   },
   infrastructureTree: { type: "dir", name: "/", children: [] },
 };
-const navigation = navigationItems(model.navigation || []);
+const quoteNavigationSections = new Set(["", "about", "proyectos-profesionales", "proyectos-academicos", "posts", "zettelkasten", "lit", "cv"]);
+const navigation = navigationItems(model.navigation || [])
+  .filter((item) => layout !== "quotes" || quoteNavigationSections.has(item.section || ""));
 const items = (model.items || []).map(listItem);
 const title = model.title || (lang === "es" ? "Sin título" : "Untitled");
 const description = model.description || undefined;
@@ -219,6 +222,20 @@ const description = model.description || undefined;
       lang={lang}
       authorMode={authorMode}
       notebook={page.sourcePath?.replace(/\/_index\.md$/, "")}
+    />
+  )}
+
+  {model.layout === "quotes" && (
+    <Quotes
+      title={title}
+      description={description}
+      lang={lang}
+      authorMode={authorMode}
+      notebook={page.sourcePath?.replace(/\/_index\.md$/, "")}
+      items={(model.items || []).map((document: any) => ({
+        ...listItem(document),
+        quotes: Array.isArray(document.frontMatter?.quotes) ? document.frontMatter.quotes : [],
+      }))}
     />
   )}
 
