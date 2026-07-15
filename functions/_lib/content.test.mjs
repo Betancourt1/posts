@@ -85,6 +85,7 @@ test("quote metadata arrays survive Markdown formatting", () => {
       author: "Michael Polanyi",
       source: "The Tacit Dimension",
       year: "1966",
+      page: "42",
     },
     {
       text: "El trabajo me otorgaría el estatus de persona real.",

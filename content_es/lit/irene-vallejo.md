@@ -7,6 +7,8 @@ summary: "La bondad asusta porque nos vuelve conscientes de la vulnerabilidad aj
 quotes:
   - text: "La bondad asusta porque nos vuelve conscientes de la vulnerabilidad ajena, y de la propia. No queremos afrontar la fragilidad acechante de nuestros cuerpos. Preferimos el ideal de suficiencia, menos promiscuo, que promete fortaleza e independencia, al precio de aislarnos."
     author: "Irene Vallejo"
+    source: "Me erotiza la gente buena"
+    year: "2023"
 aliases: ["/zettelkasten/irene-vallejo/"]
 ---
 

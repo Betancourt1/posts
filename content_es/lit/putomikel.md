@@ -6,7 +6,7 @@ tags: ["cita","masculinidad","género","salud-mental","capitalismo"]
 summary: "Y luego te dirán que los hombres sufren tanto o más que las mujeres, porque ellos tienen la obligación de ser los que más duro trabajan, los que traen el dinero a casa, los que ganan más, los putos amos—¡Claro que suf..."
 quotes:
   - text: "Y luego te dirán que los hombres sufren tanto o más que las mujeres, porque ellos tienen la obligación de ser los que más duro trabajan, los que traen el dinero a casa, los que ganan más, los putos amos—¡Claro que sufren, cabrón!"
-    author: "Putomikel"
+    author: "PutoMikel"
 aliases: ["/zettelkasten/putomikel/"]
 ---
 

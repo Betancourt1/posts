@@ -7,6 +7,8 @@ summary: "Ver el mundo a través de la filosofía mexicana es, pues, una oportun
 quotes:
   - text: "Ver el mundo a través de la filosofía mexicana es, pues, una oportunidad para ver a través de los ojos de aquellos que se ven a sí mismos como accidentes de la historia y la catástrofe."
     author: "Carlos Alberto Sánchez"
+    source: "Blooming in the Ruins: How Mexican Philosophy Can Guide Us toward the Good Life"
+    year: "2024"
 aliases: ["/zettelkasten/carlos-alberto-sanchez/"]
 ---
 

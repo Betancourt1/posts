@@ -7,6 +7,8 @@ summary: "Podemos saber más de lo que podemos decir."
 quotes:
   - text: "Podemos saber más de lo que podemos decir."
     author: "Michael Polanyi"
+    source: "The Tacit Dimension"
+    year: "1966"
 aliases: ["/zettelkasten/michael-polanyi/"]
 ---
 

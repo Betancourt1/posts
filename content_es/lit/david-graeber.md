@@ -7,8 +7,11 @@ summary: "Cada vez que tratas a otro ser humano con consideración y respeto, es
 quotes:
   - text: "Cada vez que tratas a otro ser humano con consideración y respeto, estás siendo anarquista. Cada vez que resuelves tus divergencias con otros, llegando a un arreglo razonable, escuchando lo que todos tienen que decir, en lugar de dejar que sea una persona la que decida por el resto, estás siendo anarquista."
     author: "David Graeber"
+    source: "¿Eres anarquista? ¡La respuesta te podría sorprender!"
   - text: "Sería fascinante —aunque seguramente imposible— confeccionar un catálogo de libros, diseños, planes, discursos y documentos atribuidos a hombres famosos que en realidad fueron redactados por sus secretarias."
     author: "David Graeber"
+    source: "Bullshit Jobs: A Theory"
+    year: "2018"
 aliases: ["/zettelkasten/david-graeber/"]
 ---
 

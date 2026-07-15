@@ -6,7 +6,9 @@ tags: ["cita","masculinidad","género","infancia","emociones","patriarcado"]
 summary: "Los niños pequeños son los únicos hombres en nuestra cultura que tienen permitido estar completamente en contacto con sus sentimientos, momentos permitidos donde pueden expresarse sin humillación su deseo de amar y se..."
 quotes:
   - text: "Los niños pequeños son los únicos hombres en nuestra cultura que tienen permitido estar completamente en contacto con sus sentimientos, momentos permitidos donde pueden expresarse sin humillación su deseo de amar y ser amados."
-    author: "Bell Hooks"
+    author: "bell hooks"
+    source: "El deseo de cambiar: Hombres, masculinidad y amor"
+    year: "2004"
 aliases: ["/zettelkasten/bell-hooks/"]
 ---
 

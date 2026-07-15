@@ -7,6 +7,7 @@ summary: "El infierno son los demás\" es solo una cara de la moneda. La otra ca
 quotes:
   - text: "\"El infierno son los demás\" es solo una cara de la moneda. La otra cara, que nadie parece mencionar, es también 'El cielo somos los demás'. El infierno es la separación, la incomunicación, el egocentrismo, la lujuria por el poder, por las riquezas, por la fama. El cielo, por otro lado, es muy simple y muy difícil: cuidar de los semejantes. Y eso es posible de manera sostenida solo en la colectividad."
     author: "Jean-Paul Sartre"
+    source: "Hablando con Sartre"
 aliases: ["/zettelkasten/jean-paul-sartre/"]
 ---
 

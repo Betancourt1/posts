@@ -7,6 +7,8 @@ summary: "To understand another emotional world is an often painful process of s
 quotes:
   - text: "To understand another emotional world is an often painful process of self-discovery as well."
     author: "Batja Mesquita"
+    source: "Between Us: How Cultures Create Emotions"
+    year: "2022"
 aliases: ["/zettelkasten/batja-mesquita/"]
 ---
 

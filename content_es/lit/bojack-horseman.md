@@ -6,7 +6,9 @@ tags: ["cita","amor","identidad","vínculos","miedo","felicidad","psicología"]
 summary: "Diane: Todo el mundo estaba preocupado por usted, no puede desaparecerse. Lastimó a mucha gente."
 quotes:
   - text: "Diane: Todo el mundo estaba preocupado por usted, no puede desaparecerse. Lastimó a mucha gente."
-    author: "BoJack Horseman"
+    author: "Cuddlywhiskers"
+    source: "BoJack Horseman, S03E03, BoJack Kills"
+    year: "2016"
 aliases: ["/zettelkasten/bojack-horseman/"]
 ---
 

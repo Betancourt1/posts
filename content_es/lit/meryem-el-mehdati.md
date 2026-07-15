@@ -7,6 +7,8 @@ summary: "Algunos hombres buenos no te chistan ni te incomodan. Son buenos hombr
 quotes:
   - text: "Algunos hombres buenos no te chistan ni te incomodan. Son buenos hombres. Levantan los pies cuando pasas la escoba por el hueco que hay entre el sofá y la mesa del salón. Vacían el lavaplatos. Hacen la cena a veces. No piensan que estés por debajo de ellos, pero no se plantean por qué de los diez directivos que hay en la empresa en la que trabajan nueve son hombres."
     author: "Meryem El Mehdati"
+    source: "Supersaurio"
+    year: "2022"
 aliases: ["/zettelkasten/meryem-el-mehdati/"]
 ---
 

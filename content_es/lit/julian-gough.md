@@ -7,6 +7,8 @@ summary: "¿Quiénes somos? Una vez nos llamaron el espíritu de la montaña. Pa
 quotes:
   - text: "¿Quiénes somos? Una vez nos llamaron el espíritu de la montaña. Padre sol, madre luna. Espíritus ancestrales, espíritus animales. Genios. Fantasmas. El hombre verde. Y dioses, demonios. Ángeles. Poltergeists. Alienígenas, extraterrestres."
     author: "Julian Gough"
+    source: "Minecraft End Poem"
+    year: "2011"
 aliases: ["/zettelkasten/julian-gough/"]
 ---
 

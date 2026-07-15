@@ -7,6 +7,8 @@ summary: "Tengan la carta de despedida que Virginia Wolf le escribió a su espos
 quotes:
   - text: "Estoy segura de que me vuelvo loca de nuevo. Creo que no puedo pasar por otra de esas espantosas temporadas. Esta vez no voy a recuperarme. Empiezo a oír voces y no puedo concentrarme."
     author: "Virginia Woolf"
+    source: "Letter to Leonard Woolf"
+    year: "1941"
 aliases: ["/zettelkasten/virginia-woolf/"]
 ---
 

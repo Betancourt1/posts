@@ -184,6 +184,11 @@ function validateQuotes(file, quotes, blocks) {
   for (const [index, quote] of (quotes || []).entries()) {
     if (!quote?.text?.trim()) errors.push(`quote ${index + 1} has no text`);
     if (!quote?.author?.trim()) errors.push(`quote ${index + 1} has no author`);
+    for (const field of ["source", "year", "page"]) {
+      if (field in quote && (typeof quote[field] !== "string" || !quote[field].trim())) {
+        errors.push(`quote ${index + 1} has an invalid ${field}`);
+      }
+    }
   }
 
   if (errors.length) throw new TypeError(`${file}: ${errors.join("; ")}`);

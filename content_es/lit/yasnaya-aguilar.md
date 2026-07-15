@@ -6,7 +6,7 @@ tags: ["cita","lenguaje","colonialismo","indigenismo","discriminación"]
 summary: "Ora resulta que el monolingüismo en mixteco está muy mal mientras que en francés no, lo que hay detrás se llama discriminación y colonialismo."
 quotes:
   - text: "Ora resulta que el monolingüismo en mixteco está muy mal mientras que en francés no, lo que hay detrás se llama discriminación y colonialismo."
-    author: "Yásnaya Aguilar"
+    author: "Yásnaya Elena Aguilar Gil"
 aliases: ["/zettelkasten/yasnaya-aguilar/"]
 ---
 

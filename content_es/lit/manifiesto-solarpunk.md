@@ -6,7 +6,8 @@ tags: ["cita","solarpunk","ecología","futurismo","utopía","comunidad","políti
 summary: "1.- Somos solarpunks porque nos han arrebatado el optimismo y estamos tratando de recuperarlo."
 quotes:
   - text: "1.- Somos solarpunks porque nos han arrebatado el optimismo y estamos tratando de recuperarlo."
-    author: "Manifiesto Solarpunk"
+    author: "La Comunidad Solarpunk"
+    source: "Un Manifiesto Solarpunk"
 aliases: ["/zettelkasten/manifiesto-solarpunk/"]
 ---
 

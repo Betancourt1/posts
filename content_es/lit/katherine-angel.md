@@ -7,6 +7,8 @@ summary: "Según la pedagoga sexual Christina Tesoro, se insiste mucho en que la
 quotes:
   - text: "Parte del problema, según Tesoro, es que algunos hombres ven la duda como «otra traba que hay que sortear, una barrera en el mapa independiente con el que han aprendido a orientarse»."
     author: "Katherine Angel"
+    source: "Tomorrow Sex Will Be Good Again: Women and Desire in the Age of Consent"
+    year: "2021"
 aliases: ["/zettelkasten/katherine-angel/"]
 ---
 

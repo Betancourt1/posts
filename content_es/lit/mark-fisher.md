@@ -7,8 +7,12 @@ summary: "No, no soy tolerante. No, no quiero \"debatir\" o \"entrar en diálogo
 quotes:
   - text: "No, no soy tolerante. No, no quiero \"debatir\" o \"entrar en diálogo con\" demócratas liberales, PoMoSofistas, opiniólogos, carnalistas, hedonistas, mencheviques, individualistas... No, no te respeto, ni solicito tal respeto para mí de tu parte."
     author: "Mark Fisher"
+    source: "We Dogmatists"
+    year: "2005"
   - text: "El trabajo, al igual que 'estar en una relación', me otorgaría automáticamente el status de Person Real."
     author: "Mark Fisher"
+    source: "Good for Nothing"
+    year: "2014"
 aliases: ["/zettelkasten/mark-fisher/"]
 ---
 

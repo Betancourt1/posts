@@ -7,6 +7,8 @@ summary: "La imagen científica del mundo que me rodea es muy deficiente. Propor
 quotes:
   - text: "La imagen científica del mundo que me rodea es muy deficiente. Proporciona una gran cantidad de información sobre los hechos, reduce toda experiencia a un orden maravillosamente consistente, pero guarda un silencio sepulcral sobre todos y cada uno de los aspectos que tienen que ver con el corazón, sobre todo lo que realmente nos importa."
     author: "Erwin Schrödinger"
+    source: "La naturaleza y los griegos"
+    year: "1954"
 aliases: ["/zettelkasten/erwin-schrodinger/"]
 ---
 

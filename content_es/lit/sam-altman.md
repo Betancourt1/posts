@@ -7,6 +7,8 @@ summary: "Un agricultor de hace mil años miraría lo que muchos de nosotros hac
 quotes:
   - text: "Un agricultor de hace mil años miraría lo que muchos de nosotros hacemos y diría que tenemos trabajos falsos, y pensaría que simplemente estamos jugando para entretenernos, dado que tenemos abundancia de comida y lujos inimaginables."
     author: "Sam Altman"
+    source: "The Gentle Singularity"
+    year: "2025"
 aliases: ["/zettelkasten/sam-altman/"]
 ---
 

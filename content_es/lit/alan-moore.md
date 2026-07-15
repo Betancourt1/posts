@@ -7,6 +7,7 @@ summary: "Finalmente, si de verdad quieres ser un gran escritor, quizás valga l
 quotes:
   - text: "Finalmente, si de verdad quieres ser un gran escritor, quizás valga la pena recordar que incluso en este medio, es más importante ser un buen humano que un buen escritor."
     author: "Alan Moore"
+    source: "Writing for Comics"
 aliases: ["/zettelkasten/alan-moore/"]
 ---
 

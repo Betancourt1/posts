@@ -7,6 +7,8 @@ summary: "No llores, Tsutaya. Que exista una buena historia y que haya una perso
 quotes:
   - text: "No llores, Tsutaya. Que exista una buena historia y que haya una persona con quien puedas hablar de ella... solo por eso merece la pena vivir, como dice un personaje de La leyenda del pianista en el océano. Tú eres para mí esa persona."
     author: "Genki Kawamura"
+    source: "Si los gatos desaparecieran del mundo"
+    year: "2012"
 aliases: ["/zettelkasten/genki-kawamura/"]
 ---
 
