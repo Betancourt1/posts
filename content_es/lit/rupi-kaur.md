@@ -5,7 +5,7 @@ draft: false
 tags: ["cita","amor","vínculos","lenguaje","poesía"]
 summary: "a veces"
 quotes:
-  - text: "a veces te quiero significa deseo quererte a veces te quiero significa me quedaré un poco más a veces te quiero significa no sé cómo irme a veces te quiero significa no tengo otro lugar a dónde ir"
+  - text: "a veces\nte quiero significa\ndeseo quererte\na veces\nte quiero significa\nme quedaré un poco más\na veces\nte quiero significa\nno sé cómo irme\na veces\nte quiero significa\nno tengo otro lugar a dónde ir"
     author: "Rupi Kaur"
     source: "Home Body"
     year: "2020"

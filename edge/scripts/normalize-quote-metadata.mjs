@@ -44,6 +44,15 @@ function cleanInlineMarkdown(value) {
     .trim();
 }
 
+function cleanQuoteMarkdown(value) {
+  return String(value || "")
+    .split("\n")
+    .map((line) => cleanInlineMarkdown(line))
+    .filter(Boolean)
+    .join("\n")
+    .trim();
+}
+
 function cleanTitle(value) {
   return cleanInlineMarkdown(value).replace(/^Cita:\s*/i, "").trim();
 }
@@ -71,7 +80,7 @@ function looksLikeAttribution(value, author) {
 
 function withoutOuterQuote(value) {
   const pairs = [["\"", "\""], ["“", "”"], ["«", "»"]];
-  let text = cleanInlineMarkdown(value);
+  let text = cleanQuoteMarkdown(value);
 
   for (const [open, close] of pairs) {
     if (text.startsWith(open) && text.endsWith(close)) {
@@ -110,7 +119,7 @@ function quoteRecord(file, block, frontMatter, existingQuote = {}) {
   }
 
   const quote = {
-    text: withoutOuterQuote(lines.join(" ")),
+    text: withoutOuterQuote(lines.join("\n")),
     author: author || "Autor desconocido",
   };
   for (const field of ["source", "year", "page"]) {
