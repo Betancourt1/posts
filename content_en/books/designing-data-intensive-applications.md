@@ -1,24 +1,25 @@
 ---
 title: "Designing Data-Intensive Applications"
 date: 2025-12-30
-draft: false
-search: true
-translationKey: "goodreads-23463279"
-summary: "By Martin Kleppmann · Currently reading"
-tags: ["book","currently-reading","data-engineering","architecture"]
+tags: ["book", "currently-reading", "data-engineering", "architecture"]
+summary: "By Martin Kleppmann · Reading"
+binding: "ebook"
 book_author: "Martin Kleppmann"
+book_progress: "15"
 book_status: "currently-reading"
+bookshelves: ["currently-reading"]
+date_added: "2025-12-30"
 goodreads_id: "23463279"
 goodreads_url: "https://www.goodreads.com/book/show/23463279"
-date_added: 2025-12-30
-bookshelves: ["currently-reading"]
-publication_year: 2015
+pages: "562"
+publication_year: "2015"
 publisher: "O'Reilly"
-binding: "ebook"
-pages: 562
+search: true
+translationKey: "goodreads-23463279"
 ---
+
 **Author:** Martin Kleppmann
-**Progress:** not set
+**Progress:** 15%
 **Added:** 2025-12-30
 **Published:** 2015
 **Publisher:** O'Reilly
