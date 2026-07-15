@@ -13,7 +13,7 @@ quotes:
     author: "Ocean Vuong"
     source: "En la tierra somos fugazmente grandiosos"
     year: "2019"
-  - text: "La vez, con trece años, en que por fin dije «Basta». Tu mano en el aire, mi mejilla escocida por el primer golpe. —Para, mamá. Déjalo. Por favor. Te miré con dureza, tal como para entonces había aprendido a mirar a los ojos de los matones que me acosaban en el colegio."
+  - text: "La vez, con trece años, en que por fin dije «Basta». Tu mano en el aire, mi mejilla escocida por el primer golpe. —Para, mamá. Déjalo. Por favor. Te miré con dureza, tal como para entonces había aprendido a mirar a los ojos de los matones que me acosaban en el colegio. Te diste la vuelta y, sin decir nada, te pusiste el abrigo de lana marrón y saliste para ir a la tienda. —Voy a comprar huevos —dijiste por encima del hombro, como si no hubiera pasado nada. Pero los dos sabíamos que ya nunca volverías a pegarme."
     author: "Ocean Vuong"
     source: "En la tierra somos fugazmente grandiosos"
     year: "2019"

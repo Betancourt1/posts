@@ -91,36 +91,7 @@ function withoutOuterQuote(value) {
   return text;
 }
 
-function completeExcerpt(text, minimumLength = 150) {
-  if (text.length <= 420) return text;
-
-  const boundaries = [...text.matchAll(/(?<!\.)[.!?](?!\.)(?:[\"”»])?(?=\s|$)/g)];
-  const boundary = boundaries.find((match) => match.index + match[0].length >= minimumLength);
-  return boundary ? text.slice(0, boundary.index + boundary[0].length).trim() : text;
-}
-
-function summaryExcerpt(summary, fullText) {
-  const normalizedSummary = cleanInlineMarkdown(summary);
-  if (!normalizedSummary || /^Procesado:/i.test(normalizedSummary)) return null;
-  if (normalizedSummary.endsWith(":")) return null;
-  if (normalizedSummary.length < 60 && fullText.length > normalizedSummary.length * 2) return null;
-  if (!/\.\.\.$|…$/.test(normalizedSummary)) return withoutOuterQuote(normalizedSummary);
-
-  const prefix = normalizedSummary
-    .replace(/(?:\.\.\.|…)$/, "")
-    .replace(/\s+\S*$/, "")
-    .trim();
-  const normalizedText = withoutOuterQuote(fullText);
-  if (!prefix || !normalizedText.startsWith(prefix)) return null;
-
-  const remainder = normalizedText.slice(prefix.length);
-  const boundary = remainder.match(/(?<!\.)[.!?](?!\.)(?:[\"”»])?(?=\s|$)/);
-  return boundary
-    ? normalizedText.slice(0, prefix.length + boundary.index + boundary[0].length).trim()
-    : completeExcerpt(normalizedText);
-}
-
-function quoteRecord(file, block, frontMatter, index) {
+function quoteRecord(file, block, frontMatter, existingQuote = {}) {
   const lines = block
     .split("\n")
     .map((line) => line.replace(/^>\s?/, "").trim())
@@ -128,7 +99,7 @@ function quoteRecord(file, block, frontMatter, index) {
 
   if (lines[0] === "[!quote]") lines.shift();
 
-  let author = authorFromTitle(file, frontMatter.title || "");
+  let author = existingQuote.author || authorFromTitle(file, frontMatter.title || "");
   const forcedTrailingLines = trailingAttributionLines[file] || 0;
 
   if (forcedTrailingLines > 0) {
@@ -138,15 +109,14 @@ function quoteRecord(file, block, frontMatter, index) {
     lines.pop();
   }
 
-  const fullText = withoutOuterQuote(lines.join(" "));
-  const text = index === 0
-    ? summaryExcerpt(frontMatter.summary, fullText) || completeExcerpt(fullText)
-    : completeExcerpt(fullText);
-
-  return {
-    text,
+  const quote = {
+    text: withoutOuterQuote(lines.join(" ")),
     author: author || "Autor desconocido",
   };
+  for (const field of ["source", "year", "page"]) {
+    if (existingQuote[field]) quote[field] = existingQuote[field];
+  }
+  return quote;
 }
 
 function yamlString(value) {
@@ -156,20 +126,32 @@ function yamlString(value) {
 function serializeQuotes(quotes) {
   return [
     "quotes:",
-    ...quotes.flatMap((quote) => [
-      `  - text: ${yamlString(quote.text)}`,
-      `    author: ${yamlString(quote.author)}`,
-    ]),
+    ...quotes.flatMap((quote) => {
+      const lines = [
+        `  - text: ${yamlString(quote.text)}`,
+        `    author: ${yamlString(quote.author)}`,
+      ];
+      for (const field of ["source", "year", "page"]) {
+        if (quote[field]) lines.push(`    ${field}: ${yamlString(quote[field])}`);
+      }
+      return lines;
+    }),
   ].join("\n");
 }
 
-function insertQuotes(markdown, quotes) {
+function upsertQuotes(markdown, quotes) {
   const { frontMatterSource, body } = parseDocument(markdown);
   const quoteYaml = serializeQuotes(quotes);
-  const aliasIndex = frontMatterSource.search(/^aliases:/m);
-  const updatedFrontMatter = aliasIndex === -1
-    ? `${frontMatterSource}\n${quoteYaml}`
-    : `${frontMatterSource.slice(0, aliasIndex)}${quoteYaml}\n${frontMatterSource.slice(aliasIndex)}`;
+  const existingQuotes = /^quotes:\s*\n(?:[ \t]+.*\n?)*/m;
+  let updatedFrontMatter;
+  if (existingQuotes.test(frontMatterSource)) {
+    updatedFrontMatter = frontMatterSource.replace(existingQuotes, `${quoteYaml}\n`);
+  } else {
+    const aliasIndex = frontMatterSource.search(/^aliases:/m);
+    updatedFrontMatter = aliasIndex === -1
+      ? `${frontMatterSource}\n${quoteYaml}`
+      : `${frontMatterSource.slice(0, aliasIndex)}${quoteYaml}\n${frontMatterSource.slice(aliasIndex)}`;
+  }
 
   return `---\n${updatedFrontMatter}\n---\n${body}`;
 }
@@ -211,11 +193,20 @@ for (const file of files) {
 
   if (!blocks.length) throw new TypeError(`${file}: no blockquotes found`);
 
-  if (!Array.isArray(frontMatter.quotes)) {
-    if (!write) throw new TypeError(`${file}: missing quotes array; rerun with --write`);
-    const quotes = blocks.map((block, index) => quoteRecord(file, block, frontMatter, index));
-    await writeFile(path, insertQuotes(markdown, quotes), "utf8");
-    frontMatter.quotes = quotes;
+  const existingQuotes = Array.isArray(frontMatter.quotes) ? frontMatter.quotes : [];
+  const completeQuotes = blocks.map((block, index) => quoteRecord(
+    file,
+    block,
+    frontMatter,
+    existingQuotes[index],
+  ));
+  const needsUpdate = completeQuotes.length !== existingQuotes.length
+    || completeQuotes.some((quote, index) => quote.text !== existingQuotes[index]?.text);
+
+  if (needsUpdate) {
+    if (!write) throw new TypeError(`${file}: abbreviated or missing quote text; rerun with --write`);
+    await writeFile(path, upsertQuotes(markdown, completeQuotes), "utf8");
+    frontMatter.quotes = completeQuotes;
     changed += 1;
   }
 
