@@ -10,9 +10,6 @@
 /edge/.generated/
 /edge/.dev.vars
 /edge/worker-configuration.d.ts
-/tools/hugo/
-/public/
-.hugo_build.lock
 *.swp
 *~
 *.un~

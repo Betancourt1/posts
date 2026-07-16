@@ -3,7 +3,7 @@ import test from "node:test";
 
 import { tagRecord, uniqueTagRecords } from "../src/lib/tag-slug.mjs";
 
-test("matches Hugo-style Unicode tag routes", () => {
+test("matches Unicode tag routes", () => {
   assert.deepEqual(tagRecord("Ética"), { label: "Ética", slug: "ética" });
   assert.deepEqual(tagRecord("Visualización de datos"), {
     label: "Visualización de datos",

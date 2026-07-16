@@ -13,6 +13,8 @@ import {
 
 const publicPagePath = new URL("../src/views/PublicPage.astro", import.meta.url);
 const siteLayoutPath = new URL("../src/layouts/SiteLayout.astro", import.meta.url);
+const singlePath = new URL("../src/components/Single.astro", import.meta.url);
+const infrastructurePath = new URL("../client/infrastructure.js", import.meta.url);
 const quotesPath = new URL("../src/components/Quotes.astro", import.meta.url);
 const sidebarPath = new URL("../src/components/Sidebar.astro", import.meta.url);
 const siteCssPath = new URL("../../static/css/site.css", import.meta.url);
@@ -59,6 +61,26 @@ test("derives language and recent archive counts from runtime rows", () => {
       { key: "2026-06", count: 1 },
     ],
   );
+});
+
+test("single pages avoid duplicating a Markdown H1", async () => {
+  const [publicPage, single] = await Promise.all([
+    readFile(publicPagePath, "utf8"),
+    readFile(singlePath, "utf8"),
+  ]);
+
+  assert.match(publicPage, /titleInBody=\{\/\^\\s\*#\\s\+\\S\/m\.test\(page\.bodyMarkdown \|\| ""\)\}/);
+  assert.match(single, /\{!titleInBody && <h1 class="post-title"/);
+});
+
+test("the production shell does not offer or restore raw article mode", async () => {
+  const [layout, infrastructure] = await Promise.all([
+    readFile(siteLayoutPath, "utf8"),
+    readFile(infrastructurePath, "utf8"),
+  ]);
+
+  assert.doesNotMatch(layout, /id="infra-toggle"/);
+  assert.doesNotMatch(infrastructure, /infra_mode_enabled|initMode/);
 });
 
 test("keeps the Citas title in Spanish notebook navigation", async () => {

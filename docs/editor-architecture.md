@@ -28,10 +28,10 @@ La autoria tiene tres entradas independientes: Notebook, Post e Imagen. Ninguna 
 - Notebook nunca usa la publicación de posts en Are.na.
 - Imagen requiere al menos un archivo o una imagen persistida.
 - Guardar el blog y sincronizar Are.na siguen siendo operaciones distinguibles.
-- Publicar regresa a la Notebook después del guardado; no espera el despliegue de Cloudflare.
+- Publicar regresa a la Notebook después del guardado; no espera un despliegue de código.
 - El arnés no usa el repositorio real, GitHub, Are.na ni credenciales.
 
-## Decisión de producto: guardar no espera el despliegue
+## Decisión de producto: guardar no espera un despliegue
 
 El orden obligatorio al pulsar `Guardar` o `Publicar` es:
 
@@ -39,7 +39,7 @@ El orden obligatorio al pulsar `Guardar` o `Publicar` es:
 2. Sincronizar Are.na cuando esté seleccionado; si ya existe un vínculo y se desactiva, terminar esa desconexión.
 3. Redirigir inmediatamente a la Notebook seleccionada.
 
-Cloudflare Pages despliega de forma eventual y puede tardar varios minutos. La disponibilidad de la URL pública nunca debe bloquear la redirección del editor. Una verificación futura puede ejecutarse en segundo plano desde la Notebook, pero no debe insertarse entre la sincronización de Are.na y `redirectToNotebook()`.
+El contenido se proyecta a D1 después de persistirse en GitHub; desplegar el Worker es un proceso separado reservado para cambios de código. La disponibilidad de la URL pública nunca debe bloquear la redirección del editor. Una verificación futura puede ejecutarse en segundo plano desde la Notebook, pero no debe insertarse entre la sincronización de Are.na y `redirectToNotebook()`.
 
 El borrado es una excepción deliberada: puede verificar el 404 de la URL exacta para no comunicar una eliminación pública mientras una copia stale siga accesible. Esa comprobación no debe reutilizarse en el flujo de guardado.
 
@@ -63,9 +63,9 @@ Antes de desplegar:
 
 ```bash
 npm run site -- preflight
-npm run build
+cd edge && npm run build
 ```
 
 ## Regla para cambios futuros
 
-Una capacidad nueva pertenece primero al controlador de un editor. Solo debe moverse al núcleo compartido cuando dos o más editores necesiten exactamente la misma semántica. Toda modificación de rutas o guardado debe añadir o ajustar primero un caso del arnés. Las pruebas de plantilla deben rechazar explícitamente cualquier espera de despliegue antes de `redirectToNotebook()`.
+Una capacidad nueva pertenece primero al controlador de un editor. Solo debe moverse al núcleo compartido cuando dos o más editores necesiten exactamente la misma semántica. Toda modificación de rutas o guardado debe añadir o ajustar primero un caso del arnés. Las pruebas de plantilla deben rechazar explícitamente cualquier espera de publicación antes de `redirectToNotebook()`.

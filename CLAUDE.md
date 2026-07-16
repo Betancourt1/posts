@@ -1,61 +1,110 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file guides Claude Code when working in this repository. `AGENTS.md` is authoritative when the instructions differ.
 
 ## Commands
 
+Run production-runtime commands from `edge/`:
+
 ```bash
-# Local dev server (includes drafts)
-hugo server -D
+cd edge
 
-# Production build
-hugo --gc --minify
+# Initialize or refresh local D1 from the repository Markdown
+npm run db:seed:local
 
-# Full production build with search index (use before committing)
+# Local Astro server
+npm run dev
+
+# Tests, production build, and built preview
+npm test
 npm run build
+npm run preview
 
-# Full build and refresh the committed Pagefind backup
-npm run build:local
-
-# Regenerate Pagefind search index only
-npx pagefind --site public
+# Deploy code only when deployment is explicitly requested
+npm run deploy
 ```
 
-Run all commands from the repo root where `hugo.toml` is located. `hugo` must be in PATH.
-
-## Creating content
+Bulk data and media operations also run from `edge/`:
 
 ```bash
-# New post (Spanish; English content lives under content_en/)
-hugo new content_es/posts/2026/julio/mi_post.md
-
-# New zettelkasten note
-hugo new --kind zettel content_es/zettelkasten/mi_nota.md
+npm run db:seed:remote
+npm run media:sync:dry-run
+npm run media:sync
 ```
 
-Filenames use lowercase with underscores. Use clear `title`, `date`, `draft`, and `tags`; add `summary` when a custom listing or social preview is useful. Prefer `hidden: true` for pages that should be excluded from listings, archives, search, infrastructure mode, and the knowledge graph. Existing `no_post*` filenames still work as legacy hidden content.
+Run authoring and cross-runtime utilities from the repository root:
+
+```bash
+npm run author:api        # standalone filesystem editor; does not run Astro or update D1
+npm run new:post -- "Post title"
+npm run new:zettel -- "Concrete idea"
+npm run new:page -- "Page title" --lang es
+npm run site -- preflight
+npm test
+npm run test:editors
+```
+
+The production editor lives under the Cloudflare Access-protected `/admin/` routes. After changing local files with `author:api`, reseed local D1 before reviewing them in Astro.
 
 ## Architecture
 
-**Bilingual Hugo site** with separate content directories per language:
-- `content_en/` — English, default language served at `/`
-- `content_es/` — Spanish, served at `/es/`
+The production application is a bilingual Astro SSR runtime deployed as a Cloudflare Worker:
 
-Language routing is configured in `hugo.toml` via `[languages.en]` and `[languages.es]` blocks with their own `contentDir`, menus, and params. UI strings (button labels, section headings) are localized in `i18n/en.toml` and `i18n/es.toml`.
+- `content_en/` contains canonical English Markdown served from `/`.
+- `content_es/` contains canonical Spanish Markdown served from `/es/`.
+- GitHub is the canonical content store.
+- D1 is the runtime projection used for routes, rendered documents, navigation, tags, backlinks, graph data, archives, and search.
+- R2 stores production uploads served through `/uploads/*`.
+- `edge/src/` contains the production routes, layouts, views, components, and server libraries.
+- `edge/client/` contains production browser behavior.
+- `functions/` contains the shared editor handlers and services used by the Astro admin adapters.
+- `static/` contains shared assets copied by `edge/scripts/prepare-public.mjs`.
 
-**Content sections** (Spanish has more sections than English):
-- `posts/<year>/<month>/` — blog posts
-- `zettelkasten/` — atomic notes (ES only)
-- `lit/` — readings/literature notes (ES only)
-- `proyectos-profesionales/` and `proyectos-academicos/` — portfolio (both languages)
+The main public request path is:
 
-**Knowledge graph** (`layouts/partials/knowledge-graph.html`): a client-side force-directed graph that connects pages by shared tags. At build time the template collects all non-draft pages with tags, serializes them as JSON into a `<script>` block, and the browser renders the graph via D3. The `knowledge-graph` partial appears on the home page and in the sidebar.
+`edge/src/pages/*` -> `edge/src/lib/public-page.mjs` -> D1 queries -> `edge/src/views/PublicPage.astro` -> layout and components.
 
-**Backlinks** (`layouts/partials/backlinks.html`): scans all site pages at build time looking for references to the current page (by URL or filename), then renders a list at the bottom of any page that has inbound links.
+The content write path is:
 
-**Search**: Pagefind runs after Hugo generates `public/`. The `static/pagefind/` directory is committed as a fallback so that search works in production even if the deploy command only runs `hugo`. Refresh this backup with `npm run build:local` before committing when indexable content changes.
+GitHub Markdown -> projector -> D1, triggered by an admin mutation, the signed GitHub webhook, or an explicit seed. Search is served by `edge/src/pages/api/search.ts` from D1; it does not use a generated static index.
 
-**Deployment**: Cloudflare Pages deploys from `main` with build command `npm run build` and output directory `public`. HTTP headers for caching are in `static/_headers`.
+Code and content have separate lifecycles. A content commit can be reconciled into D1 without rebuilding Astro. A code push does not deploy the Worker; use `npm run deploy` from `edge/` when production deployment is in scope.
+
+## Creating content
+
+Use the root helpers instead of constructing paths by hand:
+
+```bash
+npm run new:post -- "Mi post"
+npm run new:zettel -- "Mi nota"
+npm run new:page -- "Mi pagina" --lang es
+```
+
+Use lowercase filenames with underscores. Keep front matter concise and use clear `title`, `date`, `draft`, and `tags`; add `summary` when a custom listing or social preview is useful.
+
+Prefer `hidden: true` for pages that should remain directly accessible but stay out of listings, archives, search, infrastructure mode, and the knowledge graph. Existing `no_post*` filenames remain supported.
+
+## Editor contract
+
+Notebook, Post, and Image are separate editor entries described in `docs/editor-architecture.md`. The user-visible save order is locked:
+
+1. Persist content in GitHub.
+2. Finish optional Are.na synchronization, including disconnecting an existing mapping when disabled.
+3. Return immediately to the selected Notebook.
+
+The edge adapter projects successful content mutations into D1. Do not insert Worker deployment waits, cache polling, or public-URL polling before the redirect. Deletion is the deliberate exception and may wait for the exact public URL to return 404.
+
+## Verification
+
+For production-facing work, run the relevant root tests and then:
+
+```bash
+cd edge
+npm test
+npm run build
+```
+
+Use the built preview and, after an authorized deployment, the public URL as the final rendered truth surfaces. Check browser-console errors, broken internal links, front matter, and unintended generated diffs.
 
 ## Workflow rule
 

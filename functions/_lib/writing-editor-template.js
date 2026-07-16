@@ -2556,7 +2556,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           if (arenaSaved === null && els.arenaEnabled.checked) {
             throw new Error(arenaState.error || "Are.na necesita un reintento.");
           }
-          // Product contract: GitHub -> Are.na -> Notebook. Cloudflare deploys asynchronously.
+          // Product contract: GitHub -> Are.na -> Notebook. Code deployment is unrelated.
           redirectToNotebook();
         }).catch(function (error) {
           setStatus(error.message, true);

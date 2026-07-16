@@ -55,14 +55,14 @@
     root.textContent = "";
 
     var ui = document.createElement("div");
-    ui.className = "pagefind-ui";
+    ui.className = "search-ui";
 
     var form = document.createElement("form");
-    form.className = "pagefind-ui__form";
+    form.className = "search-ui__form";
     form.setAttribute("role", "search");
 
     var input = document.createElement("input");
-    input.className = "pagefind-ui__search-input";
+    input.className = "search-ui__search-input";
     input.type = "search";
     input.autocomplete = "off";
     input.spellcheck = false;
@@ -70,18 +70,18 @@
     input.setAttribute("aria-label", root.dataset.searchLabel || copy.label);
 
     var drawer = document.createElement("div");
-    drawer.className = "pagefind-ui__drawer";
+    drawer.className = "search-ui__drawer";
 
     var area = document.createElement("div");
-    area.className = "pagefind-ui__results-area";
+    area.className = "search-ui__results-area";
 
     var message = document.createElement("p");
-    message.className = "pagefind-ui__message";
+    message.className = "search-ui__message";
     message.setAttribute("aria-live", "polite");
     message.textContent = copy.idle;
 
     var results = document.createElement("ol");
-    results.className = "pagefind-ui__results";
+    results.className = "search-ui__results";
 
     area.appendChild(message);
     area.appendChild(results);
@@ -108,13 +108,13 @@
       var excerpt = resultValue(result, ["excerpt", "summary", "snippet", "description", "body_text"]);
 
       var item = document.createElement("li");
-      item.className = "pagefind-ui__result";
+      item.className = "search-ui__result";
 
       var heading = document.createElement("p");
-      heading.className = "pagefind-ui__result-title";
+      heading.className = "search-ui__result-title";
 
       var link = document.createElement("a");
-      link.className = "pagefind-ui__result-link";
+      link.className = "search-ui__result-link";
       link.href = url;
       link.textContent = title;
       heading.appendChild(link);
@@ -122,7 +122,7 @@
 
       if (excerpt) {
         var summary = document.createElement("p");
-        summary.className = "pagefind-ui__result-excerpt";
+        summary.className = "search-ui__result-excerpt";
         summary.textContent = excerpt;
         item.appendChild(summary);
       }

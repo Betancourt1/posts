@@ -2850,7 +2850,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           if (arenaSaved === false) {
             throw new Error(arenaState.error || "Are.na necesita un reintento.");
           }
-          // Product contract: GitHub -> Are.na -> Notebook. Cloudflare deploys asynchronously.
+          // Product contract: GitHub -> Are.na -> Notebook. Code deployment is unrelated.
           redirectToNotebook();
         }).catch(function (error) {
           setSaveState("Error al guardar", "error");

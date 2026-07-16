@@ -142,7 +142,7 @@
       })
       .catch(function () {
         setStatus("offline", false);
-        toast("Run npm run author to enable writing.");
+        toast("The author API is unavailable.");
       });
   }
 

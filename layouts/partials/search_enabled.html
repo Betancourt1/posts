@@ -1,7 +1,0 @@
-{{ $showSearch := not (partial "is_hidden.html" .) }}
-
-{{ if isset .Params "search" }}
-  {{ $showSearch = .Params.search }}
-{{ end }}
-
-{{ return $showSearch }}

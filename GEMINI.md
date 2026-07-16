@@ -1,68 +1,101 @@
 # GEMINI.md - Project Context
 
-This file provides context for Gemini CLI when working on the `fbetancourt.work` Hugo static site project.
+This file provides context for Gemini CLI when working on `fbetancourt.work`.
 
-## Project Overview
-A personal static site built with [Hugo](https://gohugo.io/), featuring local search via [Pagefind](https://pagefind.app/) and deployed on Cloudflare Pages.
+## Project overview
 
-### Tech Stack
-- **SSG:** Hugo (via PATH or the npm `hugo-extended` dependency).
-- **Search:** Pagefind (indexing via `npx pagefind`).
+This is a bilingual Astro SSR site deployed as a Cloudflare Worker.
+
+- **Runtime:** Astro with the Cloudflare adapter in `edge/`.
+- **Canonical content:** Markdown in `content_en/` and `content_es/`, stored in GitHub.
+- **Runtime content:** A D1 projection containing documents, routes, tags, links, and searchable text.
+- **Media:** R2, exposed by the Worker at `/uploads/*`.
 - **Styling:** Custom CSS in `static/css/site.css`.
-- **Deployment:** Cloudflare Pages (automated from `main` branch).
+- **Authoring:** Protected `/admin/` routes backed by the shared handlers in `functions/`.
 
-## Building and Running
-The site can be built and run locally using the provided scripts or standard Hugo commands.
+English is served from `/`; Spanish is served from `/es/`.
 
-### Commands
-- **Development Server:**
-  - `npm run dev`
-  - `hugo server -D` (if `hugo` is in PATH)
-- **Production Build:**
-  - `npm run build` (Hugo + Pagefind)
-  - `hugo --gc --minify` (Hugo only)
-- **Full Build (Hugo + Pagefind):**
-  - `npm run build`
-  - `npm run build:local` (also refreshes `static/pagefind/`)
-- **Manual Search Indexing:**
-  - `npx pagefind --site public`
+## Runtime flow
 
-### Directories
-- `content_en/`: English Markdown content served from `/`.
-- `content_es/`: Spanish Markdown content served from `/es/`.
-  - `content_es/posts/<year>/<month>/`: Blog posts and writings.
-  - `content_es/zettelkasten/`: Knowledge base/notes.
-  - `content_es/lit/`: Reading notes and quotes.
-- `layouts/`: Hugo templates (HTML + Go templates).
-- `static/`: Static assets (CSS, icons, etc.) copied directly to `public/`.
-- `public/`: Generated static site (build artifact).
-- `archetypes/`: Templates for new content.
-- `tools/`: Local Hugo binary and build scripts.
+1. The projector in `edge/src/lib/content-projector.mjs` converts Markdown and front matter into normalized records and rendered HTML.
+2. The admin mutation sync, GitHub webhook reconciler, or bulk seed writes those records to D1.
+3. Public Astro routes build a page model with `edge/src/lib/public-page.mjs` and D1 queries from `content-queries.mjs`.
+4. `edge/src/views/PublicPage.astro` selects the appropriate component inside the shared site layout.
+5. Search and graph APIs query the same D1 projection; uploaded media comes from R2.
 
-## Development Conventions
+Content updates and code deployments are separate. Ordinary content changes update D1 without rebuilding the Worker. Code, component, and asset changes require an edge build and deployment.
 
-### Content Creation
-- **New Spanish Post:** `hugo new content_es/posts/2026/febrero/mi_post.md`
-- **New Spanish Zettel Note:** `hugo new --kind zettel content_es/zettelkasten/mi_nota.md`
-- **Filenames:** Use lowercase with underscores (e.g., `politica_como_identidad.md`).
-- **Front Matter:** Use clear `title`, `date`, `draft`, and `tags`; add `summary` when a custom listing or social preview is useful.
-- **Hidden Pages:** Prefer `hidden: true` for pages that should be excluded from listings, archives, search, infrastructure mode, and the knowledge graph. Existing `no_post*` filenames still work as legacy hidden content.
-- **Encoding:** UTF-8 Markdown.
+## Commands
 
-### Coding Style
-- **Templates:** Use 2-space indentation in HTML/Go templates.
-- **CSS:** Add custom styles to `static/css/site.css`.
-- **Organization:** Reuse partials in `layouts/partials/` instead of duplicating markup.
+Run production-runtime commands from `edge/`:
 
-### Commit Guidelines
-- Follow an imperative, scoped style (e.g., `Add metadata to post.md`).
-- Use English or Spanish.
-- **Mandatory:** Create a git commit for completed requested changes unless explicitly told not to.
+```bash
+cd edge
+npm run db:seed:local   # initialize or rebuild local D1 from repository Markdown
+npm run dev             # local Astro server
+npm test                # edge, D1, projection, and route tests
+npm run build           # type generation, Astro diagnostics, and Worker build
+npm run preview         # preview the built Worker
+npm run deploy          # build and deploy when deployment is explicitly in scope
+```
 
-## Key Files
-- `hugo.toml`: Main site configuration.
-- `AGENTS.md`: Specific guidelines for AI agents (take precedence).
-- `tools/sync_pagefind_static.mjs`: Syncs the generated Pagefind index into `static/pagefind/`.
-- `archetypes/post.md`: Standard post template.
-- `static/css/site.css`: Primary stylesheet.
-- `static/_headers`: Cloudflare Pages HTTP headers configuration.
+Useful data operations from `edge/`:
+
+```bash
+npm run db:seed:remote
+npm run media:sync:dry-run
+npm run media:sync
+```
+
+Run editor and content utilities from the repository root:
+
+```bash
+npm run author:api        # standalone filesystem editor helper; does not run Astro or update D1
+npm run new:post -- "Post title"
+npm run new:zettel -- "Concrete idea"
+npm run new:page -- "Page title" --lang es
+npm run site -- preflight
+npm test
+npm run test:editors
+```
+
+Production authoring lives under the Cloudflare Access-protected `/admin/` routes. The standalone `author:api` helper is for direct local-file editor work; reseed local D1 before reviewing those edits in the edge runtime.
+
+## Important directories
+
+- `edge/src/pages/`: public pages, `/admin/` pages, and APIs.
+- `edge/src/components/`, `edge/src/layouts/`, `edge/src/views/`: production UI.
+- `edge/src/lib/`: content projection, D1 access, reconciliation, page models, and media access.
+- `edge/client/`: browser-side production code.
+- `edge/db/migrations/`: D1 schema.
+- `edge/scripts/`: D1 seeds, asset preparation, media sync, and content normalization.
+- `content_en/`: English Markdown content.
+- `content_es/`: Spanish Markdown content.
+- `functions/`: editor handlers and shared authoring services adapted by Astro.
+- `static/`: shared CSS, fonts, icons, scripts, and local upload sources.
+- `tools/`: local authoring, content, testing, and QA utilities.
+
+## Development conventions
+
+- Use UTF-8 Markdown with clear `title`, `date`, `draft`, and `tags`; add `summary` when a listing or social preview needs custom text.
+- Use lowercase filenames with underscores, for example `politica_como_identidad.md`.
+- Preserve the existing language, section, year, and month hierarchy.
+- Prefer `hidden: true` for pages excluded from listings, archives, search, infrastructure mode, and the knowledge graph. Existing `no_post*` filenames remain supported.
+- Keep production UI work in `edge/src/` and browser behavior in `edge/client/` or the existing shared `static/js/` module.
+- Use 2-space indentation in Astro, HTML, JavaScript, and CSS where the surrounding file does.
+- Keep custom styling in `static/css/site.css`.
+- Avoid duplicating layout logic; reuse the existing Astro components and helpers.
+
+## Editor contract
+
+Saving must preserve this user-visible order: persist to GitHub, finish optional Are.na synchronization or disconnection, then return immediately to the selected Notebook. The edge adapter synchronizes the successful mutation into D1. Never add Worker deployment waits or public-URL polling to the save path. Deletion may still wait for the exact public URL to return 404.
+
+See `docs/editor-architecture.md` for the editor boundaries and regression contract.
+
+## Commit guidelines
+
+- Use a short, imperative, scoped subject.
+- Create a commit after every completed requested change unless the user explicitly says not to.
+- For production-facing changes, run the relevant root tests plus `npm test` and `npm run build` from `edge/`.
+
+`AGENTS.md` contains the repository rules and takes precedence.

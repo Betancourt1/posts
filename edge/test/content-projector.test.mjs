@@ -50,7 +50,7 @@ test("treats legacy Markdown without front matter as body content", () => {
   assert.equal(parsed.bodyMarkdown, "Legacy title\n\nText");
 });
 
-test("renders Hugo-style taxonomy summaries", () => {
+test("renders taxonomy summaries", () => {
   assert.equal(
     renderMarkdownSummary('Quote "one" and escaped \\"two\\"... [note](/note/)'),
     '<p>Quote “one” and escaped &quot;two&quot;… <a href="/note/">note</a>\n</p>\n',

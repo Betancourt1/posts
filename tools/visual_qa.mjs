@@ -347,7 +347,7 @@ function buildReadme(manifest) {
 
 function printHelp() {
   console.log(`Uso:
-  npm run visual:qa -- --feature "Nombre" --target pantalla=http://127.0.0.1:3010/es/
+  npm run visual:qa -- --feature "Nombre" --target pantalla=http://127.0.0.1:4321/es/
 
 Opciones:
   --feature texto                 Nombre del feature evaluado
@@ -523,7 +523,10 @@ function findRepoRoot(start) {
   let current = path.resolve(start);
 
   while (current !== path.dirname(current)) {
-    if (existsSync(path.join(current, "hugo.toml")) && existsSync(path.join(current, "package.json"))) {
+    if (
+      existsSync(path.join(current, "package.json")) &&
+      existsSync(path.join(current, "edge", "package.json"))
+    ) {
       return current;
     }
     current = path.dirname(current);

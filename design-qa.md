@@ -79,7 +79,7 @@ No actionable P0, P1, or P2 visual differences remain.
 
 ## Follow-up polish
 
-- P3: the reference presents publication as an in-context drawer; this implementation uses the existing dedicated author editor and carries over the same states and controls. This avoids duplicating editor state inside the public Hugo page.
+- P3: the reference presents publication as an in-context drawer; this implementation uses the existing dedicated author editor and carries over the same states and controls. This avoids duplicating editor state inside the public page.
 
 final result: passed
 
@@ -259,7 +259,7 @@ No actionable P0, P1, or P2 issue remains.
 - Variable sizing: The desktop gallery resolves to rows of 3, 4, and 4 images; mobile resolves to 2, 2, 2, 3, and 2. Widths vary from each image's intrinsic shape rather than fixed card spans.
 - Fonts and typography: Existing monospaced metadata, titles, line clamping, and hierarchy remain unchanged.
 - Colors and visual tokens: The black surface, mint links, muted metadata, and existing image outlines remain unchanged.
-- Copy and content: Titles, dates, summaries, image counts, links, graph, and archives continue to use the existing Hugo content.
+- Copy and content: Titles, dates, summaries, image counts, links, graph, and archives continue to use the existing repository content.
 - Responsive behavior: A live resize repacks the gallery from 3 desktop rows to 5 mobile rows. Automated checks found no page-level horizontal overflow, undersized mobile controls, or browser console errors.
 - Interaction: The first image card still navigates to `/es/fotografia/ninfas/` after the responsive repack.
 
@@ -433,7 +433,7 @@ final result: passed
 - Full combined comparison: `/Users/betancourt/.codex/visualizations/2026/07/13/019f5de2-d3cc-7703-8ff6-a969bfedcb61/code-section-comparison-final.png`
 - Focused content comparison: `/Users/betancourt/.codex/visualizations/2026/07/13/019f5de2-d3cc-7703-8ff6-a969bfedcb61/code-section-comparison-focus-final.png`
 - Viewport: 1536 x 1024
-- State: English Code index, dark theme, GitHub static fallback in local Hugo preview
+- State: English Code index, dark theme, GitHub fallback in local preview
 
 ## Comparison history
 
@@ -443,7 +443,7 @@ final result: passed
 - Project titles, summaries, access labels, and technology lists remained legible without clipping.
 - Intentional data differences: technology percentages are derived from the seven real projects and the contribution chart uses a real public GitHub snapshot rather than the illustrative values in the mockup.
 - P2 responsive finding: the English mobile navigation toggle switched to Spanish labels after initialization.
-- Fix: localized the JavaScript toggle labels through the existing Hugo language context.
+- Fix: localized the JavaScript toggle labels through the existing language context.
 
 ### Final pass
 
@@ -482,7 +482,7 @@ No actionable P0, P1, or P2 differences remain.
 - Spacing and layout rhythm: The lead panorama, portrait center image, right-hand stack, smaller butterfly, and narrow city image reproduce the mockup's variable-size rhythm. The implementation keeps larger real-photo crops where the source mockup invented additional archive items.
 - Colors and visual tokens: Black, off-white, muted gray, and mint tokens match the source and the existing site.
 - Image quality and asset fidelity: The implementation uses the real photography assets and responsive `object-fit: cover` crops. The Violeta portrait crop is tighter than the generated mockup because the real source is landscape; preserving the real image is the intentional constraint.
-- Copy and content: Titles, dates, image counts, description, navigation, graph, and archive content come from the current Hugo site rather than mock data.
+- Copy and content: Titles, dates, image counts, description, navigation, graph, and archive content come from repository content rather than mock data.
 - Responsive behavior: At 390 px, the lead photo spans both columns and supporting photos form a two-column gallery. Automated checks found no horizontal overflow, undersized controls, or console errors.
 
 ## Comparison History

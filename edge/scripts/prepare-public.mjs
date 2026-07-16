@@ -23,7 +23,6 @@ const staticFiles = [
   "js/photography-grid.js",
   "js/typography.js",
   "og-image.png",
-  "pagefind/pagefind-ui.css",
   "site.webmanifest",
 ];
 

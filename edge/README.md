@@ -1,6 +1,6 @@
 # Edge runtime
 
-This directory is the Astro SSR replacement for the Hugo deployment path.
+This directory contains the production Astro SSR runtime.
 Git remains the canonical content store; D1 is a runtime projection used by the
 Worker to render pages immediately after a content commit.
 

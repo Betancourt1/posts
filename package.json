@@ -2,9 +2,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "hugo server -D --renderToMemory --bind 127.0.0.1 --port 3010 --baseURL http://127.0.0.1:3010/ --appendPort=false --disableFastRender",
-    "start": "hugo server -D --renderToMemory --bind 127.0.0.1 --port 3010 --baseURL http://127.0.0.1:3010/ --appendPort=false --disableFastRender",
-    "author": "node tools/author_dev.mjs",
+    "dev": "npm --prefix edge run dev",
+    "start": "npm run dev",
     "author:api": "node tools/author_server.mjs",
     "new:post": "node tools/new_content.mjs post",
     "new:zettel": "node tools/new_content.mjs zettel",
@@ -14,15 +13,11 @@
     "test": "node --test functions/_lib/*.test.mjs",
     "test:editors": "node tools/editor_harness.mjs",
     "test:arena": "node --test functions/_lib/arena.test.mjs",
-    "build": "node tools/build_site.mjs",
-    "build:local": "npm run build && node tools/sync_pagefind_static.mjs"
+    "build": "npm --prefix edge run build",
+    "preview": "npm --prefix edge run preview",
+    "deploy": "npm --prefix edge run deploy"
   },
   "devDependencies": {
-    "hugo-extended": "^0.163.3",
-    "pagefind": "1.5.2",
     "playwright": "^1.61.1"
-  },
-  "dependencies": {
-    "@cloudflare/pages-plugin-cloudflare-access": "^1.0.5"
   }
 }

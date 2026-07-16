@@ -1,32 +1,45 @@
 # Editar contenido
 
-Este sitio tiene dos raices de contenido:
+El contenido canonico vive en dos raices Markdown:
 
 - `content_es/`: contenido en espanol, publicado bajo `/es/`.
 - `content_en/`: contenido en ingles, publicado bajo `/`.
 
-Para escribir, usa los comandos de autor antes de tocar rutas a mano.
+GitHub conserva estos archivos. El runtime Astro no los recorre en cada request: los proyecta a D1 y consulta esa proyeccion para renderizar paginas, busqueda, tags, backlinks, archivos y el grafo de conocimiento.
 
-## Escribir desde el navegador
+## Escribir desde el navegador en produccion
 
-```bash
-npm run author
-```
+La autoria real vive bajo `/admin/`, protegida por Cloudflare Access. Alli los cambios se guardan en GitHub, las imagenes se escriben en R2 y las mutaciones exitosas actualizan D1. Si se selecciona Are.na, su sincronizacion termina antes de volver a la Notebook elegida.
 
-Abre `http://localhost:3000`. En la esquina inferior derecha aparece el boton `Author`.
-
-Ese modo permite:
+La superficie permite:
 
 - Crear notebooks, que son carpetas con `_index.md`.
-- Crear posts o paginas dentro de un notebook desde una pestaña de editor.
-- Editar el post o pagina actual desde esa pestaña de editor.
-- Editar el notebook actual desde esa pestaña de editor.
-- Subir imagenes a `static/uploads/` e insertar el Markdown correspondiente.
-- Activar `Typewriter` para escribir con la linea activa centrada.
+- Crear posts o paginas dentro de un notebook.
+- Editar el post, pagina o notebook actual.
+- Subir imagenes e insertar su Markdown.
+- Activar `Typewriter` para mantener centrada la linea activa.
 
-Este modo usa una API local en `127.0.0.1:3001`. La UI de autor solo se renderiza con `npm run author`; `npm run build` no incluye los botones ni la API.
+## Editor local aislado
+
+Para trabajar directamente sobre los archivos locales, desde la raiz del repositorio:
+
+```bash
+npm run author:api
+```
+
+Este helper sirve los editores en `http://127.0.0.1:3001/` y escribe Markdown e imagenes en el filesystem. No levanta Astro, no usa Cloudflare Access y no actualiza D1. Es util para trabajo aislado del editor; `npm run test:editors` es la verificacion local segura de sus contratos.
+
+Despues de editar archivos localmente, reconstruye la proyeccion antes de revisar el sitio:
+
+```bash
+cd edge
+npm run db:seed:local
+npm run dev
+```
 
 ## Crear piezas nuevas
+
+Desde la raiz del repositorio:
 
 ```bash
 # Post en espanol, dentro de content_es/posts/<anio>/<mes>/
@@ -42,13 +55,13 @@ npm run new:page -- "Nombre de la pagina" --lang es
 npm run new:page -- "Nuevo proyecto" --lang es --section proyectos-profesionales
 ```
 
-Los comandos crean borradores con `draft: true`, asi que puedes escribir sin publicar por accidente. Para publicar, cambia `draft: true` por `draft: false` o usa `--publish` al crear el archivo.
+Los comandos crean borradores con `draft: true`. Para publicar, cambia el valor a `false` o usa `--publish` al crear el archivo.
 
-Si quieres que una pieza exista pero no aparezca en listados, busqueda, archivos o grafo, usa `hidden: true` o crea el archivo con `--hidden`.
+Usa `hidden: true` cuando una pieza deba seguir accesible por su URL pero no aparecer en listados, busqueda, archivos, infraestructura o grafo. Tambien puedes crearla con `--hidden`.
 
 ## Editar piezas existentes
 
-Las rutas importantes son:
+Las rutas habituales son:
 
 - Posts: `content_es/posts/<anio>/<mes>/<archivo>.md`
 - Zettelkasten: `content_es/zettelkasten/<archivo>.md`
@@ -62,27 +75,40 @@ Para encontrar una pieza por titulo o palabra:
 rg -n "texto que recuerdas" content_es content_en
 ```
 
+Conserva UTF-8, front matter conciso, tags claros y nombres de archivo en minusculas con guiones bajos.
+
 ## Revisar antes de publicar
 
+Valida el contenido desde la raiz:
+
 ```bash
+npm run site -- validate
+npm run site -- preflight
+npm test
+```
+
+Valida el runtime de produccion desde `edge/`:
+
+```bash
+cd edge
+npm test
+npm run build
+npm run preview
+```
+
+Para probar el sitio con una proyeccion D1 local creada desde el Markdown actual:
+
+```bash
+cd edge
+npm run db:seed:local
 npm run dev
 ```
 
-Ese comando muestra tambien borradores, pero no levanta la API de escritura. Para editar desde el navegador usa `npm run author`. Cuando el contenido ya este listo:
+Despues de un cambio de contenido ordinario no necesitas desplegar el Worker. El webhook o el editor actualizan D1. Usa `npm run db:seed:remote` solo para una reconstruccion remota completa.
 
-```bash
-npm run build
-```
+## Administrar el contenido desde CLI
 
-Si cambias contenido indexable y quieres actualizar el respaldo versionado de busqueda:
-
-```bash
-npm run build:local
-```
-
-## Administrar el sitio desde CLI
-
-Para revisar, encontrar y administrar contenido sin recordar rutas:
+Desde la raiz del repositorio:
 
 ```bash
 npm run site -- status
@@ -103,4 +129,16 @@ npm run site -- validate
 npm run site -- preflight
 ```
 
-La CLI usa `--dry-run` en acciones de escritura compatibles y `--json` en listados o diagnosticos.
+La CLI ofrece `--dry-run` en las acciones de escritura compatibles y `--json` en listados o diagnosticos.
+
+## Medios
+
+El editor local conserva archivos en `static/uploads/`; el editor desplegado usa R2. Para migrar o reconciliar los archivos locales con el bucket configurado en `edge/wrangler.jsonc`:
+
+```bash
+cd edge
+npm run media:sync:dry-run
+npm run media:sync
+```
+
+El runtime sirve esos objetos desde `/uploads/*` con su tipo de contenido y cache correspondiente.

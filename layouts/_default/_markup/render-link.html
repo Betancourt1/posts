@@ -1,5 +1,0 @@
-{{- $href := .Destination -}}
-{{- if hasPrefix $href "/" -}}
-  {{- $href = partial "admin_href.html" (dict "page" .Page "href" $href) -}}
-{{- end -}}
-<a href="{{ $href | safeURL }}"{{ with .Title }} title="{{ . }}"{{ end }}>{{ .Text | safeHTML }}</a>

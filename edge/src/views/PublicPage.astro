@@ -200,8 +200,6 @@ const description = model.description || undefined;
       caption={frontMatter.caption}
       images={photoImages(frontMatter.images)}
       titleInBody={/^\s*#\s+\S/m.test(page.bodyMarkdown || "")}
-      hidden={page.hidden}
-      searchable={page.searchable}
       authorMode={authorMode}
       lang={lang}
       backlinks={(model.backlinks || []).map((backlink: any) => ({

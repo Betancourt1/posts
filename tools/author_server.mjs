@@ -28,7 +28,7 @@ try {
 
 const PORT = Number(process.env.AUTHOR_PORT || 3001);
 const HOST = "127.0.0.1";
-const SITE_PORT = String(process.env.SITE_PORT || "3010");
+const SITE_PORT = String(process.env.SITE_PORT || "4321");
 const SITE_ORIGIN = String(process.env.SITE_ORIGIN || `http://127.0.0.1:${SITE_PORT}`);
 const AUTHOR_ORIGINS = new Set([
   `http://${HOST}:${PORT}`,

@@ -859,16 +859,6 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   max-width: 70ch;
   margin: 14px auto 0;
   text-align: left;
-  --pagefind-ui-scale: 0.78;
-  --pagefind-ui-primary: var(--accent);
-  --pagefind-ui-text: var(--ink);
-  --pagefind-ui-background: var(--bg-soft);
-  --pagefind-ui-border: var(--line);
-  --pagefind-ui-tag: var(--code-bg);
-  --pagefind-ui-border-width: 1px;
-  --pagefind-ui-border-radius: 10px;
-  --pagefind-ui-font: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, "Cascadia Mono",
-                      "Fira Code", "IBM Plex Mono", "Liberation Mono", monospace;
 }
 
 .site-search--hidden {
@@ -2374,40 +2364,47 @@ button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-
   outline-offset: 3px;
 }
 
-.site-search .pagefind-ui {
+.site-search .search-ui {
+  width: 100%;
   border-top: 1px solid var(--line);
   padding-top: 12px;
 }
 
-.site-search .pagefind-ui__form::before {
-  opacity: 0.45;
+.site-search .search-ui__form {
+  margin: 0;
 }
 
-.site-search .pagefind-ui__search-input {
+.site-search .search-ui__search-input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-soft);
   color: var(--ink);
+  font-family: inherit;
+  font-size: 1rem;
   font-weight: 500;
   letter-spacing: 0.01em;
-  padding-right: calc(22px * var(--pagefind-ui-scale));
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.site-search .pagefind-ui__search-input::placeholder {
+.site-search .search-ui__search-input::placeholder {
   opacity: 1;
   color: var(--ink-muted);
   font-weight: 400;
 }
 
-.site-search .pagefind-ui__search-input:focus-visible {
+.site-search .search-ui__search-input:focus-visible {
   border-color: var(--accent);
   outline: none;
   box-shadow: 0 0 0 3px rgba(78,204,163,.14);
 }
 
-.site-search .pagefind-ui__search-clear {
-  display: none;
-}
-
-.site-search .pagefind-ui__drawer {
+.site-search .search-ui__drawer {
+  display: block;
   margin-top: 10px;
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -2415,72 +2412,55 @@ button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-
   background: var(--search-drawer-bg);
 }
 
-.site-search .pagefind-ui__results-area {
+.site-search .search-ui__results-area {
   min-width: 100%;
 }
 
-.site-search .pagefind-ui__message {
+.site-search .search-ui__message {
+  margin: 0;
+  padding: 0.75rem 0;
   color: var(--ink-muted);
   font-weight: 600;
   border-bottom: 1px dashed var(--nested-separator);
 }
 
-.site-search .pagefind-ui__result {
+.site-search .search-ui__results {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-search .search-ui__result {
+  list-style: none;
   border-top: 1px solid var(--result-separator);
   padding: 0.72rem 0 0.8rem;
 }
 
-.site-search .pagefind-ui__result:first-child {
+.site-search .search-ui__result:first-child {
   border-top: 0;
 }
 
-.site-search .pagefind-ui__result-title {
+.site-search .search-ui__result-title {
+  margin: 0;
   font-size: 1rem;
   font-weight: 600;
 }
 
-.site-search .pagefind-ui__result-link {
+.site-search .search-ui__result-link {
   color: var(--accent);
 }
 
-.site-search .pagefind-ui__result-link:hover {
+.site-search .search-ui__result-link:hover {
   color: var(--accent-2);
   text-decoration: underline;
 }
 
-.site-search .pagefind-ui__result-excerpt {
+.site-search .search-ui__result-excerpt {
+  min-width: 0;
+  margin: 0.25rem 0 0;
   color: var(--ink-dim);
   font-size: 0.92rem;
   line-height: 1.55;
-}
-
-.site-search .pagefind-ui__result-nested {
-  margin-left: 0.1rem;
-  padding-left: 0.9rem;
-  border-left: 1px dashed var(--nested-separator);
-}
-
-.site-search mark {
-  background: rgba(78,204,163,.24);
-  color: var(--selection-ink);
-  border-radius: 4px;
-  padding: 0 0.15rem;
-}
-
-.site-search .pagefind-ui__button {
-  border: 1px solid var(--accent);
-  border-radius: 8px;
-  padding: 0.45rem 0.75rem;
-  background: transparent;
-  color: var(--accent);
-  width: auto;
-  min-width: 170px;
-  margin-top: 1rem;
-}
-
-.site-search .pagefind-ui__button:hover {
-  background: rgba(78,204,163,.08);
-  color: var(--accent-2);
 }
 
 kbd {

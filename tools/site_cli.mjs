@@ -58,8 +58,8 @@ Fotografia y medios:
 Calidad y publicacion:
   validate [area]                Revisa content, links, images o all
   lint [area]                    Alias de validate
-  build [--local]                Ejecuta npm run build o build:local
-  preflight                      Valida, revisa author gate y compila
+  build                          Compila el Worker Astro de produccion
+  preflight                      Valida, ejecuta pruebas y compila
   health                         Revisa archivos y comandos base
   inventory [--json]             Exporta inventario de contenido
   commit --message "Mensaje"     Crea commit solo con cambios ya staged
@@ -75,7 +75,12 @@ function findRepoRoot(start) {
   let current = path.resolve(start);
 
   while (current !== path.dirname(current)) {
-    if (existsSync(path.join(current, "hugo.toml")) && existsSync(path.join(current, "package.json"))) {
+    if (
+      existsSync(path.join(current, "package.json")) &&
+      existsSync(path.join(current, "edge", "package.json")) &&
+      existsSync(path.join(current, "content_es")) &&
+      existsSync(path.join(current, "content_en"))
+    ) {
       return current;
     }
     current = path.dirname(current);
@@ -1349,7 +1354,9 @@ function validateHidden(entries, issues) {
 
 async function commandHealth(options) {
   const checks = [
-    { name: "hugo.toml", ok: existsSync("hugo.toml") },
+    { name: "edge/package.json", ok: existsSync("edge/package.json") },
+    { name: "edge/src", ok: existsSync("edge/src") },
+    { name: "edge/wrangler.jsonc", ok: existsSync("edge/wrangler.jsonc") },
     { name: "tools/new_content.mjs", ok: existsSync("tools/new_content.mjs") },
     { name: "tools/author_server.mjs", ok: existsSync("tools/author_server.mjs") },
     { name: "functions/admin/editor.js", ok: existsSync("functions/admin/editor.js") },
@@ -1358,7 +1365,7 @@ async function commandHealth(options) {
   ];
 
   const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
-  for (const script of ["dev", "author", "build", "site"]) {
+  for (const script of ["dev", "build", "site"]) {
     checks.push({ name: `npm script ${script}`, ok: Boolean(packageJson.scripts?.[script]) });
   }
 
@@ -1387,26 +1394,27 @@ async function commandInventory(options) {
 
 async function commandOpen(id) {
   if (!id) {
-    console.log("http://127.0.0.1:3010/");
+    console.log("http://127.0.0.1:4321/");
     return;
   }
 
   const entry = await resolveContent(id);
-  console.log(`http://127.0.0.1:3010${entry.url}`);
+  console.log(`http://127.0.0.1:4321${entry.url}`);
 }
 
 async function commandEdit(id) {
   const entry = await resolveContent(id);
-  console.log(`http://127.0.0.1:3001/editor?path=${encodeURIComponent(entry.path)}`);
+  console.log(`http://127.0.0.1:4321/admin/editor?path=${encodeURIComponent(entry.path)}`);
 }
 
-function commandBuild(options) {
-  run("npm", ["run", options.local ? "build:local" : "build"]);
+function commandBuild() {
+  run("npm", ["run", "build"]);
 }
 
 async function commandPreflight() {
   await commandValidate("all", {});
-  run("node", ["tools/check_author_ui_gate.mjs"]);
+  run("npm", ["test"]);
+  run("npm", ["--prefix", "edge", "test"]);
   run("npm", ["run", "build"]);
 }
 
