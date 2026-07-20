@@ -3320,7 +3320,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.imageAltField.hidden = !photo;
         els.captionField.hidden = !photo;
         if (photo && mode === "new" && els.notebook.value === "content_es/fotografia" && !els.tags.value.trim()) {
-          els.tags.value = "fotografia";
+          els.tags.value = "fotografía";
         }
         updatePhotoPreview();
         syncArenaSurfaceVisibility();

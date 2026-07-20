@@ -230,6 +230,12 @@ function normalizePhotoFrontMatter(path, frontMatter) {
     return;
   }
 
+  if (path.startsWith("content_es/fotografia/") && Array.isArray(frontMatter.tags)) {
+    frontMatter.tags = [
+      ...new Set(frontMatter.tags.map((tag) => tag === "fotografia" ? "fotografía" : tag)),
+    ];
+  }
+
   const fallbackAlt = String(frontMatter.title || frontMatter.summary || "Imagen").trim() || "Imagen";
   const firstGalleryAlt = Array.isArray(frontMatter.images)
     ? String(frontMatter.images[0]?.alt || frontMatter.images[0]?.image_alt || "").trim()
@@ -403,7 +409,7 @@ export async function createPost(env, payload) {
   }
 
   if (isPhotoNotebook && frontMatter.tags.length === 0) {
-    frontMatter.tags = ["fotografia"];
+    frontMatter.tags = ["fotografía"];
   }
 
   if (image) {

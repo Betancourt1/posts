@@ -78,6 +78,38 @@ test("savePage skips an empty GitHub commit when content is unchanged", async ()
   }
 });
 
+test("savePage normalizes the Spanish photography tag", async () => {
+  const originalFetch = globalThis.fetch;
+  const current = formatMarkdown({ title: "Foto", tags: ["fotografia", "naturaleza"] }, "");
+  let writtenContent = "";
+
+  globalThis.fetch = async (url, options = {}) => {
+    if ((options.method || "GET") === "GET") {
+      return jsonResponse(200, {
+        type: "file",
+        path: "content_es/fotografia/foto.md",
+        sha: "old",
+        content: encoded(current),
+      });
+    }
+    const body = JSON.parse(options.body);
+    writtenContent = Buffer.from(body.content, "base64").toString("utf8");
+    return jsonResponse(200, { commit: { sha: "new" } });
+  };
+
+  try {
+    const result = await savePage(env, {
+      path: "content_es/fotografia/foto.md",
+      frontMatter: { tags: ["fotografia", "fotografía", "naturaleza"] },
+      body: "",
+    });
+    assert.equal(result.changed, true);
+    assert.deepEqual(splitMarkdown(writtenContent).frontMatter.tags, ["fotografía", "naturaleza"]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("quote metadata arrays survive Markdown formatting", () => {
   const quotes = [
     {

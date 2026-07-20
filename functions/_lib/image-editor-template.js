@@ -1459,9 +1459,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         </div>
         <input class="title-line" id="title" type="text" placeholder="Titulo de la foto" autocomplete="off" aria-label="Titulo" />
         <input class="caption-line" id="caption-inline" type="text" placeholder="Pie opcional..." autocomplete="off" aria-label="Pie" />
-        <input class="tags-line" id="tags" type="text" list="photo-tag-suggestions" placeholder="#fotografia  #macro  #mapas" aria-label="Tags" />
+        <input class="tags-line" id="tags" type="text" list="photo-tag-suggestions" placeholder="#fotografía  #macro  #mapas" aria-label="Tags" />
         <datalist id="photo-tag-suggestions">
-          <option value="fotografia"></option>
+          <option value="fotografía"></option>
           <option value="macro"></option>
           <option value="mapas"></option>
           <option value="visualizacion"></option>
@@ -2371,7 +2371,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           els.title.value = name;
         }
         if (captionParam && !els.tags.value.trim()) {
-          els.tags.value = "fotografia";
+          els.tags.value = "fotografía";
         }
       }
 
@@ -2646,7 +2646,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function syncDefaultTags() {
         if (els.notebook.value === "content_es/fotografia" && !els.tags.value.trim()) {
-          els.tags.value = "fotografia";
+          els.tags.value = "fotografía";
         }
         updatePropertySummaries();
       }

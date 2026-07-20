@@ -73,7 +73,7 @@ const pages = {
     frontMatter: {
       title: "Mariposa",
       date: "2026-07-10",
-      tags: ["fotografia", "naturaleza"],
+      tags: ["fotografía", "naturaleza"],
       image: "/fixture.png",
       thumbnail: "/fixture.png",
       image_alt: "Mariposa sobre una flor",
