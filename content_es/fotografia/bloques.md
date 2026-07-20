@@ -12,8 +12,8 @@ images: []
 hidden: false
 arena_blocks:
   - src: "/uploads/2026/07/95037-1784355410290-ueeoy-1784355413229.jpg"
-    block_id: "48013674"
-    connection_id: "101203430"
+    block_id: "48051053"
+    connection_id: "101284132"
 arena_channel_id: "5424086"
 arena_enabled: true
 ---
