@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   ArenaApiError,
+  arenaImageOriginFromEnv,
   arenaMappingPatch,
   createArenaChannel,
   getArenaStatus,
@@ -65,6 +66,18 @@ test("prepareArenaMarkdown makes root-relative destinations portable", () => {
   assert.equal(
     prepareArenaMarkdown(page({ body: "[Texto](/es/about/)\n\n![Foto](/uploads/foto.jpg)" })),
     "[Texto](https://fbetancourt.work/es/about/)\n\n![Foto](https://fbetancourt.work/uploads/foto.jpg)\n\n[Publicado originalmente en el blog](https://fbetancourt.work/es/posts/2026/enero/prueba/)",
+  );
+});
+
+test("arenaImageOriginFromEnv uses the public R2 route before GitHub Raw", () => {
+  assert.equal(
+    arenaImageOriginFromEnv({
+      MEDIA: {},
+      GITHUB_OWNER: "Betancourt1",
+      GITHUB_REPO: "posts",
+      GITHUB_BRANCH: "main",
+    }, "https://blog.example/"),
+    "https://blog.example",
   );
 });
 
@@ -499,6 +512,46 @@ test("syncArenaPage updates Image metadata without creating a Link or a second b
   });
   assert.equal(requests.some((request) => request.url === "https://api.are.na/v3/blocks"), false);
   assert.equal(result.blocks[0].blockId, "501");
+});
+
+test("syncArenaPage replaces a mapped Link with an Image from the public media route", async () => {
+  const requests = [];
+  const existing = photoPage({
+    frontMatter: {
+      title: "Flor recuperada",
+      arena_enabled: true,
+      arena_channel_id: "123",
+      image: "/uploads/flor-1.jpg",
+      image_alt: "Flor amarilla",
+      arena_blocks: [{ src: "/uploads/flor-1.jpg", block_id: "501", connection_id: "801" }],
+    },
+  });
+  const fetchImpl = async (url, options) => {
+    const body = options.body ? JSON.parse(options.body) : null;
+    requests.push({ url, method: options.method, body });
+    if (url.endsWith("/blocks/501") && options.method === "PUT") {
+      return jsonResponse(200, { id: 501, type: "Link", state: "available" });
+    }
+    if (url.includes("/channels/123/contents")) {
+      return jsonResponse(200, { data: [{ id: 501, type: "Link", connection: { id: 801 } }] });
+    }
+    if (url.endsWith("/connections/801") && options.method === "DELETE") return emptyResponse();
+    if (url === "https://api.are.na/v3/blocks" && options.method === "POST") {
+      return jsonResponse(201, { id: 502, type: "Image", state: "available" });
+    }
+    if (url.includes("/blocks/502/connections")) return jsonResponse(200, { data: [] });
+    if (url === "https://api.are.na/v3/connections" && options.method === "POST") {
+      return jsonResponse(201, { data: [{ id: 802 }] });
+    }
+    throw new Error(`Unexpected request: ${options.method} ${url}`);
+  };
+
+  const result = await syncArenaPage({ token: "secret", page: existing, fetchImpl });
+
+  assert.equal(requests.some((request) => request.url.endsWith("/connections/801") && request.method === "DELETE"), true);
+  assert.equal(requests.find((request) => request.url === "https://api.are.na/v3/blocks").body.value, "https://fbetancourt.work/uploads/flor-1.jpg");
+  assert.equal(result.blocks[0].blockId, "502");
+  assert.equal(result.blocks[0].connectionId, "802");
 });
 
 test("createArenaChannel creates a closed channel with notebook metadata", async () => {

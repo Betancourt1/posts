@@ -173,6 +173,10 @@ export function arenaImageOriginFromEnv(env = {}, publicOrigin = PUBLIC_SITE_ORI
   const configured = String(env.ARENA_ASSET_ORIGIN || "").trim();
   if (configured) return configured.replace(/\/+$/, "");
 
+  if (env.MEDIA) {
+    return String(publicOrigin || PUBLIC_SITE_ORIGIN).replace(/\/+$/, "");
+  }
+
   const owner = String(env.GITHUB_OWNER || "").trim();
   const repo = String(env.GITHUB_REPO || "").trim();
   const branch = String(env.GITHUB_BRANCH || "").trim();
@@ -289,6 +293,11 @@ function assertImageBlock(block) {
   if (block.state === "failed") {
     throw new ArenaApiError("Are.na no pudo procesar la imagen.", { retryable: true });
   }
+}
+
+function imageBlockNeedsReplacement(block) {
+  const type = String(block?.type || "");
+  return block?.state === "failed" || (type && type !== "Image" && type !== "PendingBlock");
 }
 
 async function blockConnections({ token, blockId, fetchImpl }) {
@@ -755,7 +764,19 @@ async function syncArenaImage({
         },
         fetchImpl,
       });
-      assertImageBlock(block);
+      if (imageBlockNeedsReplacement(block)) {
+        await disconnectImageMapping({
+          token,
+          page,
+          mapping: { src: item.src, blockId, connectionId },
+          channelId,
+          fetchImpl,
+        });
+        blockId = "";
+        connectionId = "";
+      } else {
+        assertImageBlock(block);
+      }
     } catch (error) {
       if (!(error instanceof ArenaApiError) || error.status !== 404) throw error;
       blockId = "";
