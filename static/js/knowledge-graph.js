@@ -192,7 +192,7 @@
     tagNodes.forEach(function (tagNode, tag) {
       var count = tagCounts.get(tag) || 1;
       tagNode.count = count;
-      tagNode.radius = 5.5 + Math.min(11, Math.sqrt(count) * 2.2);
+      tagNode.radius = 1.75 + Math.min(30, Math.pow(Math.max(0, count - 1), 0.8) * 1.7);
     });
 
     return {
@@ -372,13 +372,13 @@
 
     function refreshTheme() {
       theme = {
-        line: readVar("--line", "#2a2f36"),
-        ink: readVar("--ink", "#cfcfd2"),
-        inkDim: readVar("--ink-dim", "#a8abb2"),
-        tag: readVar("--graph-tag", readVar("--accent", "#76a694")),
-        tagHover: readVar("--graph-tag-hover", readVar("--accent-2", "#91bfaf")),
-        linkActive: readVar("--graph-link-active", readVar("--graph-tag-hover", readVar("--accent-2", "#91bfaf"))),
-        bg: readVar("--graph-bg", "#0a0c10")
+        link: readVar("--graph-link", "#f5f5f5"),
+        linkActive: readVar("--graph-link-active", "#ffffff"),
+        node: readVar("--graph-node", "#f5f5f5"),
+        nodeHover: readVar("--graph-node-hover", "#ffffff"),
+        label: readVar("--graph-label", "#ffffff"),
+        labelDim: readVar("--graph-label-dim", "#d8d8d8"),
+        bg: readVar("--graph-bg", "#000000")
       };
     }
 
@@ -635,7 +635,9 @@
 
     function draw() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, width, height);
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = theme.bg;
+      ctx.fillRect(0, 0, width, height);
       ctx.translate(state.offsetX, state.offsetY);
       ctx.scale(state.zoom, state.zoom);
       var activeNode = state.draggingNode || state.hoverNode || state.searchNode;
@@ -646,16 +648,17 @@
       }
 
       function drawLink(link, active) {
+        var weightScale = Math.log2(link.weight + 1);
         if (active) {
           ctx.globalAlpha = 0.92;
           ctx.strokeStyle = theme.linkActive;
-          ctx.lineWidth = 0.95 + Math.min(1.1, link.weight * 0.28);
+          ctx.lineWidth = 0.75 + Math.min(1.8, weightScale * 0.38);
         } else {
           ctx.globalAlpha = hasActiveNode
-            ? Math.min(0.34, 0.08 + link.weight * 0.05)
-            : Math.min(0.7, 0.16 + link.weight * 0.08);
-          ctx.strokeStyle = theme.line;
-          ctx.lineWidth = 0.7 + Math.min(2.4, link.weight * 0.45);
+            ? Math.min(0.34, 0.09 + weightScale * 0.06)
+            : Math.min(0.88, 0.58 + weightScale * 0.07);
+          ctx.strokeStyle = theme.link;
+          ctx.lineWidth = 0.35 + Math.min(1.65, weightScale * 0.32);
         }
         ctx.beginPath();
         ctx.moveTo(link.source.x, link.source.y);
@@ -680,14 +683,16 @@
       nodes.forEach(function (node) {
         var hovered = state.hoverNode === node;
         var selected = state.searchNode === node;
-        ctx.fillStyle = hovered || selected ? theme.tagHover : theme.tag;
-        ctx.strokeStyle = theme.line;
-        ctx.lineWidth = selected ? 2.2 : hovered ? 1.5 : 1;
+        ctx.fillStyle = hovered || selected ? theme.nodeHover : theme.node;
+        ctx.strokeStyle = theme.bg;
+        ctx.lineWidth = selected ? 2.2 : 1.5;
 
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
         ctx.fill();
-        ctx.stroke();
+        if (hovered || selected) {
+          ctx.stroke();
+        }
       });
 
       ctx.textAlign = "center";
@@ -695,13 +700,6 @@
 
       var activeNode = state.draggingNode || state.hoverNode || state.searchNode;
       var hasActiveNode = !!activeNode;
-
-      // Calcular umbral dinámico para etiquetas por defecto
-      var defaultThreshold = 2;
-      if (nodes.length > 20) {
-        var counts = nodes.map(function (n) { return n.count; }).sort(function (a, b) { return b - a; });
-        defaultThreshold = Math.max(2, counts[Math.min(counts.length - 1, 14)]);
-      }
 
       nodes.forEach(function (node) {
         var hovered = state.hoverNode === node;
@@ -714,8 +712,6 @@
           showLabel = true;
         } else if (hasActiveNode) {
           showLabel = isMainActive || isNeighbor;
-        } else {
-          showLabel = node.count >= defaultThreshold || nodes.length <= 20;
         }
 
         if (!showLabel) {
@@ -725,15 +721,15 @@
         // Jerarquía visual y tipografía
         if (isMainActive) {
           ctx.globalAlpha = 1;
-          ctx.fillStyle = theme.ink;
+          ctx.fillStyle = theme.label;
           ctx.font = "bold 13px ui-monospace, SFMono-Regular, Menlo, Monaco, Cascadia Mono, Fira Code, IBM Plex Mono, Liberation Mono, monospace";
         } else if (isNeighbor) {
           ctx.globalAlpha = 0.95;
-          ctx.fillStyle = theme.inkDim;
+          ctx.fillStyle = theme.labelDim;
           ctx.font = "500 12px ui-monospace, SFMono-Regular, Menlo, Monaco, Cascadia Mono, Fira Code, IBM Plex Mono, Liberation Mono, monospace";
         } else {
           ctx.globalAlpha = 0.75;
-          ctx.fillStyle = theme.inkDim;
+          ctx.fillStyle = theme.labelDim;
           ctx.font = "11px ui-monospace, SFMono-Regular, Menlo, Monaco, Cascadia Mono, Fira Code, IBM Plex Mono, Liberation Mono, monospace";
         }
 

@@ -45,11 +45,19 @@ test("the edge build ships the mature graph client as its source of truth", asyn
   assert.match(graphClient, /return url === "\/" \? "\/admin\/" : "\/admin" \+ url/);
 });
 
-test("the site and graph share the restored vivid palette", async () => {
+test("the graph keeps its monochrome palette in both site themes", async () => {
   const stylesheet = await readFile(new URL("../../static/css/site.css", import.meta.url), "utf8");
 
-  assert.match(stylesheet, /--accent: oklch\(0\.764125 0\.126939 168\.096\)/);
-  assert.match(stylesheet, /--graph-tag: oklch\(0\.764125 0\.126939 168\.096\)/);
-  assert.match(stylesheet, /--accent: oklch\(0\.518651 0\.098082 164\.775\)/);
-  assert.match(stylesheet, /--graph-tag-hover: oklch\(0\.424886 0\.080437 164\.733\)/);
+  assert.equal(stylesheet.match(/--graph-bg: #000000;/g)?.length, 2);
+  assert.equal(stylesheet.match(/--graph-node: #f5f5f5;/g)?.length, 2);
+  assert.equal(stylesheet.match(/--graph-link: #f5f5f5;/g)?.length, 2);
+});
+
+test("the graph still renders weighted edges", async () => {
+  const graphClient = await readFile(new URL("../../static/js/knowledge-graph.js", import.meta.url), "utf8");
+
+  assert.match(graphClient, /link\.weight \+= 1/);
+  assert.match(graphClient, /Math\.pow\(Math\.max\(0, count - 1\), 0\.8\) \* 1\.7/);
+  assert.match(graphClient, /Math\.log2\(link\.weight \+ 1\)/);
+  assert.match(graphClient, /ctx\.lineWidth = 0\.35 \+ Math\.min\(1\.65, weightScale \* 0\.32\)/);
 });

@@ -536,3 +536,52 @@ No actionable P0, P1, or P2 issue remains.
 - [x] Verify all rendered aspect ratios against the source images.
 
 final result: passed
+
+---
+
+# Graph visual QA
+
+**Source visual truth**
+
+- Original: `/tmp/codex-clipboard-lq35hL.png` (`390 × 489` px).
+- Normalized graph crop: `tmp/visual-qa/graph-monochrome-final/reference-canvas.png` (`386 × 481` px).
+
+**Implementation evidence**
+
+- Browser capture: `tmp/visual-qa/graph-monochrome-final/screenshots/graph-graph.png` (`386 × 798` px).
+- Normalized graph crop: `tmp/visual-qa/graph-monochrome-final/implementation-canvas.png` (`386 × 481` px).
+- Side-by-side comparison: `tmp/visual-qa/graph-monochrome-final/reference-vs-implementation.png` (`772 × 481` px).
+- Browser viewport: `386 × 798` CSS px, device scale factor `1`.
+- Implementation graph before normalization: `350 × 463` CSS px, cropped from the maximized graph and resized to the reference canvas size.
+- State: dark theme, graph maximized, labels in their default hidden state, simulation settled for 1.6 seconds.
+
+**Findings**
+
+- No actionable P0, P1, or P2 differences remain.
+- Fonts and typography: the reference has no graph labels, and the implementation also hides labels by default. The label typography remains available for hover, search, and the existing label toggle.
+- Spacing and layout rhythm: the normalized canvas fills the same frame. The real D1 graph is denser around its central hub than the reference because its topology comes from the repository's current tag co-occurrences.
+- Colors and visual tokens: the implementation uses white nodes and links on `#000000`. Background samples at `(10,10)`, `(200,20)`, and `(370,450)` all returned `gray(0)`.
+- Image quality and asset fidelity: both nodes and links are drawn directly at browser density by the existing canvas renderer; there are no raster assets or placeholders to compare.
+- Copy and content: no app-specific copy appears inside the default graph canvas, matching the reference.
+- Interaction and runtime: the maximize control was exercised, the graph payload loaded from `/api/graph`, the viewport had no horizontal overflow or undersized controls, and the browser capture recorded no console errors.
+
+**Comparison history**
+
+1. The first graph-only capture showed smaller high-frequency nodes and dimmer links than the source. These were P2 fidelity differences.
+2. The node scale was changed to `1.75 + min(30, (count - 1)^0.8 × 1.7)`, and inactive weighted-link opacity was raised while retaining `link.weight` in both opacity and width calculations.
+3. The final side-by-side comparison shows large hubs at the source's scale, visible small nodes, fine white weighted links, no default labels, and the requested pure-black background.
+
+**Follow-up polish**
+
+- P3: the implementation's central cluster is more connected than the reference. This is accepted because it reflects the real D1 tag graph rather than a visual defect.
+- The reference itself uses a dark charcoal canvas, but the implementation intentionally uses pure black because that was an explicit requirement.
+
+**Implementation checklist**
+
+- [x] Pure-black graph background in dark and light themes.
+- [x] White nodes with a wider frequency-driven size range.
+- [x] White links whose opacity and width remain driven by edge weight.
+- [x] Labels hidden by default and preserved for interaction.
+- [x] Root tests, graph test, Astro diagnostics, production build, and browser capture completed.
+
+final result: passed

@@ -548,9 +548,12 @@ body.code-index .site-header-actions {
   --search-drawer-bg: linear-gradient(180deg, rgba(11,12,15,.95) 0%, rgba(0,0,0,.95) 100%);
   --result-separator: rgba(123,127,136,.25);
   --nested-separator: rgba(123,127,136,.35);
-  --graph-tag: oklch(0.764125 0.126939 168.096);
-  --graph-tag-hover: oklch(0.704724 0.128811 167.116);
-  --graph-link-active: #f5f7fb;
+  --graph-node: #f5f5f5;
+  --graph-node-hover: #ffffff;
+  --graph-link: #f5f5f5;
+  --graph-link-active: #ffffff;
+  --graph-label: #ffffff;
+  --graph-label-dim: #d8d8d8;
   --graph-bg: #000000;
 
   /* Badge design tokens (Dark Mode) */
@@ -595,10 +598,13 @@ body.code-index .site-header-actions {
   --search-drawer-bg: linear-gradient(180deg, rgba(247,248,250,.97) 0%, rgba(236,239,243,.97) 100%);
   --result-separator: rgba(73,85,98,.3);
   --nested-separator: rgba(73,85,98,.42);
-  --graph-tag: oklch(0.518651 0.098082 164.775);
-  --graph-tag-hover: oklch(0.424886 0.080437 164.733);
-  --graph-link-active: #0f171f;
-  --graph-bg: #f4f6f8;
+  --graph-node: #f5f5f5;
+  --graph-node-hover: #ffffff;
+  --graph-link: #f5f5f5;
+  --graph-link-active: #ffffff;
+  --graph-label: #ffffff;
+  --graph-label-dim: #d8d8d8;
+  --graph-bg: #000000;
 
   /* Badge design tokens (Light Mode - high contrast) */
   --badge-bg: rgba(255, 255, 255, 0.65);
@@ -1799,7 +1805,7 @@ body.graph-maximized .ssh-terminal-overlay {
   width: 100%;
   height: 420px;
   margin-top: 0.75rem;
-  border: 1px solid var(--line);
+  border: 1px solid #1c1c1c;
   border-radius: 10px;
   overflow: hidden;
   background: var(--graph-bg);
