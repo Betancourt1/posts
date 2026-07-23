@@ -63,6 +63,27 @@ Validate production-facing changes with:
 
 Check for broken internal links, missing front matter fields, relevant browser-console errors, and unintended generated diffs. For content projection work, cover both the Markdown projector and the D1 query or route behavior that consumes it.
 
+## Mandatory Independent Agent Audit
+
+Every repository mutation must be audited by at least one independent subagent. This includes code, content, configuration, migrations, Git history, pushes, deployments, and remote data changes. The auditor is read-only unless explicitly assigned separate file ownership, and must not be the author of the change it reviews.
+
+Before editing, the primary agent must state an acceptance contract containing:
+
+- The exact user-visible outcome.
+- The affected route, interface, locale, viewport, and environment.
+- The reference commit or working state when the user asks to restore previous behavior.
+- What is in scope, what is out of scope, and which external mutations are authorized.
+
+The auditor must review that contract and the relevant source or history before implementation. When restoring historical behavior, inspect the complete responsible implementation, including rendering, data selection, interaction, state, and styling. Do not combine parts from different revisions into a hybrid unless the user explicitly requests one.
+
+The auditor must review the resulting diff and verification evidence before any commit, push, deployment, D1 write, or destructive Git operation. For destructive history requests, resolve the cutoff with an explicit date, time, and timezone; list every affected commit and ref; and audit the exact reset, deletion, and preservation plan before executing it. Never infer an exception to a destructive instruction from a later ambiguous request. Stop and ask the user when instructions conflict.
+
+Production verification must exercise the exact route and interface reported by the user. Tests, hashes, deployment IDs, DOM checks, and animation counters are supporting evidence, not substitutes for confirming the requested visible behavior. If authentication or another constraint prevents checking the reported surface, state that limitation and do not claim the issue is fixed.
+
+If the user changes or cancels the request while a mutation is running, stop that operation first and verify whether it terminated or completed before starting another mutation. Reconcile any partial external state before proceeding.
+
+The primary agent may not claim completion until the auditor returns a pass. Findings must be fixed and re-audited. If no subagent is available, pause before mutation and tell the user; only the user may explicitly waive the audit.
+
 ## Commit & Pull Request Guidelines
 
 Recent commits mix English and Spanish, but follow an imperative, scoped style, for example `Add metadata to politica_como_identidad.md` or `Corrige faltas de ortografia en posts 2025`. Keep commit subjects short and action-oriented; include the affected path or post when relevant.
