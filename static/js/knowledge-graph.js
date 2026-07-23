@@ -365,20 +365,23 @@
       }
     }
 
-    function readVar(name, fallback) {
-      var value = getComputedStyle(document.documentElement).getPropertyValue(name);
-      return value ? value.trim() : fallback;
+    function readVar(name) {
+      var value = getComputedStyle(container).getPropertyValue(name).trim();
+      if (!value) {
+        throw new Error("Missing graph style token: " + name);
+      }
+      return value;
     }
 
     function refreshTheme() {
       theme = {
-        link: readVar("--graph-link", "#f5f5f5"),
-        linkActive: readVar("--graph-link-active", "#ffffff"),
-        node: readVar("--graph-node", "#f5f5f5"),
-        nodeHover: readVar("--graph-node-hover", "#ffffff"),
-        label: readVar("--graph-label", "#ffffff"),
-        labelDim: readVar("--graph-label-dim", "#d8d8d8"),
-        bg: readVar("--graph-bg", "#000000")
+        link: readVar("--graph-link"),
+        linkActive: readVar("--graph-link-active"),
+        node: readVar("--graph-node"),
+        nodeHover: readVar("--graph-node-hover"),
+        label: readVar("--graph-label"),
+        labelDim: readVar("--graph-label-dim"),
+        bg: readVar("--graph-bg")
       };
     }
 

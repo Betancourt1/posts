@@ -548,14 +548,6 @@ body.code-index .site-header-actions {
   --search-drawer-bg: linear-gradient(180deg, rgba(11,12,15,.95) 0%, rgba(0,0,0,.95) 100%);
   --result-separator: rgba(123,127,136,.25);
   --nested-separator: rgba(123,127,136,.35);
-  --graph-node: #f5f5f5;
-  --graph-node-hover: #ffffff;
-  --graph-link: #f5f5f5;
-  --graph-link-active: #ffffff;
-  --graph-label: #ffffff;
-  --graph-label-dim: #d8d8d8;
-  --graph-bg: #000000;
-
   /* Badge design tokens (Dark Mode) */
   --badge-bg: var(--bg-soft);
   --badge-posts-border: oklch(0.764125 0.126939 168.096 / 0.35);
@@ -598,14 +590,6 @@ body.code-index .site-header-actions {
   --search-drawer-bg: linear-gradient(180deg, rgba(247,248,250,.97) 0%, rgba(236,239,243,.97) 100%);
   --result-separator: rgba(73,85,98,.3);
   --nested-separator: rgba(73,85,98,.42);
-  --graph-node: #f5f5f5;
-  --graph-node-hover: #ffffff;
-  --graph-link: #f5f5f5;
-  --graph-link-active: #ffffff;
-  --graph-label: #ffffff;
-  --graph-label-dim: #d8d8d8;
-  --graph-bg: #000000;
-
   /* Badge design tokens (Light Mode - high contrast) */
   --badge-bg: rgba(255, 255, 255, 0.65);
   --badge-posts-border: oklch(0.518651 0.098082 164.775 / 0.45);
@@ -1801,6 +1785,13 @@ body.graph-maximized .ssh-terminal-overlay {
 }
 
 .knowledge-graph {
+  --graph-node: #f5f5f5;
+  --graph-node-hover: #ffffff;
+  --graph-link: #f5f5f5;
+  --graph-link-active: #ffffff;
+  --graph-label: #ffffff;
+  --graph-label-dim: #d8d8d8;
+  --graph-bg: #000000;
   position: relative;
   width: 100%;
   height: 420px;
@@ -1820,10 +1811,6 @@ body.graph-maximized .ssh-terminal-overlay {
   flex: 1 1 0;
   height: 100%;
   min-height: 0;
-}
-
-:root[data-theme="light"] .knowledge-graph {
-  background: var(--graph-bg);
 }
 
 .knowledge-graph canvas {

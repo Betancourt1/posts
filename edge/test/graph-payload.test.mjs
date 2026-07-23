@@ -46,11 +46,32 @@ test("the edge build ships the mature graph client as its source of truth", asyn
 });
 
 test("the graph keeps its monochrome palette in both site themes", async () => {
-  const stylesheet = await readFile(new URL("../../static/css/site.css", import.meta.url), "utf8");
+  const [stylesheet, graphClient] = await Promise.all([
+    readFile(new URL("../../static/css/site.css", import.meta.url), "utf8"),
+    readFile(new URL("../../static/js/knowledge-graph.js", import.meta.url), "utf8"),
+  ]);
+  const graphRule = stylesheet.match(/\.knowledge-graph\s*\{(?<body>[^}]*)\}/)?.groups?.body || "";
 
-  assert.equal(stylesheet.match(/--graph-bg: #000000;/g)?.length, 2);
-  assert.equal(stylesheet.match(/--graph-node: #f5f5f5;/g)?.length, 2);
-  assert.equal(stylesheet.match(/--graph-link: #f5f5f5;/g)?.length, 2);
+  for (const [token, value] of [
+    ["--graph-bg", "#000000"],
+    ["--graph-node", "#f5f5f5"],
+    ["--graph-node-hover", "#ffffff"],
+    ["--graph-link", "#f5f5f5"],
+    ["--graph-link-active", "#ffffff"],
+    ["--graph-label", "#ffffff"],
+    ["--graph-label-dim", "#d8d8d8"],
+  ]) {
+    const declaration = `${token}: ${value};`;
+    assert.equal(stylesheet.match(new RegExp(`${token}\\s*:`, "g"))?.length, 1);
+    assert.match(graphRule, new RegExp(declaration.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+
+  assert.doesNotMatch(stylesheet, /:root(?:\[data-theme="light"\])?\s*\{[^}]*--graph-/s);
+  assert.doesNotMatch(stylesheet, /\.sidebar-graph[^{]*\{[^}]*--graph-/s);
+  assert.match(graphClient, /getComputedStyle\(container\)/);
+  assert.doesNotMatch(graphClient, /getComputedStyle\(document\.documentElement\)/);
+  assert.doesNotMatch(graphClient, /readVar\("--graph-[^"]+",\s*"#[0-9a-f]+"/i);
+  assert.doesNotMatch(graphClient, /#[0-9a-f]{3,8}/i);
 });
 
 test("the graph still renders weighted edges", async () => {
