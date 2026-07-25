@@ -83,6 +83,17 @@ test("the production shell does not offer or restore raw article mode", async ()
   assert.doesNotMatch(infrastructure, /infra_mode_enabled|initMode/);
 });
 
+test("distinguishes grayscale from the light and dark theme control", async () => {
+  const layout = await readFile(siteLayoutPath, "utf8");
+
+  assert.match(layout, /class="palette-off-icon"/);
+  assert.doesNotMatch(layout, /class="grayscale-icon"|M12 2a10 10 0 0 1 0 20V2z/);
+  assert.match(layout, /data-label-enable=\{lang === "es" \? "Activar escala de grises" : "Enable grayscale"\}/);
+  assert.match(layout, /data-label-dark=\{lang === "es" \? "Cambiar a tema oscuro" : "Change to dark theme"\}/);
+  assert.match(layout, /grayscaleToggle\.setAttribute\("aria-pressed", enabled \? "true" : "false"\)/);
+  assert.match(layout, /themeToggle\.setAttribute\("title", label\)/);
+});
+
 test("keeps the Citas title in Spanish notebook navigation", async () => {
   const source = await readFile(publicPagePath, "utf8");
 

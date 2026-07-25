@@ -158,12 +158,16 @@ const archivesPath = authorMode
             </div>
           </div>
         </div>
-        <button class="grayscale-toggle" id="grayscale-toggle" type="button" aria-label={lang === "es" ? "Modo escala de grises" : "Grayscale mode"} title={lang === "es" ? "Modo escala de grises" : "Grayscale mode"}>
-          <svg class="grayscale-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 0 20V2z" fill="currentColor"></path>
+        <button class="grayscale-toggle" id="grayscale-toggle" type="button" aria-label={lang === "es" ? "Activar escala de grises" : "Enable grayscale"} title={lang === "es" ? "Activar escala de grises" : "Enable grayscale"} aria-pressed="false" data-label-enable={lang === "es" ? "Activar escala de grises" : "Enable grayscale"} data-label-disable={lang === "es" ? "Desactivar escala de grises" : "Disable grayscale"}>
+          <svg class="palette-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3a9 9 0 0 0 0 18h1.5a1.5 1.5 0 0 0 1.2-2.4l-.7-.93A1.5 1.5 0 0 1 15.2 15H17a4 4 0 0 0 4-4c0-4.42-4.03-8-9-8Z"></path>
+            <circle cx="7.5" cy="10.5" r=".75" fill="currentColor" stroke="none"></circle>
+            <circle cx="10.5" cy="7.5" r=".75" fill="currentColor" stroke="none"></circle>
+            <circle cx="14.5" cy="7.5" r=".75" fill="currentColor" stroke="none"></circle>
+            <line x1="4" y1="4" x2="20" y2="20"></line>
           </svg>
         </button>
-        <button class="theme-toggle" id="theme-toggle" type="button" aria-label={lang === "es" ? "Cambiar tema" : "Change theme"}>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label={lang === "es" ? "Cambiar a tema claro" : "Change to light theme"} title={lang === "es" ? "Cambiar a tema claro" : "Change to light theme"} data-label-light={lang === "es" ? "Cambiar a tema claro" : "Change to light theme"} data-label-dark={lang === "es" ? "Cambiar a tema oscuro" : "Change to dark theme"}>
           <span class="theme-icon-wrapper">
             <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
@@ -254,7 +258,11 @@ const archivesPath = authorMode
 
         function applyTheme(theme) {
           root.setAttribute("data-theme", theme);
-          if (themeToggle) themeToggle.setAttribute("aria-label", theme === "light" ? "Change to dark theme" : "Change to light theme");
+          if (themeToggle) {
+            var label = theme === "light" ? themeToggle.dataset.labelDark : themeToggle.dataset.labelLight;
+            themeToggle.setAttribute("aria-label", label);
+            themeToggle.setAttribute("title", label);
+          }
         }
         if (themeToggle) {
           applyTheme(root.getAttribute("data-theme") || "dark");
@@ -267,7 +275,13 @@ const archivesPath = authorMode
 
         function applyGrayscale(enabled) {
           root.classList.toggle("grayscale-mode", enabled);
-          if (grayscaleToggle) grayscaleToggle.classList.toggle("is-active", enabled);
+          if (grayscaleToggle) {
+            var label = enabled ? grayscaleToggle.dataset.labelDisable : grayscaleToggle.dataset.labelEnable;
+            grayscaleToggle.classList.toggle("is-active", enabled);
+            grayscaleToggle.setAttribute("aria-pressed", enabled ? "true" : "false");
+            grayscaleToggle.setAttribute("aria-label", label);
+            grayscaleToggle.setAttribute("title", label);
+          }
         }
         var grayscale = root.classList.contains("grayscale-mode");
         applyGrayscale(grayscale);

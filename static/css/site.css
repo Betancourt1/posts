@@ -783,15 +783,10 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   transform: scale(1);
 }
 
-.grayscale-icon {
+.palette-off-icon {
   width: 17px;
   height: 17px;
   display: block;
-  transition: transform 0.18s var(--ease-out);
-}
-
-.grayscale-toggle.is-active .grayscale-icon {
-  transform: rotate(180deg);
 }
 
 .infra-toggle polyline {
@@ -3939,14 +3934,6 @@ html.infra-mode .infra-raw-block {
     transform: scale(1.04) !important;
   }
 
-  .grayscale-toggle:hover .grayscale-icon {
-    transform: rotate(180deg);
-  }
-
-  .grayscale-toggle.is-active:hover .grayscale-icon {
-    transform: rotate(360deg);
-  }
-
   .infra-toggle:hover polyline {
     transform: translateX(1.5px);
   }
@@ -3974,7 +3961,6 @@ html.infra-mode .infra-raw-block {
 
 @media (prefers-reduced-motion: reduce) {
   html,
-  .grayscale-icon,
   .sun-icon,
   .moon-icon,
   .search-modal-overlay,
