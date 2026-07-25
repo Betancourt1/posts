@@ -783,7 +783,7 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   transform: scale(1);
 }
 
-.palette-off-icon {
+.header-display-icon {
   width: 17px;
   height: 17px;
   display: block;
@@ -804,50 +804,6 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 
 .infra-toggle.is-active line {
   animation: cursorBlink 1s infinite step-end;
-}
-
-/* Icon Morphing styles */
-.theme-icon-wrapper {
-  position: relative;
-  width: 17px;
-  height: 17px;
-  display: block;
-}
-
-.sun-icon,
-.moon-icon {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 17px;
-  height: 17px;
-  display: block;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: transform 0.18s var(--ease-out), opacity 0.16s var(--ease-out);
-}
-
-/* Default (Dark Theme) state */
-:root .theme-toggle .sun-icon {
-  transform: rotate(24deg) scale(0.95);
-  opacity: 0;
-}
-:root .theme-toggle .moon-icon {
-  transform: rotate(0) scale(1);
-  opacity: 1;
-}
-
-/* Light Theme state */
-:root[data-theme="light"] .theme-toggle .sun-icon {
-  transform: rotate(0) scale(1);
-  opacity: 1;
-}
-:root[data-theme="light"] .theme-toggle .moon-icon {
-  transform: rotate(-24deg) scale(0.95);
-  opacity: 0;
 }
 
 .site-search {
@@ -3961,8 +3917,6 @@ html.infra-mode .infra-raw-block {
 
 @media (prefers-reduced-motion: reduce) {
   html,
-  .sun-icon,
-  .moon-icon,
   .search-modal-overlay,
   .search-modal,
   .nav-column,

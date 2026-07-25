@@ -83,11 +83,17 @@ test("the production shell does not offer or restore raw article mode", async ()
   assert.doesNotMatch(infrastructure, /infra_mode_enabled|initMode/);
 });
 
-test("distinguishes grayscale from the light and dark theme control", async () => {
-  const layout = await readFile(siteLayoutPath, "utf8");
+test("uses a pipette for grayscale and the historical contrast icon for themes", async () => {
+  const [layout, css] = await Promise.all([
+    readFile(siteLayoutPath, "utf8"),
+    readFile(siteCssPath, "utf8"),
+  ]);
 
-  assert.match(layout, /class="palette-off-icon"/);
-  assert.doesNotMatch(layout, /class="grayscale-icon"|M12 2a10 10 0 0 1 0 20V2z/);
+  assert.match(layout, /class="header-display-icon pipette-icon"[\s\S]*?m12 9-8\.414 8\.414[\s\S]*?m18 9 \.4\.4[\s\S]*?m2 22 \.414-\.414/);
+  assert.match(layout, /class="header-display-icon theme-contrast-icon"[\s\S]*?<circle cx="12" cy="12" r="10"><\/circle><path d="M12 2a10 10 0 0 1 0 20V2z" fill="currentColor"><\/path>/);
+  assert.doesNotMatch(layout, /palette-off-icon|theme-icon-wrapper|sun-icon|moon-icon/);
+  assert.match(css, /\.header-display-icon\s*\{[\s\S]*?width:\s*17px;[\s\S]*?height:\s*17px;/);
+  assert.doesNotMatch(css, /\.theme-icon-wrapper|\.sun-icon|\.moon-icon/);
   assert.match(layout, /data-label-enable=\{lang === "es" \? "Activar escala de grises" : "Enable grayscale"\}/);
   assert.match(layout, /data-label-dark=\{lang === "es" \? "Cambiar a tema oscuro" : "Change to dark theme"\}/);
   assert.match(layout, /grayscaleToggle\.setAttribute\("aria-pressed", enabled \? "true" : "false"\)/);
