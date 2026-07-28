@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "chalk-logic": {
+      "source": "CaliCastle/skills",
+      "sourceType": "github",
+      "skillPath": "skills/chalk-logic/SKILL.md",
+      "computedHash": "9caf6fd03ccb67468110c00aec3cb6d2597515397b904f894c4655de6ce44bd7"
+    }
+  }
+}
