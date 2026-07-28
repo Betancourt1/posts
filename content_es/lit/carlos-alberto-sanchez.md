@@ -9,12 +9,19 @@ quotes:
     author: "Carlos Alberto Sánchez"
     source: "Blooming in the Ruins: How Mexican Philosophy Can Guide Us toward the Good Life"
     year: "2024"
+  - text: "You are not a political identity but a person, struggling, like most people, with your accidentality, and your many existential projects."
+    author: "Carlos Alberto Sánchez"
+    source: "Blooming in the Ruins: How Mexican Philosophy Can Guide Us toward the Good Life"
+    year: "2024"
 aliases: ["/zettelkasten/carlos-alberto-sanchez/"]
 ---
 
 # Carlos Alberto Sánchez
 
 > "Ver el mundo a través de la filosofía mexicana es, pues, una oportunidad para ver a través de los ojos de aquellos que se ven a sí mismos como accidentes de la historia y la catástrofe."
+> - Carlos Alberto Sánchez -
+
+> You are not a political identity but a person, struggling, like most people, with your accidentality, and your many existential projects.
 > - Carlos Alberto Sánchez -
 
 ## Notas
