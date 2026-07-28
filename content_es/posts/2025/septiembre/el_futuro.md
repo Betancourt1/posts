@@ -1,7 +1,7 @@
 ---
 title: "El futuro probablemente es primitivo"
 date: 2025-09-01
-tags: ["ensayo","sci-fi"]
+tags: ["ensayo","ciencia-ficción"]
 ---
 
 # El futuro probablemente es primitivo
