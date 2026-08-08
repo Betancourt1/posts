@@ -1,7 +1,7 @@
 ---
 title: "Citas"
 date: 2026-04-20
-description: "Citas literales, pasajes subrayados y notas textuales de lectura."
+description: "Citas literales, pasajes subrayados y notas textuales de lecturas."
 search: true
 ---
 
