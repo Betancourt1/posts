@@ -13,6 +13,18 @@ quotes:
     author: "Carlos Alberto Sánchez"
     source: "Blooming in the Ruins: How Mexican Philosophy Can Guide Us toward the Good Life"
     year: "2024"
+  - text: "Being greedy is very lonely. Selfishness is very lonely. When you're generous, the world gets much bigger. I'd rather live in a bigger rather smaller world, wouldn't you?"
+    author: "Carlos Alberto Sánchez"
+    source: "Blooming in the Ruins: How Mexican Philosophy Can Guide Us toward the Good Life"
+    year: "2024"
+  - text: "Allow yourself the freedom to disobey when possible. It's not a big deal."
+    author: "Carlos Alberto Sánchez"
+    source: "Blooming in the Ruins: How Mexican Philosophy Can Guide Us toward the Good Life"
+    year: "2024"
+  - text: "So, while alive, be late at parties. You gain nothing by trying to be on time, but you may gain something by being late: more time to get lost in the world, more time to enjoy the journey before getting to the destination, more time to be alone with yourself. Your capitalist, colonized habits may violently react to this strategy, but that dinal appointment with death is always just around the corner, so why hurry?"
+    author: "Carlos Alberto Sánchez"
+    source: "Blooming in the Ruins: How Mexican Philosophy Can Guide Us toward the Good Life"
+    year: "2024"
 aliases: ["/zettelkasten/carlos-alberto-sanchez/"]
 ---
 
@@ -22,6 +34,15 @@ aliases: ["/zettelkasten/carlos-alberto-sanchez/"]
 > - Carlos Alberto Sánchez -
 
 > You are not a political identity but a person, struggling, like most people, with your accidentality, and your many existential projects.
+> - Carlos Alberto Sánchez -
+
+> Being greedy is very lonely. Selfishness is very lonely. When you're generous, the world gets much bigger. I'd rather live in a bigger rather smaller world, wouldn't you?
+> - Carlos Alberto Sánchez -
+
+> Allow yourself the freedom to disobey when possible. It's not a big deal.
+> - Carlos Alberto Sánchez -
+
+> So, while alive, be late at parties. You gain nothing by trying to be on time, but you may gain something by being late: more time to get lost in the world, more time to enjoy the journey before getting to the destination, more time to be alone with yourself. Your capitalist, colonized habits may violently react to this strategy, but that dinal appointment with death is always just around the corner, so why hurry?
 > - Carlos Alberto Sánchez -
 
 ## Notas

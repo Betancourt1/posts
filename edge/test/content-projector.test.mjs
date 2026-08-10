@@ -228,9 +228,9 @@ test("projects the complete repository with the migration count contract", async
   const documents = projections.flatMap((projection) => projection.documents);
   const routes = documents.flatMap((document) => document.routes);
 
-  assert.equal(files.length, 221);
-  assert.equal(documents.length, 318);
-  assert.equal(documents.filter((document) => document.searchable).length, 297);
-  assert.equal(routes.filter((route) => route.kind === "canonical").length, 318);
+  assert.equal(files.length, 223);
+  assert.equal(documents.length, 320);
+  assert.equal(documents.filter((document) => document.searchable).length, 299);
+  assert.equal(routes.filter((route) => route.kind === "canonical").length, 320);
   assert.equal(routes.filter((route) => route.kind === "alias").length, 44);
 });
