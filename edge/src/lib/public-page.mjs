@@ -5,6 +5,7 @@ import {
   latestSyncTimestamp,
   navSections,
   normalizeRoute,
+  recentPosts,
   resolveDocument,
   sectionItems,
   tagIndex,
@@ -137,9 +138,11 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
   const archivePromise = layout === "archives"
     ? archiveItems(db, document.lang, options)
     : Promise.resolve(null);
-  const itemsPromise = ["list", "books", "photography", "code", "quotes"].includes(layout)
-    ? sectionItems(db, document.lang, document.section, { ...options, body: ["list", "books"].includes(layout) })
-    : Promise.resolve([]);
+  const itemsPromise = layout === "home"
+    ? recentPosts(db, document.lang, { ...options, limit: 10 })
+    : ["list", "books", "photography", "code", "quotes"].includes(layout)
+      ? sectionItems(db, document.lang, document.section, { ...options, body: ["list", "books"].includes(layout) })
+      : Promise.resolve([]);
   const backlinksPromise = layout === "single" && ["posts", "zettelkasten"].includes(document.section)
     ? backlinks(db, document.id, options)
     : Promise.resolve([]);

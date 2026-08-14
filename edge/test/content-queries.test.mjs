@@ -14,6 +14,7 @@ import {
   latestSyncTimestamp,
   navSections,
   normalizeRoute,
+  recentPosts,
   resolveDocument,
   searchDocuments,
   sectionItems,
@@ -274,6 +275,12 @@ test("reads the projected public site through the real D1 API", async (t) => {
       (await tagResults(db, "en", "ethics")).map((document) => document.path),
       ["/posts/ethical-data/"],
     );
+    const recent = await recentPosts(db, "en", { limit: 10 });
+    assert.deepEqual(recent.map((document) => document.title), [
+      "Ethical Data",
+      "Destination",
+    ]);
+
     assert.deepEqual(
       (await tagResults(db, "es", "%C3%A9tica")).map((document) => document.title),
       ["Datos éticos"],

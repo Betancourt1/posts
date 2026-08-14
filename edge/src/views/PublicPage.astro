@@ -11,11 +11,13 @@ import NotFound from "../components/NotFound.astro";
 import Photography from "../components/Photography.astro";
 import Quotes from "../components/Quotes.astro";
 import Single from "../components/Single.astro";
+import TagList from "../components/TagList.astro";
 import Tags from "../components/Tags.astro";
+import { displayDate } from "../components/_utils.js";
 import SiteLayout from "../layouts/SiteLayout.astro";
 import { renderMarkdownSummary } from "../lib/content-projector.mjs";
 import { adminPathForPublicRoute } from "../lib/public-page.mjs";
-import type { ShellPage } from "../components/types";
+import type { Language, ShellPage } from "../components/types";
 
 interface Props {
   model: any;
@@ -118,6 +120,20 @@ function bookReview(markdown: string) {
   return match?.[1]?.trim() || null;
 }
 
+function badgeLabel(section: string, targetLang: Language) {
+  const labels: Record<string, string> = {
+    posts: targetLang === "es" ? "escrito" : "post",
+    "proyectos-profesionales": targetLang === "es" ? "código" : "code",
+    "proyectos-academicos": targetLang === "es" ? "académico" : "academic",
+    zettelkasten: "zettel",
+    lit: targetLang === "es" ? "cita" : "quote",
+    fotografia: targetLang === "es" ? "foto" : "photo",
+    books: targetLang === "es" ? "libro" : "book",
+    libros: targetLang === "es" ? "libro" : "book",
+  };
+  return labels[section] || section;
+}
+
 const layout = ["books", "photography", "code", "quotes", "not-found"].includes(model.layout)
   ? model.layout
   : "default";
@@ -180,6 +196,35 @@ const description = model.description || undefined;
         <p class="lead">{description}</p>
       </header>
       {page.bodyHtml && <section class="post-body" set:html={restoreLegacyLinkSpacing(page.bodyHtml)}></section>}
+      {items.length > 0 && (
+        <section class="home-section home-feed">
+          <div class="home-section-head">
+            <h2>{lang === "es" ? "Reciente" : "Recent"}</h2>
+            <span class="sidebar-more">
+              <a href={contentHref(lang === "es" ? "/es/archives/" : "/archives/")}>
+                {lang === "es" ? "Todos los archivos →" : "All archives →"}
+              </a>
+            </span>
+          </div>
+          <div class="post-list">
+            {items.map((item: any) => (
+              <article class="post-card">
+                <div class="post-card-top">
+                  <div class="post-card-meta">{displayDate(item.date)}</div>
+                  {item.section && (
+                    <span class={`archive-badge archive-badge--${item.section}`}>
+                      {badgeLabel(item.section, lang)}
+                    </span>
+                  )}
+                </div>
+                <h2><a href={item.href}>{item.title}</a></h2>
+                {item.summary && <p class="post-summary">{item.summary}</p>}
+                {item.tags.length > 0 && <TagList tags={item.tags} lang={lang} />}
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
       <KnowledgeGraph data={emptyGraph} lang={lang} variant="home" />
     </>
   )}

@@ -154,3 +154,11 @@ test("renders every complete quote in the central mosaic", async () => {
   assert.match(css, /\.quote-index-text\s*\{[^}]*white-space:\s*pre-line/s);
   assert.match(css, /\.content-column--quotes-index \.content-inner\s*\{[^}]*max-width:\s*none/s);
 });
+
+test("renders the recent posts feed on the home page", async () => {
+  const source = await readFile(publicPagePath, "utf8");
+
+  assert.match(source, /class="home-section home-feed"/);
+  assert.match(source, /\{lang === "es" \? "Reciente" : "Recent"\}/);
+  assert.match(source, /archive-badge--\$\{item\.section\}/);
+});

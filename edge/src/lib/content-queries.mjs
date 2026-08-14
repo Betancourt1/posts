@@ -308,6 +308,34 @@ export async function archiveItems(db, lang, options = {}) {
   return hydrateDocuments(result);
 }
 
+export async function recentPosts(db, lang, options = {}) {
+  const { includeDrafts, includeHidden } = visibilityOptions(options);
+  const limit = positiveLimit(options.limit, 10);
+  const result = await db.prepare(`
+    SELECT
+      ${documentColumns("d")},
+      canonical.path AS path
+    FROM documents AS d
+    JOIN routes AS canonical
+      ON canonical.document_id = d.id
+     AND canonical.kind = 'canonical'
+    WHERE d.lang = ?
+      AND d.kind = 'page'
+      AND d.section <> ''
+      AND d.section NOT IN ('about', 'cv')
+      AND (? = 1 OR d.draft = 0)
+      AND (? = 1 OR d.hidden = 0)
+    ORDER BY
+      CASE WHEN d.date IS NULL OR d.date = '' THEN 1 ELSE 0 END,
+      d.date DESC,
+      d.title COLLATE NOCASE DESC,
+      canonical.path DESC
+    LIMIT ?
+  `).bind(language(lang), includeDrafts, includeHidden, limit).all();
+
+  return hydrateDocuments(result);
+}
+
 export async function tagIndex(db, lang, options = {}) {
   const { includeDrafts, includeHidden } = visibilityOptions(options);
   const result = await db.prepare(`
