@@ -158,7 +158,7 @@ test("renders every complete quote in the central mosaic", async () => {
 test("renders the recent posts feed on the home page", async () => {
   const source = await readFile(publicPagePath, "utf8");
 
-  assert.match(source, /class="home-section home-feed"/);
+  assert.match(source, /<KnowledgeGraph[\s\S]*?class="home-section home-feed"/);
   assert.match(source, /\{lang === "es" \? "Reciente" : "Recent"\}/);
   assert.match(source, /archive-badge--\$\{item\.section\}/);
 });

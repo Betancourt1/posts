@@ -196,6 +196,7 @@ const description = model.description || undefined;
         <p class="lead">{description}</p>
       </header>
       {page.bodyHtml && <section class="post-body" set:html={restoreLegacyLinkSpacing(page.bodyHtml)}></section>}
+      <KnowledgeGraph data={emptyGraph} lang={lang} variant="home" />
       {items.length > 0 && (
         <section class="home-section home-feed">
           <div class="home-section-head">
@@ -225,7 +226,6 @@ const description = model.description || undefined;
           </div>
         </section>
       )}
-      <KnowledgeGraph data={emptyGraph} lang={lang} variant="home" />
     </>
   )}
 
