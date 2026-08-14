@@ -105,6 +105,7 @@ test("keeps the Citas title in Spanish notebook navigation", async () => {
 
   assert.match(source, /\["Citas", "\/es\/lit\/", "lit"\]/);
   assert.doesNotMatch(source, /\["Lecturas", "\/es\/lit\/", "lit"\]/);
+  assert.match(source, /\["Quotes", "\/lit\/", "lit"\]/);
 });
 
 test("routes the quote notebook to its dedicated layout", () => {

@@ -93,6 +93,7 @@ test("derives localized routes, content kinds, and visibility", () => {
   assert.equal(document.links[0].targetPath, "/es/");
 
   assert.equal(routeForSource("content_en/_index.md"), "/");
+  assert.equal(routeForSource("content_en/lit/_index.md"), "/lit/");
   assert.equal(routeForSource("content_es/lit/_index.md"), "/es/lit/");
   assert.equal(routeForSource("content_en/about/index.md"), "/about/");
   assert.equal(
@@ -228,9 +229,9 @@ test("projects the complete repository with the migration count contract", async
   const documents = projections.flatMap((projection) => projection.documents);
   const routes = documents.flatMap((document) => document.routes);
 
-  assert.equal(files.length, 223);
-  assert.equal(documents.length, 320);
-  assert.equal(documents.filter((document) => document.searchable).length, 299);
-  assert.equal(routes.filter((route) => route.kind === "canonical").length, 320);
-  assert.equal(routes.filter((route) => route.kind === "alias").length, 44);
+  assert.equal(files.length, 277);
+  assert.equal(documents.length, 374);
+  assert.equal(documents.filter((document) => document.searchable).length, 352);
+  assert.equal(routes.filter((route) => route.kind === "canonical").length, 374);
+  assert.equal(routes.filter((route) => route.kind === "alias").length, 88);
 });

@@ -1,13 +1,16 @@
-import type { Language, TagItem } from "./types";
+/**
+ * @typedef {import("./types").Language} Language
+ * @typedef {import("./types").TagItem} TagItem
+ */
 
-export function displayDate(value?: string | Date | null): string {
+export function displayDate(value) {
   if (!value) return "";
   if (value instanceof Date) return value.toISOString().slice(0, 10);
   const match = String(value).match(/^\d{4}-\d{2}-\d{2}/);
   return match ? match[0] : String(value);
 }
 
-export function tagSlug(tag: TagItem): string {
+export function tagSlug(tag) {
   if (tag.slug) return tag.slug;
   return tag.label
     .trim()
@@ -16,16 +19,16 @@ export function tagSlug(tag: TagItem): string {
     .replace(/^-+|-+$/g, "");
 }
 
-export function tagHref(tag: TagItem, lang: Language): string {
+export function tagHref(tag, lang) {
   if (tag.href) return tag.href;
   return `${lang === "es" ? "/es" : ""}/tags/${tagSlug(tag)}/`;
 }
 
-export function safeJson(value: unknown): string {
+export function safeJson(value) {
   return JSON.stringify(value ?? {}).replaceAll("<", "\\u003c");
 }
 
-export function plainExcerpt(value: string, length = 92): string {
+export function plainExcerpt(value, length = 92) {
   const plain = value
     .replace(/```[\s\S]*?```/g, " ")
     .replace(/[#*_>`\[\]()!-]/g, " ")
@@ -34,7 +37,7 @@ export function plainExcerpt(value: string, length = 92): string {
   return plain.length > length ? `${plain.slice(0, length - 1).trimEnd()}…` : plain;
 }
 
-export function normalizeBookProgress(value?: number | string | null): number | null {
+export function normalizeBookProgress(value) {
   if (value == null || (typeof value === "string" && !value.trim())) return null;
 
   const progress = Number(value);

@@ -36,7 +36,7 @@ const badgeLabels: Record<string, string> = {
 };
 const sectionOrder = lang === "es"
   ? ["proyectos-academicos", "lit", "proyectos-profesionales", "posts", "fotografia", "libros"]
-  : ["proyectos-academicos", "books", "proyectos-profesionales"];
+  : ["proyectos-academicos", "lit", "books", "proyectos-profesionales"];
 const availableSections = new Set(visibleItems.map((item) => item.section));
 const sections = sectionOrder.filter((section) => availableSections.has(section));
 const years = [...visibleItems.reduce((yearMap, item) => {
