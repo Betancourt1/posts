@@ -2,7 +2,9 @@
 title: "Tesis de licenciatura"
 date: 2026-02-13
 draft: false
-tags: ["académico","tesis"]
+tags:
+  - academic
+  - thesis
 ---
 
 ## Proyecto

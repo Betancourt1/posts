@@ -48,7 +48,7 @@ const allQuotes = items
     ...quote,
     href: item.href,
     date: String(item.date || ""),
-    tags: (item.tags || []).filter((tag) => tag.label.toLowerCase() !== "cita").slice(0, 2),
+    tags: (item.tags || []).filter((tag) => !["cita", "quote"].includes(tag.label.toLowerCase())).slice(0, 2),
     key: `${item.href}#${index + 1}`,
   })))
   .filter((quote) => quote.text?.trim() && quote.author?.trim());

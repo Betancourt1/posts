@@ -1,7 +1,8 @@
 ﻿---
 title: "Un discurso de boda"
 date: 2025-11-08
-tags: ["discurso"]
+tags:
+  - discourse
 ---
 # Un discurso de boda
 

@@ -1,7 +1,11 @@
 ---
 title: "Una carta"
 date: 2025-10-24
-tags: ["cuento","infancia","abuso","violencia"]
+tags:
+  - short-story
+  - childhood
+  - abuse
+  - violence
 ---
 
 # Una carta

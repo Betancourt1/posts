@@ -1,7 +1,8 @@
 ﻿---
 title: "IA para la productividad"
 date: 2025-08-13
-tags: ["charla"]
+tags:
+  - talk
 ---
 # IA para la productividad
 

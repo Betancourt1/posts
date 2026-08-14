@@ -1,7 +1,8 @@
 ﻿---
 title: "¿Por qué?"
 date: 2025-08-09
-tags: ["reflexión"]
+tags:
+  - reflection
 ---
 # ¿Por qué?
 

@@ -2,10 +2,15 @@
 title: "IMCINE Anuario CineMX: Dataset Abierto e Histórico"
 date: 2026-01-27
 draft: false
-tags: ["open-source","python","scraping","cine-mexicano","dataset"]
+tags:
+  - open-source
+  - python
+  - scraping
+  - mexican-cinema
+  - dataset
 short_title: "Datos Abiertos de IMCINE"
 summary: "Un pipeline reproducible para preservar datos históricos del cine mexicano."
-technologies: ["Python", "Pandas", "Scraping", "CSV", "JSON"]
+technologies: [ "Python", "Pandas", "Scraping", "CSV", "JSON" ]
 ---
 
 ## Contexto

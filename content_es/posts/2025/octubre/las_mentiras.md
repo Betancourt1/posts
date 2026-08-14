@@ -1,7 +1,11 @@
 ---
 title: "Las mentiras que me digo"
 date: 2025-10-17
-tags: ["cuento","salud-mental","miedo","subjetividad"]
+tags:
+  - short-story
+  - mental-health
+  - fear
+  - subjectivity
 ---
 
 # Las mentiras que me digo

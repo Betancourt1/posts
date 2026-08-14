@@ -2,10 +2,14 @@
 title: "Musical Moods: Análisis de Redes de Sentimiento Musical"
 date: 2022-03-30
 draft: false
-tags: ["open-source","ciencia-de-datos","grafos","visualización-de-datos"]
+tags:
+  - open-source
+  - data-science
+  - graphs
+  - data-visualization
 short_title: "Musical Moods Network"
 summary: "Un grafo interactivo de relaciones entre emociones musicales."
-technologies: ["Python", "JavaScript", "Sigma.js", "Graphs"]
+technologies: [ "Python", "JavaScript", "Sigma.js", "Graphs" ]
 ---
 
 ## Contexto

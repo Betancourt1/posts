@@ -1,7 +1,8 @@
 ﻿---
 title: "Cabello"
 date: 2025-12-01
-tags: ["cabello"]
+tags:
+  - hair
 ---
 # Cabello
 

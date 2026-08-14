@@ -1,7 +1,9 @@
 ---
 title: "Un aforismo y un lamento"
 date: 2025-08-30
-tags: ["ensayo","aforismos"]
+tags:
+  - essays
+  - aphorisms
 ---
 # Un aforismo y un lamento 
 

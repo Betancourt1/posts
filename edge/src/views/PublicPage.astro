@@ -139,7 +139,7 @@ const layout = ["books", "photography", "code", "quotes", "not-found"].includes(
   : "default";
 const emptyGraph = { posts: [], tagLinks: {} };
 const ignoredGraphTags = new Set([
-  "book", "read", "currently-reading", "to-read", "essays",
+  "book", "read", "currently-reading", "to-read", "essays", "essay", "note", "quote",
   "libro", "leído", "leyendo", "por-leer", "ensayo", "nota", "zettelkasten", "cita",
 ]);
 const canonical = new URL(model.path, Astro.site || Astro.url.origin).href;
