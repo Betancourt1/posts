@@ -208,7 +208,7 @@ const archivesPath = authorMode
       </main>
       {showSidebar && (
         <aside class="column sidebar-column">
-          <Sidebar lang={lang} archives={archiveMonths} archivesHref={archivesPath} graphData={page.isHome ? null : page.graphData} />
+          <Sidebar lang={lang} archives={archiveMonths} archivesHref={archivesPath} />
         </aside>
       )}
     </div>
@@ -290,7 +290,6 @@ const archivesPath = authorMode
 
       });
     </script>
-    <script is:inline src="/js/knowledge-graph.js" defer></script>
     <script is:inline src="/js/infrastructure.js" defer></script>
     {showSearch && <script is:inline src="/js/search.js" defer></script>}
     <script is:inline src="/js/typography.js" defer></script>
