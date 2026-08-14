@@ -5,6 +5,7 @@ import portfolioSource from "../../../data/code_portfolio.yaml?raw";
 import Archives from "../components/Archives.astro";
 import Books from "../components/Books.astro";
 import CodePortfolio from "../components/CodePortfolio.astro";
+import KnowledgeGraph from "../components/KnowledgeGraph.astro";
 import List from "../components/List.astro";
 import NotFound from "../components/NotFound.astro";
 import Photography from "../components/Photography.astro";
@@ -195,6 +196,7 @@ const description = model.description || undefined;
         <p class="lead">{description}</p>
       </header>
       {page.bodyHtml && <section class="post-body" set:html={restoreLegacyLinkSpacing(page.bodyHtml)}></section>}
+      <KnowledgeGraph data={shellPage.graphData || emptyGraph} lang={lang} variant="home" />
       {items.length > 0 && (
         <section class="home-section home-feed">
           <div class="home-section-head">

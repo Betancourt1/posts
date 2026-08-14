@@ -12,8 +12,6 @@ const { data, lang = "en", variant = "home" } = Astro.props;
 const sidebar = variant === "sidebar";
 const copy = lang === "es"
   ? {
-      title: sidebar ? "Grafo" : "Grafo de conocimiento",
-      hint: "Cada enlace conecta tags que aparecen juntos en una publicación. Arrastra nodos, usa zoom y abre con click o toque.",
       tools: "Controles del grafo de conocimiento",
       reset: "Restablecer vista",
       maximize: "Maximizar grafo",
@@ -24,8 +22,6 @@ const copy = lang === "es"
       map: "Mapa interactivo de temas",
     }
   : {
-      title: sidebar ? "Graph" : "Knowledge graph",
-      hint: "Each link connects tags that appear together in a post. Drag nodes, zoom, and click or tap to open.",
       tools: "Knowledge graph controls",
       reset: "Reset view",
       maximize: "Maximize graph",
@@ -38,12 +34,6 @@ const copy = lang === "es"
 ---
 
 <section class:list={["home-section", "home-graph", { "sidebar-graph": sidebar }]}>
-  <div class="home-section-head">
-    <h2>{copy.title}</h2>
-  </div>
-  <p class:list={["knowledge-graph-hint", "knowledge-graph-hint--intro", { "sidebar-graph-lead": sidebar }]}>
-    {copy.hint}
-  </p>
   {!sidebar && (
     <div class="knowledge-graph-tools" id="knowledge-graph-tools" aria-label={copy.tools}>
       <button type="button" class="button graph-tool" data-graph-action="reset-view" aria-label={copy.reset} title={copy.reset}>

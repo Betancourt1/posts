@@ -1,18 +1,27 @@
 ---
-import type { ArchiveMonth, Language } from "./types";
+import KnowledgeGraph from "./KnowledgeGraph.astro";
+import type { ArchiveMonth, GraphData, Language } from "./types";
 
 interface Props {
   lang?: Language;
   archives?: ArchiveMonth[];
   archivesHref?: string;
+  graphData?: GraphData | null;
 }
 
 const {
   lang = "en",
   archives = [],
   archivesHref = lang === "es" ? "/es/archives/" : "/archives/",
+  graphData = null,
 } = Astro.props;
 ---
+
+{graphData && (
+  <div class="sidebar-block sidebar-block--graph">
+    <KnowledgeGraph data={graphData} lang={lang} variant="sidebar" />
+  </div>
+)}
 
 <div class="sidebar-block">
   <h3>{lang === "es" ? "Archivos" : "Archives"}</h3>
