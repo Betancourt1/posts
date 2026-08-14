@@ -104,11 +104,6 @@ const rawSource = [
     </div>
 
     {!titleInBody && <h1 class="post-title" style="margin-top: 0; margin-bottom: 12px;">{title}</h1>}
-    {section === "cv" && (
-      <div class="print-btn-container" style="margin-top: 10px; margin-bottom: 20px;">
-        <button type="button" class="button print-btn" onclick="window.print()">{lang === "es" ? "Imprimir / Guardar en PDF" : "Print / Save as PDF"}</button>
-      </div>
-    )}
     <TagList tags={tags} lang={lang} />
     {section !== "lit" && summary && <p class="lead post-summary" style="margin-top: 8px;">{summary}</p>}
   </header>
