@@ -8,6 +8,7 @@ tags:
   - power
   - work
   - future
+  - artificial-intelligence
 summary: "The notion that AI is so dangerous that the only safe path is an extreme concentration of power seems dangerous."
 quotes:
   - text: "The notion that AI is so dangerous that the only safe path is an extreme concentration of power seems dangerous. Historically, hoping that an absolute power will benevolently provide for humanity if sufficiently enlightened hasn’t led to safe or positive outcomes."
