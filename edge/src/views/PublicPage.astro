@@ -330,7 +330,7 @@ const description = model.description || undefined;
         ...listItem(project),
         shortTitle: project.frontMatter?.short_title,
         technologies: project.frontMatter?.technologies || [],
-        private: tagsFor(project).some((tag: any) => ["private", "privado"].includes(tag.label.toLowerCase())),
+        private: tagsFor(project).some((tag: any) => tag.label.toLowerCase() === "private"),
       }))}
       technologies={portfolio.technologies || []}
       github={{

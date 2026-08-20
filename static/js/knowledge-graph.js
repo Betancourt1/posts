@@ -24,7 +24,7 @@
   }
 
   function shouldSkipTag(tag) {
-    return tag === "nota" || tag === "zettelkasten" || tag === "cita";
+    return tag === "note" || tag === "zettelkasten" || tag === "quote";
   }
 
   function cleanTagList(tags) {

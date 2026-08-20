@@ -1627,7 +1627,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       </label>
       <label class="field" id="tags-field">
         <span>Etiquetas</span>
-        <input id="tags" type="text" placeholder="ensayo, politica" />
+        <input id="tags" type="text" placeholder="essays, politics" />
       </label>
       <input id="draft" type="checkbox" hidden />
       <div class="photo-fields" id="photo-fields" hidden>
@@ -2417,7 +2417,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.title.value = "";
         els.summary.value = "";
         els.body.value = isBookEditor() ? bookTemplateBody() : "";
-        els.tags.value = isBookEditor() ? (isEnglishBook() ? "book" : "libro") : "";
+        els.tags.value = isBookEditor() ? "book" : "";
         slugTouched = false;
         els.slug.value = "";
         syncGeneratedSlug();
@@ -3320,7 +3320,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.imageAltField.hidden = !photo;
         els.captionField.hidden = !photo;
         if (photo && mode === "new" && els.notebook.value === "content_es/fotografia" && !els.tags.value.trim()) {
-          els.tags.value = "fotografía";
+          els.tags.value = "photography";
         }
         updatePhotoPreview();
         syncArenaSurfaceVisibility();

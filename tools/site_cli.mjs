@@ -904,7 +904,7 @@ async function commandNewPhoto(args, options) {
     title,
     date,
     draft: !options.publish,
-    tags: ["fotografía"],
+    tags: ["photography"],
     summary: String(options.summary || options.caption || ""),
   };
 

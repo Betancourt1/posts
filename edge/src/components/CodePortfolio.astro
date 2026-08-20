@@ -97,7 +97,7 @@ if (github.snapshotEnd) {
 
   <section class="code-project-grid" aria-label={lang === "es" ? "Proyectos de código" : "Code projects"}>
     {visibleProjects.map((project, index) => {
-      const privateProject = project.private || project.tags?.some((tag) => ["private", "privado"].includes(tag.label.toLocaleLowerCase()));
+      const privateProject = project.private || project.tags?.some((tag) => tag.label.toLocaleLowerCase() === "private");
       return (
         <article class="code-project">
           <div class="code-project-heading">

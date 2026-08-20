@@ -126,7 +126,7 @@ title: Datos éticos
 date: 2026-07-09
 draft: false
 summary: Una nota sobre datos.
-tags: [ética, ensayo]
+tags: [ethics, essays]
 translationKey: ethical-data
 ---
 La ética de datos necesita cuidado.
@@ -135,7 +135,7 @@ La ética de datos necesita cuidado.
 title: Destination
 date: 2026-07-08
 draft: false
-tags: [knowledge, nota]
+tags: [knowledge, note]
 ---
 The linked destination.
 `],
@@ -243,7 +243,7 @@ test("reads the projected public site through the real D1 API", async (t) => {
     assert.equal(spanish.lang, "es");
     assert.equal(spanish.path, "/es/posts/datos-eticos/");
     assert.equal(spanish.frontMatter.translationKey, "ethical-data");
-    assert.deepEqual(spanish.tags.map((tag) => tag.label), ["ética", "ensayo"]);
+    assert.deepEqual(spanish.tags.map((tag) => tag.label), ["ethics", "essays"]);
   });
 
   await t.test("builds section, navigation, archive, and taxonomy lists", async () => {
@@ -282,7 +282,7 @@ test("reads the projected public site through the real D1 API", async (t) => {
     ]);
 
     assert.deepEqual(
-      (await tagResults(db, "es", "%C3%A9tica")).map((document) => document.title),
+      (await tagResults(db, "es", "ethics")).map((document) => document.title),
       ["Datos éticos"],
     );
   });

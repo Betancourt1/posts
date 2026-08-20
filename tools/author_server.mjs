@@ -657,7 +657,7 @@ function createPost(payload) {
   };
 
   if (isPhotoNotebook && frontMatter.tags.length === 0) {
-    frontMatter.tags = ["fotografía"];
+    frontMatter.tags = ["photography"];
   }
 
   if (payload.arenaEnabled === true) {

@@ -78,9 +78,9 @@ test("savePage skips an empty GitHub commit when content is unchanged", async ()
   }
 });
 
-test("savePage normalizes the Spanish photography tag", async () => {
+test("savePage normalizes legacy Spanish photography tags to English", async () => {
   const originalFetch = globalThis.fetch;
-  const current = formatMarkdown({ title: "Foto", tags: ["fotografia", "naturaleza"] }, "");
+  const current = formatMarkdown({ title: "Foto", tags: ["fotografia", "nature"] }, "");
   let writtenContent = "";
 
   globalThis.fetch = async (url, options = {}) => {
@@ -100,11 +100,11 @@ test("savePage normalizes the Spanish photography tag", async () => {
   try {
     const result = await savePage(env, {
       path: "content_es/fotografia/foto.md",
-      frontMatter: { tags: ["fotografia", "fotografía", "naturaleza"] },
+      frontMatter: { tags: ["fotografia", "fotografía", "nature"] },
       body: "",
     });
     assert.equal(result.changed, true);
-    assert.deepEqual(splitMarkdown(writtenContent).frontMatter.tags, ["fotografía", "naturaleza"]);
+    assert.deepEqual(splitMarkdown(writtenContent).frontMatter.tags, ["photography", "nature"]);
   } finally {
     globalThis.fetch = originalFetch;
   }

@@ -70,7 +70,7 @@ test("derives localized routes, content kinds, and visibility", () => {
     path: "content_es/posts/2026/julio/no_post_secret.md",
     blobSha: "abc123",
     rawMarkdown:
-      '---\ntitle: Secreto\ndraft: false\nsearch: true\ntags: [idea, idea, "ética"]\n---\n[Inicio](/es/)\n',
+      '---\ntitle: Secreto\ndraft: false\nsearch: true\ntags: [idea, idea, "ethics"]\n---\n[Inicio](/es/)\n',
   });
   const document = hidden.documents[0];
 
@@ -86,7 +86,7 @@ test("derives localized routes, content kinds, and visibility", () => {
   assert.equal(document.hidden, true);
   assert.equal(document.draft, false);
   assert.equal(document.searchable, false);
-  assert.deepEqual(document.tags, ["idea", "ética"]);
+  assert.deepEqual(document.tags, ["idea", "ethics"]);
   assert.deepEqual(document.routes, [
     { path: "/es/posts/2026/julio/no_post_secret/", kind: "canonical" },
   ]);
