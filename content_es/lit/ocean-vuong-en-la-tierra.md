@@ -2,7 +2,7 @@
 title: "Ocean Vuong — En la tierra somos fugazmente grandiosos"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["cita","madre","violencia","infancia","trauma","literatura"]
+tags: ["quote","mother","violence","childhood","trauma","literature"]
 summary: "Todo este tiempo me decía a mí mismo que habíamos nacido de la guerra, pero estaba equivocado, mamá. Nacimos de la belleza. Que nadie nos confunda con el fruto de la violencia, violencia que, pese a haber pasado a tra..."
 quotes:
   - text: "Todo este tiempo me decía a mí mismo que habíamos nacido de la guerra, pero estaba equivocado, mamá. Nacimos de la belleza. Que nadie nos confunda con el fruto de la violencia, violencia que, pese a haber pasado a través del fruto, no ha conseguido pudrirlo."

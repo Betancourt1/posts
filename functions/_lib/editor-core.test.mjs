@@ -45,7 +45,7 @@ test("EditorCore shares deterministic text helpers", () => {
   const core = loadCore();
   assert.equal(core.slugify("Árbol y Flor", "-"), "arbol-y-flor");
   assert.equal(core.slugify("Árbol y Flor", "_"), "arbol_y_flor");
-  assert.deepEqual(Array.from(core.splitTags("#foto, macro naturaleza")), ["foto", "macro", "naturaleza"]);
+  assert.deepEqual(Array.from(core.splitTags("#photo, macro nature")), ["photo", "macro", "nature"]);
 });
 
 test("EditorCore API client rejects application errors", async () => {

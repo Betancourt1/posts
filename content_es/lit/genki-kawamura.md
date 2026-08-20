@@ -2,7 +2,7 @@
 title: "Genki Kawamura — *Si los gatos desaparecieran del mundo*"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["cita","literatura","vínculos","amor","sentido"]
+tags: ["quote","literature","relationships","love","meaning"]
 summary: "No llores, Tsutaya. Que exista una buena historia y que haya una persona con quien puedas hablar de ella... solo por eso merece la pena vivir, como dice un personaje de La leyenda del pianista en el océano. Tú eres pa..."
 quotes:
   - text: "No llores, Tsutaya. Que exista una buena historia y que haya una persona con quien puedas hablar de ella... solo por eso merece la pena vivir, como dice un personaje de La leyenda del pianista en el océano. Tú eres para mí esa persona. Creo que todavía merece la pena vivir porque estás aquí."

@@ -232,7 +232,7 @@ function normalizePhotoFrontMatter(path, frontMatter) {
 
   if (path.startsWith("content_es/fotografia/") && Array.isArray(frontMatter.tags)) {
     frontMatter.tags = [
-      ...new Set(frontMatter.tags.map((tag) => tag === "fotografia" ? "fotografía" : tag)),
+      ...new Set(frontMatter.tags.map((tag) => ["fotografia", "fotografía"].includes(tag) ? "photography" : tag)),
     ];
   }
 
@@ -409,7 +409,7 @@ export async function createPost(env, payload) {
   }
 
   if (isPhotoNotebook && frontMatter.tags.length === 0) {
-    frontMatter.tags = ["fotografía"];
+    frontMatter.tags = ["photography"];
   }
 
   if (image) {

@@ -2,7 +2,7 @@
 title: "Ursula K. Le Guin — The Carrier Bag Theory of Fiction"
 date: 2026-07-15T00:05:33-06:00
 draft: false
-tags: ["cita","literatura","ciencia-ficción","tecnología"]
+tags: ["quote","literature","science-fiction","technology"]
 summary: "If science fiction is the mythology of modern technology, then its myth is tragic."
 quotes:
   - text: "If science fiction is the mythology of modern technology, then its myth is tragic."

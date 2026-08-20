@@ -2,7 +2,7 @@
 title: "Don Norman — The Design of Everyday Things"
 date: 2026-07-15T00:05:33-06:00
 draft: false
-tags: ["cita","diseño","usabilidad","tecnología"]
+tags: ["quote","design","usability","technology"]
 summary: "Two of the most important characteristics of good design are discoverability and understanding."
 quotes:
   - text: "A door would seem to be about as simple a device as possible."

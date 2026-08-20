@@ -2,7 +2,7 @@
 title: "James C. Scott — Against the Grain"
 date: 2026-07-15T00:05:33-06:00
 draft: false
-tags: ["cita","historia","agricultura","estado"]
+tags: ["quote","history","agriculture","state"]
 summary: "The founding of the earliest agrarian societies and states in mesopotamia ocurred in the latest five percent of our history as a species on the planet."
 quotes:
   - text: "The founding of the earliest agrarian societies and states in mesopotamia ocurred in the latest five percent of our history as a species on the planet. And by that metric, the fossil fuel era, beginning all the end of the eighteenth century, represents merely the last quarter of a percent of our species history."

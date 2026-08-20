@@ -4,14 +4,9 @@ const GRAPH_IGNORED_TAGS = new Set([
   "currently-reading",
   "to-read",
   "essays",
-  "libro",
-  "leído",
-  "leyendo",
-  "por-leer",
-  "ensayo",
-  "nota",
+  "note",
   "zettelkasten",
-  "cita",
+  "quote",
 ]);
 
 function documentColumns(alias, { body = false } = {}) {

@@ -2,7 +2,7 @@
 title: "Eudald Espluga — No seas tú mismo (y otros textos)"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["cita","capitalismo","trabajo","millennials","autorrealización"]
+tags: ["quote","capitalism","work","millennials","self-actualization"]
 summary: "Debemos romper la asociación entre trabajo y vida buena, entre trabajo y bienestar, entre trabajo y felicidad. Lafargue tenía razón: el amor por el trabajo es una depravación, una enfermedad socialmente inducida. Si l..."
 quotes:
   - text: "Debemos romper la asociación entre trabajo y vida buena, entre trabajo y bienestar, entre trabajo y felicidad. Lafargue tenía razón: el amor por el trabajo es una depravación, una enfermedad socialmente inducida. Si la crítica debe ser ambiciosa, el eslogan es claro: no seas tú mismo."

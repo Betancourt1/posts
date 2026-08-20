@@ -2,7 +2,7 @@
 title: "Bicicletas GDL: Visualización de Viajes MiBici de Junio de 2026"
 date: 2026-07-22
 draft: false
-tags: ["open-source","react","canvas","visualización-de-datos","geoespacial"]
+tags: ["open-source","react","canvas","data-visualization","geospatial"]
 short_title: "Bicicletas GDL"
 summary: "Una reproducción cartográfica interactiva de 323,648 viajes de MiBici registrados durante junio de 2026."
 technologies: ["React", "Vite", "Canvas 2D", "Cloudflare Workers"]

@@ -2,7 +2,7 @@
 title: "Carlos Alberto Sánchez"
 date: 2026-04-19T14:14:22-06:00
 draft: false
-tags: ["cita","filosofía","méxico","colonialismo","historia"]
+tags: ["quote","philosophy","mexico","colonialism","history"]
 summary: "Ver el mundo a través de la filosofía mexicana es, pues, una oportunidad para ver a través de los ojos de aquellos que se ven a sí mismos como accidentes de la historia y la catástrofe."
 quotes:
   - text: "Ver el mundo a través de la filosofía mexicana es, pues, una oportunidad para ver a través de los ojos de aquellos que se ven a sí mismos como accidentes de la historia y la catástrofe."

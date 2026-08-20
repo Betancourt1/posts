@@ -57,7 +57,7 @@ test("writes and replaces a projected source through the real D1 API", async () 
 title: Data Feminism
 date: 2026-01-01
 draft: false
-tags: [book, data feminism, ética]
+tags: [book, data feminism, ethics]
 book_author: Catherine D'Ignazio
 book_status: read
 rating: 5
@@ -94,7 +94,7 @@ translationKey: book-data-feminism
       6,
     );
     assert.equal(
-      await db.prepare("SELECT COUNT(*) AS count FROM documents_fts WHERE documents_fts MATCH 'etica'").first("count"),
+      await db.prepare("SELECT COUNT(*) AS count FROM documents_fts WHERE documents_fts MATCH 'ethics'").first("count"),
       2,
     );
 

@@ -1,7 +1,7 @@
 ﻿---
 title: "El impacto del malware y phishing en la empresa y cómo prevenirlo"
 date: 2025-08-12
-tags: ["charla"]
+tags: ["talk"]
 ---
 # El impacto del malware y phishing en la empresa y cómo prevenirlo
 ### Ponente: Moisés Saldaña

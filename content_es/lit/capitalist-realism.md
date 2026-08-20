@@ -2,7 +2,7 @@
 title: "Mark Fisher — Capitalist Realism"
 date: 2026-07-15T00:05:33-06:00
 draft: false
-tags: ["cita","capitalismo","ideología","consumo"]
+tags: ["quote","capitalism","ideology","consumption"]
 summary: "Time after time, the villain in Hollywood films will return out to be the 'evil corporation'. Far from undermining capitalist realism, this gestural anti-capitalism actually reinforces it."
 quotes:
   - text: "Time after time, the villain in Hollywood films will return out to be the 'evil corporation'. Far from undermining capitalist realism, this gestural anti-capitalism actually reinforces it."

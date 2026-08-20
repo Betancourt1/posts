@@ -1,7 +1,7 @@
 ﻿---
 title: "Un conversatorio"
 date: 2025-11-19
-tags: ["charla","inteligencia-artificial","ética","educación"]
+tags: ["talk","artificial-intelligence","ethics","education"]
 ---
 # Un conversatorio
 

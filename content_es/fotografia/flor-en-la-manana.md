@@ -2,7 +2,7 @@
 title: "Flor en la mañana"
 date: 2026-07-01
 draft: false
-tags: ["fotografía","flores","naturaleza"]
+tags: ["photography","flowers","nature"]
 summary: "2 imagenes"
 image: "/uploads/2026/07/91164-1783535553531-3ha1y-1783535557239.jpg"
 thumbnail: "/uploads/2026/07/91164-preview.webp"

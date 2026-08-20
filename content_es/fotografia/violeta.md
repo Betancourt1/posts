@@ -2,7 +2,7 @@
 title: "Violeta"
 date: 2026-07-10
 draft: false
-tags: ["fotografía","flores","naturaleza","macro"]
+tags: ["photography","flowers","nature","macro"]
 summary: "2 imagenes"
 image: "/uploads/2026/07/42166-1783728263461-8lafs-1783728265223.jpg"
 thumbnail: "/uploads/2026/07/42166-preview-1783728265098-mf4ct-1783728266767.webp"

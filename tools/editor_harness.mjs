@@ -59,7 +59,7 @@ const pages = {
     frontMatter: {
       title: "Nota de prueba",
       date: "2026-07-10",
-      tags: ["prueba"],
+      tags: ["test"],
       summary: "Contrato del editor de posts",
       draft: false,
       hidden: false,
@@ -73,7 +73,7 @@ const pages = {
     frontMatter: {
       title: "Mariposa",
       date: "2026-07-10",
-      tags: ["fotografía", "naturaleza"],
+      tags: ["photography", "nature"],
       image: "/fixture.png",
       thumbnail: "/fixture.png",
       image_alt: "Mariposa sobre una flor",

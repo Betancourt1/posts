@@ -2,7 +2,7 @@
 title: "Rojo"
 date: 2026-07-10
 draft: false
-tags: ["fotografía","flores","naturaleza","macro"]
+tags: ["photography","flowers","nature","macro"]
 summary: ""
 image: "/uploads/2026/07/42163-1783720157427-qehtc-1783720159522.jpg"
 thumbnail: "/uploads/2026/07/42163-preview-1783720159881-9jj83-1783720161528.webp"

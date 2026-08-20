@@ -70,7 +70,7 @@ test("derives localized routes, content kinds, and visibility", () => {
     path: "content_es/posts/2026/julio/no_post_secret.md",
     blobSha: "abc123",
     rawMarkdown:
-      '---\ntitle: Secreto\ndraft: false\nsearch: true\ntags: [idea, idea, "ética"]\n---\n[Inicio](/es/)\n',
+      '---\ntitle: Secreto\ndraft: false\nsearch: true\ntags: [idea, idea, "ethics"]\n---\n[Inicio](/es/)\n',
   });
   const document = hidden.documents[0];
 
@@ -86,7 +86,7 @@ test("derives localized routes, content kinds, and visibility", () => {
   assert.equal(document.hidden, true);
   assert.equal(document.draft, false);
   assert.equal(document.searchable, false);
-  assert.deepEqual(document.tags, ["idea", "ética"]);
+  assert.deepEqual(document.tags, ["idea", "ethics"]);
   assert.deepEqual(document.routes, [
     { path: "/es/posts/2026/julio/no_post_secret/", kind: "canonical" },
   ]);
@@ -193,13 +193,13 @@ test("generates the canonical English book as a matching Spanish document", asyn
   assert.equal(spanish.generated, true);
   assert.equal(spanish.summary, "De Julian Barnes · Leído · 5/5");
   assert.deepEqual(spanish.tags, [
-    "libro",
-    "leído",
-    "ensayo",
-    "muerte",
-    "religión",
-    "memoria",
-    "familia",
+    "book",
+    "read",
+    "essays",
+    "death",
+    "religion",
+    "memory",
+    "family",
   ]);
   assert.equal(spanish.frontMatter.source_path, relativePath);
   assert.equal(spanish.frontMatter.source_body, english.bodyMarkdown);

@@ -49,7 +49,7 @@ test("book Markdown derives progress, status, rating, summary, and tags", () => 
 test("canonical books accept Spanish Markdown labels", () => {
   const frontMatter = {
     title: "Los desposeídos",
-    tags: ["libro", "leyendo", "ciencia-ficción"],
+    tags: ["libro", "leyendo", "science-fiction"],
     rating: 5,
   };
 
@@ -67,7 +67,7 @@ test("canonical books accept Spanish Markdown labels", () => {
   assert.equal(frontMatter.book_status, "read");
   assert.equal(frontMatter.rating, undefined);
   assert.equal(frontMatter.summary, "By Ursula K. Le Guin · Read");
-  assert.deepEqual(frontMatter.tags, ["book", "read", "ciencia-ficción"]);
+  assert.deepEqual(frontMatter.tags, ["book", "read", "science-fiction"]);
 });
 
 test("legacy currently-reading books can keep progress unquantified", () => {

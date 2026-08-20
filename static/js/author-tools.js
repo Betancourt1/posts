@@ -644,7 +644,7 @@
       label("Title", '<input name="title" type="text" value="' + escapeHtml(data.title) + '" required />'),
       label("Slug", '<input name="slug" type="text" value="' + escapeHtml(data.slug) + '"' + (data.mode === "edit" ? " disabled" : "") + " />"),
       label("Date", '<input name="date" type="date" value="' + escapeHtml(data.date) + '" />'),
-      label("Tags", '<input name="tags" type="text" value="' + escapeHtml(data.tags) + '" placeholder="ensayo, politica" />'),
+      label("Tags", '<input name="tags" type="text" value="' + escapeHtml(data.tags) + '" placeholder="essays, politics" />'),
       "</div>",
       label("Summary / Description", '<input name="summary" type="text" value="' + escapeHtml(data.summary) + '" />'),
       '<div class="author-check-row">',
