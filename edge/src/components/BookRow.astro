@@ -7,9 +7,10 @@ interface Props {
   lang: Language;
   statusLabel: string;
   defaultFilled: number;
+  initiallyHidden?: boolean;
 }
 
-const { book, lang, statusLabel, defaultFilled } = Astro.props;
+const { book, lang, statusLabel, defaultFilled, initiallyHidden = false } = Astro.props;
 const progress = normalizeBookProgress(book.progress);
 const progressLabel = progress !== null
   ? `${progress}%`
@@ -20,7 +21,11 @@ const filledSegments = progress === null ? defaultFilled : Math.floor((progress 
 const opinion = book.review ? plainExcerpt(book.review) : "";
 ---
 
-<article class:list={["book-shelf-row", { "has-opinion": Boolean(opinion) }]}>
+<article
+  class:list={["book-shelf-row", { "has-opinion": Boolean(opinion) }]}
+  data-book-extra={initiallyHidden ? "" : undefined}
+  hidden={initiallyHidden}
+>
   <div class="book-identity">
     <h3><a href={book.href}>{book.title}</a></h3>
     {book.author && <p>{book.author}</p>}

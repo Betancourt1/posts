@@ -42,6 +42,8 @@ const groups = [
   },
 ];
 const addLabel = lang === "es" ? "Nuevo libro" : "New book";
+const moreLabel = lang === "es" ? "Mostrar {count} más" : "Show {count} more";
+const batchSize = 6;
 ---
 
 <header class="page-header">
@@ -69,19 +71,23 @@ const addLabel = lang === "es" ? "Nuevo libro" : "New book";
     const previewBooks = groupBooks.slice(0, group.preview);
     const remainingBooks = groupBooks.slice(group.preview);
     return (
-      <section class="book-shelf" aria-labelledby={`book-shelf-${group.status}`}>
+      <section class="book-shelf" data-book-shelf aria-labelledby={`book-shelf-${group.status}`}>
         <div class="book-shelf-heading"><h2 id={`book-shelf-${group.status}`}>{group.label}</h2></div>
-        <div class="book-shelf-list">
+        <div class="book-shelf-list" id={`book-shelf-list-${group.status}`}>
           {previewBooks.map((book) => <BookRow book={book} lang={lang} statusLabel={group.statusLabel} defaultFilled={group.filled} />)}
-          {remainingBooks.length > 0 && (
-            <details class="book-shelf-more">
-              <summary>{lang === "es" ? `Mostrar ${remainingBooks.length} más` : `Show ${remainingBooks.length} more`}</summary>
-              <div class="book-shelf-more-list">
-                {remainingBooks.map((book) => <BookRow book={book} lang={lang} statusLabel={group.statusLabel} defaultFilled={group.filled} />)}
-              </div>
-            </details>
-          )}
+          {remainingBooks.map((book) => <BookRow book={book} lang={lang} statusLabel={group.statusLabel} defaultFilled={group.filled} initiallyHidden />)}
         </div>
+        {remainingBooks.length > 0 && (
+          <button
+            type="button"
+            class="book-shelf-more-button"
+            data-book-more
+            data-label-template={moreLabel}
+            aria-controls={`book-shelf-list-${group.status}`}
+          >
+            {moreLabel.replace("{count}", String(Math.min(batchSize, remainingBooks.length)))}
+          </button>
+        )}
       </section>
     );
   })}

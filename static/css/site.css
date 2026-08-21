@@ -1348,6 +1348,10 @@ button.quotes-order-option:focus-visible {
   border-bottom: 1px solid var(--line);
 }
 
+.book-shelf-row[hidden] {
+  display: none;
+}
+
 .book-shelf-row:not(.has-opinion) {
   grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.54fr);
 }
@@ -1424,33 +1428,27 @@ button.quotes-order-option:focus-visible {
   text-wrap: pretty;
 }
 
-.book-shelf-more summary {
-  position: absolute;
-  top: -0.35rem;
-  right: 0;
-  z-index: 1;
+.book-shelf-more-button {
   min-height: 28px;
   display: flex;
   align-items: center;
   width: max-content;
-  margin: 0.15rem 0;
-  padding-left: 0.6rem;
-  background: var(--bg);
+  margin: 0.15rem 0 0 auto;
+  padding: 0.35rem 0 0.35rem 0.6rem;
+  border: 0;
+  background: transparent;
   color: var(--ink-dim);
+  font-family: inherit;
   font-size: 0.72rem;
   cursor: pointer;
 }
 
-.book-shelf-more:not([open]) {
-  height: 0;
-}
-
-.book-shelf-more summary:hover,
-.book-shelf-more summary:focus-visible {
+.book-shelf-more-button:hover,
+.book-shelf-more-button:focus-visible {
   color: var(--accent);
 }
 
-.book-shelf-more summary:focus-visible {
+.book-shelf-more-button:focus-visible {
   outline: 2px dashed var(--accent);
   outline-offset: 2px;
 }
@@ -1471,18 +1469,9 @@ button.quotes-order-option:focus-visible {
     grid-template-columns: minmax(0, 1fr) minmax(8rem, 0.7fr);
   }
 
-  .book-shelf-more summary {
+  .book-shelf-more-button {
     min-height: 44px;
-  }
-
-  .book-shelf-more:not([open]) {
-    height: auto;
-  }
-
-  .book-shelf-more summary {
-    position: static;
     padding-left: 0;
-    background: transparent;
   }
 
   .book-opinion {
