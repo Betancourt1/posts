@@ -1430,11 +1430,10 @@ button.quotes-order-option:focus-visible {
 
 .book-shelf-more-button {
   min-height: 28px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  width: max-content;
-  margin: 0.15rem 0 0 auto;
-  padding: 0.35rem 0 0.35rem 0.6rem;
+  margin: 0.5rem 0 0;
+  padding: 0.35rem 0;
   border: 0;
   background: transparent;
   color: var(--ink-dim);
@@ -1471,7 +1470,6 @@ button.quotes-order-option:focus-visible {
 
   .book-shelf-more-button {
     min-height: 44px;
-    padding-left: 0;
   }
 
   .book-opinion {
