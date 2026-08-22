@@ -2274,7 +2274,7 @@ tr:nth-child(even) { background: var(--table-stripe); }
   font-size: 0.9rem;
 }
 
-button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-trigger), .button:not(.graph-tool), a.button {
+button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-trigger):not(.book-shelf-more-button), .button:not(.graph-tool), a.button {
   display: inline-block;
   border: 1px solid var(--accent);
   border-radius: 8px;
@@ -2285,12 +2285,12 @@ button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-
   cursor: pointer;
 }
 
-button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-trigger):hover, .button:not(.graph-tool):hover, a.button:hover {
+button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-trigger):not(.book-shelf-more-button):hover, .button:not(.graph-tool):hover, a.button:hover {
   background: rgba(78,204,163,.08);
   color: var(--accent-2);
 }
 
-button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-trigger):focus-visible, .button:not(.graph-tool):focus-visible, a.button:focus-visible {
+button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-trigger):not(.book-shelf-more-button):focus-visible, .button:not(.graph-tool):focus-visible, a.button:focus-visible {
   outline: 2px dashed var(--accent);
   outline-offset: 3px;
 }
