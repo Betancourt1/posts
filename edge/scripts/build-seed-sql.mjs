@@ -153,11 +153,11 @@ const stats = {
   aliasRoutes: documents.flatMap((document) => document.routes).filter((route) => route.kind === "alias").length,
 };
 const expected = {
-  sources: 285,
-  documents: 382,
-  searchable: 360,
-  canonicalRoutes: 382,
-  aliasRoutes: 89,
+  sources: 288,
+  documents: 385,
+  searchable: 363,
+  canonicalRoutes: 385,
+  aliasRoutes: 93,
 };
 
 if (JSON.stringify(stats) !== JSON.stringify(expected)) {
