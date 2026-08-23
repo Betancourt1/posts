@@ -160,6 +160,68 @@ test("localizes aliases and extracts links from Marked tokens", async () => {
   ]);
 });
 
+test("projects the bilingual thesis as Code while redirecting old Academic routes", async () => {
+  const [englishIndex, spanishIndex, englishThesis, spanishThesis] = await Promise.all(
+    [
+      "content_en/proyectos-profesionales/_index.md",
+      "content_es/proyectos-profesionales/_index.md",
+      "content_en/proyectos-profesionales/tesis.md",
+      "content_es/proyectos-profesionales/tesis.md",
+    ].map(async (relativePath) => projectSource({
+      path: relativePath,
+      rawMarkdown: await fixture(relativePath),
+    }).documents[0]),
+  );
+
+  assert.equal(englishIndex.title, "Code");
+  assert.deepEqual(englishIndex.routes, [
+    { path: "/proyectos-profesionales/", kind: "canonical" },
+    { path: "/proyectos-academicos/", kind: "alias" },
+  ]);
+  assert.equal(spanishIndex.title, "Código");
+  assert.deepEqual(spanishIndex.routes, [
+    { path: "/es/proyectos-profesionales/", kind: "canonical" },
+    { path: "/es/proyectos-academicos/", kind: "alias" },
+  ]);
+
+  for (const [document, canonicalPath, aliasPath, shortTitle, summaryPattern] of [
+    [
+      englishThesis,
+      "/proyectos-profesionales/tesis/",
+      "/proyectos-academicos/tesis/",
+      "Bachelor's Thesis",
+      /reproducible graph-theory analysis/,
+    ],
+    [
+      spanishThesis,
+      "/es/proyectos-profesionales/tesis/",
+      "/es/proyectos-academicos/tesis/",
+      "Tesis de licenciatura",
+      /análisis reproducible con teoría de grafos/,
+    ],
+  ]) {
+    assert.equal(document.section, "proyectos-profesionales");
+    assert.equal(document.translationKey, "source:proyectos-profesionales/tesis.md");
+    assert.equal(document.frontMatter.short_title, shortTitle);
+    assert.match(document.summary, summaryPattern);
+    assert.deepEqual(document.routes, [
+      { path: canonicalPath, kind: "canonical" },
+      { path: aliasPath, kind: "alias" },
+    ]);
+    assert.deepEqual(document.frontMatter.technologies, [
+      "Python",
+      "NetworkX",
+      "Pandas",
+      "GeoPandas",
+      "LaTeX",
+    ]);
+    assert.equal(
+      document.links.at(-1).href,
+      "https://github.com/Betancourt1/tesis",
+    );
+  }
+});
+
 test("blocks raw HTML and unsafe Markdown URL schemes", () => {
   const rendered = renderMarkdown(`Before
 
@@ -229,9 +291,9 @@ test("projects the complete repository with the migration count contract", async
   const documents = projections.flatMap((projection) => projection.documents);
   const routes = documents.flatMap((document) => document.routes);
 
-  assert.equal(files.length, 302);
-  assert.equal(documents.length, 399);
+  assert.equal(files.length, 300);
+  assert.equal(documents.length, 397);
   assert.equal(documents.filter((document) => document.searchable).length, 373);
-  assert.equal(routes.filter((route) => route.kind === "canonical").length, 399);
-  assert.equal(routes.filter((route) => route.kind === "alias").length, 103);
+  assert.equal(routes.filter((route) => route.kind === "canonical").length, 397);
+  assert.equal(routes.filter((route) => route.kind === "alias").length, 107);
 });

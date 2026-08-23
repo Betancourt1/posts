@@ -16,6 +16,7 @@ const siteLayoutPath = new URL("../src/layouts/SiteLayout.astro", import.meta.ur
 const singlePath = new URL("../src/components/Single.astro", import.meta.url);
 const infrastructurePath = new URL("../client/infrastructure.js", import.meta.url);
 const quotesPath = new URL("../src/components/Quotes.astro", import.meta.url);
+const archivesPath = new URL("../src/components/Archives.astro", import.meta.url);
 const sidebarPath = new URL("../src/components/Sidebar.astro", import.meta.url);
 const siteCssPath = new URL("../../static/css/site.css", import.meta.url);
 
@@ -106,6 +107,19 @@ test("keeps the Citas title in Spanish notebook navigation", async () => {
   assert.match(source, /\["Citas", "\/es\/lit\/", "lit"\]/);
   assert.doesNotMatch(source, /\["Lecturas", "\/es\/lit\/", "lit"\]/);
   assert.match(source, /\["Quotes", "\/lit\/", "lit"\]/);
+});
+
+test("keeps Code as the only project identity in bilingual navigation and archives", async () => {
+  const [publicPage, archives] = await Promise.all([
+    readFile(publicPagePath, "utf8"),
+    readFile(archivesPath, "utf8"),
+  ]);
+
+  assert.match(publicPage, /\["Código", "\/es\/proyectos-profesionales\/", "proyectos-profesionales"\]/);
+  assert.match(publicPage, /\["Code", "\/proyectos-profesionales\/", "proyectos-profesionales"\]/);
+  assert.doesNotMatch(publicPage, /proyectos-academicos|Academic|Académico/);
+  assert.match(archives, /"proyectos-profesionales": lang === "es" \? "Código" : "Code"/);
+  assert.doesNotMatch(archives, /proyectos-academicos|Academic|Académic/);
 });
 
 test("routes the quote notebook to its dedicated layout", () => {

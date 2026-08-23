@@ -17,7 +17,6 @@ const visibleItems = items
 const defaultFilterLabels: Record<string, string> = {
   posts: lang === "es" ? "Escritos" : "Posts",
   "proyectos-profesionales": lang === "es" ? "Código" : "Code",
-  "proyectos-academicos": lang === "es" ? "Académicos" : "Academic",
   zettelkasten: "Zettelkasten",
   lit: lang === "es" ? "Lecturas" : "Readings",
   fotografia: lang === "es" ? "Fotografía" : "Photography",
@@ -27,7 +26,6 @@ const defaultFilterLabels: Record<string, string> = {
 const badgeLabels: Record<string, string> = {
   posts: lang === "es" ? "escrito" : "post",
   "proyectos-profesionales": lang === "es" ? "código" : "code",
-  "proyectos-academicos": lang === "es" ? "académico" : "academic",
   zettelkasten: "zettel",
   lit: lang === "es" ? "lectura" : "reading",
   fotografia: lang === "es" ? "foto" : "photo",
@@ -35,8 +33,8 @@ const badgeLabels: Record<string, string> = {
   libros: lang === "es" ? "libro" : "book",
 };
 const sectionOrder = lang === "es"
-  ? ["proyectos-academicos", "lit", "proyectos-profesionales", "posts", "fotografia", "libros"]
-  : ["proyectos-academicos", "lit", "books", "proyectos-profesionales"];
+  ? ["lit", "proyectos-profesionales", "posts", "fotografia", "libros"]
+  : ["lit", "books", "proyectos-profesionales"];
 const availableSections = new Set(visibleItems.map((item) => item.section));
 const sections = sectionOrder.filter((section) => availableSections.has(section));
 const years = [...visibleItems.reduce((yearMap, item) => {

@@ -79,7 +79,6 @@ function navigationItems(sections: any[]) {
         ["Inicio", "/es/", ""],
         ["Sobre mí", "/es/about/", "about"],
         ["Código", "/es/proyectos-profesionales/", "proyectos-profesionales"],
-        ["Académico", "/es/proyectos-academicos/", "proyectos-academicos"],
         ["Escritos", "/es/posts/", "posts"],
         ["Zettelkasten", "/es/zettelkasten/", "zettelkasten"],
         ["Citas", "/es/lit/", "lit"],
@@ -91,7 +90,6 @@ function navigationItems(sections: any[]) {
         ["Home", "/", ""],
         ["About", "/about/", "about"],
         ["Code", "/proyectos-profesionales/", "proyectos-profesionales"],
-        ["Academic", "/proyectos-academicos/", "proyectos-academicos"],
         ["Blog", "/posts/", "posts"],
         ["Quotes", "/lit/", "lit"],
         ["Photography", "/fotografia/", "fotografia"],
@@ -130,7 +128,6 @@ function badgeLabel(section: string, targetLang: Language) {
   const labels: Record<string, string> = {
     posts: targetLang === "es" ? "escrito" : "post",
     "proyectos-profesionales": targetLang === "es" ? "código" : "code",
-    "proyectos-academicos": targetLang === "es" ? "académico" : "academic",
     zettelkasten: "zettel",
     lit: targetLang === "es" ? "cita" : "quote",
     fotografia: targetLang === "es" ? "foto" : "photo",

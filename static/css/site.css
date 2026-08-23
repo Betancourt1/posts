@@ -554,8 +554,6 @@ body.code-index .site-header-actions {
   --badge-posts-text: var(--accent);
   --badge-prof-border: rgba(85, 172, 238, 0.45);
   --badge-prof-text: #55acee;
-  --badge-acad-border: rgba(255, 172, 51, 0.45);
-  --badge-acad-text: #ffac33;
   --badge-zettel-border: rgba(168, 107, 255, 0.45);
   --badge-zettel-text: #a86bff;
   --badge-lit-border: rgba(255, 107, 107, 0.45);
@@ -596,8 +594,6 @@ body.code-index .site-header-actions {
   --badge-posts-text: var(--accent);
   --badge-prof-border: rgba(26, 85, 153, 0.45);
   --badge-prof-text: #1a5599;
-  --badge-acad-border: rgba(184, 98, 0, 0.45);
-  --badge-acad-text: oklch(0.565 0.141 57.439);
   --badge-zettel-border: rgba(90, 39, 173, 0.45);
   --badge-zettel-text: #5a27ad;
   --badge-lit-border: rgba(186, 37, 37, 0.45);
@@ -3292,10 +3288,6 @@ body.graph-maximized .curved-scrollbar {
 .archive-badge--proyectos-profesionales {
   border-color: var(--badge-prof-border);
   color: var(--badge-prof-text);
-}
-.archive-badge--proyectos-academicos {
-  border-color: var(--badge-acad-border);
-  color: var(--badge-acad-text);
 }
 .archive-badge--zettelkasten {
   border-color: var(--badge-zettel-border);

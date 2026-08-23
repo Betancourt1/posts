@@ -2,9 +2,11 @@
 title: "Tesis de licenciatura"
 date: 2026-02-13
 draft: false
-tags:
-  - academic
-  - thesis
+tags: ["open-source","python","network-analysis","public-transport","thesis"]
+short_title: "Tesis de licenciatura"
+summary: "Un análisis reproducible con teoría de grafos de la red de transporte público de Guadalajara, desde datos GTFS hasta simulaciones de robustez."
+technologies: ["Python", "NetworkX", "Pandas", "GeoPandas", "LaTeX"]
+aliases: ["/proyectos-academicos/tesis/"]
 ---
 
 ## Proyecto
@@ -43,4 +45,3 @@ Este proyecto busca aportar una base cuantitativa para discutir movilidad urbana
 El repositorio se encuentra actualmente **abierto y accesible de forma pública** en GitHub para su consulta, auditoría e investigación:
 
 [github.com/Betancourt1/tesis](https://github.com/Betancourt1/tesis)
-
