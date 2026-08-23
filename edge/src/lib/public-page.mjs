@@ -116,6 +116,7 @@ export function layoutForDocument(document) {
   if (document.section === "fotografia") return "photography";
   if (document.section === "proyectos-profesionales") return "code";
   if (document.section === "lit") return "quotes";
+  if (["guestbook", "visitas"].includes(document.section)) return "guestbook";
   if (document.section === "archives") return "archives";
   return "list";
 }
@@ -146,13 +147,17 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
   const backlinksPromise = layout === "single" && ["posts", "zettelkasten"].includes(document.section)
     ? backlinks(db, document.id, options)
     : Promise.resolve([]);
+  const guestbookPromise = layout === "guestbook"
+    ? db.prepare("SELECT id, name, site, message, created_at FROM guestbook_entries ORDER BY created_at DESC LIMIT 200").all()
+    : Promise.resolve({ results: [] });
 
-  const [tags, translation, archives, items, linkedFrom] = await Promise.all([
+  const [tags, translation, archives, items, linkedFrom, guestbook] = await Promise.all([
     tagsPromise,
     translationPromise,
     archivePromise,
     itemsPromise,
     backlinksPromise,
+    guestbookPromise,
   ]);
   const chrome = await siteChrome(db, document.lang, archives, options);
 
@@ -168,6 +173,7 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
     translationPath: translation?.canonicalPath || translation?.path || null,
     items: archives || items,
     backlinks: linkedFrom,
+    entries: guestbook.results || [],
   };
 }
 

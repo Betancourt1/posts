@@ -1,0 +1,225 @@
+---
+import type { Language } from "./types";
+
+interface Props {
+  title: string;
+  description?: string | null;
+  lang?: Language;
+  entries?: { id: number; name: string; site: string | null; message: string; createdAt: string }[];
+}
+
+const { title, description = null, lang = "es", entries = [] } = Astro.props;
+const strings = lang === "es"
+  ? {
+      name: "nombre",
+      namePlaceholder: "tu nombre",
+      site: "sitio (opcional)",
+      sitePlaceholder: "https://…",
+      message: "postal",
+      messagePlaceholder: "escribe algo breve…",
+      send: "enviar ⏎",
+      charLimit: "máx 280",
+      errors: {
+        name_required: "escribe tu nombre",
+        name_too_long: "nombre demasiado largo",
+        message_required: "escribe un mensaje",
+        message_too_long: "máximo 280 caracteres",
+        site_too_long: "sitio demasiado largo",
+        site_invalid: "el sitio debe empezar por http(s)://",
+        rate_limited: "demasiadas postales seguidas, vuelve más tarde",
+        verification: "completa la verificación",
+        default: "no se pudo enviar, intenta de nuevo",
+      },
+    }
+  : {
+      name: "name",
+      namePlaceholder: "your name",
+      site: "site (optional)",
+      sitePlaceholder: "https://…",
+      message: "postcard",
+      messagePlaceholder: "write something short…",
+      send: "send ⏎",
+      charLimit: "max 280",
+      errors: {
+        name_required: "write your name",
+        name_too_long: "name too long",
+        message_required: "write a message",
+        message_too_long: "280 characters max",
+        site_too_long: "site too long",
+        site_invalid: "site must start with http(s)://",
+        rate_limited: "too many postcards in a row, come back later",
+        verification: "complete the verification",
+        default: "could not send, try again",
+      },
+    };
+const errorJson = JSON.stringify(strings.errors);
+function formatDate(value: string) {
+  return String(value || "").slice(0, 10);
+}
+---
+
+<section class="guestbook" data-guestbook data-strings={errorJson}>
+  <header class="page-header">
+    <div class="page-header-row">
+      <h1>{title}</h1>
+    </div>
+    {description && <p class="lead">{description}</p>}
+  </header>
+
+  <div class="guestbook-grid" data-guestbook-grid>
+    {entries.map((entry) => (
+      <article class="guestbook-card">
+        <p class="guestbook-message">{entry.message}</p>
+        <div class="guestbook-meta">
+          <span class="guestbook-stamp" aria-hidden="true">◍</span>
+          {entry.site ? (
+            <a class="guestbook-sender" href={entry.site} rel="nofollow noopener ugc" target="_blank">{entry.name}</a>
+          ) : (
+            <span class="guestbook-sender">{entry.name}</span>
+          )}
+          <span class="guestbook-date">{formatDate(entry.createdAt)}</span>
+        </div>
+      </article>
+    ))}
+  </div>
+
+  <form class="guestbook-form" data-guestbook-form novalidate>
+    <input
+      type="text"
+      name="website_confirm"
+      class="guestbook-honeypot"
+      tabindex="-1"
+      autocomplete="off"
+      aria-hidden="true"
+    />
+    <div class="guestbook-form-fields">
+      <label>
+        <span>{strings.name}</span>
+        <input type="text" name="name" maxlength="40" placeholder={strings.namePlaceholder} required />
+      </label>
+      <label>
+        <span>{strings.site}</span>
+        <input type="text" name="site" maxlength="100" placeholder={strings.sitePlaceholder} />
+      </label>
+      <label class="guestbook-message-field">
+        <span>{strings.message} <em>({strings.charLimit})</em></span>
+        <textarea name="message" maxlength="280" rows="3" placeholder={strings.messagePlaceholder} required></textarea>
+      </label>
+    </div>
+    <div class="guestbook-form-actions">
+      <div data-guestbook-turnstile></div>
+      <button type="submit">{strings.send}</button>
+    </div>
+    <p class="guestbook-status" data-guestbook-status role="status" aria-live="polite"></p>
+  </form>
+</section>
+
+<script is:inline>
+  document.addEventListener("DOMContentLoaded", function () {
+    var root = document.querySelector("[data-guestbook]");
+    if (!root) return;
+    var form = root.querySelector("[data-guestbook-form]");
+    var grid = root.querySelector("[data-guestbook-grid]");
+    var status = root.querySelector("[data-guestbook-status]");
+    var turnstileBox = root.querySelector("[data-guestbook-turnstile]");
+    var errors = {};
+    try { errors = JSON.parse(root.dataset.strings || "{}"); } catch (error) { errors = {}; }
+
+    fetch("/api/guestbook")
+      .then(function (response) { return response.ok ? response.json() : null; })
+      .then(function (config) {
+        if (!config || !config.siteKey) return;
+        var holder = document.createElement("div");
+        holder.className = "cf-turnstile";
+        holder.dataset.sitekey = config.siteKey;
+        turnstileBox.appendChild(holder);
+        var script = document.createElement("script");
+        script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      })
+      .catch(function () {});
+
+    function showError(key) {
+      status.textContent = errors[key] || errors.default || key;
+      status.classList.add("is-error");
+    }
+
+    function clearStatus() {
+      status.textContent = "";
+      status.classList.remove("is-error");
+    }
+
+    function turnstileToken() {
+      var input = form.querySelector('[name="cf-turnstile-response"]');
+      return input ? input.value : "";
+    }
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      clearStatus();
+      var payload = {
+        name: form.elements.name.value,
+        site: form.elements.site.value,
+        message: form.elements.message.value,
+        website_confirm: form.elements.website_confirm.value,
+        turnstile_token: turnstileToken(),
+      };
+      fetch("/api/guestbook", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+        .then(function (response) {
+          return response.json().then(function (data) {
+            return { ok: response.ok, data: data };
+          });
+        })
+        .then(function (result) {
+          if (!result.ok || !result.data || !result.data.ok) {
+            showError(result.data && result.data.error);
+            return;
+          }
+          var entry = result.data.entry;
+          var card = document.createElement("article");
+          card.className = "guestbook-card";
+          var message = document.createElement("p");
+          message.className = "guestbook-message";
+          message.textContent = entry.message;
+          var meta = document.createElement("div");
+          meta.className = "guestbook-meta";
+          var stamp = document.createElement("span");
+          stamp.className = "guestbook-stamp";
+          stamp.setAttribute("aria-hidden", "true");
+          stamp.textContent = "◍";
+          var senderNode;
+          if (entry.site) {
+            senderNode = document.createElement("a");
+            senderNode.className = "guestbook-sender";
+            senderNode.href = entry.site;
+            senderNode.rel = "nofollow noopener ugc";
+            senderNode.target = "_blank";
+          } else {
+            senderNode = document.createElement("span");
+            senderNode.className = "guestbook-sender";
+          }
+          senderNode.textContent = entry.name;
+          var date = document.createElement("span");
+          date.className = "guestbook-date";
+          date.textContent = String(entry.created_at || "").slice(0, 10);
+          meta.appendChild(stamp);
+          meta.appendChild(senderNode);
+          meta.appendChild(date);
+          card.appendChild(message);
+          card.appendChild(meta);
+          grid.insertBefore(card, grid.firstChild);
+          form.reset();
+          status.textContent = "✓";
+        })
+        .catch(function () { showError("default"); });
+    });
+  });
+</script>
+
+<noscript><style>.guestbook-form { display: none; }</style></noscript>

@@ -1007,6 +1007,153 @@ h3 { font-size: 1.2rem; color: var(--ink); }
   gap: 18px;
 }
 
+/* Guestbook postcards */
+.guestbook {
+  display: grid;
+  gap: 2.2rem;
+}
+
+.guestbook-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 1rem;
+}
+
+.guestbook-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+}
+
+.guestbook-message {
+  margin: 0;
+  font-family: var(--article-font-family, Georgia, serif);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+.guestbook-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.guestbook-stamp {
+  color: var(--accent);
+  font-size: 0.8rem;
+}
+
+.guestbook-sender {
+  font-size: 0.8rem;
+  color: var(--ink-dim);
+}
+
+a.guestbook-sender {
+  text-decoration: none;
+}
+
+a.guestbook-sender:hover {
+  color: var(--accent);
+}
+
+.guestbook-date {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+}
+
+.guestbook-form {
+  display: grid;
+  gap: 1rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--line);
+}
+
+.guestbook-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.guestbook-form-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.9rem;
+}
+
+.guestbook-form label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+}
+
+.guestbook-form label em {
+  font-style: normal;
+  color: var(--ink-muted);
+}
+
+.guestbook-message-field {
+  grid-column: 1 / -1;
+}
+
+.guestbook-form input,
+.guestbook-form textarea {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.guestbook-form input:focus-visible,
+.guestbook-form textarea:focus-visible {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+
+.guestbook-form textarea {
+  resize: vertical;
+  min-height: 3rem;
+}
+
+.guestbook-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.guestbook-status {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--ink-dim);
+}
+
+.guestbook-status.is-error {
+  color: var(--accent);
+}
+
+@media (max-width: 720px) {
+  .guestbook-form-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .guestbook-form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
 /* Writing index (Escritos editorial index) */
 .writing-index {
   display: grid;

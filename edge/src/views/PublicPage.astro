@@ -5,6 +5,7 @@ import portfolioSource from "../../../data/code_portfolio.yaml?raw";
 import Archives from "../components/Archives.astro";
 import Books from "../components/Books.astro";
 import CodePortfolio from "../components/CodePortfolio.astro";
+import Guestbook from "../components/Guestbook.astro";
 import KnowledgeGraph from "../components/KnowledgeGraph.astro";
 import List from "../components/List.astro";
 import NotFound from "../components/NotFound.astro";
@@ -82,6 +83,7 @@ function navigationItems(sections: any[]) {
         ["Escritos", "/es/posts/", "posts"],
         ["Zettelkasten", "/es/zettelkasten/", "zettelkasten"],
         ["Citas", "/es/lit/", "lit"],
+        ["Visitas", "/es/visitas/", "visitas"],
         ["CV", "/es/cv/", "cv"],
       ]
     : [
@@ -90,6 +92,7 @@ function navigationItems(sections: any[]) {
         ["Code", "/proyectos-profesionales/", "proyectos-profesionales"],
         ["Academic", "/proyectos-academicos/", "proyectos-academicos"],
         ["Quotes", "/lit/", "lit"],
+        ["Guestbook", "/guestbook/", "guestbook"],
         ["CV", "/cv/", "cv"],
       ];
   const items = preferred
@@ -134,7 +137,7 @@ function badgeLabel(section: string, targetLang: Language) {
   return labels[section] || section;
 }
 
-const layout = ["books", "photography", "code", "quotes", "not-found"].includes(model.layout)
+const layout = ["books", "photography", "code", "quotes", "guestbook", "not-found"].includes(model.layout)
   ? model.layout
   : "default";
 const emptyGraph = { posts: [], tagLinks: {} };
@@ -342,6 +345,21 @@ const description = model.description || undefined;
         levels: portfolio.github.levels,
         months: portfolio.github.months,
       }}
+    />
+  )}
+
+  {model.layout === "guestbook" && (
+    <Guestbook
+      title={title}
+      description={description}
+      lang={lang}
+      entries={(model.entries || []).map((entry: any) => ({
+        id: entry.id,
+        name: entry.name,
+        site: entry.site,
+        message: entry.message,
+        createdAt: entry.created_at,
+      }))}
     />
   )}
 
