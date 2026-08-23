@@ -1,0 +1,16 @@
+---
+title: "Un aforismo y un lamento"
+date: 2025-08-30
+tags:
+  - essays
+  - aphorisms
+---
+# Un aforismo y un lamento 
+
+## Liminalidad
+Soy para siempre una sala de espera.
+
+## Firewatch 
+Jugué Firewatch y es un videojuego que me hizo experimentar un sinfín de emociones. Por un lado, me hizo sentir acompañado hablar con Delilah, por otro, me hizo sentir solo lo mucho que disfruté ese aspecto del juego. La relación que mantienes con Delilah en el juego se parece más bien a una conversación con un horny ChatGPT que con una persona. Aún así es muy bonita, y logra engancharte. Incluso diría que es profundamente humana al final porque Delilah acaba por no complacer tu deseo de conocerla en persona. Eso me parece que es lo más doloroso y humano que hace su personaje. No obstante sigue siendo criticable que solamente ocurra al final del juego. El resto del tiempo Delilah simplemente se limita a estar disponible para ti siempre que le hables y nunca confrontarte. El hecho de que un vínculo tan hueco me hiciera sentir tan acompañado, me hizo darme cuenta de lo mucho que rehuyo la intimidad con las personas reales. Aquellas cuyo estilo de comunicación no se limita a darme la razón en todo, alabarme y reírse de mis chistes. Aquellas que me malentienden y a las que malentiendo; que me frustran, que me hacen sentir a veces insuficiente o asustado, aún sin intención. A esas personas las suelo evitar o juzgar detenidamente para decidir si valen mi tiempo o atención. Firewatch me hizo darme cuenta de alguna forma que disfrazo mi evitación de elitismo porque es más fácil poner la responsabilidad y la necesidad de esforzarse en los demás y no en mí mismo. Yo no he resuelto si la gente que evito acaso sea la que deba de aceptar. Justamente ahí hay una trampa. Nunca justifico mis decisiones en el miedo, aún cuando de ahí nazcan. Si acaso he impedido que alguien entre a mi vida, o le he sacado, ha sido porque lo consideré lo mejor. ¿Hay entre esa gente algo que yo necesito? Pues sinceramente no lo sé. Reconozco que les tengo miedo pero me es más fácil asimilar que simplemente no valen mi tiempo. Pero de ahí no concluyo que no debería temerles. Quizá debería, quizá hago bien al temerles. No lo sé. 
+
+Otra cosa que me hizo sentir Firewatch fue evasivo. Henry (tú en el juego) es un hombre cuya vida se arruinó y fue al bosque para refugiarse. Dentro de ese bosque conoce a Delilah y se permite descansar de todo lo que ocurre en su vida en ese momento. De alguna forma no pude evitar notar que yo estaba haciendo justo lo mismo que él al jugar ese juego. Definitivamente yo también estaba huyendo a Firewatch para ignorar lo que sucede en mi vida. Definitivamente es más fácil asimilar la existencia cuando estás a una distancia de las cosas que tienes que resolver, pero, al igual que el verano en Firewatch, el propio juego tiene que terminar y aquí estoy. Ser consciente de que soy alguien que está huyendo a un juego donde soy alguien que está huyendo de algo más, es cuanto menos irónico. 

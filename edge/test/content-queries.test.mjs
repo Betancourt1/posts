@@ -104,12 +104,20 @@ hidden: true
 ---
 Hidden section.
 `],
+    [
+      "content_en/guestbook/_index.md",
+      await readFile(new URL("../../content_en/guestbook/_index.md", import.meta.url), "utf8"),
+    ],
     ["content_es/posts/_index.md", `---
 title: Escritos
 draft: false
 ---
 Escritos en español.
 `],
+    [
+      "content_es/visitas/_index.md",
+      await readFile(new URL("../../content_es/visitas/_index.md", import.meta.url), "utf8"),
+    ],
     ["content_en/posts/ethical-data.md", `---
 title: Ethical Data
 date: 2026-07-10
@@ -246,6 +254,16 @@ test("reads the projected public site through the real D1 API", async (t) => {
     assert.deepEqual(spanish.tags.map((tag) => tag.label), ["ethics", "essays"]);
   });
 
+  await t.test("pairs Guestbook and Visitas as localized views of one wall", async () => {
+    const english = await resolveDocument(db, "/guestbook/");
+    const spanish = await translationPeer(db, english.id);
+
+    assert.equal(english.frontMatter.translationKey, "guestbook");
+    assert.equal(spanish.path, "/es/visitas/");
+    assert.equal(spanish.frontMatter.translationKey, "guestbook");
+    assert.equal((await translationPeer(db, spanish.id)).path, "/guestbook/");
+  });
+
   await t.test("builds section, navigation, archive, and taxonomy lists", async () => {
     const section = await sectionItems(db, "en", "posts");
     assert.deepEqual(section.map((document) => document.title), [
@@ -261,7 +279,7 @@ test("reads the projected public site through the real D1 API", async (t) => {
 
     assert.deepEqual(
       (await navSections(db, "en")).map((document) => document.title),
-      ["Books", "Home", "Writing"],
+      ["Books", "Guestbook", "Home", "Writing"],
     );
     assert.deepEqual(
       (await archiveItems(db, "en")).map(({ title, year }) => [title, year]),

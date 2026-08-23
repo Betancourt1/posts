@@ -2,6 +2,7 @@
 title: "Visitas"
 date: 2026-08-22
 description: "El libro de visitas del sitio: deja una postal breve."
+translationKey: "guestbook"
 search: false
 ---
 

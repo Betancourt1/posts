@@ -2,6 +2,7 @@
 title: "Guestbook"
 date: 2026-08-22
 description: "The site's guestbook: leave a short postcard."
+translationKey: "guestbook"
 search: false
 ---
 

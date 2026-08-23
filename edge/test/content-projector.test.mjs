@@ -117,6 +117,69 @@ test("preserves nested photo metadata from a real source", async () => {
   assert.equal(document.searchable, true);
 });
 
+test("keeps the requested bilingual content inventories aligned", async () => {
+  function relativeFiles(root, files) {
+    return files
+      .filter((file) => path.basename(file) !== "_index.md")
+      .map((file) => path.relative(root, file).split(path.sep).join("/"))
+      .sort();
+  }
+
+  for (const section of ["posts", "lit", "fotografia"]) {
+    const spanishRoot = path.join(REPO_ROOT, "content_es", section);
+    const englishRoot = path.join(REPO_ROOT, "content_en", section);
+    const spanishFiles = relativeFiles(spanishRoot, await markdownFiles(spanishRoot));
+    const englishFiles = relativeFiles(englishRoot, await markdownFiles(englishRoot));
+
+    assert.deepEqual(englishFiles, spanishFiles, `${section} must expose the same entries`);
+    for (const relativePath of spanishFiles) {
+      assert.equal(
+        await readFile(path.join(englishRoot, relativePath), "utf8"),
+        await readFile(path.join(spanishRoot, relativePath), "utf8"),
+        `${section}/${relativePath} must remain the same in both languages`,
+      );
+    }
+  }
+
+  const codeRoots = ["content_en", "content_es"].map((root) =>
+    path.join(REPO_ROOT, root, "proyectos-profesionales"));
+  const codeFiles = await Promise.all(codeRoots.map(async (root) =>
+    relativeFiles(root, await markdownFiles(root))));
+  assert.deepEqual(codeFiles[0], codeFiles[1], "Code must expose the same projects");
+
+  for (const relativePath of codeFiles[0]) {
+    const documents = await Promise.all(codeRoots.map(async (root, index) => {
+      const sourcePath = path.join(root, relativePath);
+      return projectSource({
+        path: `content_${index === 0 ? "en" : "es"}/proyectos-profesionales/${relativePath}`,
+        rawMarkdown: await readFile(sourcePath, "utf8"),
+      }).documents[0];
+    }));
+    const [english, spanish] = documents;
+
+    assert.equal(english.translationKey, spanish.translationKey);
+    assert.equal(english.date, spanish.date);
+    assert.deepEqual(english.tags, spanish.tags);
+    assert.deepEqual(english.frontMatter.technologies, spanish.frontMatter.technologies);
+    assert.deepEqual(
+      english.links.filter((link) => link.external).map((link) => link.href),
+      spanish.links.filter((link) => link.external).map((link) => link.href),
+    );
+  }
+
+  const guestbookSources = [
+    "content_en/guestbook/_index.md",
+    "content_es/visitas/_index.md",
+  ];
+  const guestbooks = await Promise.all(guestbookSources.map(async (relativePath) =>
+    projectSource({
+      path: relativePath,
+      rawMarkdown: await fixture(relativePath),
+    }).documents[0]));
+  assert.equal(guestbooks[0].translationKey, "guestbook");
+  assert.equal(guestbooks[1].translationKey, "guestbook");
+});
+
 test("localizes aliases and extracts links from Marked tokens", async () => {
   const relativePath = "content_es/lit/alan-moore.md";
   const projected = projectSource({
@@ -291,9 +354,9 @@ test("projects the complete repository with the migration count contract", async
   const documents = projections.flatMap((projection) => projection.documents);
   const routes = documents.flatMap((document) => document.routes);
 
-  assert.equal(files.length, 300);
-  assert.equal(documents.length, 397);
-  assert.equal(documents.filter((document) => document.searchable).length, 373);
-  assert.equal(routes.filter((route) => route.kind === "canonical").length, 397);
-  assert.equal(routes.filter((route) => route.kind === "alias").length, 107);
+  assert.equal(files.length, 358);
+  assert.equal(documents.length, 455);
+  assert.equal(documents.filter((document) => document.searchable).length, 424);
+  assert.equal(routes.filter((route) => route.kind === "canonical").length, 455);
+  assert.equal(routes.filter((route) => route.kind === "alias").length, 122);
 });
