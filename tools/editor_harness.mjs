@@ -289,6 +289,9 @@ async function runCase(browser, origin, fixture, viewport, savedRequests) {
       if (fixture.expectedKind !== "image" && await page.locator("#settings-title").isVisible()) {
         await page.locator("#settings-close").click();
       }
+      if (fixture.expectedKind !== "image") {
+        assert.equal(await page.locator('.formatbar button[data-format="bold"]').isVisible(), true);
+      }
       const before = savedRequests.length;
       const publish = page.locator(fixture.expectedKind === "image" ? "#mobile-publish" : "#save");
       await publish.waitFor({ state: "visible" });

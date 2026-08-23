@@ -61,6 +61,11 @@ test("text editor injects its API base and cannot save before content hydration"
   assert.match(html, /function syncSaveButtonLabel\(\)/);
   assert.match(html, /draftStorageKey/);
   assert.match(html, /function notify\(message, kind\)/);
+  assert.match(html, /overscroll-behavior: contain/);
+  assert.match(html, /html\.sheet-open,/);
+  assert.match(html, /function syncSheetLock\(\)/);
+  assert.match(html, /max\(1rem, var\(--editor-body-size\)\)/);
+  assert.doesNotMatch(html, /button\[data-format="(?:bold|italic|strike|code|heading|ol)"\][\s\S]{0,80}display: none/);
   assert.match(html, /els\.arenaChannel\.value = preferredId \|\| String\(arenaChannels\[0\]\.id\)/);
   assert.match(html, /function redirectToNotebook\(\)/);
   assert.match(html, /return syncArenaAfterSave\(\);[\s\S]{0,500}redirectToNotebook\(\);/);
@@ -122,6 +127,9 @@ test("image editor uses one explicit save action and lightweight previews", () =
   assert.doesNotMatch(html, /panel-save-draft/);
   assert.match(html, /Guardar borrador/);
   assert.match(html, /id="editor-notice"/);
+  assert.match(html, /overscroll-behavior: contain/);
+  assert.match(html, /body\.properties-open \{\s+overflow: hidden;/);
+  assert.match(html, /\.inline-date,[\s\S]*?font-size: 1rem;/);
   assert.match(html, /id="arena-channel-field" hidden/);
   assert.match(html, /\? preferredId : String\(arenaChannels\[0\]\.id\)/);
   assert.match(html, /function redirectToNotebook\(\)/);

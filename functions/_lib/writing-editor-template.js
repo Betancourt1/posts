@@ -331,6 +331,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       background: var(--panel);
       padding: 1rem;
       overflow: auto;
+      overscroll-behavior: contain;
     }
     .settings-backdrop {
       position: fixed;
@@ -344,6 +345,10 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
     }
     .settings-backdrop[hidden] {
       display: none !important;
+    }
+    html.sheet-open,
+    html.sheet-open body {
+      overflow: hidden;
     }
     .settings h2 {
       margin: 0;
@@ -585,6 +590,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       z-index: 40;
       width: min(27rem, calc(100vw - 2.4rem));
       overflow: auto;
+      overscroll-behavior: contain;
       border: 1px solid var(--line);
       border-radius: 0.65rem;
       background: var(--panel);
@@ -1294,28 +1300,13 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
       .formatbar-inner {
         width: 100%;
-        max-width: 26rem;
-        justify-content: space-between;
+        max-width: none;
+        justify-content: flex-start;
         gap: 0.4rem;
       }
       .toolbar-group {
         display: contents;
       }
-      .divider,
-      .formatbar button[data-format="redo"],
-      .formatbar button[data-format="bold"],
-      .formatbar button[data-format="italic"],
-      .formatbar button[data-format="strike"],
-      .formatbar button[data-format="code"],
-      .formatbar button[data-format="heading"],
-      .formatbar button[data-format="ol"] {
-        display: none !important;
-      }
-      #toolbar-image { order: 1; }
-      .formatbar button[data-format="link"] { order: 2; }
-      .formatbar button[data-format="ul"] { order: 3; }
-      .formatbar button[data-format="quote"] { order: 4; }
-      .formatbar button[data-format="undo"] { order: 5; }
       .formatbar button {
         width: 2.75rem;
         min-width: 2.75rem;
@@ -1323,7 +1314,6 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
       .mobile-markdown-toggle {
         display: inline-flex;
-        order: 2;
       }
       .topbar,
       .reference-theme .topbar {
@@ -1415,8 +1405,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
       .mobile-settings-button {
         display: inline-flex;
-        width: 2.15rem;
-        min-width: 2.15rem !important;
+        width: 2.75rem;
+        min-width: 2.75rem !important;
         border-color: transparent !important;
         background: transparent !important;
         padding: 0 !important;
@@ -1505,6 +1495,19 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         padding-right: 0;
         text-align: right;
         font-weight: 700;
+        font-size: 1rem;
+      }
+      .arena-channel-field select {
+        font-size: 1rem;
+      }
+      .subtitle-input {
+        font-size: max(1rem, var(--editor-subtitle-size));
+      }
+      .markdown-input {
+        font-size: max(1rem, var(--editor-body-size));
+      }
+      .reference-theme .body-input {
+        font-size: max(1rem, var(--editor-body-size));
       }
       .slug-field {
         grid-template-columns: minmax(0, 1fr) minmax(5rem, auto) auto;
@@ -2436,6 +2439,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.arenaDetails.hidden = false;
         els.arenaDetailsBackdrop.hidden = false;
         els.arenaDetailsClose.focus();
+        syncSheetLock();
         if (sourcePath && savedSnapshot && currentSaveSnapshot() === savedSnapshot) {
           loadArenaStatus();
         }
@@ -2444,6 +2448,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       function closeArenaDetails() {
         els.arenaDetails.hidden = true;
         els.arenaDetailsBackdrop.hidden = true;
+        syncSheetLock();
       }
 
       function isBookEditor() {
@@ -3090,6 +3095,11 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.formatbar.setAttribute("aria-hidden", String(open));
         els.topSettingsButton.setAttribute("aria-expanded", String(open));
         els.topSettingsButton.setAttribute("aria-label", open ? "Cerrar configuración" : "Configuración");
+        syncSheetLock();
+      }
+
+      function syncSheetLock() {
+        document.documentElement.classList.toggle("sheet-open", !els.settings.hidden || !els.arenaDetails.hidden);
       }
 
       function syncWritingState() {

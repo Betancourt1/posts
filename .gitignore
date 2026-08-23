@@ -13,3 +13,5 @@
 *.swp
 *~
 *.un~
+.DS_Store
+edge/.DS_Store

@@ -723,6 +723,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       padding-top: 5.9rem;
       border-left: 1px solid var(--line-soft);
       padding-left: clamp(0.8rem, 2vw, 1.35rem);
+      overscroll-behavior: contain;
       opacity: 0.88;
     }
     body.mode-lightbox .inspector,
@@ -1389,6 +1390,17 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
       body.properties-open .mobile-actions {
         display: none;
+      }
+      body.properties-open {
+        overflow: hidden;
+      }
+      .inline-date,
+      .tags-line,
+      .caption-line,
+      .inspector input,
+      .inspector select,
+      .inspector textarea {
+        font-size: 1rem;
       }
       body.properties-open .status-line,
       body.properties-open .saved-link {
