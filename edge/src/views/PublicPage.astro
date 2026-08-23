@@ -83,8 +83,8 @@ function navigationItems(sections: any[]) {
         ["Escritos", "/es/posts/", "posts"],
         ["Zettelkasten", "/es/zettelkasten/", "zettelkasten"],
         ["Citas", "/es/lit/", "lit"],
-        ["Visitas", "/es/visitas/", "visitas"],
         ["CV", "/es/cv/", "cv"],
+        ["Visitas", "/es/visitas/", "visitas"],
       ]
     : [
         ["Home", "/", ""],
@@ -92,8 +92,8 @@ function navigationItems(sections: any[]) {
         ["Code", "/proyectos-profesionales/", "proyectos-profesionales"],
         ["Academic", "/proyectos-academicos/", "proyectos-academicos"],
         ["Quotes", "/lit/", "lit"],
-        ["Guestbook", "/guestbook/", "guestbook"],
         ["CV", "/cv/", "cv"],
+        ["Guestbook", "/guestbook/", "guestbook"],
       ];
   const items = preferred
     .filter(([, href]) => visiblePaths.has(href))
