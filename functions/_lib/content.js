@@ -344,7 +344,7 @@ export async function listNotebooks(env) {
     };
   }));
 
-  const sorted = notebooks.sort((a, b) => a.lang.localeCompare(b.lang) || a.title.localeCompare(b.title));
+  const sorted = notebooks.sort((a, b) => (a.lang === b.lang ? a.title.localeCompare(b.title) : (a.lang === "es" ? -1 : 1)));
   notebookCache = {
     key: cacheKey,
     expiresAt: Date.now() + NOTEBOOK_CACHE_TTL_MS,

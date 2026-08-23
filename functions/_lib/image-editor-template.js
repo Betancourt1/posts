@@ -943,6 +943,30 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     .status-line.is-error {
       color: var(--danger);
     }
+    .editor-notice {
+      position: fixed;
+      top: 4.9rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 60;
+      max-width: min(30rem, calc(100vw - 2rem));
+      padding: 0.6rem 0.85rem;
+      border: 1px solid var(--line);
+      border-radius: 0.45rem;
+      background: var(--panel);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      line-height: 1.45;
+      box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.4);
+    }
+    .editor-notice[data-kind="error"] {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+    .editor-notice[hidden] {
+      display: none !important;
+    }
     .saved-link {
       color: var(--accent);
       text-decoration: none;
@@ -1083,15 +1107,6 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         color: var(--ink);
         font-size: 1.25rem;
         letter-spacing: 0.06em;
-      }
-      #save-draft {
-        grid-column: 3;
-        display: inline-flex;
-        min-height: 2.75rem;
-        padding: 0 0.75rem;
-        border: 1px solid rgba(255, 255, 255, 0.68);
-        border-radius: 0.55rem;
-        color: var(--ink);
       }
       #publish {
         display: none;
@@ -1302,7 +1317,9 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         margin-top: 0;
       }
       .mobile-notebook-field {
-        display: none;
+        display: grid;
+        grid-column: 1 / -1;
+        margin-top: 0.35rem;
       }
       .check.property-editor {
         display: flex;
@@ -1355,7 +1372,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       .desktop-actions {
         position: static;
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         gap: 0.75rem;
         margin-top: 0.5rem;
         padding: 0.85rem 0 0;
@@ -1421,20 +1438,20 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     }
   </style>
 </head>
-<body>
+  <body>
+  <div class="editor-notice" id="editor-notice" role="status" aria-live="polite" hidden></div>
   <header class="topbar">
     <div class="topbar-left">
       <button type="button" class="icon-button" id="back" aria-label="Volver" title="Volver">${ICONS.back}</button>
       <a class="brand" href="${SITE_ORIGIN}/es/" aria-label="betancourt">
         <strong>betancourt</strong>
-        <span>aqui escribo cosas</span>
+        <span>aquí escribo cosas</span>
       </a>
     </div>
     <div class="topbar-actions">
       <button type="button" class="text-action" id="preview-image">${ICONS.preview}<span>Vista previa</span></button>
       <span class="save-state" id="save-state" role="status" aria-live="polite">Sincronizado</span>
       <button type="button" class="text-action mobile-properties-toggle" id="properties-toggle" aria-controls="properties-sheet" aria-expanded="false" aria-label="Propiedades">...</button>
-      <button type="button" class="secondary-button" id="save-draft" hidden>Guardar borrador</button>
       <button type="button" class="primary-button" id="publish" aria-describedby="status" disabled>Publicar</button>
     </div>
   </header>
@@ -1457,7 +1474,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           <input class="inline-date" id="date" type="date" aria-label="Fecha" />
           <span id="media-count">imagen</span>
         </div>
-        <input class="title-line" id="title" type="text" placeholder="Titulo de la foto" autocomplete="off" aria-label="Titulo" />
+        <input class="title-line" id="title" type="text" placeholder="Título de la foto" autocomplete="off" aria-label="Título" />
         <input class="caption-line" id="caption-inline" type="text" placeholder="Pie opcional..." autocomplete="off" aria-label="Pie" />
         <input class="tags-line" id="tags" type="text" list="photo-tag-suggestions" placeholder="#photography  #macro  #maps" aria-label="Tags" />
         <datalist id="photo-tag-suggestions">
@@ -1479,7 +1496,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
               <h2>Imagen pendiente</h2>
               <p>Suelta o elige una o varias fotos. Publicar se activará cuando haya una imagen.</p>
               <p class="helper-copy">JPG, PNG y WebP se guardan en HD. GIF/SVG max 12 MB.</p>
-              <button type="button" class="primary-button" id="choose-image-empty">Elegir imagenes</button>
+              <button type="button" class="primary-button" id="choose-image-empty">Elegir imágenes</button>
             </div>
 
             <div class="preview-state" id="preview-state" hidden>
@@ -1503,7 +1520,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
                   <span class="cover-badge">Portada</span>
                   <img id="image-preview" alt="" />
                 </div>
-                <div class="thumb-rail" id="thumb-rail" aria-label="Imagenes de la publicacion"></div>
+                <div class="thumb-rail" id="thumb-rail" aria-label="Imágenes de la publicación"></div>
               </div>
 
               <div class="review-view" id="review-view" hidden>
@@ -1520,8 +1537,8 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
                     <span>Portada</span>
                   </div>
                 <ul class="review-list">
-                    <li><span>Destino</span><strong id="review-destination">Fotografia</strong></li>
-                    <li><span>Imagenes</span><strong id="review-count">0 imagenes</strong></li>
+                  <li><span>Destino</span><strong id="review-destination">Fotografía</strong></li>
+                  <li><span>Imágenes</span><strong id="review-count">0 imágenes</strong></li>
                     <li><span>Accesibilidad</span><strong id="review-alt">pendiente</strong></li>
                   <li><span>Estado</span><strong id="review-status">borrador</strong></li>
                   <li><span>Are.na</span><strong id="review-arena">no se copiará</strong></li>
@@ -1589,9 +1606,10 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       <section class="panel">
         <h2>Destino</h2>
         <div class="property-row">
-          <span class="property-value" id="notebook-summary">Fotografia</span>
+          <span class="property-value" id="notebook-summary">Fotografía</span>
         </div>
         <label class="field mobile-notebook-field">
+          <span>Destino</span>
           <select id="notebook"></select>
         </label>
       </section>
@@ -1610,7 +1628,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         <div class="arena-editor" id="arena-editor">
           <label class="arena-toggle">
             <input id="arena-enabled" type="checkbox" />
-            <span>Publicar</span>
+            <span>Copiar a Are.na</span>
           </label>
           <label class="field arena-channel-field" id="arena-channel-field" hidden>
             <select id="arena-channel" aria-label="Canal de Are.na" disabled>
@@ -1635,17 +1653,15 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       </section>
 
       <section class="panel desktop-actions">
-        <button type="button" class="secondary-button" id="panel-save-draft" hidden>Guardar borrador</button>
         <button type="button" class="primary-button" id="panel-publish" aria-describedby="status" disabled>Publicar</button>
       </section>
 
       <p class="status-line" id="status" role="status" aria-live="polite">Elige una imagen para empezar. Publicar está desactivado hasta entonces.</p>
-      <a class="saved-link" id="saved-link" href="#" hidden>Abrir publicacion guardada</a>
+      <a class="saved-link" id="saved-link" href="#" hidden>Abrir publicación guardada</a>
     </aside>
   </main>
 
   <footer class="mobile-actions">
-    <button type="button" class="secondary-button" id="mobile-save-draft" hidden>Guardar borrador</button>
     <button type="button" class="primary-button" id="mobile-publish" aria-describedby="status" disabled>Publicar</button>
   </footer>
 
@@ -1676,6 +1692,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       var savedPath = "";
       var savedUrl = "";
       var saveBusy = false;
+      var noticeTimer = 0;
       var hasUnsavedChanges = false;
       var arenaChannels = [];
       var arenaChannelsLoaded = false;
@@ -1691,12 +1708,11 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       var els = {
         back: document.getElementById("back"),
         saveState: document.getElementById("save-state"),
-        saveDraft: document.getElementById("save-draft"),
+        notice: document.getElementById("editor-notice"),
         publish: document.getElementById("publish"),
         propertiesToggle: document.getElementById("properties-toggle"),
         propertiesClose: document.getElementById("properties-close"),
         propertiesBackdrop: document.getElementById("properties-backdrop"),
-        mobileSaveDraft: document.getElementById("mobile-save-draft"),
         mobilePublish: document.getElementById("mobile-publish"),
         dropzone: document.getElementById("dropzone"),
         emptyState: document.getElementById("empty-state"),
@@ -1732,7 +1748,6 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         rotateImage: document.getElementById("rotate-image"),
         previewImage: document.getElementById("preview-image"),
         editAltImage: document.getElementById("edit-alt-image"),
-        panelSaveDraft: document.getElementById("panel-save-draft"),
         panelPublish: document.getElementById("panel-publish"),
         title: document.getElementById("title"),
         captionInline: document.getElementById("caption-inline"),
@@ -1802,6 +1817,12 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           if (!hasUnsavedChanges || saveBusy) return;
           event.preventDefault();
           event.returnValue = "";
+        });
+        window.addEventListener("keydown", function (event) {
+          if ((event.metaKey || event.ctrlKey) && (event.key === "s" || event.key === "S")) {
+            event.preventDefault();
+            if (!els.publish.disabled) publishCurrentState();
+          }
         });
         els.chooseImageEmpty.addEventListener("click", function () {
           chooseImages("add");
@@ -1957,9 +1978,6 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           markUnsaved();
         });
         els.arenaRetry.addEventListener("click", retryArenaSync);
-        els.saveDraft.addEventListener("click", saveCurrentState);
-        els.mobileSaveDraft.addEventListener("click", saveCurrentState);
-        els.panelSaveDraft.addEventListener("click", saveCurrentState);
         els.publish.addEventListener("click", publishCurrentState);
         els.mobilePublish.addEventListener("click", publishCurrentState);
         els.panelPublish.addEventListener("click", publishCurrentState);
@@ -2036,7 +2054,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           render();
           updatePropertySummaries();
           setSaveState("Sincronizado", "saved");
-          setStatus(images.length ? "Publicacion cargada." : "Esta publicacion no tiene imagen.", !images.length);
+          setStatus(images.length ? "Publicación cargada." : "Esta publicación no tiene imagen.", !images.length);
         });
       }
 
@@ -2297,7 +2315,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           return true;
         });
         if (!validFiles.length) {
-          setStatus(rejectedFiles.length ? "Ningun archivo paso la validacion." : "Elige archivos de imagen.", true);
+          setStatus(rejectedFiles.length ? "Ningún archivo pasó la validación." : "Elige archivos de imagen.", true);
           return;
         }
         if (replaceSelected && selectedImage()) {
@@ -2310,10 +2328,10 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           viewMode = images.length > 1 ? "lightbox" : "detail";
         }
         if (!els.title.value.trim()) {
-          els.title.value = validFiles.length === 1 ? filenameTitle(validFiles[0].name) : "Galeria " + today();
+          els.title.value = validFiles.length === 1 ? filenameTitle(validFiles[0].name) : "Galería " + today();
         }
         render();
-        var message = validFiles.length === 1 ? "Imagen lista." : validFiles.length + " imagenes listas.";
+        var message = validFiles.length === 1 ? "Imagen lista." : validFiles.length + " imágenes listas.";
         if (rejectedFiles.length) {
           message += " Se omitieron " + rejectedFiles.length + ".";
         }
@@ -2508,7 +2526,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         var addButton = document.createElement("button");
         addButton.type = "button";
         addButton.className = "add-tile";
-        addButton.setAttribute("aria-label", "Agregar imagenes");
+        addButton.setAttribute("aria-label", "Agregar imágenes");
         addButton.innerHTML = '${ICONS.imagePlus}';
         addButton.addEventListener("click", function () {
           chooseImages("add");
@@ -2616,11 +2634,12 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
 
       function updateActionLabels() {
-        var publishLabel = images.length > 1 && viewMode !== "review" ? "Revisar" : "Publicar";
+        var actionLabel = els.visible.checked ? "Publicar" : "Guardar borrador";
+        var publishLabel = images.length > 1 && viewMode !== "review" ? "Revisar" : actionLabel;
         [els.publish, els.mobilePublish, els.panelPublish].forEach(function (button) {
           button.textContent = publishLabel;
         });
-        els.reviewPublish.textContent = "Publicar";
+        els.reviewPublish.textContent = actionLabel;
       }
 
       function imageUrl(image) {
@@ -2630,7 +2649,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function imageCountLabel() {
         if (images.length === 1) return "1 imagen";
-        return images.length + " imagenes";
+        return images.length + " imágenes";
       }
 
       function imageStatusLabel(image) {
@@ -2718,7 +2737,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
 
       function selectedNotebookLabel() {
         var option = els.notebook.options[els.notebook.selectedIndex];
-        if (!option) return "Fotografia";
+        if (!option) return "Fotografía";
         return option.textContent.replace(/ \\([^)]*\\)$/, "");
       }
 
@@ -2746,15 +2765,24 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         els.status.textContent = message;
         els.status.classList.toggle("is-error", Boolean(isError));
         if (isError) {
+          notify(message, "error");
           setSaveState("Necesita ajuste", "error");
         }
       }
 
+      function notify(message, kind) {
+        if (!message) return;
+        els.notice.textContent = message;
+        els.notice.dataset.kind = kind === "error" ? "error" : "info";
+        els.notice.hidden = false;
+        window.clearTimeout(noticeTimer);
+        noticeTimer = window.setTimeout(function () {
+          els.notice.hidden = true;
+        }, kind === "error" ? 8000 : 3500);
+      }
+
       function setBusy(isBusy) {
         saveBusy = isBusy;
-        [els.saveDraft, els.mobileSaveDraft, els.panelSaveDraft].forEach(function (button) {
-          button.disabled = isBusy;
-        });
         syncActionAvailability();
         els.arenaRetry.disabled = isBusy;
       }
@@ -2804,7 +2832,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         setBusy(true);
         setSaveState("Guardando...", "saving");
         setPublicationState("saving", "Guardando cambios en GitHub.");
-        setStatus(images.length > 1 ? "Preparando imagenes." : "Preparando imagen.", false);
+        setStatus(images.length > 1 ? "Preparando imágenes." : "Preparando imagen.", false);
         publicationRedirectNotebook = savedPath ? notebookPathForContent(savedPath) : els.notebook.value;
         ensureUploadedImages().then(function () {
           var draft = saveAsDraft ? true : false;
@@ -2903,7 +2931,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           return false;
         }
         if (!els.title.value.trim()) {
-          setStatus("Agrega un titulo.", true);
+          setStatus("Agrega un título.", true);
           els.title.focus();
           return false;
         }
@@ -2936,7 +2964,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         var caption = cover.caption;
         var summary = caption;
         if (!summary && items.length > 1) {
-          summary = items.length + " imagenes";
+          summary = items.length + " imágenes";
         }
         var frontMatter = {
           title: title,
@@ -3024,7 +3052,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       function transformedFile(image, maxEdge, suffix) {
         if (isPassthroughImage(image)) {
           if (image.cropMode || image.rotation !== 0) {
-            return Promise.reject(new Error("Recortar y girar solo estan disponibles para imagenes fijas."));
+            return Promise.reject(new Error("Recortar y girar solo están disponibles para imágenes fijas."));
           }
           return Promise.resolve({
             blob: image.file,

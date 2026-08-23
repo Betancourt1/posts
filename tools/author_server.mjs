@@ -574,7 +574,7 @@ function listNotebooks() {
     }
   }
 
-  return notebooks.sort((a, b) => a.lang.localeCompare(b.lang) || a.title.localeCompare(b.title));
+  return notebooks.sort((a, b) => (a.lang === b.lang ? a.title.localeCompare(b.title) : (a.lang === "es" ? -1 : 1)));
 }
 
 function writeContentFile(relativePath, frontMatter, body, overwrite = false) {

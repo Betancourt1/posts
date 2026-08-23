@@ -313,6 +313,45 @@ async function runCase(browser, origin, fixture, viewport, savedRequests) {
   }
 }
 
+async function runDraftRestoreCase(browser, origin) {
+  const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  const page = await context.newPage();
+  page.on("dialog", (dialog) => dialog.accept().catch(() => {}));
+
+  try {
+    const query = new URLSearchParams({
+      mode: "edit",
+      path: "content_es/posts/2026/julio/nota-de-prueba.md",
+      kind: "post",
+      theme: "dark",
+    });
+    await page.goto(`${origin}/editor?${query}`, { waitUntil: "domcontentloaded" });
+    await waitForEditor(page);
+    assert.equal(await page.locator("#save .save-label-desktop").textContent(), "Guardar");
+
+    await page.locator("#body").fill("Contenido determinista para el arnés.\n\nTexto añadido para el autoguardado.");
+    await page.waitForFunction(() => Boolean(localStorage.getItem("authorWritingDraftV1")));
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await waitForEditor(page);
+    await page.locator("#draft-restore").waitFor({ state: "visible" });
+    await page.locator("#draft-restore-accept").click();
+    assert.match(await page.locator("#body").inputValue(), /Texto añadido para el autoguardado/);
+    assert.equal(await page.locator("#saved-pill").textContent(), "Sin guardar");
+
+    await page.locator("#body").fill("Contenido determinista para el arnés.\n\nTexto descartable.");
+    await page.waitForFunction(() => String(JSON.parse(localStorage.getItem("authorWritingDraftV1") || "{}").body || "").includes("descartable"));
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await waitForEditor(page);
+    await page.locator("#draft-restore").waitFor({ state: "visible" });
+    await page.locator("#draft-restore-discard").click();
+    await page.locator("#draft-restore").waitFor({ state: "hidden" });
+    assert.equal(await page.locator("#body").inputValue(), "Contenido determinista para el arnés.");
+  } finally {
+    await context.close();
+  }
+}
+
 async function main() {
   const savedRequests = [];
   const { server, origin } = await startHarnessServer(savedRequests);
@@ -351,7 +390,9 @@ async function main() {
         await runCase(browser, origin, fixture, viewport, savedRequests);
       }
     }
+    await runDraftRestoreCase(browser, origin);
     console.log(`Editor harness: ${fixtures.length * viewports.length} escenarios correctos.`);
+    console.log("Autoguardado local: restauración y descarte comprobados.");
     console.log(`Guardados aislados comprobados: ${savedRequests.length}.`);
   } finally {
     await browser.close();

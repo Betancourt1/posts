@@ -74,7 +74,7 @@ export const editorCoreClientScript = String.raw`(function (global) {
     var attempt = 0;
 
     if (!target) {
-      return Promise.reject(new Error("No hay una URL publica que verificar."));
+      return Promise.reject(new Error("No hay una URL pública que verificar."));
     }
 
     function retry() {

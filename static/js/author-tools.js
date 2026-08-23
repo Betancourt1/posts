@@ -11,9 +11,6 @@
     notebooksLoaded: false,
     currentPath: root.dataset.sourcePath || "",
     currentNotebook: null,
-    editorPath: "",
-    editorFrontMatter: {},
-    editorKind: "post",
   };
   var elements = {
     status: document.getElementById("author-status"),
@@ -21,7 +18,6 @@
     modalTitle: document.getElementById("author-modal-title"),
     modalBody: document.getElementById("author-modal-body"),
     close: document.getElementById("author-close"),
-    imageInput: document.getElementById("author-image-input"),
     toast: document.getElementById("author-toast"),
   };
   var actionFeedback = {
@@ -32,8 +28,8 @@
     "edit-notebook": "Abriendo notebook",
     "edit-post": "Abriendo post",
     "create-notebook-channel": "Sincronizando Are.na",
-    "delete-post": "Preparando eliminacion",
-    "delete-notebook": "Preparando eliminacion",
+    "delete-post": "Preparando eliminación",
+    "delete-notebook": "Preparando eliminación",
   };
 
   bind();
@@ -67,8 +63,6 @@
         closeModal();
       }
     });
-
-    elements.imageInput.addEventListener("change", uploadSelectedImage);
   }
 
   function handleAuthorAction(event) {
@@ -118,7 +112,7 @@
         return openDeleteNotebookForm(button);
       }
 
-      toast("Unknown author action.");
+      toast("Acción de autor desconocida.");
       return false;
     }).then(function (keepBusy) {
       if (!keepBusy && clearBusy) {
@@ -142,7 +136,7 @@
       })
       .catch(function () {
         setStatus("offline", false);
-        toast("The author API is unavailable.");
+        toast("La API del autor no está disponible.");
       });
   }
 
@@ -152,7 +146,7 @@
         return {};
       }).then(function (payload) {
         if (!response.ok || payload.error) {
-          throw new Error(payload.error || "Author API error.");
+          throw new Error(payload.error || "Error de la API del autor.");
         }
 
         return payload;
@@ -311,20 +305,18 @@
   function closeModal() {
     elements.modal.hidden = true;
     elements.modalBody.innerHTML = "";
-    state.editorPath = "";
-    state.editorFrontMatter = {};
   }
 
   function openNotebookForm() {
-    openModal("Add Notebook", [
+    openModal("Agregar notebook", [
       '<form class="author-form" id="author-notebook-form">',
-      label("Language", '<select name="lang"><option value="es">Spanish</option><option value="en">English</option></select>'),
-      label("Title", '<input name="title" type="text" required />'),
-      label("Slug", '<input name="slug" type="text" />'),
-      label("Description", '<input name="description" type="text" />'),
-      checkbox("draft", "Draft", true),
-      checkbox("hidden", "Hidden", false),
-      '<div class="author-form-actions"><button type="submit">Create Notebook</button></div>',
+      label("Idioma", '<select name="lang"><option value="es">Español</option><option value="en">Inglés</option></select>'),
+      label("Título", '<input name="title" type="text" required />'),
+      label("Ruta", '<input name="slug" type="text" />'),
+      label("Descripción", '<input name="description" type="text" />'),
+      checkbox("draft", "Borrador", true),
+      checkbox("hidden", "Oculto", false),
+      '<div class="author-form-actions"><button type="submit">Crear notebook</button></div>',
       "</form>",
     ].join(""));
 
@@ -344,7 +336,7 @@
         draft: form.elements.draft.checked,
         hidden: form.elements.hidden.checked,
       }).then(function (result) {
-        toast("Notebook created.");
+        toast("Notebook creado.");
         closeModal();
         loadNotebooks();
         openWhenReady(result.url);
@@ -395,7 +387,7 @@
     }
 
     if (!notebook) {
-      toast("No current notebook found.");
+      toast("No se encontró el notebook actual.");
       return false;
     }
 
@@ -411,12 +403,12 @@
     var path = trigger && trigger.dataset.sourcePath ? trigger.dataset.sourcePath : state.currentPath;
 
     if (!path) {
-      toast("No source file for this page.");
+      toast("Esta página no tiene archivo fuente.");
       return false;
     }
 
     if (path.endsWith("_index.md")) {
-      toast("This is a notebook page. Use Edit Current Notebook.");
+      toast("Esta es una página de notebook. Usa Editar notebook.");
       return false;
     }
 
@@ -433,12 +425,12 @@
     var path = trigger && trigger.dataset.sourcePath ? trigger.dataset.sourcePath : state.currentPath;
 
     if (!path) {
-      toast("No source file for this page.");
+      toast("Esta página no tiene archivo fuente.");
       return false;
     }
 
     if (path.endsWith("_index.md")) {
-      toast("This is a notebook page. Use Delete Notebook.");
+      toast("Esta es una página de notebook. Usa Eliminar notebook.");
       return false;
     }
 
@@ -450,7 +442,7 @@
         path: payload.path,
         title: frontMatter.title || payload.path,
         label: "post",
-        imageCopy: "Borrar tambien imagenes adjuntas a este post.",
+        imageCopy: "Borrar también las imágenes adjuntas a este post.",
       });
     });
   }
@@ -468,7 +460,7 @@
     }
 
     if (!notebook) {
-      toast("No current notebook found.");
+      toast("No se encontró el notebook actual.");
       return false;
     }
 
@@ -480,7 +472,7 @@
         path: notebook.path,
         title: frontMatter.title || notebook.path,
         label: "notebook",
-        imageCopy: "Borrar tambien imagenes referenciadas por sus paginas.",
+        imageCopy: "Borrar también las imágenes referenciadas por sus páginas.",
       });
     });
   }
@@ -608,198 +600,6 @@
     window.location.assign(apiBase + "/image-editor?" + query.toString());
   }
 
-  function openExistingEditor(path, title, kind) {
-    request("/api/page?path=" + encodeURIComponent(path)).then(function (payload) {
-      var frontMatter = payload.frontMatter || {};
-
-      state.editorPath = payload.path;
-      state.editorFrontMatter = frontMatter;
-      state.editorKind = kind;
-      openModal(title, editorHtml({
-        mode: "edit",
-        title: frontMatter.title || "",
-        slug: "",
-        date: frontMatter.date || today(),
-        tags: (frontMatter.tags || []).join(", "),
-        summary: frontMatter.summary || frontMatter.description || "",
-        draft: frontMatter.draft === true,
-        hidden: frontMatter.hidden === true,
-        body: payload.body || "",
-      }));
-      wireEditorForm("edit");
-    }).catch(function (error) {
-      toast(error.message);
-    });
-  }
-
-  function editorHtml(data) {
-    var notebookField = data.mode === "new"
-      ? label("Notebook", '<select name="notebook">' + data.notebookOptions + "</select>")
-      : '<input name="path" type="hidden" value="' + escapeHtml(state.editorPath) + '" />';
-
-    return [
-      '<form class="author-form author-editor-form" id="author-editor-form">',
-      notebookField,
-      '<div class="author-grid">',
-      label("Title", '<input name="title" type="text" value="' + escapeHtml(data.title) + '" required />'),
-      label("Slug", '<input name="slug" type="text" value="' + escapeHtml(data.slug) + '"' + (data.mode === "edit" ? " disabled" : "") + " />"),
-      label("Date", '<input name="date" type="date" value="' + escapeHtml(data.date) + '" />'),
-      label("Tags", '<input name="tags" type="text" value="' + escapeHtml(data.tags) + '" placeholder="essays, politics" />'),
-      "</div>",
-      label("Summary / Description", '<input name="summary" type="text" value="' + escapeHtml(data.summary) + '" />'),
-      '<div class="author-check-row">',
-      checkbox("draft", "Draft", data.draft),
-      checkbox("hidden", "Hidden", data.hidden),
-      "</div>",
-      '<div class="author-editor-toolbar"><button type="button" id="author-editor-image">Add Image</button></div>',
-      '<textarea name="body" class="author-body-editor" spellcheck="true">' + escapeHtml(data.body) + "</textarea>",
-      '<div class="author-form-actions"><button type="submit">' + (data.mode === "edit" ? "Save Changes" : "Create Post") + "</button></div>",
-      "</form>",
-    ].join("");
-  }
-
-  function wireEditorForm(mode) {
-    var form = document.getElementById("author-editor-form");
-    var titleInput = form.elements.title;
-    var slugInput = form.elements.slug;
-    var notebookSelect = form.elements.notebook;
-    var imageButton = document.getElementById("author-editor-image");
-
-    if (mode === "new") {
-      bindSlug(titleInput, slugInput, notebookSelect.value.endsWith("/posts") ? "_" : "-");
-      notebookSelect.addEventListener("change", function () {
-        if (!slugInput.dataset.touched) {
-          slugInput.value = slugify(titleInput.value, notebookSelect.value.endsWith("/posts") ? "_" : "-");
-        }
-      });
-    }
-
-    imageButton.addEventListener("click", function () {
-      elements.imageInput.click();
-    });
-
-    form.addEventListener("submit", function (event) {
-      event.preventDefault();
-
-      if (mode === "new") {
-        saveNewPost(form);
-      } else {
-        saveExistingPage(form);
-      }
-    });
-  }
-
-  function saveNewPost(form) {
-    var clearBusy = setSubmitBusy(form, "Creando...");
-    postJson("/api/create-post", {
-      notebook: form.elements.notebook.value,
-      title: form.elements.title.value,
-      slug: form.elements.slug.value,
-      date: form.elements.date.value,
-      tags: form.elements.tags.value,
-      summary: form.elements.summary.value,
-      draft: form.elements.draft.checked,
-      hidden: form.elements.hidden.checked,
-      body: form.elements.body.value || "# " + form.elements.title.value + "\n",
-    }).then(function (result) {
-      toast("Post created.");
-      closeModal();
-      openWhenReady(result.url);
-    }).catch(function (error) {
-      toast(error.message);
-    }).finally(function () {
-      clearBusy();
-    });
-  }
-
-  function saveExistingPage(form) {
-    var frontMatter = Object.assign({}, state.editorFrontMatter, {
-      title: form.elements.title.value,
-      date: form.elements.date.value,
-    });
-
-    if (form.elements.draft.checked) {
-      frontMatter.draft = true;
-    } else {
-      frontMatter.draft = null;
-    }
-
-    if (form.elements.hidden.checked) {
-      frontMatter.hidden = true;
-    } else {
-      frontMatter.hidden = null;
-    }
-
-    if (state.editorKind === "notebook") {
-      frontMatter.description = form.elements.summary.value;
-    } else {
-      frontMatter.summary = form.elements.summary.value;
-      frontMatter.tags = splitTags(form.elements.tags.value);
-    }
-
-    postJson("/api/save-page", {
-      path: state.editorPath,
-      frontMatter: frontMatter,
-      body: form.elements.body.value,
-    }).then(function () {
-      toast("Saved.");
-      closeModal();
-      window.setTimeout(function () {
-        window.location.reload();
-      }, 250);
-    }).catch(function (error) {
-      toast(error.message);
-    });
-  }
-
-  function uploadSelectedImage() {
-    var file = elements.imageInput.files && elements.imageInput.files[0];
-
-    if (!file) {
-      return;
-    }
-
-    var reader = new FileReader();
-
-    reader.onload = function () {
-      postJson("/api/upload-image", {
-        name: file.name,
-        alt: file.name.replace(/\.[^.]+$/, ""),
-        data: reader.result,
-      }).then(function (result) {
-        insertMarkdown(result.markdown);
-        toast("Image added: " + result.url);
-      }).catch(function (error) {
-        toast(error.message);
-      }).finally(function () {
-        elements.imageInput.value = "";
-      });
-    };
-
-    reader.readAsDataURL(file);
-  }
-
-  function insertMarkdown(markdown) {
-    var textarea = document.querySelector(".author-body-editor");
-
-    if (!textarea) {
-      navigator.clipboard && navigator.clipboard.writeText(markdown);
-      toast("Image markdown copied.");
-      return;
-    }
-
-    var start = textarea.selectionStart || 0;
-    var end = textarea.selectionEnd || 0;
-    var value = textarea.value;
-    var prefix = value.slice(0, start);
-    var suffix = value.slice(end);
-    var insert = (prefix && !prefix.endsWith("\n") ? "\n\n" : "") + markdown + "\n";
-
-    textarea.value = prefix + insert + suffix;
-    textarea.focus();
-    textarea.selectionStart = textarea.selectionEnd = (prefix + insert).length;
-  }
-
   function openWhenReady(url) {
     var targetUrl = contentUrl(url);
     var deadline = Date.now() + 8000;
@@ -867,21 +667,6 @@
       .replace(/[^a-z0-9]+/g, separator)
       .replace(new RegExp(separator + "+", "g"), separator)
       .replace(new RegExp("^" + separator + "|" + separator + "$", "g"), "");
-  }
-
-  function splitTags(value) {
-    return String(value || "")
-      .split(",")
-      .map(function (tag) {
-        return tag.trim();
-      })
-      .filter(Boolean);
-  }
-
-  function today() {
-    return new Date().toLocaleDateString("en-CA", {
-      timeZone: "America/Mexico_City",
-    });
   }
 
   function escapeHtml(value) {

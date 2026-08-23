@@ -30,6 +30,8 @@ La autoria tiene tres entradas independientes: Notebook, Post e Imagen. Ninguna 
 - Guardar el blog y sincronizar Are.na siguen siendo operaciones distinguibles.
 - Publicar regresa a la Notebook después del guardado; no espera un despliegue de código.
 - El arnés no usa el repositorio real, GitHub, Are.na ni credenciales.
+- El editor de escritura avisa antes de descartar cambios sin guardar y mantiene un autoguardado local de recuperación que nunca sustituye al guardado en GitHub.
+- Los mensajes de estado visibles del editor se enrutan por la región `#editor-notice`, disponible en todos los viewports.
 
 ## Decisión de producto: guardar no espera un despliegue
 

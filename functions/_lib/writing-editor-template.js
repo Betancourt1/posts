@@ -806,6 +806,60 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
     .load-retry[hidden] {
       display: none !important;
     }
+    .editor-notice {
+      position: fixed;
+      top: calc(var(--topbar-height) + 0.6rem);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 60;
+      max-width: min(30rem, calc(100vw - 2rem));
+      padding: 0.6rem 0.85rem;
+      border: 1px solid var(--line);
+      border-radius: 0.45rem;
+      background: var(--panel);
+      color: var(--ink);
+      font-size: 0.8rem;
+      line-height: 1.45;
+      box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.35);
+    }
+    .editor-notice[data-kind="error"] {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+    .editor-notice[hidden] {
+      display: none !important;
+    }
+    .draft-restore {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.85rem;
+      margin-bottom: 1.1rem;
+      padding: 0.65rem 0.8rem;
+      border: 1px solid var(--line);
+      border-radius: 0.45rem;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+    .draft-restore[hidden] {
+      display: none !important;
+    }
+    .draft-restore-accept,
+    .draft-restore-discard {
+      min-height: 2rem;
+      border: 0;
+      background: transparent;
+      padding: 0 0.2rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .draft-restore-accept {
+      color: var(--accent);
+    }
+    .draft-restore-discard {
+      color: var(--muted);
+    }
     .save-label-mobile {
       display: none;
     }
@@ -1545,10 +1599,11 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
     }
   </style>
 </head>
-<body class="reference-theme" data-theme="dark">
+  <body class="reference-theme" data-theme="dark">
+  <div class="editor-notice" id="editor-notice" role="status" aria-live="polite" hidden></div>
   <header class="topbar">
     <div class="brand">
-      <button type="button" class="back-button" id="back" aria-label="Back">${ICONS.back}</button>
+      <button type="button" class="back-button" id="back" aria-label="Volver">${ICONS.back}</button>
       <span class="editor-identity">
         <span class="editor-brand"><strong>betancourt</strong><small>aquí escribo cosas</small></span>
         <span class="saved-pill" id="saved-pill" data-state="loading" role="status" aria-live="polite">Cargando</span>
@@ -1559,47 +1614,52 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       <button type="button" class="load-retry" id="retry-load" aria-label="Reintentar carga" title="Reintentar carga" hidden>${ICONS.redo}</button>
       <button type="button" class="markdown-toggle" id="view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">${ICONS.code}</button>
       <button type="button" class="arena-details-button" id="arena-details-button" data-state="disabled" aria-controls="arena-details">Are.na</button>
-      <button type="button" class="mobile-settings-button" id="top-settings-button" aria-controls="settings" aria-expanded="false" aria-label="Configuracion">...</button>
+      <button type="button" class="mobile-settings-button" id="top-settings-button" aria-controls="settings" aria-expanded="false" aria-label="Configuración">...</button>
       <button type="button" class="primary" id="save" disabled><span class="save-label-desktop">Publicar</span><span class="save-label-mobile">Publicar</span></button>
     </div>
   </header>
-  <nav class="formatbar" aria-label="Formatting">
+  <nav class="formatbar" aria-label="Formato">
     <div class="formatbar-inner">
-      <span class="toolbar-group" aria-label="History">
-        <button type="button" data-format="undo" title="Undo" aria-label="Undo">${ICONS.undo}</button>
-        <button type="button" data-format="redo" title="Redo" aria-label="Redo">${ICONS.redo}</button>
+      <span class="toolbar-group" aria-label="Historial">
+        <button type="button" data-format="undo" title="Deshacer" aria-label="Deshacer">${ICONS.undo}</button>
+        <button type="button" data-format="redo" title="Rehacer" aria-label="Rehacer">${ICONS.redo}</button>
       </span>
       <span class="divider"></span>
-      <span class="toolbar-group" aria-label="Inline formatting">
-        <button type="button" data-format="bold" title="Bold" aria-label="Bold">${ICONS.bold}</button>
-        <button type="button" data-format="italic" title="Italic" aria-label="Italic">${ICONS.italic}</button>
-        <button type="button" data-format="strike" title="Strikethrough" aria-label="Strikethrough">${ICONS.strike}</button>
-        <button type="button" data-format="code" title="Code" aria-label="Code">${ICONS.code}</button>
-        <button type="button" data-format="link" title="Link" aria-label="Link">${ICONS.link}</button>
+      <span class="toolbar-group" aria-label="Formato en línea">
+        <button type="button" data-format="bold" title="Negrita" aria-label="Negrita">${ICONS.bold}</button>
+        <button type="button" data-format="italic" title="Cursiva" aria-label="Cursiva">${ICONS.italic}</button>
+        <button type="button" data-format="strike" title="Tachado" aria-label="Tachado">${ICONS.strike}</button>
+        <button type="button" data-format="code" title="Código" aria-label="Código">${ICONS.code}</button>
+        <button type="button" data-format="link" title="Enlace" aria-label="Enlace">${ICONS.link}</button>
       </span>
       <span class="divider"></span>
-      <span class="toolbar-group" aria-label="Blocks">
-        <button type="button" data-format="heading" title="Heading" aria-label="Heading">${ICONS.heading}</button>
-        <button type="button" data-format="quote" title="Quote" aria-label="Quote">${ICONS.quote}</button>
-        <button type="button" data-format="ul" title="Bulleted list" aria-label="Bulleted list">${ICONS.list}</button>
-        <button type="button" data-format="ol" title="Numbered list" aria-label="Numbered list">${ICONS.orderedList}</button>
+      <span class="toolbar-group" aria-label="Bloques">
+        <button type="button" data-format="heading" title="Encabezado" aria-label="Encabezado">${ICONS.heading}</button>
+        <button type="button" data-format="quote" title="Cita" aria-label="Cita">${ICONS.quote}</button>
+        <button type="button" data-format="ul" title="Lista con viñetas" aria-label="Lista con viñetas">${ICONS.list}</button>
+        <button type="button" data-format="ol" title="Lista numerada" aria-label="Lista numerada">${ICONS.orderedList}</button>
       </span>
       <span class="divider" id="insert-divider-before"></span>
-      <span class="toolbar-group" id="insert-toolbar-group" aria-label="Insert">
-        <button type="button" id="toolbar-image" title="Image" aria-label="Image">${ICONS.image}</button>
+      <span class="toolbar-group" id="insert-toolbar-group" aria-label="Insertar">
+        <button type="button" id="toolbar-image" title="Insertar imagen" aria-label="Insertar imagen">${ICONS.image}</button>
       </span>
       <button type="button" class="mobile-markdown-toggle" id="mobile-view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">${ICONS.code}</button>
       <span class="divider" id="insert-divider-after"></span>
     </div>
   </nav>
-  <button type="button" class="settings-backdrop" id="settings-backdrop" aria-label="Cerrar configuracion" hidden></button>
+  <button type="button" class="settings-backdrop" id="settings-backdrop" aria-label="Cerrar configuración" hidden></button>
   <button type="button" class="arena-details-backdrop" id="arena-details-backdrop" aria-label="Cerrar detalle de Are.na" hidden></button>
   <main class="shell">
     <section class="writer">
       <article class="paper">
-        <textarea class="title-input" id="title" rows="2" placeholder="Titulo (Obligatorio)"></textarea>
-        <input class="subtitle-input" id="summary" type="text" placeholder="Agregar un subtitulo..." />
-        <textarea class="body-input" id="body" placeholder="Comienza a escribir un articulo..."></textarea>
+        <div class="draft-restore" id="draft-restore" hidden>
+          <span id="draft-restore-text">Hay un borrador sin guardar.</span>
+          <button type="button" class="draft-restore-accept" id="draft-restore-accept">Restaurar</button>
+          <button type="button" class="draft-restore-discard" id="draft-restore-discard">Descartar</button>
+        </div>
+        <textarea class="title-input" id="title" rows="2" placeholder="Título (obligatorio)"></textarea>
+        <input class="subtitle-input" id="summary" type="text" placeholder="Agregar un subtítulo…" />
+        <textarea class="body-input" id="body" placeholder="Comienza a escribir un artículo…"></textarea>
         <textarea class="markdown-input" id="markdown-canvas" aria-label="Markdown del documento" spellcheck="false" hidden></textarea>
       </article>
     </section>
@@ -1607,7 +1667,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       <div class="settings-header">
         <h2 id="settings-title">Propiedades</h2>
         <div class="settings-header-actions">
-          <button type="button" class="settings-close" id="settings-close" aria-label="Cerrar configuracion">&times;</button>
+          <button type="button" class="settings-close" id="settings-close" aria-label="Cerrar configuración">&times;</button>
         </div>
       </div>
       <label class="field" id="notebook-field">
@@ -1649,9 +1709,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       <label class="field">
         <span>Texto</span>
         <select id="editor-font-size">
-          <option value="small">Small</option>
-          <option value="medium">Medium</option>
-          <option value="large">Large</option>
+          <option value="small">Pequeño</option>
+          <option value="medium">Mediano</option>
+          <option value="large">Grande</option>
         </select>
       </label>
       <label class="check">
@@ -1670,7 +1730,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           <button type="button" class="arena-inline-details" id="arena-inline-details">Ver detalle</button>
         </div>
         <label class="check arena-toggle">
-          <span class="check-label">Publicar</span>
+          <span class="check-label">Copiar a Are.na</span>
           <input id="arena-enabled" type="checkbox" disabled />
         </label>
         <label class="arena-channel-field" id="arena-channel-field" hidden>
@@ -1703,10 +1763,10 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       <div class="danger-zone" id="danger-zone" hidden>
         <h3>Peligro</h3>
         <label class="check">
-          <span class="check-label">Eliminar imagenes adjuntas</span>
+          <span class="check-label">Eliminar imágenes adjuntas</span>
           <input id="delete-attached-images" type="checkbox" />
         </label>
-        <button type="button" class="danger-button" id="delete-page">${ICONS.trash}<span>Delete</span></button>
+        <button type="button" class="danger-button" id="delete-page">${ICONS.trash}<span>Eliminar</span></button>
       </div>
       <div class="utility">
         <input id="image-file" type="file" accept="image/*" hidden />
@@ -1760,6 +1820,21 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       var editorSizeStorageKey = "authorEditorFontSize";
       var viewModeStorageKey = "authorEditorViewMode";
       var notebookCacheStorageKey = "authorNotebooksCacheV1";
+      var draftStorageKey = "authorWritingDraftV1";
+      var draftMaxAgeMs = 24 * 60 * 60 * 1000;
+      var draftSaveTimer = 0;
+      var noticeTimer = 0;
+      var allowExit = false;
+      var lastSaveLabel = "";
+      var quietStatusMessages = {
+        Loading: true,
+        Saving: true,
+        Saved: true,
+        Deleting: true,
+        "Deleting image": true,
+        "New post": true,
+        "New book": true,
+      };
       var activeViewMode = "render";
       var savedSnapshot = null;
       var saveInProgress = false;
@@ -1781,6 +1856,11 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       var publicationRedirectNotebook = "";
       var els = {
         status: document.getElementById("status"),
+        notice: document.getElementById("editor-notice"),
+        draftRestore: document.getElementById("draft-restore"),
+        draftRestoreText: document.getElementById("draft-restore-text"),
+        draftRestoreAccept: document.getElementById("draft-restore-accept"),
+        draftRestoreDiscard: document.getElementById("draft-restore-discard"),
         savedPill: document.getElementById("saved-pill"),
         formatbar: document.querySelector(".formatbar"),
         writer: document.querySelector(".writer"),
@@ -1918,8 +1998,27 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function bind() {
         els.back.addEventListener("click", function () {
+          if (!confirmDiscardChanges()) return;
+          allowExit = true;
           window.close();
           window.history.back();
+        });
+        window.addEventListener("beforeunload", function (event) {
+          if (allowExit || saveInProgress || !savedSnapshot) return;
+          if (currentSaveSnapshot() === savedSnapshot) return;
+          event.preventDefault();
+          event.returnValue = "";
+        });
+        window.addEventListener("keydown", function (event) {
+          if ((event.metaKey || event.ctrlKey) && (event.key === "s" || event.key === "S")) {
+            event.preventDefault();
+            if (!els.save.disabled) save();
+          }
+        });
+        els.draftRestoreAccept.addEventListener("click", restoreStoredDraft);
+        els.draftRestoreDiscard.addEventListener("click", function () {
+          clearStoredDraft();
+          els.draftRestore.hidden = true;
         });
         els.title.addEventListener("input", function () {
           syncGeneratedSlug();
@@ -2280,7 +2379,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           disabled: hasMappedBlock
             ? (blogSaved ? "El bloque se conserva en Are.na, fuera del canal." : "Guarda para retirar la copia del canal.")
             : (photo ? "Activa la copia para mantener estas imágenes en Are.na." : "Activa la copia para mantener este texto en Are.na."),
-          unavailable: arenaState.error || "Are.na no esta disponible.",
+          unavailable: arenaState.error || "Are.na no está disponible.",
           paused: hasMappedBlock
             ? (blogSaved ? "El borrador no aparece en el canal de Are.na." : "Guarda para retirar el borrador del canal.")
             : "Los borradores no se copian a Are.na.",
@@ -2310,15 +2409,15 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         if (state === "error" || state === "unavailable") els.arenaCopyStep.classList.add("is-error");
         els.arenaStateMessage.textContent = messages[state] || messages.disabled;
         els.arenaLastSynced.textContent = arenaState.lastSyncedAt
-          ? "Ultima copia: " + formatArenaDate(arenaState.lastSyncedAt)
+          ? "Última copia: " + formatArenaDate(arenaState.lastSyncedAt)
           : "";
         els.arenaRetry.hidden = state !== "error";
         els.arenaDetailsRetry.hidden = state !== "error";
         els.arenaDetailsButton.dataset.state = state;
         els.arenaDetailsButton.title = labels[state] || labels.disabled;
-        els.arenaPreviewTitle.textContent = els.title.value.trim() || "Sin titulo";
+        els.arenaPreviewTitle.textContent = els.title.value.trim() || "Sin título";
         els.arenaPreviewType.textContent = photo ? "Bloque de imagen · archivo completo" : "Bloque de texto · Markdown completo";
-        els.arenaPreviewExcerpt.textContent = preview.excerpt || (photo ? "El texto alt y el pie aparecerán aquí." : "El texto guardado aparecera aqui.");
+        els.arenaPreviewExcerpt.textContent = preview.excerpt || (photo ? "El texto alt y el pie aparecerán aquí." : "El texto guardado aparecerá aquí.");
         els.arenaPreviewMeta.textContent = photo
           ? imageLabel + " · título · pie · alt"
           : preview.characters.toLocaleString("es-MX") + " caracteres · " + preview.minutes + " min de lectura";
@@ -2449,6 +2548,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         syncDeleteControls();
         resizeEditorFields();
         syncMarkdownFromFields();
+        offerDraftRestore();
         focusEditorStart();
       }
 
@@ -2511,6 +2611,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
             : "Guardado; verifica para confirmar la ruta pública.");
           resizeEditorFields();
           syncMarkdownFromFields();
+          offerDraftRestore();
           focusEditorStart();
         });
       }
@@ -2545,6 +2646,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           els.slug.value = routeFromPath(sourcePath);
           syncRouteControls(true);
           savedSnapshot = currentSaveSnapshot();
+          clearStoredDraft();
           setStatus("Saved");
           setPublicationState("saved", result.changed === false ? "Sin cambios nuevos; el estado persistido coincide." : "Guardado en GitHub.");
           syncDeleteControls();
@@ -2727,6 +2829,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function redirectToNotebook() {
+        allowExit = true;
         window.location.assign(editorCore.adminNotebookUrl(publicationRedirectNotebook));
       }
 
@@ -2752,12 +2855,12 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
               }
               updatePhotoPreview();
               markContentEdited();
-              setStatus("Post image set " + result.url);
+              setStatus("Imagen principal asignada " + result.url);
               return;
             }
 
-            insertAtCursor(activeTextArea(), result.markdown + "\\n");
-            setStatus("Image added " + result.url);
+              insertAtCursor(activeTextArea(), result.markdown + "\\n");
+              setStatus("Imagen añadida " + result.url);
           }).catch(function (error) {
             setStatus(error.message, true);
           }).finally(function () {
@@ -2848,7 +2951,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           wrapSelection("[", "](https://)");
           return;
         }
-        setStatus("Use Markdown for " + format);
+        setStatus("Usa Markdown para " + format);
       }
 
       function wrapSelection(before, after) {
@@ -2986,7 +3089,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.writer.setAttribute("aria-hidden", String(open));
         els.formatbar.setAttribute("aria-hidden", String(open));
         els.topSettingsButton.setAttribute("aria-expanded", String(open));
-        els.topSettingsButton.setAttribute("aria-label", open ? "Cerrar configuracion" : "Configuracion");
+        els.topSettingsButton.setAttribute("aria-label", open ? "Cerrar configuración" : "Configuración");
       }
 
       function syncWritingState() {
@@ -3195,6 +3298,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.status.textContent = message;
         els.status.classList.toggle("error", Boolean(error));
         if (error) {
+          notify(message, "error");
           saveInProgress = false;
           saveFailed = true;
           syncSavedState();
@@ -3210,7 +3314,21 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           saveInProgress = false;
           saveFailed = false;
         }
+        if (!quietStatusMessages[message] && !/^Editing /.test(message)) {
+          notify(message, "info");
+        }
         syncSavedState();
+      }
+
+      function notify(message, kind) {
+        if (!message) return;
+        els.notice.textContent = message;
+        els.notice.dataset.kind = kind === "error" ? "error" : "info";
+        els.notice.hidden = false;
+        window.clearTimeout(noticeTimer);
+        noticeTimer = window.setTimeout(function () {
+          els.notice.hidden = true;
+        }, kind === "error" ? 8000 : 3500);
       }
 
       function markContentEdited() {
@@ -3218,6 +3336,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         if (els.arenaEnabled.checked && arenaState.state !== "unavailable" && arenaState.state !== "syncing") {
           arenaState = Object.assign({}, arenaState, { state: "pending", error: "" });
         }
+        scheduleDraftSave();
         syncSavedState();
       }
 
@@ -3242,6 +3361,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function syncSavedState() {
+        syncSaveButtonLabel();
         if (saveInProgress) {
           setSavePill("saving", "Guardando");
           syncArenaUi();
@@ -3266,6 +3386,117 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.savedPill.textContent = label;
       }
 
+      function syncSaveButtonLabel() {
+        var label = mode === "edit" ? "Guardar" : (els.hidden.checked ? "Publicar" : "Guardar borrador");
+        if (label === lastSaveLabel) return;
+        lastSaveLabel = label;
+        els.save.querySelector(".save-label-desktop").textContent = label;
+        els.save.querySelector(".save-label-mobile").textContent = label;
+      }
+
+      function confirmDiscardChanges() {
+        if (allowExit || saveInProgress || !savedSnapshot) return true;
+        if (currentSaveSnapshot() === savedSnapshot) return true;
+        return window.confirm("Hay cambios sin guardar. ¿Quieres salir y descartarlos?");
+      }
+
+      function collectDraftState() {
+        return {
+          mode: mode,
+          sourcePath: sourcePath,
+          notebook: els.notebook.value,
+          title: els.title.value,
+          summary: els.summary.value,
+          body: els.body.value,
+          date: els.date.value,
+          tags: els.tags.value,
+          image: els.image.value,
+          imageAlt: els.imageAlt.value,
+          caption: els.caption.value,
+          visible: els.hidden.checked,
+          arenaEnabled: isArenaEligible() && els.arenaEnabled.checked,
+          arenaChannelId: isArenaEligible() ? els.arenaChannel.value : "",
+        };
+      }
+
+      function scheduleDraftSave() {
+        window.clearTimeout(draftSaveTimer);
+        draftSaveTimer = window.setTimeout(function () {
+          if (!savedSnapshot || currentSaveSnapshot() === savedSnapshot) return;
+          try {
+            window.localStorage.setItem(draftStorageKey, JSON.stringify(Object.assign(collectDraftState(), { savedAt: Date.now() })));
+          } catch (error) {
+            // localStorage can be unavailable in private or restricted contexts.
+          }
+        }, 800);
+      }
+
+      function clearStoredDraft() {
+        window.clearTimeout(draftSaveTimer);
+        try {
+          window.localStorage.removeItem(draftStorageKey);
+        } catch (error) {
+          // Removal is best-effort when storage is blocked.
+        }
+      }
+
+      function readStoredDraft() {
+        try {
+          var stored = JSON.parse(window.localStorage.getItem(draftStorageKey) || "null");
+          if (!stored || typeof stored !== "object" || !stored.savedAt) return null;
+          if (Date.now() - stored.savedAt > draftMaxAgeMs) return null;
+          return stored;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function draftMatchesEditor(stored) {
+        if (stored.mode === "edit") return mode === "edit" && stored.sourcePath === sourcePath;
+        return mode === "new" && stored.notebook === els.notebook.value;
+      }
+
+      function offerDraftRestore() {
+        var stored = readStoredDraft();
+        if (!stored || !draftMatchesEditor(stored)) return;
+        if (stored.mode === "new" && !String(stored.title || "").trim() && !String(stored.body || "").trim()) return;
+        var current = collectDraftState();
+        var keys = ["title", "summary", "body", "date", "tags", "image", "imageAlt", "caption"];
+        var differs = keys.some(function (key) { return String(stored[key] || "") !== String(current[key] || ""); }) || stored.visible !== current.visible;
+        if (!differs) return;
+        var minutes = Math.max(1, Math.round((Date.now() - stored.savedAt) / 60000));
+        els.draftRestoreText.textContent = "Borrador sin guardar de hace " + minutes + " min. ¿Restaurarlo?";
+        els.draftRestore.hidden = false;
+      }
+
+      function restoreStoredDraft() {
+        var stored = readStoredDraft();
+        els.draftRestore.hidden = true;
+        if (!stored || !draftMatchesEditor(stored)) return;
+        els.title.value = String(stored.title || "");
+        els.summary.value = String(stored.summary || "");
+        els.body.value = String(stored.body || "");
+        if (stored.date) els.date.value = stored.date;
+        els.tags.value = String(stored.tags || "");
+        els.image.value = String(stored.image || "");
+        els.imageAlt.value = String(stored.imageAlt || "");
+        els.caption.value = String(stored.caption || "");
+        els.hidden.checked = stored.visible !== false;
+        els.draft.checked = els.hidden.checked;
+        if (isArenaEligible() && stored.arenaEnabled) {
+          els.arenaEnabled.checked = true;
+          els.arenaChannelField.hidden = false;
+        }
+        resetBodyHistory();
+        syncGeneratedSlug();
+        updatePhotoPreview();
+        syncDeleteControls();
+        markContentEdited();
+        resizeEditorFields();
+        syncMarkdownFromFields();
+        els.title.focus();
+      }
+
       function currentSeparator() {
         return els.notebook.value.endsWith("/posts") ? "_" : "-";
       }
@@ -3281,7 +3512,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           return true;
         }
 
-        setStatus("Agrega un titulo para generar la ruta.", true);
+        setStatus("Agrega un título para generar la ruta.", true);
         closeSettings();
         focusEditorStart();
         return false;
@@ -3422,7 +3653,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       function copyRoute() {
         var value = els.slug.value.trim();
         if (!value) {
-          setStatus("Ruta vacia");
+          setStatus("Ruta vacía");
           return;
         }
 
@@ -3482,7 +3713,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         var label = editorController.notebook ? "notebook" : "post";
         var confirmation = window.prompt("Escribe BORRAR para eliminar este " + label + ".");
         if (confirmation !== "BORRAR") {
-          setStatus("Eliminacion cancelada.");
+          setStatus("Eliminación cancelada.");
           return;
         }
 
@@ -3497,9 +3728,11 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           deleteImages: els.deleteAttachedImages.checked,
         }).then(function (result) {
           deletionCommitted = true;
+          clearStoredDraft();
           return verifyDeletedPublication(result);
         }).then(function (result) {
           var target = result.url || "/es/";
+          allowExit = true;
           window.location.assign(siteOrigin + target);
         }).catch(function (error) {
           if (deletionCommitted) {
@@ -3535,7 +3768,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           els.caption.value = "";
           updatePhotoPreview();
           markContentEdited();
-          setStatus("Image deleted");
+          setStatus("Imagen eliminada");
         }).catch(function (error) {
           setStatus(error.message, true);
         }).finally(function () {
