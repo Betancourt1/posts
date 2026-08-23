@@ -2536,23 +2536,23 @@ tr:nth-child(even) { background: var(--table-stripe); }
   font-size: 0.9rem;
 }
 
-button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-trigger):not(.book-shelf-more-button), .button:not(.graph-tool), a.button {
+button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-trigger):not(.book-shelf-more-button):not(.typo-btn):not(.typo-btn-choice):not(.search-modal-close), .button:not(.graph-tool), a.button {
   display: inline-block;
-  border: 1px solid var(--accent);
-  border-radius: 8px;
+  border: 1px solid var(--line);
+  border-radius: 0;
   padding: 0.5rem 0.8rem;
   background: transparent;
-  color: var(--accent);
+  color: var(--ink);
   text-decoration: none;
   cursor: pointer;
 }
 
-button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-trigger):not(.book-shelf-more-button):hover, .button:not(.graph-tool):hover, a.button:hover {
-  background: rgba(78,204,163,.08);
-  color: var(--accent-2);
+button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-trigger):not(.book-shelf-more-button):not(.typo-btn):not(.typo-btn-choice):not(.search-modal-close):hover, .button:not(.graph-tool):hover, a.button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
-button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-trigger):not(.book-shelf-more-button):focus-visible, .button:not(.graph-tool):focus-visible, a.button:focus-visible {
+button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-trigger):not(.book-shelf-more-button):not(.typo-btn):not(.typo-btn-choice):not(.search-modal-close):focus-visible, .button:not(.graph-tool):focus-visible, a.button:focus-visible {
   outline: 2px dashed var(--accent);
   outline-offset: 3px;
 }
@@ -2880,7 +2880,7 @@ body.search-active {
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 0;
   padding: 0.35rem 0.65rem;
   background: transparent;
   color: var(--ink-dim);
@@ -3665,60 +3665,65 @@ html.infra-mode .infra-raw-block {
 .typo-btn {
   flex: 1;
   min-height: 40px;
-  border: 1px solid var(--line);
-  border-radius: 0.375rem;
-  background: var(--bg);
-  color: var(--ink);
-  padding: 0.375rem 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-dim);
+  padding: 0.375rem 0.05rem;
   font-size: 0.8rem;
   cursor: pointer;
-  transition: background-color 0.16s var(--ease-out), border-color 0.16s var(--ease-out), color 0.16s var(--ease-out), transform 0.16s var(--ease-out);
+  transition: color 0.16s var(--ease-out);
   font-weight: 600;
 }
 
 .typo-btn:hover {
-  border-color: var(--accent);
   color: var(--accent);
-  background: rgba(78,204,163,.05);
 }
 
 .typo-btn:active {
   transform: scale(0.96);
 }
 
+.typo-btn + .typo-btn::before {
+  content: "·";
+  margin-right: 0.38rem;
+  color: var(--ink-muted);
+}
+
 .typo-btn-choice {
   flex: 1;
   min-height: 40px;
   text-align: center;
-  border: 1px solid var(--line);
-  border-radius: 0.375rem;
-  background: var(--bg);
-  color: var(--ink);
-  padding: 0.375rem 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-dim);
+  padding: 0.375rem 0.05rem;
   font-size: 0.8rem;
   cursor: pointer;
-  transition: background-color 0.16s var(--ease-out), border-color 0.16s var(--ease-out), color 0.16s var(--ease-out), transform 0.16s var(--ease-out);
+  transition: color 0.16s var(--ease-out);
   font-weight: 600;
 }
 
 .typo-btn-choice:hover {
-  border-color: var(--accent);
-  background: rgba(78,204,163,.05);
+  color: var(--accent);
 }
 
 .typo-btn-choice:active {
   transform: scale(0.96);
 }
 
+.typo-btn-choice + .typo-btn-choice::before {
+  content: "·";
+  margin-right: 0.38rem;
+  color: var(--ink-muted);
+}
+
 .typo-btn-choice.is-active {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: var(--bg) !important;
+  color: var(--accent);
   font-weight: 700;
 }
 
 .typo-btn-choice.is-active span {
-  color: var(--bg) !important;
+  color: inherit;
 }
 
 /* Font preview text family helpers */
