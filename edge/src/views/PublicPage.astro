@@ -264,6 +264,7 @@ const description = model.description || undefined;
       lang={lang}
       authorMode={authorMode}
       notebook={page.sourcePath?.replace(/\/_index\.md$/, "")}
+      editorial={page.section === "posts"}
     />
   )}
 

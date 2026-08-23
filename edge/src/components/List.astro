@@ -11,6 +11,7 @@ interface Props {
   authorMode?: boolean;
   notebook?: string;
   showTags?: boolean;
+  editorial?: boolean;
 }
 
 const {
@@ -21,9 +22,35 @@ const {
   authorMode = false,
   notebook,
   showTags = true,
+  editorial = false,
 } = Astro.props;
 const visibleItems = items.filter((item) => !item.hidden);
 const addLabel = lang === "es" ? "Nuevo post" : "New post";
+const monthAbbreviations = lang === "es"
+  ? ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
+  : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const undatedLabel = lang === "es" ? "Sin fecha" : "Undated";
+
+function editorialDate(value: ContentListItem["date"]) {
+  const match = displayDate(value).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+  return {
+    year: match[1],
+    day: `${monthAbbreviations[Number(match[2]) - 1]} ${Number(match[3])}`,
+  };
+}
+
+const editorialGroups: { year: string | null; rows: { item: ContentListItem; day: string }[] }[] = [];
+for (const item of visibleItems) {
+  const date = editorialDate(item.date);
+  const year = date?.year ?? null;
+  let group = editorialGroups[editorialGroups.length - 1];
+  if (!group || group.year !== year) {
+    group = { year, rows: [] };
+    editorialGroups.push(group);
+  }
+  group.rows.push({ item, day: date?.day || displayDate(item.date) || undatedLabel });
+}
 ---
 
 <header class="page-header">
@@ -46,17 +73,48 @@ const addLabel = lang === "es" ? "Nuevo post" : "New post";
   {description && <p class="lead">{description}</p>}
 </header>
 
-<section class="post-list">
-  {visibleItems.map((item) => (
-    <article class="post-card">
-      <div class="post-card-top">
-        <div class="post-card-meta">{displayDate(item.date)}</div>
+{editorial ? (
+  <section class="writing-index" data-writing-index>
+    {editorialGroups.map((group) => (
+      <div class="writing-index-year">
+        <h2 class="writing-index-year-mark">{group.year || undatedLabel}</h2>
+        <div class="writing-index-rows">
+          {group.rows.map(({ item, day }) => (
+            <article class="writing-index-row">
+              <span class="writing-index-date">{day}</span>
+              <div class="writing-index-main">
+                <h3 class="writing-index-title"><a href={item.href}>{item.title}</a></h3>
+                {item.summary && <p class="writing-index-summary">{item.summary}</p>}
+              </div>
+              {showTags && (item.tags?.length ?? 0) > 0 && (
+                <p class="writing-index-tags">
+                  {(item.tags ?? []).slice(0, 2).map((tag, tagIndex) => (
+                    <>
+                      {tagIndex > 0 && <span aria-hidden="true"> · </span>}
+                      <a href={tag.href}>{tag.label}</a>
+                    </>
+                  ))}
+                </p>
+              )}
+            </article>
+          ))}
+        </div>
       </div>
-      <h2><a href={item.href}>{item.title}</a></h2>
-      {showTags && <TagList tags={item.tags} lang={lang} />}
-      {!showTags && item.summaryHtml
-        ? <Fragment set:html={item.summaryHtml} />
-        : item.summary && <p class="post-summary">{item.summary}</p>}
-    </article>
-  ))}
-</section>
+    ))}
+  </section>
+) : (
+  <section class="post-list">
+    {visibleItems.map((item) => (
+      <article class="post-card">
+        <div class="post-card-top">
+          <div class="post-card-meta">{displayDate(item.date)}</div>
+        </div>
+        <h2><a href={item.href}>{item.title}</a></h2>
+        {showTags && <TagList tags={item.tags} lang={lang} />}
+        {!showTags && item.summaryHtml
+          ? <Fragment set:html={item.summaryHtml} />
+          : item.summary && <p class="post-summary">{item.summary}</p>}
+      </article>
+    ))}
+  </section>
+)}

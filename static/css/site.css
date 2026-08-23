@@ -1007,6 +1007,121 @@ h3 { font-size: 1.2rem; color: var(--ink); }
   gap: 18px;
 }
 
+/* Writing index (Escritos editorial index) */
+.writing-index {
+  display: grid;
+  gap: 2.4rem;
+}
+
+.writing-index-year-mark {
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+  margin: 0 0 0.2rem;
+  font-size: 1.55rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.writing-index-year-mark::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid var(--line);
+  transform: translateY(-0.32rem);
+}
+
+.writing-index-row {
+  display: grid;
+  grid-template-columns: 4.6rem minmax(0, 1fr) auto;
+  gap: 0 1.1rem;
+  align-items: baseline;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.writing-index-rows .writing-index-row:last-child {
+  border-bottom: 0;
+}
+
+.writing-index-date {
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.writing-index-title {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
+.writing-index-title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.writing-index-title a:hover {
+  color: var(--accent);
+}
+
+.writing-index-title a:focus-visible {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+
+.writing-index-summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  margin: 0.2rem 0 0;
+  color: var(--ink-dim);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.writing-index-tags {
+  margin: 0;
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.writing-index-tags a {
+  color: var(--ink-muted);
+  text-decoration: none;
+}
+
+.writing-index-tags a:hover {
+  color: var(--accent);
+}
+
+.writing-index-tags span {
+  color: var(--ink-muted);
+}
+
+@media (max-width: 720px) {
+  .writing-index {
+    gap: 1.8rem;
+  }
+
+  .writing-index-row {
+    grid-template-columns: 3.6rem minmax(0, 1fr);
+    gap: 0 0.8rem;
+    padding: 0.65rem 0;
+  }
+
+  .writing-index-tags {
+    grid-column: 2;
+    white-space: normal;
+  }
+
+  .writing-index-summary {
+    -webkit-line-clamp: 2;
+  }
+}
+
 /* Quotes index */
 .content-column--quotes-index .content-inner {
   max-width: none;
