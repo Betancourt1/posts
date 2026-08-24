@@ -355,6 +355,87 @@ async function runDraftRestoreCase(browser, origin) {
   }
 }
 
+async function coordinateClick(page, selector) {
+  const box = await page.locator(selector).boundingBox();
+  assert.ok(box, `${selector} debe tener dimensiones visibles`);
+  const point = {
+    x: box.x + (box.width / 2),
+    y: box.y + (box.height / 2),
+  };
+  const hitTarget = await page.evaluate(({ x, y }) => {
+    const target = document.elementFromPoint(x, y);
+    return target?.id || target?.closest("[id]")?.id || "";
+  }, point);
+  await page.mouse.click(point.x, point.y);
+  return hitTarget;
+}
+
+async function runGrayscalePropertiesCase(browser, origin) {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const page = await context.newPage();
+
+  try {
+    const query = new URLSearchParams({
+      mode: "edit",
+      path: "content_es/posts/2026/julio/nota-de-prueba.md",
+      kind: "post",
+      theme: "dark",
+      grayscale: "true",
+    });
+    await page.goto(`${origin}/editor?${query}`, { waitUntil: "domcontentloaded" });
+    await waitForEditor(page);
+
+    await page.locator("#top-settings-button").click();
+    await page.locator("#settings").waitFor({ state: "visible" });
+
+    assert.equal(await coordinateClick(page, "#tags"), "tags");
+    await page.keyboard.type(", interaction");
+    assert.match(await page.locator("#tags").inputValue(), /interaction/);
+    assert.equal(await page.locator("#settings").isVisible(), true);
+
+    const previousSize = await page.locator("#editor-font-size").inputValue();
+    assert.equal(await coordinateClick(page, "#editor-font-size"), "editor-font-size");
+    await page.locator("#editor-font-size").selectOption(previousSize === "small" ? "medium" : "small");
+    assert.notEqual(await page.locator("#editor-font-size").inputValue(), previousSize);
+    assert.equal(await page.locator("#settings").isVisible(), true);
+
+    const previousVisibility = await page.locator("#hidden").isChecked();
+    assert.equal(await coordinateClick(page, "#hidden"), "hidden");
+    assert.equal(await page.locator("#hidden").isChecked(), !previousVisibility);
+    assert.equal(await page.locator("#settings").isVisible(), true);
+
+    assert.equal(await coordinateClick(page, "#settings-close"), "settings-close");
+    await page.locator("#settings").waitFor({ state: "hidden" });
+
+    await page.locator("#top-settings-button").click();
+    assert.equal(await page.evaluate(() => document.elementFromPoint(10, 90)?.id), "settings-backdrop");
+    await page.mouse.click(10, 90);
+    await page.locator("#settings").waitFor({ state: "hidden" });
+
+    await page.locator("#top-settings-button").click();
+    await page.locator("#arena-inline-details").scrollIntoViewIfNeeded();
+    assert.equal(await coordinateClick(page, "#arena-inline-details"), "arena-inline-details");
+    await page.locator("#settings").waitFor({ state: "hidden" });
+    await page.locator("#arena-details").waitFor({ state: "visible" });
+    assert.equal(await page.evaluate(() => document.elementFromPoint(80, 30)?.id), "arena-details-backdrop");
+    assert.equal(await coordinateClick(page, "#arena-details-close"), "arena-details-close");
+    await page.locator("#arena-details").waitFor({ state: "hidden" });
+
+    await page.locator("#top-settings-button").click();
+    await page.locator("#arena-inline-details").scrollIntoViewIfNeeded();
+    await coordinateClick(page, "#arena-inline-details");
+    assert.equal(await page.evaluate(() => document.elementFromPoint(80, 30)?.id), "arena-details-backdrop");
+    await page.mouse.click(80, 30);
+    await page.locator("#arena-details").waitFor({ state: "hidden" });
+  } catch (error) {
+    const screenshotPath = "/tmp/posts-editor-harness-grayscale-properties.png";
+    await page.screenshot({ path: screenshotPath, fullPage: true }).catch(() => {});
+    throw new Error(`${error.message}\nCaptura: ${screenshotPath}`, { cause: error });
+  } finally {
+    await context.close();
+  }
+}
+
 async function main() {
   const savedRequests = [];
   const { server, origin } = await startHarnessServer(savedRequests);
@@ -394,8 +475,10 @@ async function main() {
       }
     }
     await runDraftRestoreCase(browser, origin);
+    await runGrayscalePropertiesCase(browser, origin);
     console.log(`Editor harness: ${fixtures.length * viewports.length} escenarios correctos.`);
     console.log("Autoguardado local: restauración y descarte comprobados.");
+    console.log("Propiedades móviles en escala de grises: controles y cierres comprobados.");
     console.log(`Guardados aislados comprobados: ${savedRequests.length}.`);
   } finally {
     await browser.close();

@@ -1666,7 +1666,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         <textarea class="markdown-input" id="markdown-canvas" aria-label="Markdown del documento" spellcheck="false" hidden></textarea>
       </article>
     </section>
-    <aside class="settings" id="settings" hidden>
+  </main>
+  <aside class="settings" id="settings" hidden>
       <div class="settings-header">
         <h2 id="settings-title">Propiedades</h2>
         <div class="settings-header-actions">
@@ -1794,8 +1795,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         <a class="arena-block-link" id="arena-block-link" href="#" target="_blank" rel="noopener" hidden>Abrir bloque de texto en Are.na ↗</a>
         <button type="button" class="arena-details-retry" id="arena-details-retry" hidden>Reintentar</button>
       </div>
-    </aside>
-  </main>
+  </aside>
   <script src="${EDITOR_CORE_URL}"></script>
   <script>
     (function () {

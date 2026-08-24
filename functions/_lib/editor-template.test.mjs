@@ -66,6 +66,9 @@ test("text editor injects its API base and cannot save before content hydration"
   assert.match(html, /function syncSheetLock\(\)/);
   assert.match(html, /max\(1rem, var\(--editor-body-size\)\)/);
   assert.doesNotMatch(html, /button\[data-format="(?:bold|italic|strike|code|heading|ol)"\][\s\S]{0,80}display: none/);
+  assert.match(html, /id="settings-backdrop"[^>]*><\/button>\s*<button[^>]*id="arena-details-backdrop"[^>]*><\/button>\s*<main class="shell">/);
+  assert.match(html, /<main class="shell">\s*<section class="writer">[\s\S]*?<\/section>\s*<\/main>\s*<aside class="settings"/);
+  assert.match(html, /<\/aside>\s*<aside class="arena-details"/);
   assert.match(html, /els\.arenaChannel\.value = preferredId \|\| String\(arenaChannels\[0\]\.id\)/);
   assert.match(html, /function redirectToNotebook\(\)/);
   assert.match(html, /return syncArenaAfterSave\(\);[\s\S]{0,500}redirectToNotebook\(\);/);
