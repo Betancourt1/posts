@@ -5,7 +5,7 @@ draft: false
 tags:
   - quote
   - philosophy
-  - aphorism
+  - aphorisms
   - mortality
 summary: "Estamos todos en el fondo de un infierno, cada instante del cual es un milagro."
 quotes:
