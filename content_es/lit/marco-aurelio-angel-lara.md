@@ -5,7 +5,7 @@ draft: false
 tags:
   - quote
   - philosophy
-  - aphorism
+  - aphorisms
   - identity
 summary: "El destino más triste de un hombre es llegar a ser un tonto por lo que sueña."
 quotes:
