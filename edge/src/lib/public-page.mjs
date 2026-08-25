@@ -1,5 +1,6 @@
 import {
   archiveItems,
+  archiveMonthCounts,
   backlinks,
   documentTags,
   latestSyncTimestamp,
@@ -58,15 +59,18 @@ export function archiveMonths(items) {
 }
 
 async function siteChrome(db, lang, archives = null, options = {}) {
-  const [navigation, allArchives, updatedAt] = await Promise.all([
+  const archiveMonthsPromise = archives === null
+    ? archiveMonthCounts(db, lang, options)
+    : Promise.resolve(archiveMonths(archives));
+  const [navigation, monthlyArchives, updatedAt] = await Promise.all([
     navSections(db, lang, options),
-    archives ? Promise.resolve(archives) : archiveItems(db, lang, options),
+    archiveMonthsPromise,
     latestSyncTimestamp(db),
   ]);
 
   return {
     navigation,
-    archiveMonths: archiveMonths(allArchives),
+    archiveMonths: monthlyArchives,
     updatedAt,
   };
 }

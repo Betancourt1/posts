@@ -7,6 +7,7 @@ import { Miniflare } from "miniflare";
 
 import {
   archiveItems,
+  archiveMonthCounts,
   backlinks,
   documentTags,
   graphRows,
@@ -23,6 +24,11 @@ import {
   translationPeer,
 } from "../src/lib/content-queries.mjs";
 import { projectSource } from "../src/lib/content-projector.mjs";
+import {
+  archiveMonths,
+  loadNotFoundPage,
+  loadPublicPage,
+} from "../src/lib/public-page.mjs";
 import {
   finishProjection,
   replaceProjectedSource,
@@ -91,6 +97,12 @@ draft: false
 ---
 Archives.
 `],
+    ["content_es/archives/_index.md", `---
+title: Archivos
+draft: false
+---
+Archivos.
+`],
     ["content_en/tags/_index.md", `---
 title: Tags
 draft: false
@@ -103,6 +115,19 @@ draft: true
 hidden: true
 ---
 Hidden section.
+`],
+    ["content_en/draft-only/_index.md", `---
+title: Draft only
+draft: true
+---
+Draft navigation section.
+`],
+    ["content_en/hidden-only/_index.md", `---
+title: Hidden only
+draft: false
+hidden: true
+---
+Hidden navigation section.
 `],
     [
       "content_en/guestbook/_index.md",
@@ -194,6 +219,19 @@ tags: [ethics]
   return { db, miniflare };
 }
 
+function tracedDatabase(db) {
+  const queries = [];
+  return {
+    queries,
+    db: {
+      prepare(query) {
+        queries.push(String(query));
+        return db.prepare(query);
+      },
+    },
+  };
+}
+
 test("normalizes request routes without changing file-like paths", () => {
   assert.equal(normalizeRoute("posts//ethical-data?view=raw"), "/posts/ethical-data/");
   assert.equal(normalizeRoute("//posts///ethical-data"), "/posts/ethical-data/");
@@ -277,14 +315,50 @@ test("reads the projected public site through the real D1 API", async (t) => {
     const sectionWithBody = await sectionItems(db, "en", "posts", { body: true });
     assert.match(sectionWithBody[0].bodyMarkdown, /Ethical systems need care/);
 
+    const navigation = await navSections(db, "en");
+    assert.deepEqual(navigation.map((document) => document.title), [
+      "Books",
+      "Guestbook",
+      "Home",
+      "Writing",
+    ]);
+    assert.deepEqual(Object.keys(navigation[0]).sort(), ["path", "section", "title"]);
     assert.deepEqual(
-      (await navSections(db, "en")).map((document) => document.title),
-      ["Books", "Guestbook", "Home", "Writing"],
+      (await navSections(db, "en", { includeDrafts: true })).map(({ title }) => title),
+      ["Books", "Draft only", "Guestbook", "Home", "Writing"],
     );
     assert.deepEqual(
-      (await archiveItems(db, "en")).map(({ title, year }) => [title, year]),
+      (await navSections(db, "en", { includeHidden: true })).map(({ title }) => title),
+      ["Books", "Guestbook", "Hidden only", "Home", "Writing"],
+    );
+    assert.deepEqual(
+      (await navSections(db, "en", { includeDrafts: true, includeHidden: true }))
+        .map(({ title }) => title),
+      ["Books", "Draft only", "Guestbook", "Hidden only", "Home", "Writing", "Zettelkasten"],
+    );
+
+    const archives = await archiveItems(db, "en");
+    assert.deepEqual(
+      archives.map(({ title, year }) => [title, year]),
       [["Ethical Data", "2026"], ["Destination", "2026"]],
     );
+    assert.equal(archives[0].frontMatter.translationKey, "ethical-data");
+    assert.deepEqual(archives[0].tags.map(({ label }) => label), ["ethics", "book"]);
+
+    for (const lang of ["en", "es"]) {
+      for (const options of [
+        {},
+        { includeDrafts: true },
+        { includeHidden: true },
+        { includeDrafts: true, includeHidden: true },
+      ]) {
+        assert.deepEqual(
+          await archiveMonthCounts(db, lang, options),
+          archiveMonths(await archiveItems(db, lang, options)),
+          `${lang} archive counts must preserve ${JSON.stringify(options)} visibility`,
+        );
+      }
+    }
 
     const tags = await tagIndex(db, "en");
     assert.equal(tags.find((tag) => tag.slug === "ethics").count, 1);
@@ -347,4 +421,100 @@ test("reads the projected public site through the real D1 API", async (t) => {
     );
     assert.equal(await latestSyncTimestamp(db), "2026-07-14 04:00:00");
   });
+
+  await t.test("uses aggregate archive counts only for shared page chrome", async () => {
+    const aggregateQuery = (query) => query.includes("WITH archive_rows AS");
+    const fullArchiveQuery = (query) => query.includes("END AS year");
+
+    for (const [label, load] of [
+      ["normal page", (tracedDb) => loadPublicPage(tracedDb, "/posts/ethical-data/")],
+      ["Spanish page", (tracedDb) => loadPublicPage(tracedDb, "/es/posts/datos-eticos/")],
+      ["admin draft page", (tracedDb) => loadPublicPage(
+        tracedDb,
+        "/posts/draft-link/",
+        { includeDrafts: true },
+      )],
+      ["tag page", (tracedDb) => loadPublicPage(tracedDb, "/tags/ethics/")],
+      ["not-found page", (tracedDb) => loadNotFoundPage(tracedDb, "/missing/")],
+    ]) {
+      const trace = tracedDatabase(db);
+      const model = await load(trace.db);
+      assert.ok(model, `${label} should load`);
+      assert.equal(trace.queries.filter(aggregateQuery).length, 1, `${label} should aggregate months`);
+      assert.equal(trace.queries.filter(fullArchiveQuery).length, 0, `${label} should not hydrate archives`);
+    }
+
+    for (const route of ["/archives/", "/es/archives/"]) {
+      const trace = tracedDatabase(db);
+      const archivePage = await loadPublicPage(trace.db, route);
+      assert.ok(archivePage, `${route} should load`);
+      assert.equal(trace.queries.filter(aggregateQuery).length, 0);
+      assert.equal(trace.queries.filter(fullArchiveQuery).length, 1);
+      assert.deepEqual(archivePage.archiveMonths, archiveMonths(archivePage.items));
+      assert.ok(archivePage.items[0].tags.length > 0);
+    }
+  });
+});
+
+test("archive month aggregation preserves ordering, validation, and input limits", async (t) => {
+  const { db, miniflare } = await testDatabase();
+  t.after(() => miniflare.dispose());
+
+  const extraSources = Array.from({ length: 14 }, (_, index) => {
+    const date = new Date(Date.UTC(2025, index, 15)).toISOString().slice(0, 10);
+    return [`content_en/posts/month-${index}.md`, `---
+title: Month ${index}
+date: ${date}
+draft: false
+---
+Monthly fixture.
+`];
+  });
+  extraSources.push(
+    ["content_en/posts/malformed-date.md", `---
+title: Malformed date
+date: not-a-date
+draft: false
+---
+Malformed date fixture.
+`],
+    ["content_en/posts/short-month.md", `---
+title: Short month
+date: 2026-7-01
+draft: false
+---
+Short month fixture.
+`],
+    ["content_en/posts/undated.md", `---
+title: Undated
+draft: false
+---
+Undated fixture.
+`],
+  );
+
+  for (const [index, [path, rawMarkdown]] of extraSources.entries()) {
+    await replaceProjectedSource(db, projectSource({
+      path,
+      rawMarkdown,
+      blobSha: `extra-blob-${index}`,
+      commitSha: "extra-fixture-commit",
+      projectorVersion: "1",
+    }), null);
+  }
+  await finishProjection(db);
+
+  for (const options of [{}, { limit: 5 }, { limit: 1000 }, { limit: 5000 }]) {
+    assert.deepEqual(
+      await archiveMonthCounts(db, "en", options),
+      archiveMonths(await archiveItems(db, "en", options)),
+      `aggregate must match capped archive input for ${JSON.stringify(options)}`,
+    );
+  }
+
+  const months = await archiveMonthCounts(db, "en");
+  assert.equal(months.length, 12);
+  assert.deepEqual(months, [...months].sort((left, right) => right.key.localeCompare(left.key)));
+  assert.ok(months.every(({ key }) => /^\d{4}-\d{2}$/.test(key)));
+  assert.ok(months.every(({ count }) => typeof count === "number"));
 });

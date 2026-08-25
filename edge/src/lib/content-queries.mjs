@@ -256,7 +256,8 @@ export async function navSections(db, lang, options = {}) {
   const { includeDrafts, includeHidden } = visibilityOptions(options);
   const result = await db.prepare(`
     SELECT
-      ${documentColumns("d")},
+      d.title,
+      d.section,
       canonical.path AS path
     FROM documents AS d
     JOIN routes AS canonical
@@ -276,7 +277,7 @@ export async function navSections(db, lang, options = {}) {
     ORDER BY d.title COLLATE NOCASE, canonical.path
   `).bind(language(lang), includeDrafts, includeHidden).all();
 
-  return hydrateDocuments(result);
+  return result.results || [];
 }
 
 export async function archiveItems(db, lang, options = {}) {
@@ -309,6 +310,43 @@ export async function archiveItems(db, lang, options = {}) {
   `).bind(language(lang), includeDrafts, includeHidden, limit).all();
 
   return hydrateDocuments(result);
+}
+
+export async function archiveMonthCounts(db, lang, options = {}) {
+  const { includeDrafts, includeHidden } = visibilityOptions(options);
+  const limit = positiveLimit(options.limit, 1000);
+  const result = await db.prepare(`
+    WITH archive_rows AS (
+      SELECT substr(d.date, 1, 7) AS month
+      FROM documents AS d
+      JOIN routes AS canonical
+        ON canonical.document_id = d.id
+       AND canonical.kind = 'canonical'
+      WHERE d.lang = ?
+        AND d.kind = 'page'
+        AND d.section <> ''
+        AND d.section <> 'about'
+        AND (? = 1 OR d.draft = 0)
+        AND (? = 1 OR d.hidden = 0)
+      ORDER BY
+        CASE WHEN d.date IS NULL OR d.date = '' THEN 1 ELSE 0 END,
+        d.date DESC,
+        d.title COLLATE NOCASE DESC,
+        canonical.path DESC
+      LIMIT ?
+    )
+    SELECT month AS key, COUNT(*) AS count
+    FROM archive_rows
+    WHERE month GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]'
+    GROUP BY month
+    ORDER BY month DESC
+    LIMIT 12
+  `).bind(language(lang), includeDrafts, includeHidden, limit).all();
+
+  return (result.results || []).map(({ key, count }) => ({
+    key,
+    count: Number(count),
+  }));
 }
 
 export async function recentPosts(db, lang, options = {}) {
