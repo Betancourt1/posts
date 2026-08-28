@@ -10,6 +10,8 @@ book_author: "Todd  May"
 book_status: "read"
 goodreads_id: "25315499"
 goodreads_url: "https://www.goodreads.com/book/show/25315499"
+image: "https://images-na.ssl-images-amazon.com/images/P/9781844651646.01.LZZZZZZZ.jpg"
+image_alt: "La muerte: Una reflexión filosófica — Todd  May"
 rating: 5
 date_read: 2022-10-17
 date_added: 2025-12-30

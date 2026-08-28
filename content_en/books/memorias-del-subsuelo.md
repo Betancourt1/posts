@@ -10,6 +10,8 @@ book_author: "Fyodor Dostoevsky"
 book_status: "read"
 goodreads_id: "517406"
 goodreads_url: "https://www.goodreads.com/book/show/517406"
+image: "https://images-na.ssl-images-amazon.com/images/P/9788493347390.01.LZZZZZZZ.jpg"
+image_alt: "Memorias del subsuelo — Fyodor Dostoevsky"
 additional_authors: ["Rafael Cañete"]
 rating: 5
 date_read: 2018-05-12

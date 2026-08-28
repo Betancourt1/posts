@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 
 import {
@@ -12,6 +12,7 @@ const booksPath = new URL("../src/components/Books.astro", import.meta.url);
 const bookRowPath = new URL("../src/components/BookRow.astro", import.meta.url);
 const layoutPath = new URL("../src/layouts/SiteLayout.astro", import.meta.url);
 const siteCssPath = new URL("../../static/css/site.css", import.meta.url);
+const booksContentPath = new URL("../../content_en/books/", import.meta.url);
 
 test("reveals books in independent batches of six", () => {
   assert.equal(BOOK_BATCH_SIZE, 6);
@@ -53,8 +54,23 @@ test("renders hidden rows and a progressive button for each shelf", async () => 
   assert.doesNotMatch(books, /<details|<summary/);
   assert.match(bookRow, /data-book-extra=\{initiallyHidden/);
   assert.match(bookRow, /hidden=\{initiallyHidden\}/);
+  assert.match(bookRow, /book\.image/);
+  assert.match(bookRow, /loading="lazy"/);
   assert.match(layout, /isBooks[\s\S]*type="module" src="\/js\/books\.js"/);
   assert.match(css, /\.book-shelf-row\[hidden\]\s*\{\s*display:\s*none;/);
   assert.match(css, /\.book-shelf-more-button:focus-visible/);
+  assert.match(css, /\.book-cover img/);
   assert.doesNotMatch(css, /\.book-shelf-more summary|\.book-shelf-more:not\(\[open\]\)/);
+});
+
+test("every registered book has a direct HTTPS cover and accessible image text", async () => {
+  const names = (await readdir(booksContentPath))
+    .filter((name) => name.endsWith(".md") && name !== "_index.md");
+  assert.equal(names.length, 97);
+
+  for (const name of names) {
+    const markdown = await readFile(new URL(name, booksContentPath), "utf8");
+    assert.match(markdown, /^image: "https:\/\/.+"$/m, name);
+    assert.match(markdown, /^image_alt: ".+"$/m, name);
+  }
 });

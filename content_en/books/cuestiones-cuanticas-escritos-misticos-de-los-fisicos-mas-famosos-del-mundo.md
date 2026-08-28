@@ -10,6 +10,8 @@ book_author: "Ken Wilber"
 book_status: "read"
 goodreads_id: "7870634"
 goodreads_url: "https://www.goodreads.com/book/show/7870634"
+image: "https://images-na.ssl-images-amazon.com/images/P/9788472451728.01.LZZZZZZZ.jpg"
+image_alt: "Cuestiones cuánticas. Escritos místicos de los físicos más famosos del mundo — Ken Wilber"
 additional_authors: ["Pedro de Casso García"]
 rating: 5
 date_read: 2023-07-01

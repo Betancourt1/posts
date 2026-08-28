@@ -10,6 +10,8 @@ book_author: "Giorgio Nardone"
 book_status: "read"
 goodreads_id: "22241807"
 goodreads_url: "https://www.goodreads.com/book/show/22241807"
+image: "https://images-na.ssl-images-amazon.com/images/P/9788868330583.01.LZZZZZZZ.jpg"
+image_alt: "L'arte di mentire a se stessi e agli altri — Giorgio Nardone"
 rating: 4
 date_read: 2021-09-16
 date_added: 2025-12-30

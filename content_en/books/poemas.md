@@ -10,6 +10,8 @@ book_author: "Hannah Arendt"
 book_status: "read"
 goodreads_id: "36891927"
 goodreads_url: "https://www.goodreads.com/book/show/36891927"
+image: "https://images-na.ssl-images-amazon.com/images/P/9788425439803.01.LZZZZZZZ.jpg"
+image_alt: "Poemas — Hannah Arendt"
 additional_authors: ["José Aigner", "Isabel Baraona"]
 rating: 5
 date_read: 2021-08-15

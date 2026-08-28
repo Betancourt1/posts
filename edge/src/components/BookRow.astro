@@ -26,9 +26,16 @@ const opinion = book.review ? plainExcerpt(book.review) : "";
   data-book-extra={initiallyHidden ? "" : undefined}
   hidden={initiallyHidden}
 >
-  <div class="book-identity">
-    <h3><a href={book.href}>{book.title}</a></h3>
-    {book.author && <p>{book.author}</p>}
+  <div class="book-row-main">
+    {book.image && (
+      <a class="book-cover" href={book.href} tabindex="-1" aria-hidden="true">
+        <img src={book.image} alt={book.imageAlt || ""} loading="lazy" decoding="async" />
+      </a>
+    )}
+    <div class="book-identity">
+      <h3><a href={book.href}>{book.title}</a></h3>
+      {book.author && <p>{book.author}</p>}
+    </div>
   </div>
   <div class="book-progress">
     <span class="book-progress-label">{progressLabel}</span>

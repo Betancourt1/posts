@@ -10,6 +10,8 @@ book_author: "Aura García-Junco"
 book_status: "read"
 goodreads_id: "242036378"
 goodreads_url: "https://www.goodreads.com/book/show/242036378"
+image: "https://images-na.ssl-images-amazon.com/images/P/9786072647060.01.LZZZZZZZ.jpg"
+image_alt: "Cuando hablamos de amor — Aura García-Junco"
 rating: 5
 date_read: 2025-12-31
 date_added: 2025-12-24

@@ -10,6 +10,8 @@ book_author: "Pablo Stefanoni"
 book_status: "read"
 goodreads_id: "56871504"
 goodreads_url: "https://www.goodreads.com/book/show/56871504"
+image: "https://images-na.ssl-images-amazon.com/images/P/9789878010533.01.LZZZZZZZ.jpg"
+image_alt: "¿La rebeldía se volvió de derecha?: cómo el antiprogresismo y la anticorrección política están construyendo un nuevo sentido común (y por qué la izquierda debería tomarlos en serio) — Pablo Stefanoni"
 rating: 3
 date_read: 2025-06-03
 date_added: 2025-02-21

@@ -10,6 +10,8 @@ book_author: "Emil M. Cioran"
 book_status: "read"
 goodreads_id: "594049"
 goodreads_url: "https://www.goodreads.com/book/show/594049"
+image: "https://images-na.ssl-images-amazon.com/images/P/9788483108161.01.LZZZZZZZ.jpg"
+image_alt: "Ese maldito yo — Emil M. Cioran"
 rating: 5
 date_read: 2024-06-15
 date_added: 2025-03-02

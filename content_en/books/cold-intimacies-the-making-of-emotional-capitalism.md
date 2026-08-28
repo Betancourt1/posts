@@ -3,6 +3,8 @@ title: "Cold Intimacies: The Making of Emotional Capitalism"
 date: 2026-01-04
 tags: ["book","currently-reading","capitalism","relationships","sociology"]
 summary: "By Eva Illouz · Reading"
+image: "https://images-na.ssl-images-amazon.com/images/P/9780745639055.01.LZZZZZZZ.jpg"
+image_alt: "Cold Intimacies: The Making of Emotional Capitalism — Eva Illouz"
 binding: "Paperback"
 book_author: "Eva Illouz"
 book_progress: "20"

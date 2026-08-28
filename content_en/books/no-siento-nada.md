@@ -10,6 +10,8 @@ book_author: "Liv Strömquist"
 book_status: "read"
 goodreads_id: "58103907"
 goodreads_url: "https://www.goodreads.com/book/show/58103907"
+image: "https://images-na.ssl-images-amazon.com/images/P/9788418052026.01.LZZZZZZZ.jpg"
+image_alt: "No siento nada — Liv Strömquist"
 additional_authors: ["Alba Pagán"]
 rating: 5
 date_read: 2023-07-17

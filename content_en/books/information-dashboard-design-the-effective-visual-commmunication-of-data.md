@@ -3,6 +3,8 @@ title: "Information Dashboard Design: The Effective Visual Commmunication of Dat
 date: 2025-12-24
 tags: ["book", "read", "data-visualization", "technology", "design"]
 summary: "By Stephen Few · Read"
+image: "https://images-na.ssl-images-amazon.com/images/P/9780596100162.01.LZZZZZZZ.jpg"
+image_alt: "Information Dashboard Design: The Effective Visual Commmunication of Data — Stephen Few"
 binding: "Paperback"
 book_author: "Stephen Few"
 book_progress: "100"

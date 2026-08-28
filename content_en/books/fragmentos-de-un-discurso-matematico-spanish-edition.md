@@ -10,6 +10,8 @@ book_author: "Pablo Amster"
 book_status: "read"
 goodreads_id: "6903942"
 goodreads_url: "https://www.goodreads.com/book/show/6903942"
+image: "https://images-na.ssl-images-amazon.com/images/P/9789505577361.01.LZZZZZZZ.jpg"
+image_alt: "Fragmentos de un discurso matemático (Spanish Edition) — Pablo Amster"
 rating: 5
 date_read: 2021-01-16
 date_added: 2025-12-30

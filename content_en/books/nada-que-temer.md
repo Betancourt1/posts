@@ -10,6 +10,8 @@ book_author: "Julian Barnes"
 book_status: "read"
 goodreads_id: "8994891"
 goodreads_url: "https://www.goodreads.com/book/show/8994891"
+image: "https://images-na.ssl-images-amazon.com/images/P/9788433975263.01.LZZZZZZZ.jpg"
+image_alt: "Nada que temer — Julian Barnes"
 additional_authors: ["Jaime Zulaika"]
 rating: 5
 date_read: 2022-10-30

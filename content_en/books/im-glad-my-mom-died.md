@@ -10,6 +10,8 @@ book_author: "Jennette McCurdy"
 book_status: "to-read"
 goodreads_id: "59366244"
 goodreads_url: "https://www.goodreads.com/book/show/59366244"
+image: "https://images-na.ssl-images-amazon.com/images/P/9781982185824.01.LZZZZZZZ.jpg"
+image_alt: "I'm Glad My Mom Died — Jennette McCurdy"
 date_added: 2026-07-11
 bookshelves: ["to-read"]
 publication_year: 2022

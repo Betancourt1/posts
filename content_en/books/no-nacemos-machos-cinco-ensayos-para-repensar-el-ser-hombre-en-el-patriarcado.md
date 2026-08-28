@@ -10,6 +10,8 @@ book_author: "Guadalupe Rivera"
 book_status: "read"
 goodreads_id: "35279414"
 goodreads_url: "https://www.goodreads.com/book/show/35279414"
+image: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1497387868i/35279414.jpg"
+image_alt: "No nacemos machos. Cinco ensayos para repensar el ser hombre en el patriarcado — Guadalupe Rivera"
 rating: 5
 date_read: 2025-02-26
 date_added: 2025-02-26

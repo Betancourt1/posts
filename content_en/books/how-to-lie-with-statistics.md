@@ -10,6 +10,8 @@ book_author: "Darrell Huff"
 book_status: "read"
 goodreads_id: "51291"
 goodreads_url: "https://www.goodreads.com/book/show/51291"
+image: "https://images-na.ssl-images-amazon.com/images/P/9780393310726.01.LZZZZZZZ.jpg"
+image_alt: "How to Lie with Statistics — Darrell Huff"
 additional_authors: ["Irving Geis"]
 date_read: 2024-05-13
 date_added: 2025-02-17

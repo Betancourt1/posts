@@ -10,6 +10,8 @@ book_author: "Cole Nussbaumer Knaflic"
 book_status: "read"
 goodreads_id: "26535513"
 goodreads_url: "https://www.goodreads.com/book/show/26535513"
+image: "https://images-na.ssl-images-amazon.com/images/P/9781119002253.01.LZZZZZZZ.jpg"
+image_alt: "Storytelling with Data: A Data Visualization Guide for Business Professionals — Cole Nussbaumer Knaflic"
 rating: 4
 date_read: 2023-10-31
 date_added: 2025-02-17

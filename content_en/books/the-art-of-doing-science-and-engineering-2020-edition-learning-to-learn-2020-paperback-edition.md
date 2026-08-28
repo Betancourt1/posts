@@ -3,6 +3,8 @@ title: "[The Art of Doing Science and Engineering] - 2020 Edition: Learning to L
 date: 2026-01-04
 tags: ["book", "currently-reading", "science", "engineering", "learning", "problem-solving", "research"]
 summary: "By Karios Mainec · Reading"
+image: "https://images-na.ssl-images-amazon.com/images/P/9798394738418.01.LZZZZZZZ.jpg"
+image_alt: "[The Art of Doing Science and Engineering] - 2020 Edition: Learning to Learn - 2020, Paperback Edition — Karios Mainec"
 binding: "Paperback"
 book_author: "Karios Mainec"
 book_progress: "30"

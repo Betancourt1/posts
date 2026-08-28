@@ -10,6 +10,8 @@ book_author: "Matthew    Skelton"
 book_status: "read"
 goodreads_id: "44135420"
 goodreads_url: "https://www.goodreads.com/book/show/44135420"
+image: "https://images-na.ssl-images-amazon.com/images/P/9781942788829.01.LZZZZZZZ.jpg"
+image_alt: "Team Topologies: Organizing Business and Technology Teams for Fast Flow — Matthew    Skelton"
 additional_authors: ["Manuel Pais"]
 date_read: 2025-12-20
 date_added: 2025-12-09

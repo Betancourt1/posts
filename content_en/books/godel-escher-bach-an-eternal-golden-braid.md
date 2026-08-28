@@ -10,6 +10,8 @@ book_author: "Douglas R. Hofstadter"
 book_status: "read"
 goodreads_id: "24113"
 goodreads_url: "https://www.goodreads.com/book/show/24113"
+image: "https://images-na.ssl-images-amazon.com/images/P/9780465026562.01.LZZZZZZZ.jpg"
+image_alt: "Gödel, Escher, Bach: An Eternal Golden Braid — Douglas R. Hofstadter"
 rating: 5
 date_read: 2016-05-06
 date_added: 2025-12-09

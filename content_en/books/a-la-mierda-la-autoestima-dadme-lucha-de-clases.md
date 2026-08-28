@@ -10,6 +10,8 @@ book_author: "Jean-Philippe Kindler"
 book_status: "read"
 goodreads_id: "228194371"
 goodreads_url: "https://www.goodreads.com/book/show/228194371"
+image: "https://images-na.ssl-images-amazon.com/images/P/9788412943139.01.LZZZZZZZ.jpg"
+image_alt: "A la mierda la autoestima, dadme lucha de clases — Jean-Philippe Kindler"
 additional_authors: ["Borja Villa Pacheco"]
 rating: 5
 date_read: 2026-01-18

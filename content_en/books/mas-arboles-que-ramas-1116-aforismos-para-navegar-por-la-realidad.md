@@ -10,6 +10,8 @@ book_author: "Jorge Wagensberg"
 book_status: "read"
 goodreads_id: "16092314"
 goodreads_url: "https://www.goodreads.com/book/show/16092314"
+image: "https://images-na.ssl-images-amazon.com/images/P/9788483834060.01.LZZZZZZZ.jpg"
+image_alt: "Más árboles que ramas. 1116 aforismos para navegar por la realidad — Jorge Wagensberg"
 rating: 5
 date_read: 2023-04-01
 date_added: 2025-02-17

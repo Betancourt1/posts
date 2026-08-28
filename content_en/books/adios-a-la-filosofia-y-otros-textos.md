@@ -10,6 +10,8 @@ book_author: "Emil M. Cioran"
 book_status: "read"
 goodreads_id: "579470"
 goodreads_url: "https://www.goodreads.com/book/show/579470"
+image: "https://images-na.ssl-images-amazon.com/images/P/9788420635071.01.LZZZZZZZ.jpg"
+image_alt: "Adiós a la filosofía y otros textos — Emil M. Cioran"
 additional_authors: ["Fernando Savater"]
 rating: 4
 date_read: 2018-10-18

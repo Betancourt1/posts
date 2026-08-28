@@ -10,6 +10,8 @@ book_author: "Cathy O'Neil"
 book_status: "read"
 goodreads_id: "28186015"
 goodreads_url: "https://www.goodreads.com/book/show/28186015"
+image: "https://images-na.ssl-images-amazon.com/images/P/9780553418811.01.LZZZZZZZ.jpg"
+image_alt: "Weapons of Math Destruction: How Big Data Increases Inequality and Threatens Democracy — Cathy O'Neil"
 rating: 4
 date_read: 2022-12-31
 date_added: 2025-02-17

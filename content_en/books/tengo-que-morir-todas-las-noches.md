@@ -10,6 +10,8 @@ book_author: "Guillermo Osorno"
 book_status: "to-read"
 goodreads_id: "22457722"
 goodreads_url: "https://www.goodreads.com/book/show/22457722"
+image: "https://images-na.ssl-images-amazon.com/images/P/9786073122689.01.LZZZZZZZ.jpg"
+image_alt: "Tengo que morir todas las noches — Guillermo Osorno"
 date_added: 2025-02-17
 bookshelves: ["to-read"]
 publication_year: 2014

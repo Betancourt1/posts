@@ -10,6 +10,8 @@ book_author: "Kaitlyn Tiffany"
 book_status: "read"
 goodreads_id: "58772737"
 goodreads_url: "https://www.goodreads.com/book/show/58772737"
+image: "https://images-na.ssl-images-amazon.com/images/P/9780374539184.01.LZZZZZZZ.jpg"
+image_alt: "Everything I Need I Get from You — Kaitlyn Tiffany"
 rating: 5
 date_read: 2023-03-03
 date_added: 2025-02-17

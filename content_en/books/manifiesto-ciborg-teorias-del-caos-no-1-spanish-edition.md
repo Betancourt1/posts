@@ -10,6 +10,8 @@ book_author: "Donna J. Haraway"
 book_status: "read"
 goodreads_id: "55245676"
 goodreads_url: "https://www.goodreads.com/book/show/55245676"
+image: "https://images-na.ssl-images-amazon.com/images/P/9788412212914.01.LZZZZZZZ.jpg"
+image_alt: "Manifiesto cíborg (Teorías del caos nº 1) (Spanish Edition) — Donna J. Haraway"
 rating: 5
 date_read: 2020-12-15
 date_added: 2025-12-30

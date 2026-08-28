@@ -79,6 +79,8 @@ export interface QuoteItem extends ContentListItem {
 
 export interface BookItem extends ContentListItem {
   author?: string | null;
+  image?: string | null;
+  imageAlt?: string | null;
   status?: "currently-reading" | "read" | "to-read" | string | null;
   progress?: number | string | null;
   rating?: number | string | null;

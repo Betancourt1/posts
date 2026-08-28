@@ -10,6 +10,8 @@ book_author: "Albert Camus"
 book_status: "read"
 goodreads_id: "2704427"
 goodreads_url: "https://www.goodreads.com/book/show/2704427"
+image: "https://images-na.ssl-images-amazon.com/images/P/9788420636979.01.LZZZZZZZ.jpg"
+image_alt: "El mito de Sísifo — Albert Camus"
 additional_authors: ["Esther Benítez"]
 rating: 5
 date_read: 2019-06-07

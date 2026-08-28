@@ -10,6 +10,8 @@ book_author: "Marco Ángel"
 book_status: "read"
 goodreads_id: "39862192"
 goodreads_url: "https://www.goodreads.com/book/show/39862192"
+image: "https://images-na.ssl-images-amazon.com/images/P/9786079046200.01.LZZZZZZZ.jpg"
+image_alt: "El atril de la luciérnaga — Marco Ángel"
 rating: 5
 date_read: 2025-08-13
 date_added: 2025-07-20

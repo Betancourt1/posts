@@ -10,6 +10,8 @@ book_author: "Ece Temelkuran"
 book_status: "read"
 goodreads_id: "62899700"
 goodreads_url: "https://www.goodreads.com/book/show/62899700"
+image: "https://images-na.ssl-images-amazon.com/images/P/9788433965028.01.LZZZZZZZ.jpg"
+image_alt: "Juntos: Un manifiesto contra el mundo sin corazón — Ece Temelkuran"
 additional_authors: ["Francisco José Ramos Mena"]
 rating: 5
 date_read: 2025-04-28

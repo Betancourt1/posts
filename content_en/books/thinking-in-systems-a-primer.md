@@ -10,6 +10,8 @@ book_author: "Donella H. Meadows"
 book_status: "read"
 goodreads_id: "3828902"
 goodreads_url: "https://www.goodreads.com/book/show/3828902"
+image: "https://images-na.ssl-images-amazon.com/images/P/9781603580557.01.LZZZZZZZ.jpg"
+image_alt: "Thinking In Systems: A Primer — Donella H. Meadows"
 additional_authors: ["Diana Wright"]
 rating: 5
 date_read: 2026-07-11

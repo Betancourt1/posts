@@ -10,6 +10,8 @@ book_author: "Genki Kawamura"
 book_status: "read"
 goodreads_id: "35216428"
 goodreads_url: "https://www.goodreads.com/book/show/35216428"
+image: "https://images-na.ssl-images-amazon.com/images/P/9788491047841.01.LZZZZZZZ.jpg"
+image_alt: "Si los gatos desaparecieran del mundo — Genki Kawamura"
 additional_authors: ["Jordi Fibla Feito", "Keiko Takahashi"]
 rating: 4
 date_read: 2026-04-20

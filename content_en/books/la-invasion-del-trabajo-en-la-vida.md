@@ -10,6 +10,8 @@ book_author: "Juan José Castillo"
 book_status: "to-read"
 goodreads_id: "27801606"
 goodreads_url: "https://www.goodreads.com/book/show/27801606"
+image: "https://images-na.ssl-images-amazon.com/images/P/9788483199831.01.LZZZZZZZ.jpg"
+image_alt: "La invasión del trabajo en la vida — Juan José Castillo"
 date_added: 2025-02-17
 bookshelves: ["to-read"]
 publication_year: 2015

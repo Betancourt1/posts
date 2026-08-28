@@ -10,6 +10,8 @@ book_author: "Joe Reis"
 book_status: "read"
 goodreads_id: "61218623"
 goodreads_url: "https://www.goodreads.com/book/show/61218623"
+image: "https://images-na.ssl-images-amazon.com/images/P/9781098108304.01.LZZZZZZZ.jpg"
+image_alt: "Fundamentals of Data Engineering: Plan and Build Robust Data Systems — Joe Reis"
 additional_authors: ["Matt Housley"]
 date_read: 2025-12-09
 date_added: 2025-07-02

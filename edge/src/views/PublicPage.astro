@@ -294,6 +294,8 @@ const description = model.description || undefined;
       books={(model.items || []).map((book: any) => ({
         ...listItem(book),
         author: book.frontMatter?.book_author,
+        image: book.frontMatter?.image,
+        imageAlt: book.frontMatter?.image_alt,
         status: book.frontMatter?.book_status,
         progress: book.frontMatter?.book_progress,
         rating: book.frontMatter?.rating,

@@ -10,6 +10,8 @@ book_author: "Emil M. Cioran"
 book_status: "read"
 goodreads_id: "117570"
 goodreads_url: "https://www.goodreads.com/book/show/117570"
+image: "https://images-na.ssl-images-amazon.com/images/P/9781559706322.01.LZZZZZZZ.jpg"
+image_alt: "Notebooks — Emil M. Cioran"
 rating: 5
 date_read: 2023-05-05
 date_added: 2025-03-02
