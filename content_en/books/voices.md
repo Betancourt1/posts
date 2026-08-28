@@ -10,7 +10,7 @@ book_author: "Antonio Porchia"
 book_status: "read"
 goodreads_id: "710193"
 goodreads_url: "https://www.goodreads.com/book/show/710193"
-image: "https://images-na.ssl-images-amazon.com/images/P/9781556591891.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9781556591891-L.jpg?default=false"
 image_alt: "Voices — Antonio Porchia"
 additional_authors: ["W.S. Merwin"]
 rating: 5

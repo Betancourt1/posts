@@ -10,7 +10,7 @@ book_author: "Carissa Véliz"
 book_status: "currently-reading"
 goodreads_id: "51781479"
 goodreads_url: "https://www.goodreads.com/book/show/51781479"
-image: "https://images-na.ssl-images-amazon.com/images/P/9781787634046.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9781787634046-L.jpg?default=false"
 image_alt: "Privacy is Power: Why and How You Should Take Back Control of Your Data — Carissa Véliz"
 date_added: 2025-02-17
 bookshelves: ["currently-reading", "ensayo", "ciencias-sociales", "tecnología"]

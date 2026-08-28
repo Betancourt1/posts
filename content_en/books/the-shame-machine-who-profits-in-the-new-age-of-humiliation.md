@@ -10,7 +10,7 @@ book_author: "Cathy O'Neil"
 book_status: "read"
 goodreads_id: "59342743"
 goodreads_url: "https://www.goodreads.com/book/show/59342743"
-image: "https://images-na.ssl-images-amazon.com/images/P/9781984825452.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9781984825452-L.jpg?default=false"
 image_alt: "The Shame Machine: Who Profits in the New Age of Humiliation — Cathy O'Neil"
 rating: 4
 date_read: 2024-01-31

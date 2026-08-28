@@ -10,7 +10,7 @@ book_author: "Anna Pacheco"
 book_status: "read"
 goodreads_id: "205169784"
 goodreads_url: "https://www.goodreads.com/book/show/205169784"
-image: "https://images-na.ssl-images-amazon.com/images/P/9788433922304.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9788433922304-L.jpg?default=false"
 image_alt: "Estuve aquí y me acordé de nosotros: Una historia sobre turismo, trabajo y clase (Nuevos cuadernos Anagrama, #61) — Anna Pacheco"
 rating: 5
 date_read: 2026-01-25

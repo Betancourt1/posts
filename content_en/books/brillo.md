@@ -10,7 +10,7 @@ book_author: "Raven Leilani"
 book_status: "read"
 goodreads_id: "60229744"
 goodreads_url: "https://www.goodreads.com/book/show/60229744"
-image: "https://images-na.ssl-images-amazon.com/images/P/9788418733871.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9788418733871-L.jpg?default=false"
 image_alt: "Brillo — Raven Leilani"
 additional_authors: ["Laura Ibáñez"]
 rating: 5

@@ -3,7 +3,7 @@ title: "Alone Together: Why We Expect More from Technology and Less from Each Ot
 date: 2025-02-17
 tags: ["book", "read", "social-sciences", "technology", "loneliness", "relationships", "social-media", "psychology"]
 summary: "By Sherry Turkle · Read"
-image: "https://images-na.ssl-images-amazon.com/images/P/9780465010219.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9780465010219-L.jpg?default=false"
 image_alt: "Alone Together: Why We Expect More from Technology and Less from Each Other — Sherry Turkle"
 binding: "Hardcover"
 book_author: "Sherry Turkle"

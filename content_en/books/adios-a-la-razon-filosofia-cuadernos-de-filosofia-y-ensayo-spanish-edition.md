@@ -10,7 +10,7 @@ book_author: "Paul Karl Feyerabend"
 book_status: "read"
 goodreads_id: "71642379"
 goodreads_url: "https://www.goodreads.com/book/show/71642379"
-image: "https://images-na.ssl-images-amazon.com/images/P/9788430946976.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9788430946976-L.jpg?default=false"
 image_alt: "Adiós a la razón (Filosofia-cuadernos De Filosofia Y Ensayo) (Spanish Edition) — Paul Karl Feyerabend"
 rating: 5
 date_read: 2022-09-18

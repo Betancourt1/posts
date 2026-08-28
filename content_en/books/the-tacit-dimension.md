@@ -10,7 +10,7 @@ book_author: "Michael Polanyi"
 book_status: "to-read"
 goodreads_id: "225665"
 goodreads_url: "https://www.goodreads.com/book/show/225665"
-image: "https://images-na.ssl-images-amazon.com/images/P/9780844659992.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9780844659992-L.jpg?default=false"
 image_alt: "The Tacit Dimension — Michael Polanyi"
 date_added: 2025-04-15
 bookshelves: ["to-read"]

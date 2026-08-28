@@ -10,7 +10,7 @@ book_author: "Carla Escoffie"
 book_status: "read"
 goodreads_id: "144342430"
 goodreads_url: "https://www.goodreads.com/book/show/144342430"
-image: "https://images-na.ssl-images-amazon.com/images/P/9786073830805.01.LZZZZZZZ.jpg"
+image: "https://is1-ssl.mzstatic.com/image/thumb/Publication221/v4/83/46/2f/83462f33-6266-731a-6083-ed93375ca561/9786073830805.jpg/600x600bb.jpg"
 image_alt: "País sin techo: Ciudades, historias y luchas sobre la vivienda (Spanish Edition) — Carla Escoffie"
 rating: 5
 date_read: 2024-10-01

@@ -10,7 +10,7 @@ book_author: "Meryem El Mehdati"
 book_status: "read"
 goodreads_id: "60373913"
 goodreads_url: "https://www.goodreads.com/book/show/60373913"
-image: "https://images-na.ssl-images-amazon.com/images/P/9788418187773.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9788418187773-L.jpg?default=false"
 image_alt: "Supersaurio — Meryem El Mehdati"
 rating: 5
 date_read: 2024-04-12

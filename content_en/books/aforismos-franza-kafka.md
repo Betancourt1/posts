@@ -10,7 +10,7 @@ book_author: "Franz Kafka"
 book_status: "read"
 goodreads_id: "29090832"
 goodreads_url: "https://www.goodreads.com/book/show/29090832"
-image: "https://images-na.ssl-images-amazon.com/images/P/9786073119375.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/id/4918915-L.jpg?default=false"
 image_alt: "Aforismos- Franza Kafka — Franz Kafka"
 rating: 5
 date_read: 2025-04-28

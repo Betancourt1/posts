@@ -10,7 +10,7 @@ book_author: "Power Paola"
 book_status: "read"
 goodreads_id: "26054441"
 goodreads_url: "https://www.goodreads.com/book/show/26054441"
-image: "https://images-na.ssl-images-amazon.com/images/P/9789560101037.01.LZZZZZZZ.jpg"
+image: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1438911508i/26054441.jpg"
 image_alt: "QP (éramos nosotros) — Power Paola"
 rating: 5
 date_read: 2026-04-20

@@ -10,7 +10,7 @@ book_author: "Michael   Warner"
 book_status: "to-read"
 goodreads_id: "219843"
 goodreads_url: "https://www.goodreads.com/book/show/219843"
-image: "https://images-na.ssl-images-amazon.com/images/P/9780674004412.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9780674004412-L.jpg?default=false"
 image_alt: "The Trouble with Normal: Sex, Politics, and the Ethics of Queer Life — Michael   Warner"
 date_added: 2026-01-26
 bookshelves: ["to-read"]

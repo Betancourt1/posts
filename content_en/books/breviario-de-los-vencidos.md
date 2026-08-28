@@ -10,7 +10,7 @@ book_author: "Emil M. Cioran"
 book_status: "read"
 goodreads_id: "594048"
 goodreads_url: "https://www.goodreads.com/book/show/594048"
-image: "https://images-na.ssl-images-amazon.com/images/P/9788483105641.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9788483105641-L.jpg?default=false"
 image_alt: "Breviario de los vencidos — Emil M. Cioran"
 rating: 5
 date_read: 2023-05-04

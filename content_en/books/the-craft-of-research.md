@@ -10,7 +10,7 @@ book_author: "Wayne C. Booth"
 book_status: "read"
 goodreads_id: "2543099"
 goodreads_url: "https://www.goodreads.com/book/show/2543099"
-image: "https://images-na.ssl-images-amazon.com/images/P/9780226065663.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9780226065663-L.jpg?default=false"
 image_alt: "The Craft of Research — Wayne C. Booth"
 additional_authors: ["Gregory G. Colomb", "Joseph M. Williams"]
 rating: 5

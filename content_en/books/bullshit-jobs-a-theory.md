@@ -10,7 +10,7 @@ book_author: "David Graeber"
 book_status: "read"
 goodreads_id: "34466958"
 goodreads_url: "https://www.goodreads.com/book/show/34466958"
-image: "https://images-na.ssl-images-amazon.com/images/P/9781501143311.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9781501143311-L.jpg?default=false"
 image_alt: "Bullshit Jobs: A Theory — David Graeber"
 rating: 5
 date_read: 2023-07-01

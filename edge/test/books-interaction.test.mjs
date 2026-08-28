@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
+import { hasUsableCoverDimensions } from "../scripts/verify-book-covers.mjs";
 import test from "node:test";
 
 import {
@@ -13,6 +14,11 @@ const bookRowPath = new URL("../src/components/BookRow.astro", import.meta.url);
 const layoutPath = new URL("../src/layouts/SiteLayout.astro", import.meta.url);
 const siteCssPath = new URL("../../static/css/site.css", import.meta.url);
 const booksContentPath = new URL("../../content_en/books/", import.meta.url);
+
+test("book cover verifier rejects placeholder dimensions", () => {
+  assert.equal(hasUsableCoverDimensions({ width: 1, height: 1 }), false);
+  assert.equal(hasUsableCoverDimensions({ width: 100, height: 100 }), true);
+});
 
 test("reveals books in independent batches of six", () => {
   assert.equal(BOOK_BATCH_SIZE, 6);

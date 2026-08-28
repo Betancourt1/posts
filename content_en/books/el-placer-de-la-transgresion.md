@@ -10,7 +10,7 @@ book_author: "Renata Salecl"
 book_status: "read"
 goodreads_id: "57581258"
 goodreads_url: "https://www.goodreads.com/book/show/57581258"
-image: "https://images-na.ssl-images-amazon.com/images/P/9789878413273.01.LZZZZZZZ.jpg"
+image: "https://is1-ssl.mzstatic.com/image/thumb/Publication211/v4/05/ec/8b/05ec8b4b-8aea-9c16-5b0d-fc8a856ea87d/9789878413273.jpg/600x600bb.jpg"
 image_alt: "El placer de la transgresión — Renata Salecl"
 additional_authors: ["Florencia Ferre"]
 rating: 5

@@ -10,7 +10,7 @@ book_author: "Chantal Maillard"
 book_status: "read"
 goodreads_id: "12442358"
 goodreads_url: "https://www.goodreads.com/book/show/12442358"
-image: "https://images-na.ssl-images-amazon.com/images/P/9788481916980.01.LZZZZZZZ.jpg"
+image: "https://is1-ssl.mzstatic.com/image/thumb/Publication211/v4/fa/d4/aa/fad4aa2b-4039-0a05-7f6e-32e97d2d5c49/9788411077392.jpg/600x600bb.jpg"
 image_alt: "Diarios indios — Chantal Maillard"
 rating: 3
 date_read: 2022-01-17

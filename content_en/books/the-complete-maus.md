@@ -10,7 +10,7 @@ book_author: "Art Spiegelman"
 book_status: "read"
 goodreads_id: "15195"
 goodreads_url: "https://www.goodreads.com/book/show/15195"
-image: "https://images-na.ssl-images-amazon.com/images/P/9780141014081.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9780141014081-L.jpg?default=false"
 image_alt: "The Complete Maus — Art Spiegelman"
 rating: 5
 date_read: 2016-02-11

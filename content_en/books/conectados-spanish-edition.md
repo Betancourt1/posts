@@ -10,7 +10,7 @@ book_author: "Nicholas A. Christakis"
 book_status: "read"
 goodreads_id: "8388210"
 goodreads_url: "https://www.goodreads.com/book/show/8388210"
-image: "https://images-na.ssl-images-amazon.com/images/P/9786071104434.01.LZZZZZZZ.jpg"
+image: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1275686177i/8388210.jpg"
 image_alt: "Conectados (Spanish Edition) — Nicholas A. Christakis"
 rating: 5
 date_read: 2022-12-16

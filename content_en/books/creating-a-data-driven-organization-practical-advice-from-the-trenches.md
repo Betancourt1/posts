@@ -10,7 +10,7 @@ book_author: "Carl  Anderson"
 book_status: "read"
 goodreads_id: "26059903"
 goodreads_url: "https://www.goodreads.com/book/show/26059903"
-image: "https://images-na.ssl-images-amazon.com/images/P/9781491916872.01.LZZZZZZZ.jpg"
+image: "https://is1-ssl.mzstatic.com/image/thumb/Publication7/v4/08/73/dc/0873dcaa-02d6-a03c-3d9c-0dbcba12c596/9781491916865.jpg/600x600bb.jpg"
 image_alt: "Creating a Data-Driven Organization: Practical Advice from the Trenches — Carl  Anderson"
 rating: 5
 date_read: 2025-07-01

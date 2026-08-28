@@ -10,7 +10,7 @@ book_author: "Karl Matthias"
 book_status: "read"
 goodreads_id: "25000037"
 goodreads_url: "https://www.goodreads.com/book/show/25000037"
-image: "https://images-na.ssl-images-amazon.com/images/P/9781491917572.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9781491917572-L.jpg?default=false"
 image_alt: "Docker: Up & Running: Shipping Reliable Containers in Production — Karl Matthias"
 additional_authors: ["Sean P. Kane"]
 rating: 5

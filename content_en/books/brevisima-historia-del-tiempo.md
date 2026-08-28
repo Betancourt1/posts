@@ -10,7 +10,7 @@ book_author: "Stephen W. Hawking"
 book_status: "read"
 goodreads_id: "8411635"
 goodreads_url: "https://www.goodreads.com/book/show/8411635"
-image: "https://images-na.ssl-images-amazon.com/images/P/9788484327899.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9788484327899-L.jpg?default=false"
 image_alt: "Brevísima historia del tiempo — Stephen W. Hawking"
 rating: 4
 date_read: 2015-06-30

@@ -10,7 +10,7 @@ book_author: "Holly Lewis"
 book_status: "read"
 goodreads_id: "56060000"
 goodreads_url: "https://www.goodreads.com/book/show/56060000"
-image: "https://images-na.ssl-images-amazon.com/images/P/9788412275018.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9788412275018-L.jpg?default=false"
 image_alt: "La política de todes: Feminismo, teoría queer y marxismo en la intersección — Holly Lewis"
 additional_authors: ["Javier Sáez del Álamo"]
 rating: 5

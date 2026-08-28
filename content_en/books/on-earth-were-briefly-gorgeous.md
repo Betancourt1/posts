@@ -10,7 +10,7 @@ book_author: "Ocean Vuong"
 book_status: "read"
 goodreads_id: "41880609"
 goodreads_url: "https://www.goodreads.com/book/show/41880609"
-image: "https://images-na.ssl-images-amazon.com/images/P/9780525562023.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9780525562023-L.jpg?default=false"
 image_alt: "On Earth We're Briefly Gorgeous — Ocean Vuong"
 rating: 5
 date_read: 2025-04-22

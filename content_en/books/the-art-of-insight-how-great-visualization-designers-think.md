@@ -10,7 +10,7 @@ book_author: "Alberto Cairo"
 book_status: "currently-reading"
 goodreads_id: "55827593"
 goodreads_url: "https://www.goodreads.com/book/show/55827593"
-image: "https://images-na.ssl-images-amazon.com/images/P/9781119797241.01.LZZZZZZZ.jpg"
+image: "https://is1-ssl.mzstatic.com/image/thumb/Publication126/v4/c1/40/e3/c140e3fe-8537-961c-5aa4-d6247a422407/9781119797234.jpg/600x600bb.jpg"
 image_alt: "The Art of Insight : How Great Visualization Designers Think — Alberto Cairo"
 additional_authors: ["Alyssa Flowers"]
 date_added: 2025-02-17

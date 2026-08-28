@@ -10,7 +10,7 @@ book_author: "Mark Fisher"
 book_status: "read"
 goodreads_id: "6763725"
 goodreads_url: "https://www.goodreads.com/book/show/6763725"
-image: "https://images-na.ssl-images-amazon.com/images/P/9781846943171.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9781846943171-L.jpg?default=false"
 image_alt: "Capitalist Realism: Is There No Alternative? — Mark Fisher"
 rating: 5
 date_read: 2025-03-31

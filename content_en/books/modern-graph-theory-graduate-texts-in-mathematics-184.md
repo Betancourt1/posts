@@ -10,7 +10,7 @@ book_author: "Béla Bollobás"
 book_status: "read"
 goodreads_id: "388048"
 goodreads_url: "https://www.goodreads.com/book/show/388048"
-image: "https://images-na.ssl-images-amazon.com/images/P/9780387984889.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9780387984889-L.jpg?default=false"
 image_alt: "Modern Graph Theory (Graduate Texts in Mathematics, 184) — Béla Bollobás"
 additional_authors: ["F.W. Gehring", "Sheldon Axler"]
 rating: 5

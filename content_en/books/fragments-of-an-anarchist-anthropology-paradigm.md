@@ -10,7 +10,7 @@ book_author: "David Graeber"
 book_status: "read"
 goodreads_id: "51645"
 goodreads_url: "https://www.goodreads.com/book/show/51645"
-image: "https://images-na.ssl-images-amazon.com/images/P/9780972819640.01.LZZZZZZZ.jpg"
+image: "https://covers.openlibrary.org/b/isbn/9780972819640-L.jpg?default=false"
 image_alt: "Fragments of an Anarchist Anthropology (Paradigm) — David Graeber"
 rating: 5
 date_read: 2023-08-31
