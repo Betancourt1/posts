@@ -55,6 +55,8 @@ test("admin writing lists include hidden drafts without changing public lists", 
   assert.match(list, /for \(const item of displayItems\)/);
   assert.match(list, /\{displayItems\.map\(\(item\) => \(/);
   assert.match(publicPage, /<List[\s\S]*authorMode=\{authorMode\}/);
+  assert.match(publicPage, /tagsFor\(document, itemLang\)/);
+  assert.match(publicPage, /targetLang === "es" \? "\/es" : ""/);
   assert.match(types, /draft\?: boolean;/);
   assert.match(publicPage, /draft: document\.draft,[\s\S]*hidden: document\.hidden/);
   assert.match(list, /authorMode && \(item\.draft \|\| item\.hidden\)[\s\S]*class="writing-index-status"[\s\S]*"Borrador" : "Draft"/);

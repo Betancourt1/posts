@@ -152,6 +152,7 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
       ? sectionItems(db, document.lang, document.section, {
           ...(layout === "list" ? listItemOptions : options),
           body: ["list", "books"].includes(layout),
+          includeLanguageFallback: layout === "list" && document.section === "posts",
         })
       : Promise.resolve([]);
   const backlinksPromise = layout === "single" && ["posts", "zettelkasten"].includes(document.section)

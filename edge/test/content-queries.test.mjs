@@ -164,6 +164,23 @@ translationKey: ethical-data
 ---
 La ética de datos necesita cuidado.
 `],
+    ["content_es/posts/solo-espanol.md", `---
+title: Solo en español
+date: 2026-07-13
+draft: false
+tags: [solo-es]
+---
+Esta publicación solo existe en español.
+`],
+    ["content_es/posts/borrador-solo-espanol.md", `---
+title: Borrador solo en español
+date: 2026-07-14
+draft: true
+hidden: true
+tags: [borrador-es]
+---
+Este borrador solo existe en español.
+`],
     ["content_en/posts/target.md", `---
 title: Destination
 date: 2026-07-08
@@ -373,21 +390,61 @@ test("reads the projected public site through the real D1 API", async (t) => {
       "Destination",
     ]);
 
-    const publicWriting = await loadPublicPage(db, "/posts/");
-    assert.deepEqual(publicWriting.items.map((document) => document.title), [
+    const publicEnglishWriting = await loadPublicPage(db, "/posts/");
+    assert.deepEqual(publicEnglishWriting.items.map((document) => document.title), [
+      "Solo en español",
       "Ethical Data",
       "Destination",
     ]);
-    const adminWriting = await loadPublicPage(db, "/posts/", {
+    assert.deepEqual(publicEnglishWriting.items.map((document) => document.path), [
+      "/es/posts/solo-espanol/",
+      "/posts/ethical-data/",
+      "/posts/target/",
+    ]);
+    const publicSpanishWriting = await loadPublicPage(db, "/es/posts/");
+    assert.deepEqual(publicSpanishWriting.items.map((document) => document.title), [
+      "Solo en español",
+      "Datos éticos",
+      "Destination",
+    ]);
+    assert.deepEqual(publicSpanishWriting.items.map((document) => document.path), [
+      "/es/posts/solo-espanol/",
+      "/es/posts/datos-eticos/",
+      "/posts/target/",
+    ]);
+
+    const adminOptions = {
       includeDrafts: true,
       includeHiddenListItems: true,
-    });
-    assert.deepEqual(adminWriting.items.map((document) => document.title), [
+    };
+    const adminEnglishWriting = await loadPublicPage(db, "/posts/", adminOptions);
+    assert.deepEqual(adminEnglishWriting.items.map((document) => document.title), [
+      "Borrador solo en español",
+      "Solo en español",
       "Draft link",
       "Hidden link",
       "Ethical Data",
       "Destination",
     ]);
+    assert.equal(adminEnglishWriting.items[0].path, "/es/posts/borrador-solo-espanol/");
+    assert.equal(adminEnglishWriting.items[0].lang, "es");
+
+    const adminSpanishWriting = await loadPublicPage(db, "/es/posts/", adminOptions);
+    assert.deepEqual(adminSpanishWriting.items.map((document) => document.title), [
+      "Borrador solo en español",
+      "Solo en español",
+      "Draft link",
+      "Hidden link",
+      "Datos éticos",
+      "Destination",
+    ]);
+    assert.equal(adminSpanishWriting.items[2].path, "/posts/draft-link/");
+    assert.equal(adminSpanishWriting.items[2].lang, "en");
+    assert.equal(
+      new Set(adminSpanishWriting.items.map((document) => document.translationKey)).size,
+      adminSpanishWriting.items.length,
+      "translation pairs must appear only once",
+    );
     assert.deepEqual(
       (await loadPublicPage(db, "/", { includeHiddenListItems: true })).items,
       (await loadPublicPage(db, "/")).items,

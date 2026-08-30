@@ -222,6 +222,54 @@ export async function sectionItems(db, lang, section, options = {}) {
   const { includeDrafts, includeHidden } = visibilityOptions(options);
   const includeBody = options.body === true;
   const limit = positiveLimit(options.limit, 500);
+  const selectedLanguage = language(lang);
+
+  if (options.includeLanguageFallback) {
+    const result = await db.prepare(`
+      WITH ranked AS (
+        SELECT
+          d.id,
+          canonical.path,
+          ROW_NUMBER() OVER (
+            PARTITION BY COALESCE(NULLIF(d.translation_key, ''), d.document_key)
+            ORDER BY
+              CASE WHEN d.lang = ? THEN 0 ELSE 1 END,
+              d.generated ASC,
+              canonical.path ASC,
+              d.id ASC
+          ) AS language_rank
+        FROM documents AS d
+        JOIN routes AS canonical
+          ON canonical.document_id = d.id
+         AND canonical.kind = 'canonical'
+        WHERE d.section = ?
+          AND d.kind = 'page'
+          AND (? = 1 OR d.draft = 0)
+          AND (? = 1 OR d.hidden = 0)
+      )
+      SELECT
+        ${documentColumns("d", { body: includeBody })},
+        ranked.path AS path
+      FROM ranked
+      JOIN documents AS d ON d.id = ranked.id
+      WHERE ranked.language_rank = 1
+      ORDER BY
+        CASE WHEN d.date IS NULL OR d.date = '' THEN 1 ELSE 0 END,
+        d.date DESC,
+        d.title COLLATE NOCASE DESC,
+        ranked.path DESC
+      LIMIT ?
+    `).bind(
+      selectedLanguage,
+      String(section || "").trim(),
+      includeDrafts,
+      includeHidden,
+      limit,
+    ).all();
+
+    return hydrateDocuments(result);
+  }
+
   const result = await db.prepare(`
     SELECT
       ${documentColumns("d", { body: includeBody })},
@@ -242,7 +290,7 @@ export async function sectionItems(db, lang, section, options = {}) {
       canonical.path DESC
     LIMIT ?
   `).bind(
-    language(lang),
+    selectedLanguage,
     String(section || "").trim(),
     includeDrafts,
     includeHidden,
