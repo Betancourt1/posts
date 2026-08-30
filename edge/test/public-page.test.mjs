@@ -99,6 +99,8 @@ test("uses a pipette for grayscale and the historical contrast icon for themes",
   assert.match(layout, /data-label-dark=\{lang === "es" \? "Cambiar a tema oscuro" : "Change to dark theme"\}/);
   assert.match(layout, /grayscaleToggle\.setAttribute\("aria-pressed", enabled \? "true" : "false"\)/);
   assert.match(layout, /themeToggle\.setAttribute\("title", label\)/);
+  assert.doesNotMatch(css, /html\.grayscale-mode\s*\{[^}]*filter:/s);
+  assert.match(css, /html\.grayscale-mode body > :not\(\.site-header\),[\s\S]*?\.site-header > :not\(\.site-header-actions\)\s*\{[\s\S]*?filter:\s*grayscale\(100%\)/);
 });
 
 test("keeps the Citas title in Spanish notebook navigation", async () => {

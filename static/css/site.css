@@ -645,11 +645,12 @@ body {
 
 html {
   font-size: var(--site-font-size, 100%);
-  transition: filter 0.2s var(--ease-out);
 }
 
-html.grayscale-mode {
+html.grayscale-mode body > :not(.site-header),
+html.grayscale-mode .site-header > :not(.site-header-actions) {
   filter: grayscale(100%);
+  transition: filter 0.2s var(--ease-out);
 }
 
 html.curved-scrollbar-active,
