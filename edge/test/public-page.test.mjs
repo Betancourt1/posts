@@ -136,7 +136,7 @@ test("uses a pipette for grayscale and keeps search inline", async () => {
   assert.match(search, /event\.key === "Escape"[\s\S]*?clearSearch\(view, copy\)/);
 });
 
-test("keeps interaction sounds opt-in, synthesized, and public-only", async () => {
+test("keeps interaction sounds opt-in, synthesized, and shared with admin", async () => {
   const [layout, css, search, sound, graph] = await Promise.all([
     readFile(siteLayoutPath, "utf8"),
     readFile(siteCssPath, "utf8"),
@@ -145,9 +145,11 @@ test("keeps interaction sounds opt-in, synthesized, and public-only", async () =
     readFile(graphPath, "utf8"),
   ]);
 
-  assert.match(layout, /!authorMode && \(\s*<button class="sound-toggle" id="sound-toggle"/);
+  assert.match(layout, /<button class="sound-toggle" id="sound-toggle"/);
+  assert.doesNotMatch(layout, /!authorMode && \(\s*<button class="sound-toggle"/);
   assert.match(layout, /aria-pressed="false"[\s\S]*?data-label-enable=\{lang === "es" \? "Activar sonidos" : "Enable sounds"\}/);
-  assert.match(layout, /!authorMode && <script is:inline src="\/js\/sound\.js" defer><\/script>/);
+  assert.match(layout, /<script is:inline src="\/js\/sound\.js" defer><\/script>/);
+  assert.doesNotMatch(layout, /!authorMode && <script is:inline src="\/js\/sound\.js"/);
   assert.match(css, /\.theme-toggle,\s*\.grayscale-toggle,\s*\.sound-toggle,[\s\S]*?width:\s*40px;[\s\S]*?height:\s*40px;/);
   assert.match(css, /@media \(max-width: 720px\)[\s\S]*?\.sound-toggle,[\s\S]*?width:\s*44px !important;[\s\S]*?height:\s*44px !important;/);
   assert.match(sound, /var enabled = false;/);
