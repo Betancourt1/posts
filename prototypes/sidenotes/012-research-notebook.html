@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Side notes · 012 · Research notebook</title>
+  <style>
+    :root{color-scheme:light;--paper:#e8f0ef;--ink:#112d31;--muted:#60777a;--grid:rgba(24,84,91,.12);--line:#87a7a8;--accent:#e44f2d}
+    *{box-sizing:border-box}html{background:var(--paper)}body{margin:0;color:var(--ink);background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;font:16px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace}a{color:inherit}a:focus-visible{outline:2px dashed var(--accent);outline-offset:4px}.shell{width:min(1120px,calc(100% - 40px));margin:auto;padding:28px 0 74px}
+    header{display:flex;justify-content:space-between;align-items:flex-start;gap:28px;padding:16px;background:rgba(232,240,239,.88);border:1px solid var(--line);box-shadow:5px 5px 0 var(--ink)}.brand{margin:0;font-size:1.25rem;font-weight:800;letter-spacing:-.05em}.brand:before{content:"// ";color:var(--accent)}.subtitle{margin:.3rem 0 0;color:var(--muted);font-size:.66rem}nav{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}nav a{padding:.3rem .48rem;border-bottom:1px solid var(--line);color:var(--muted);font-size:.64rem;text-decoration:none}nav a[aria-current=page]{color:var(--accent);border-color:var(--accent);font-weight:800}
+    .intro{max-width:760px;margin:70px 0 50px;padding-left:28px;border-left:3px solid var(--accent)}h1{margin:0;font:700 clamp(2.7rem,7vw,5.4rem)/.95 Arial,sans-serif;letter-spacing:-.055em}.dek{margin:22px 0 0;color:var(--muted);font-size:.8rem}.dek:before{content:"ABSTRACT — ";color:var(--accent);font-weight:800}
+    .article-grid{display:grid;grid-template-columns:minmax(0,660px) minmax(220px,280px);gap:clamp(44px,8vw,108px);align-items:start}article{padding:30px;background:rgba(232,240,239,.92);border:1px solid var(--line);font:1.07rem/1.85 Georgia,serif;box-shadow:7px 7px 0 rgba(17,45,49,.16)}article p{margin:0 0 1.7em}article p:last-child{margin-bottom:0}.note-ref{display:inline-grid;place-items:center;min-width:1.3rem;height:1.3rem;margin-left:.15rem;border:1px solid var(--accent);color:var(--accent);font:800 .62rem/1 monospace;text-decoration:none;vertical-align:.38rem}
+    aside{position:sticky;top:24px;background:rgba(232,240,239,.9);border:1px solid var(--line)}aside h2{margin:0;padding:10px 13px;color:var(--paper);background:var(--ink);font-size:.67rem;letter-spacing:.08em;text-transform:uppercase}.margin-note{display:grid;grid-template-columns:32px 1fr;gap:9px;margin:0;padding:18px 13px;border-bottom:1px dashed var(--line);color:var(--muted);font-size:.7rem;line-height:1.55}.margin-note:last-child{border-bottom:0}.margin-note:target{color:var(--ink);box-shadow:inset 4px 0 var(--accent)}.margin-note b{color:var(--accent)}footer{margin-top:72px;color:var(--muted);font-size:.66rem}footer:before{content:"STATUS / ";color:var(--accent);font-weight:800}
+    @media(max-width:760px){.shell{width:min(100% - 28px,650px);padding-top:18px}header{flex-direction:column}nav{justify-content:flex-start}.intro{margin:50px 0 38px}.article-grid{display:block}article{padding:22px 18px}aside{position:static;margin-top:42px}.margin-note{font-size:.76rem}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+  </style>
+</head>
+<body><main class="shell">
+  <header><div><p class="brand">betancourt</p><p class="subtitle">side-note laboratory</p></div><nav aria-label="Compare margin-note looks"><a href="01-footnote-margin.html">01 original</a><a href="010-academic-print.html">010 print</a><a href="011-editorial-contrast.html">011 editorial</a><a href="012-research-notebook.html" aria-current="page">012 notebook</a></nav></header>
+  <section class="intro"><h1>The human in the loop</h1><p class="dek">A short comparison text about attention, judgment, and the systems we build around them.</p></section>
+  <div class="article-grid"><article>
+    <p>We often describe automation as the removal of human intervention. Yet the most consequential systems still depend on a person somewhere inside the loop.<a class="note-ref" href="#note-1" aria-label="Read side note 1">1</a></p>
+    <p>The interesting question is not whether the human remains, but where judgment is placed. A person may approve an output, correct an exception, or absorb the uncertainty that the system cannot represent.<a class="note-ref" href="#note-2" aria-label="Read side note 2">2</a></p>
+    <p>Side notes offer a similar design problem. They should make context available without forcing every reader to leave the main argument.<a class="note-ref" href="#note-3" aria-label="Read side note 3">3</a></p>
+  </article><aside aria-label="Margin notes"><h2>Margin notes</h2>
+    <p class="margin-note" id="note-1"><b>01</b><span>The phrase comes from cybernetics: a system that includes human judgment inside its feedback cycle.</span></p>
+    <p class="margin-note" id="note-2"><b>02</b><span>Efficiency is not neutral here. It decides which forms of attention are counted and which are discarded.</span></p>
+    <p class="margin-note" id="note-3"><b>03</b><span>A side note should remain optional: available at the point of curiosity without becoming a gate to the argument.</span></p>
+  </aside></div><footer>Persistent context on wide screens · conventional endnotes on narrow screens</footer>
+</main></body></html>
