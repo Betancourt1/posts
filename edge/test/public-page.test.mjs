@@ -151,6 +151,7 @@ test("keeps interaction sounds opt-in, synthesized, and public-only", async () =
   assert.match(sound, /var gestureReady = false;/);
   assert.match(sound, /if \(!event\.isTrusted\) return;/);
   assert.match(sound, /document\.addEventListener\("click",[\s\S]*?target === toggle[\s\S]*?"control" : "navigation"/);
+  assert.match(sound, /\.sidebar-list a\[href\*='\/archives\/'\],[\s\S]*?\.sidebar-more\[href\*='\/archives\/'\],[\s\S]*?\.archive-list \.archive-item > a/);
   assert.match(sound, /localStorage\.getItem\(STORAGE_KEY\) === "true"/);
   assert.match(sound, /window\.AudioContext \|\| window\.webkitAudioContext/);
   assert.equal((sound.match(/^    [a-zA-Z]+: \{ start:/gm) || []).length, 4);

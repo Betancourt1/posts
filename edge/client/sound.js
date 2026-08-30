@@ -102,7 +102,7 @@
       gestureReady = true;
       activateAudio();
       if (!enabled) return;
-      var target = event.target.closest(".site-header-actions button, .site-header-actions a, .nav-list a");
+      var target = event.target.closest(".site-header-actions button, .site-header-actions a, .nav-list a, .sidebar-list a[href*='/archives/'], .sidebar-more[href*='/archives/'], .archive-list .archive-item > a");
       if (!target || target === toggle) return;
       play(target.classList.contains("lang-toggle") || target.closest(".site-header-actions") ? "control" : "navigation");
     }, true);
