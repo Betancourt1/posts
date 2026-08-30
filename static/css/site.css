@@ -2588,9 +2588,8 @@ button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.book-sh
   min-width: 0;
   min-height: 24px;
   border: 0;
-  border-left: 1px solid var(--accent);
   border-radius: 0;
-  padding: 0 0 0 0.5rem;
+  padding: 0;
   background: transparent;
   color: var(--ink);
   font-family: inherit;

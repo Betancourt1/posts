@@ -666,3 +666,19 @@ final result: passed
 - [x] Run source regression tests, edge tests, build, and independent audit.
 
 final result: passed
+
+---
+
+# Search Icon Divider Removal QA
+
+- Requested outcome: remove the green vertical rule beside the search icon without changing search behavior or other styling.
+- Desktop evidence: `/tmp/search-no-divider-resting.png` and `/tmp/search-no-divider-results.png` at `1586 × 992`.
+- Mobile evidence: `/tmp/search-no-divider-mobile.png` at `390 × 844`.
+- Browser path: Browser plugin unavailable; existing local Playwright/Chromium setup used against `/` and `/es/` on the built Worker preview.
+- Computed styles confirmed `border-left-width: 0px` and `padding-left: 0px` in desktop and mobile states.
+- The parent form's existing `0.5rem` gap now provides the complete icon-to-input spacing.
+- Resting, focused, and results-open states retain the bottom rule, focus outline, search behavior, fixed controls, sidebar clearance, and responsive result panel.
+- English and Spanish queries, shortcuts, Escape, outside-click dismissal, navigation, scrolling, and console checks remain passing.
+- No horizontal overflow or visible non-search regression was found.
+
+final result: passed

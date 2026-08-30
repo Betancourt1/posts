@@ -117,7 +117,8 @@ test("uses a pipette for grayscale and keeps search inline", async () => {
   assert.doesNotMatch(layout, /search-trigger|search-modal/);
   assert.match(css, /\.site-header-search\s*\{[\s\S]*?justify-content:\s*center;[\s\S]*?width:\s*min\(20rem, 100%\);[\s\S]*?margin:\s*10px auto 0;/);
   assert.match(css, /\.search-ui__form\s*\{[\s\S]*?width:\s*100%;[\s\S]*?border-bottom:\s*1px solid var\(--line\);/);
-  assert.match(css, /\.search-ui__search-input\s*\{[\s\S]*?border-left:\s*1px solid var\(--accent\);[\s\S]*?background:\s*transparent;/);
+  assert.match(css, /\.search-ui__search-input\s*\{[\s\S]*?border:\s*0;[\s\S]*?padding:\s*0;[\s\S]*?background:\s*transparent;/);
+  assert.doesNotMatch(css, /\.search-ui__search-input\s*\{[^}]*border-left:/s);
   assert.match(css, /\.search-ui__drawer\s*\{[\s\S]*?position:\s*absolute;[\s\S]*?top:\s*calc\(100% \+ 8px\);/);
   assert.match(css, /\.search-kbd\s*\{[\s\S]*?border:\s*0;[\s\S]*?background:\s*transparent;/);
   assert.match(css, /@media \(max-width: 720px\)\s*\{[\s\S]*?\.search-kbd\s*\{\s*display:\s*none;/);
