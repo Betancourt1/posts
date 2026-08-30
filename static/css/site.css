@@ -2735,6 +2735,7 @@ sup, sub { line-height: 0; }
   }
 
   .site-header-actions {
+    position: absolute;
     top: 10px;
     right: 12px;
     gap: 4px;

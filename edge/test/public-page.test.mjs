@@ -87,6 +87,25 @@ test("the production shell does not offer or restore raw article mode", async ()
   assert.doesNotMatch(infrastructure, /infra_mode_enabled|initMode/);
 });
 
+test("starts visible book covers promptly and contains mobile header controls", async () => {
+  const [layout, css] = await Promise.all([
+    readFile(siteLayoutPath, "utf8"),
+    readFile(siteCssPath, "utf8"),
+  ]);
+
+  for (const origin of [
+    "https://covers.openlibrary.org",
+    "https://is1-ssl.mzstatic.com",
+    "https://m.media-amazon.com",
+    "https://images-na.ssl-images-amazon.com",
+  ]) {
+    assert.match(layout, new RegExp(origin.replaceAll(".", "\\.")));
+  }
+  assert.match(layout, /isBooks && bookCoverOrigins\.map[\s\S]*rel="dns-prefetch"[\s\S]*rel="preconnect"/);
+  assert.match(css, /\.site-header-actions\s*\{[\s\S]*?position:\s*fixed;/);
+  assert.match(css, /@media \(max-width:\s*1000px\)[\s\S]*?\.site-header-actions\s*\{[\s\S]*?position:\s*absolute;/);
+});
+
 test("uses a pipette for grayscale and keeps search inline", async () => {
   const [layout, css, search] = await Promise.all([
     readFile(siteLayoutPath, "utf8"),

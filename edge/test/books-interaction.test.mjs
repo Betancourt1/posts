@@ -61,7 +61,7 @@ test("renders hidden rows and a progressive button for each shelf", async () => 
   assert.match(bookRow, /data-book-extra=\{initiallyHidden/);
   assert.match(bookRow, /hidden=\{initiallyHidden\}/);
   assert.match(bookRow, /book\.image/);
-  assert.match(bookRow, /loading="lazy"/);
+  assert.match(bookRow, /loading=\{initiallyHidden \? "lazy" : "eager"\}/);
   assert.match(layout, /isBooks[\s\S]*type="module" src="\/js\/books\.js"/);
   assert.match(css, /\.book-shelf-row\[hidden\]\s*\{\s*display:\s*none;/);
   assert.match(css, /\.book-shelf-more-button:focus-visible/);
