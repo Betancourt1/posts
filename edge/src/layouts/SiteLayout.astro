@@ -2,6 +2,7 @@
 import Nav from "../components/Nav.astro";
 import Sidebar from "../components/Sidebar.astro";
 import AuthorTools from "../components/AuthorTools.astro";
+import KnowledgeGraph from "../components/KnowledgeGraph.astro";
 import { displayDate, safeJson } from "../components/_utils";
 import type {
   ArchiveMonth,
@@ -22,6 +23,7 @@ interface Props {
   pageClass?: string;
   showSidebar?: boolean;
   showSearch?: boolean;
+  hasSidenotes?: boolean;
   authorMode?: boolean;
   siteTitle?: string;
   subtitle?: string;
@@ -44,6 +46,7 @@ const {
   pageClass = "",
   showSidebar = page.layout !== "code" && page.layout !== "not-found",
   showSearch = true,
+  hasSidenotes = false,
   authorMode = false,
   siteTitle = "betancourt",
   subtitle = lang === "es" ? "aquí escribo cosas" : "here I write things",
@@ -68,7 +71,7 @@ const bookCoverOrigins = [
 const isPhotography = page.layout === "photography";
 const isQuotes = page.layout === "quotes";
 const isNotFound = page.layout === "not-found";
-const bodyClass = [pageClass, authorMode ? "author-mode" : "", isCode ? "code-index" : "", isQuotes ? "quotes-index-page" : "", isNotFound ? "not-found" : ""].filter(Boolean).join(" ");
+const bodyClass = [pageClass, hasSidenotes ? "has-sidenotes" : "", authorMode ? "author-mode" : "", isCode ? "code-index" : "", isQuotes ? "quotes-index-page" : "", isNotFound ? "not-found" : ""].filter(Boolean).join(" ");
 const updatedAt = page.updatedAt || new Date();
 const updatedDate = displayDate(updatedAt);
 const updatedLabel = updatedDate
@@ -128,6 +131,7 @@ const archivesPath = authorMode
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImageUrl} />
     <link rel="preload" href="/fonts/Jersey10-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    {hasSidenotes && <link rel="preload" href="/fonts/Doto-Variable.woff2" as="font" type="font/woff2" crossorigin />}
     {isBooks && bookCoverOrigins.map((origin) => (
       <>
         <link rel="dns-prefetch" href={origin} />
@@ -209,17 +213,35 @@ const archivesPath = authorMode
 
     <div class:list={["layout", { "layout--code-index": isCode, "layout--quotes-index": isQuotes }]}>
       <aside class="column nav-column">
-        <Nav items={navigation} lang={lang} activePath={currentPath} activeSection={page.section} authorMode={authorMode} />
+        <Nav
+          items={navigation}
+          lang={lang}
+          activePath={currentPath}
+          activeSection={page.section}
+          authorMode={authorMode}
+        />
       </aside>
       <main class:list={["column", "content-column", { "content-column--books": isBooks, "content-column--code-index": isCode, "content-column--photo-index": isPhotography, "content-column--quotes-index": isQuotes }]}>
         <div class="content-inner"><slot /></div>
       </main>
       {showSidebar && (
-        <aside class="column sidebar-column">
-          <Sidebar lang={lang} archives={archiveMonths} archivesHref={archivesPath} graphData={page.isHome ? null : page.graphData} />
+        <aside class:list={["column", "sidebar-column", { "sidebar-column--sidenotes": hasSidenotes }]}>
+          {hasSidenotes
+            ? <div class="sidenote-rail" id="sidenote-rail"></div>
+            : <Sidebar lang={lang} archives={archiveMonths} archivesHref={archivesPath} graphData={page.isHome ? null : page.graphData} />}
         </aside>
       )}
     </div>
+
+    {hasSidenotes && page.graphData && (
+      <dialog class="sidenote-graph-dialog" id="sidenote-graph-dialog" aria-labelledby="sidenote-graph-title">
+        <header class="sidenote-graph-dialog-header">
+          <h2 id="sidenote-graph-title">{lang === "es" ? "Grafo" : "Graph"}</h2>
+          <button type="button" id="sidenote-graph-close" aria-label={lang === "es" ? "Cerrar grafo" : "Close graph"}>&times;</button>
+        </header>
+        <KnowledgeGraph data={page.graphData} lang={lang} variant="home" />
+      </dialog>
+    )}
 
     <footer class="site-footer">
       <p class="site-footer-updated">
@@ -307,6 +329,7 @@ const archivesPath = authorMode
     {isCode && <script is:inline src="/js/code-portfolio.js" defer></script>}
     {isPhotography && <script is:inline src="/js/photography-grid.js" defer></script>}
     {isBooks && <script is:inline type="module" src="/js/books.js"></script>}
+    {hasSidenotes && <script is:inline src="/js/sidenote-reading.js" defer></script>}
     {authorMode && <script is:inline src="/js/author-tools.js" defer></script>}
   </body>
 </html>

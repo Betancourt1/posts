@@ -52,21 +52,117 @@ function safeMarkdownUrl(value) {
   return url.includes(":") ? null : url;
 }
 
-const SAFE_RENDERER = new Renderer();
-const renderSafeLink = SAFE_RENDERER.link.bind(SAFE_RENDERER);
-const renderSafeImage = SAFE_RENDERER.image.bind(SAFE_RENDERER);
+const SIDENOTE_DEFINITION = /^\[\^([a-zA-Z0-9_-]+)\]:[ \t]+(.+?)\s*$/;
+const SIDENOTE_REFERENCE_PART = /(\[\^(?:[a-zA-Z0-9_-]+)\])/g;
+const SIDENOTE_TONE = /\{\{(green|blue|amber)\|([^{}\n]+)\}\}/g;
+const SIDENOTE_TONE_OPEN = "\uE100";
+const SIDENOTE_TONE_CLOSE = "\uE101";
 
-SAFE_RENDERER.html = () => "<!-- raw HTML omitted -->";
-SAFE_RENDERER.link = function link(token) {
-  const href = safeMarkdownUrl(token.href);
-  if (!href) return this.parser.parseInline(token.tokens || []);
-  return `${renderSafeLink({ ...token, href })}\n`;
-};
-SAFE_RENDERER.image = function image(token) {
-  const href = safeMarkdownUrl(token.href);
-  if (!href) return escapeHtml(token.text);
-  return renderSafeImage({ ...token, href });
-};
+function createSafeRenderer({ sidenotes = null, hideSidenoteReferences = false, allowSidenoteTones = false } = {}) {
+  const renderer = new Renderer();
+  const renderSafeLink = renderer.link.bind(renderer);
+  const renderSafeImage = renderer.image.bind(renderer);
+  const renderSafeText = renderer.text.bind(renderer);
+  let linkDepth = 0;
+
+  renderer.html = () => "<!-- raw HTML omitted -->";
+  renderer.link = function link(token) {
+    const href = safeMarkdownUrl(token.href);
+    linkDepth += 1;
+    try {
+      if (!href) return this.parser.parseInline(token.tokens || []);
+      return `${renderSafeLink({ ...token, href })}\n`;
+    } finally {
+      linkDepth -= 1;
+    }
+  };
+  renderer.image = function image(token) {
+    const href = safeMarkdownUrl(token.href);
+    if (!href) return escapeHtml(token.text);
+    return renderSafeImage({ ...token, href });
+  };
+  renderer.text = function text(token) {
+    const source = String(token.text ?? token.raw ?? "");
+    const renderFragment = (part) => renderSafeText({
+      ...token,
+      raw: part,
+      text: part,
+      tokens: undefined,
+    });
+    const pattern = allowSidenoteTones
+      ? new RegExp(`(${SIDENOTE_TONE_OPEN}(?:green|blue|amber)${SIDENOTE_TONE_CLOSE}|${SIDENOTE_TONE_CLOSE})`, "g")
+      : SIDENOTE_REFERENCE_PART;
+
+    return source.split(pattern).map((part) => {
+      if (allowSidenoteTones) {
+        if (part === SIDENOTE_TONE_CLOSE) return "</span>";
+        const tone = part.match(new RegExp(`^${SIDENOTE_TONE_OPEN}(green|blue|amber)${SIDENOTE_TONE_CLOSE}$`))?.[1];
+        if (tone) return `<span class="sidenote-tone sidenote-tone--${tone}">`;
+        return renderFragment(part);
+      }
+
+      const reference = part.match(/^\[\^([a-zA-Z0-9_-]+)\]$/);
+      if (!reference) return renderFragment(part);
+      const definition = sidenotes?.definitions.get(reference[1]);
+      if (!definition) return renderFragment(part);
+      if (linkDepth > 0) return renderFragment(part);
+      if (hideSidenoteReferences) return "";
+
+      let note = sidenotes.byId.get(definition.id);
+      if (!note) {
+        note = { ...definition, number: sidenotes.ordered.length + 1, references: [] };
+        sidenotes.byId.set(note.id, note);
+        sidenotes.ordered.push(note);
+      }
+      const occurrence = note.references.length + 1;
+      const referenceId = `sidenote-ref-${note.number}-${occurrence}`;
+      note.references.push(referenceId);
+      return `<sup class="sidenote-reference"><a id="${referenceId}" href="#sidenote-${note.number}" role="doc-noteref">[${note.number}]</a></sup>`;
+    }).join("");
+  };
+
+  return renderer;
+}
+
+function extractSidenoteDefinitions(markdown) {
+  const definitions = new Map();
+  const bodyLines = [];
+  let fence = null;
+
+  for (const line of String(markdown ?? "").split("\n")) {
+    const fenceMatch = line.match(/^\s*(`{3,}|~{3,})/);
+    if (fenceMatch) {
+      const marker = fenceMatch[1];
+      if (!fence) fence = { character: marker[0], length: marker.length };
+      else if (fence.character === marker[0] && marker.length >= fence.length) fence = null;
+      bodyLines.push(line);
+      continue;
+    }
+
+    const match = !fence && line.match(SIDENOTE_DEFINITION);
+    if (!match) {
+      bodyLines.push(line);
+      continue;
+    }
+
+    if (!definitions.has(match[1])) {
+      definitions.set(match[1], { id: match[1], markdown: match[2] });
+    }
+  }
+
+  return { markdown: bodyLines.join("\n"), definitions };
+}
+
+function markSidenoteTones(markdown) {
+  return String(markdown ?? "")
+    .replace(/[\uE000-\uF8FF]/g, "")
+    .replace(SIDENOTE_TONE, (_, tone, text) =>
+      `${SIDENOTE_TONE_OPEN}${tone}${SIDENOTE_TONE_CLOSE}${text}${SIDENOTE_TONE_CLOSE}`);
+}
+
+function plainSidenoteMarkdown(markdown) {
+  return String(markdown ?? "").replace(SIDENOTE_TONE, "$2");
+}
 
 export function normalizeMarkdown(rawMarkdown) {
   return String(rawMarkdown ?? "")
@@ -238,7 +334,7 @@ function optionalText(value) {
   return value === undefined || value === null ? null : String(value);
 }
 
-function textFromTokens(tokens) {
+function textFromTokens(tokens, { sidenoteDefinitions = null } = {}) {
   const hasBlockTokens = tokens.some((token) =>
     [
       "blockquote",
@@ -257,13 +353,23 @@ function textFromTokens(tokens) {
       if (!token || token.type === "html") return "";
       if (token.type === "br") return "\n";
       if (token.type === "image") return String(token.text ?? "");
-      if (Array.isArray(token.tokens)) return textFromTokens(token.tokens);
+      if (Array.isArray(token.tokens)) return textFromTokens(token.tokens, { sidenoteDefinitions });
       if (Array.isArray(token.items)) {
-        return token.items.map((item) => textFromTokens(item.tokens ?? [])).join("\n");
+        return token.items
+          .map((item) => textFromTokens(item.tokens ?? [], { sidenoteDefinitions }))
+          .join("\n");
       }
       if (Array.isArray(token.header) || Array.isArray(token.rows)) {
         const cells = [...(token.header ?? []), ...(token.rows ?? []).flat()];
-        return cells.map((cell) => textFromTokens(cell.tokens ?? [])).join(" ");
+        return cells
+          .map((cell) => textFromTokens(cell.tokens ?? [], { sidenoteDefinitions }))
+          .join(" ");
+      }
+      if (token.type === "text" && sidenoteDefinitions) {
+        return String(token.text ?? "").replace(SIDENOTE_REFERENCE_PART, (reference) => {
+          const id = reference.slice(2, -1);
+          return sidenoteDefinitions.has(id) ? "" : reference;
+        });
       }
       return typeof token.text === "string" ? token.text : "";
     })
@@ -279,10 +385,7 @@ function normalizeInternalTarget(href, canonicalPath) {
   }
 }
 
-export function renderMarkdown(bodyMarkdown, canonicalPath = "/") {
-  const tokens = marked.lexer(String(bodyMarkdown ?? ""), MARKED_OPTIONS);
-  const links = [];
-
+function collectLinks(tokens, links, canonicalPath) {
   walkTokens(tokens, (token) => {
     if (token.type !== "link") return;
 
@@ -295,10 +398,54 @@ export function renderMarkdown(bodyMarkdown, canonicalPath = "/") {
       external,
     });
   });
+}
+
+function renderSidenoteEndnotes(sidenotes, links, canonicalPath) {
+  if (!sidenotes.ordered.length) return "";
+
+  const items = sidenotes.ordered.map((note) => {
+    const markedNote = markSidenoteTones(note.markdown);
+    const noteTokens = marked.lexer(markedNote, MARKED_OPTIONS);
+    collectLinks(noteTokens, links, canonicalPath);
+    const noteHtml = marked.parseInline(markedNote, {
+      ...MARKED_OPTIONS,
+      renderer: createSafeRenderer({ allowSidenoteTones: true }),
+    });
+    const backlinks = note.references.map((referenceId, index) =>
+      `<a class="sidenote-backlink" href="#${referenceId}" role="doc-backlink">↩${note.references.length > 1 ? ` ${index + 1}` : ""}</a>`
+    ).join(" ");
+    return `<li class="sidenote-item" id="sidenote-${note.number}" data-sidenote-number="${note.number}"><span class="sidenote-number" aria-hidden="true">${String(note.number).padStart(2, "0")}</span><span class="sidenote-copy">${noteHtml}<span class="sidenote-backlinks">${backlinks}</span></span></li>`;
+  }).join("");
+
+  return `<section class="sidenote-endnotes" role="doc-endnotes"><ol class="sidenote-list">${items}</ol></section>`;
+}
+
+export function renderMarkdown(bodyMarkdown, canonicalPath = "/") {
+  const extracted = extractSidenoteDefinitions(bodyMarkdown);
+  const tokens = marked.lexer(extracted.markdown, MARKED_OPTIONS);
+  const links = [];
+  const sidenotes = {
+    definitions: extracted.definitions,
+    ordered: [],
+    byId: new Map(),
+  };
+
+  collectLinks(tokens, links, canonicalPath);
+  const bodyHtml = marked.parser(tokens, {
+    ...MARKED_OPTIONS,
+    renderer: createSafeRenderer({ sidenotes }),
+  });
+  const endnotesHtml = renderSidenoteEndnotes(sidenotes, links, canonicalPath);
+  const noteText = sidenotes.ordered.map((note) => {
+    const noteTokens = marked.lexer(plainSidenoteMarkdown(note.markdown), MARKED_OPTIONS);
+    return textFromTokens(noteTokens).trim();
+  }).filter(Boolean).join("\n");
 
   return {
-    bodyHtml: marked.parser(tokens, { ...MARKED_OPTIONS, renderer: SAFE_RENDERER }),
-    bodyText: textFromTokens(tokens).replace(/[ \t]+\n/g, "\n").trim(),
+    bodyHtml: bodyHtml + endnotesHtml,
+    bodyText: [textFromTokens(tokens, { sidenoteDefinitions: extracted.definitions }).replace(/[ \t]+\n/g, "\n").trim(), noteText]
+      .filter(Boolean)
+      .join("\n"),
     links,
   };
 }
@@ -313,9 +460,14 @@ function applyLegacySummaryTypography(markdown) {
 }
 
 export function renderMarkdownSummary(markdown, { wordLimit } = {}) {
-  const tokens = marked.lexer(applyLegacySummaryTypography(markdown), MARKED_OPTIONS);
+  const extracted = extractSidenoteDefinitions(applyLegacySummaryTypography(markdown));
+  const tokens = marked.lexer(extracted.markdown, MARKED_OPTIONS);
+  const renderer = createSafeRenderer({
+    sidenotes: { definitions: extracted.definitions, ordered: [], byId: new Map() },
+    hideSidenoteReferences: true,
+  });
   if (!wordLimit) {
-    return marked.parser(tokens, { ...MARKED_OPTIONS, renderer: SAFE_RENDERER });
+    return marked.parser(tokens, { ...MARKED_OPTIONS, renderer });
   }
 
   const summaryTokens = [];
@@ -326,7 +478,7 @@ export function renderMarkdownSummary(markdown, { wordLimit } = {}) {
     words += textFromTokens([token]).trim().split(/\s+/).filter(Boolean).length;
     if (words >= wordLimit) break;
   }
-  return marked.parser(summaryTokens, { ...MARKED_OPTIONS, renderer: SAFE_RENDERER });
+  return marked.parser(summaryTokens, { ...MARKED_OPTIONS, renderer });
 }
 
 function createDocument({

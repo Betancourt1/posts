@@ -171,6 +171,7 @@ const navigation = navigationItems(model.navigation || []);
 const items = (model.items || []).map(listItem);
 const title = model.title || (lang === "es" ? "Sin título" : "Untitled");
 const description = model.description || undefined;
+const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").includes('class="sidenote-endnotes"');
 ---
 
 <SiteLayout
@@ -182,6 +183,7 @@ const description = model.description || undefined;
   archiveMonths={model.archiveMonths || []}
   title={title}
   description={description}
+  hasSidenotes={hasSidenotes}
   authorMode={authorMode}
   canonical={canonical}
   showSearch

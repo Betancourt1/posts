@@ -85,6 +85,28 @@ test("new text posts start hidden until visibility is explicitly enabled", () =>
   assert.match(html, /els\.hidden\.checked = frontMatter\.draft !== true && frontMatter\.hidden !== true;/);
 });
 
+test("text editor inserts margin note samples and tones directly", () => {
+  const html = postEditorHtml();
+  const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+
+  assert.doesNotThrow(() => new Function(script));
+  assert.match(html, /id="toolbar-sidenote"/);
+  assert.doesNotMatch(html, /sidenote-composer|sidenote-text|data-note-wrap|data-note-tone/);
+  assert.match(html, /data-sidenote-tone="green"/);
+  assert.match(html, /data-sidenote-tone="blue"/);
+  assert.match(html, /data-sidenote-tone="amber"/);
+  assert.match(html, /els\.toolbarSidenote\.addEventListener\("click", insertSidenoteSample\)/);
+  assert.match(html, /function insertSidenoteSample\(\)[\s\S]*?var target = activeTextArea\(\);/);
+  assert.match(html, /target\.selectionEnd \|\| 0/);
+  assert.match(html, /var reference = "\[\^" \+ id \+ "\]";/);
+  assert.match(html, /var sample = "\*\*Human judgment\*\* can be _situated_ and \{\{green\|visible\}\}, \{\{blue\|linked\}\}, or \{\{amber\|contested\}\}\.";/);
+  assert.match(html, /"\[\^" \+ id \+ "\]: " \+ sample/);
+  assert.match(html, /target\.selectionStart = target\.selectionEnd = nextCursor/);
+  assert.match(html, /function insertSidenoteTone\(tone\)[\s\S]*?\["green", "blue", "amber"\]\.includes\(tone\)[\s\S]*?wrapSelection\("\{\{" \+ tone \+ "\|", "\}\}"\)/);
+  assert.match(html, /function wrapSelection\(before, after\)[\s\S]*?var selected = textarea\.value\.slice\(start, end\) \|\| "text";[\s\S]*?syncFieldsFromMarkdown\(\)[\s\S]*?recordBodyHistory\(\)/);
+  assert.doesNotMatch(html, /showModal\(\)|innerHTML\s*=\s*sample|insertAdjacentHTML\([^)]*sample/);
+});
+
 test("text editor reuses Markdown mode for book templates", () => {
   const html = postEditorHtml();
   const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];

@@ -940,6 +940,22 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       margin: 0 0.15rem;
       flex: 0 0 auto;
     }
+    .sidenote-tone-button {
+      width: 1.9rem;
+      min-width: 1.9rem;
+      border-radius: 999px;
+      font-size: 0;
+    }
+    .sidenote-tone-button::after {
+      content: "";
+      width: 0.7rem;
+      height: 0.7rem;
+      border-radius: 999px;
+      background: currentColor;
+    }
+    .sidenote-tone-button[data-sidenote-tone="green"] { color: #4ecca3; }
+    .sidenote-tone-button[data-sidenote-tone="blue"] { color: #8fb8ff; }
+    .sidenote-tone-button[data-sidenote-tone="amber"] { color: #f0c36e; }
     .subtitle-input {
       width: 100%;
       border: 0;
@@ -1645,6 +1661,10 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       <span class="divider" id="insert-divider-before"></span>
       <span class="toolbar-group" id="insert-toolbar-group" aria-label="Insertar">
         <button type="button" id="toolbar-image" title="Insertar imagen" aria-label="Insertar imagen">${ICONS.image}</button>
+        <button type="button" id="toolbar-sidenote" title="Insertar nota al margen" aria-label="Insertar nota al margen"><span aria-hidden="true">[1]</span></button>
+        <button type="button" class="sidenote-tone-button" data-sidenote-tone="green" aria-label="Texto verde" title="Texto verde"></button>
+        <button type="button" class="sidenote-tone-button" data-sidenote-tone="blue" aria-label="Texto azul" title="Texto azul"></button>
+        <button type="button" class="sidenote-tone-button" data-sidenote-tone="amber" aria-label="Texto ámbar" title="Texto ámbar"></button>
       </span>
       <button type="button" class="mobile-markdown-toggle" id="mobile-view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">${ICONS.code}</button>
       <span class="divider" id="insert-divider-after"></span>
@@ -1881,6 +1901,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         insertToolbarGroup: document.getElementById("insert-toolbar-group"),
         insertDividerAfter: document.getElementById("insert-divider-after"),
         toolbarImage: document.getElementById("toolbar-image"),
+        toolbarSidenote: document.getElementById("toolbar-sidenote"),
         notebookField: document.getElementById("notebook-field"),
         notebook: document.getElementById("notebook"),
         slugField: document.getElementById("slug-field"),
@@ -2118,6 +2139,12 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.settingsBackdrop.addEventListener("click", closeSettings);
         els.toolbarImage.addEventListener("click", function () {
           els.imageFile.click();
+        });
+        els.toolbarSidenote.addEventListener("click", insertSidenoteSample);
+        Array.from(document.querySelectorAll("[data-sidenote-tone]")).forEach(function (button) {
+          button.addEventListener("click", function () {
+            insertSidenoteTone(button.dataset.sidenoteTone);
+          });
         });
         els.imageFile.addEventListener("change", uploadImage);
         Array.from(document.querySelectorAll("[data-format]")).forEach(function (button) {
@@ -2873,6 +2900,44 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           });
         };
         reader.readAsDataURL(file);
+      }
+
+      function nextSidenoteId(markdown) {
+        var number = 1;
+        while (new RegExp("\\\\[\\\\^note-" + number + "\\\\]").test(markdown)) number += 1;
+        return "note-" + number;
+      }
+
+      function insertSidenoteSample() {
+        var target = activeTextArea();
+        var cursor = Math.max(0, Math.min(target.selectionEnd || 0, target.value.length));
+        var id = nextSidenoteId(target.value);
+        var reference = "[^" + id + "]";
+        var sample = "**Human judgment** can be _situated_ and {{green|visible}}, {{blue|linked}}, or {{amber|contested}}.";
+        var separator = target.value.endsWith("\\n\\n") ? "" : (target.value.endsWith("\\n") ? "\\n" : "\\n\\n");
+        var nextValue = target.value.slice(0, cursor) + reference + target.value.slice(cursor);
+        nextValue += separator + "[^" + id + "]: " + sample + "\\n";
+
+        if (target === els.body) recordBodyHistory();
+        target.value = nextValue;
+        resizeTextarea(target);
+        if (target === els.markdownCanvas) {
+          syncFieldsFromMarkdown();
+          markContentEdited();
+        } else {
+          recordBodyHistory();
+        }
+
+        var nextCursor = cursor + reference.length;
+        target.focus();
+        target.selectionStart = target.selectionEnd = nextCursor;
+        setStatus("Ejemplo de nota al margen insertado");
+      }
+
+      function insertSidenoteTone(tone) {
+        if (!["green", "blue", "amber"].includes(tone)) return;
+        wrapSelection("{{" + tone + "|", "}}");
+        setStatus("Color de nota insertado");
       }
 
       function insertAtCursor(textarea, text) {

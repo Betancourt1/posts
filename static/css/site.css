@@ -9,6 +9,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Doto";
+  src: url("/fonts/Doto-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Code index */
 body.code-index {
   --github-level-0: #17191d;
@@ -2166,6 +2174,212 @@ body.graph-maximized .ssh-terminal-overlay {
 
 .article p, .post-body p {
   margin-bottom: 1.35rem;
+}
+
+.sidenote-reference {
+  margin-inline-start: 0.12em;
+  color: var(--accent);
+  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
+  font-size: 0.66em;
+  font-weight: 700;
+}
+
+.sidenote-reference a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.sidenote-reference a:hover,
+.sidenote-reference a:focus-visible,
+.sidenote-backlink:hover,
+.sidenote-backlink:focus-visible {
+  color: var(--accent-2);
+}
+
+.sidenote-endnotes {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.sidenote-list {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sidenote-item {
+  display: grid;
+  grid-template-columns: 1.8rem minmax(0, 1fr);
+  gap: 0.75rem;
+  scroll-margin-top: 2rem;
+}
+
+.sidenote-number {
+  color: var(--accent);
+  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.sidenote-copy {
+  color: var(--ink-dim);
+  font-family: "Doto", "JetBrains Mono", monospace;
+  font-size: 11.6px;
+  font-synthesis: none;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+}
+
+.sidenote-copy strong {
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.sidenote-copy em {
+  font-style: oblique 10deg;
+  font-synthesis: style;
+}
+
+.sidenote-tone--green { color: var(--accent); }
+.sidenote-tone--blue { color: #8fb8ff; }
+.sidenote-tone--amber { color: #f0c36e; }
+
+.sidenote-backlinks {
+  display: inline-flex;
+  gap: 0.35rem;
+  margin-inline-start: 0.45rem;
+  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.sidenote-backlink {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.post-context-button {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--ink-dim);
+  cursor: pointer;
+}
+
+.post-context-button:hover,
+.post-context-button:focus-visible {
+  color: var(--accent);
+}
+
+.post-context-button svg {
+  width: 17px;
+  height: 17px;
+}
+
+.sidenote-graph-dialog {
+  width: min(70rem, calc(100vw - 2rem));
+  max-width: none;
+  max-height: calc(100vh - 2rem);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--bg);
+  color: var(--ink);
+  padding: 1rem;
+}
+
+.sidenote-graph-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.sidenote-graph-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.sidenote-graph-dialog-header h2 {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sidenote-graph-dialog-header button {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-dim);
+  font-size: 1.25rem;
+}
+
+.sidenote-graph-dialog .home-graph {
+  margin: 0;
+}
+
+.sidenote-graph-dialog .knowledge-graph {
+  height: min(68vh, 46rem);
+}
+
+@media (min-width: 1001px) {
+  body.has-sidenotes .sidebar-column--sidenotes {
+    position: relative;
+    top: auto;
+    align-self: stretch;
+    overflow: visible;
+  }
+
+  .sidenote-rail {
+    position: relative;
+    width: 100%;
+  }
+
+  .sidenote-endnotes.is-in-rail {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .sidenote-endnotes.is-in-rail .sidenote-list {
+    position: relative;
+    display: block;
+    height: 100%;
+  }
+
+  .sidenote-endnotes.is-in-rail .sidenote-item {
+    position: absolute;
+    left: 0;
+    width: 100%;
+  }
+
+}
+
+@media (max-width: 1000px) {
+  .sidebar-column--sidenotes {
+    display: none;
+  }
+}
+
+@media print {
+  .sidenote-graph-dialog,
+  .post-context-button {
+    display: none !important;
+  }
 }
 
 .article img, .post-body img {

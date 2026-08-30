@@ -302,6 +302,89 @@ test("blocks raw HTML and unsafe Markdown URL schemes", () => {
   assert.match(rendered.bodyHtml, /<a href="https:\/\/example\.com">safe<\/a>/);
 });
 
+test("renders safe rich-text sidenotes with semantic references and backlinks", () => {
+  const rendered = renderMarkdown(`First[^judgment] and repeated[^judgment]. Missing[^missing].
+
+\`inline[^judgment]\`
+
+[^judgment]: **Human judgment** can be _situated_ and {{green|visible}}, {{blue|linked}}, or {{amber|contested}}. [Source](/source/) <script>alert(1)</script>
+[^judgment]: This duplicate must not replace the first definition.`);
+
+  assert.match(rendered.bodyHtml, /id="sidenote-ref-1-1"/);
+  assert.match(rendered.bodyHtml, /id="sidenote-ref-1-2"/);
+  assert.match(rendered.bodyHtml, /id="sidenote-1"/);
+  assert.match(rendered.bodyHtml, /<strong>Human judgment<\/strong>/);
+  assert.match(rendered.bodyHtml, /<em>situated<\/em>/);
+  assert.match(rendered.bodyHtml, /sidenote-tone--green">visible<\/span>/);
+  assert.match(rendered.bodyHtml, /sidenote-tone--blue">linked<\/span>/);
+  assert.match(rendered.bodyHtml, /sidenote-tone--amber">contested<\/span>/);
+  assert.match(rendered.bodyHtml, /href="#sidenote-ref-1-1"/);
+  assert.match(rendered.bodyHtml, /href="#sidenote-ref-1-2"/);
+  assert.match(rendered.bodyHtml, /Missing\[\^missing\]/);
+  assert.match(rendered.bodyHtml, /<code>inline\[\^judgment\]<\/code>/);
+  assert.doesNotMatch(rendered.bodyHtml, /This duplicate|<script>/);
+  assert.match(rendered.bodyHtml, /<!-- raw HTML omitted -->/);
+  assert.match(rendered.bodyText, /First and repeated\. Missing\[\^missing\]\./);
+  assert.match(rendered.bodyText, /Human judgment can be situated and visible, linked, or contested/);
+  assert.deepEqual(rendered.links, [{
+    href: "/source/",
+    label: "Source",
+    targetPath: "/source/",
+    external: false,
+  }]);
+});
+
+test("leaves sidenote-like syntax inside fenced code and strips notes from summaries", () => {
+  const rendered = renderMarkdown(`Before[^real].
+
+\`\`\`md
+[^code]: code definition
+inside[^real]
+\`\`\`
+
+[^real]: {{green|Real note}}
+[^ malformed]: not a valid definition`);
+
+  assert.match(rendered.bodyHtml, /code definition/);
+  assert.match(rendered.bodyHtml, /inside\[\^real\]/);
+  assert.match(rendered.bodyHtml, /\[\^ malformed\]: not a valid definition/);
+  assert.equal((rendered.bodyHtml.match(/class="sidenote-item"/g) || []).length, 1);
+  assert.equal(
+    renderMarkdownSummary("Before[^real].\n\n[^real]: Hidden note"),
+    "<p>Before.</p>\n",
+  );
+});
+
+test("does not allow unsupported sidenote tones to create markup", () => {
+  const rendered = renderMarkdown(`Text[^tone].
+
+[^tone]: {{purple|No class}} {{green|<img src=x onerror=alert(1)>}}`);
+
+  assert.match(rendered.bodyHtml, /\{\{purple\|No class\}\}/);
+  assert.doesNotMatch(rendered.bodyHtml, /sidenote-tone--purple|<img|onerror/);
+  assert.match(rendered.bodyHtml, /sidenote-tone--green/);
+});
+
+test("keeps sidenote references literal inside Markdown link labels", () => {
+  const rendered = renderMarkdown(`[linked[^note]](/target/) and plain[^note].
+
+[^note]: Context`);
+
+  assert.match(rendered.bodyHtml, /<a href="\/target\/">linked\[\^note\]<\/a>/);
+  assert.equal((rendered.bodyHtml.match(/role="doc-noteref"/g) || []).length, 1);
+  assert.doesNotMatch(rendered.bodyHtml, /<a href="\/target\/">[^<]*<a /);
+});
+
+test("preserves valid Markdown entities in body and sidenote tones", () => {
+  const rendered = renderMarkdown(`AT&amp;T[^entity].
+
+[^entity]: {{green|R&amp;D}}`);
+
+  assert.match(rendered.bodyHtml, /<p>AT&amp;T/);
+  assert.match(rendered.bodyHtml, /sidenote-tone--green">R&amp;D<\/span>/);
+  assert.doesNotMatch(rendered.bodyHtml, /&amp;amp;/);
+});
+
 test("generates the canonical English book as a matching Spanish document", async () => {
   const relativePath = "content_en/books/nada-que-temer.md";
   const projected = projectSource({

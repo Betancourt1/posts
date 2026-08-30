@@ -22,6 +22,8 @@
     ".site-header-actions a",
     ".filter-btn",
     ".zen-toggle-btn",
+    ".post-context-button",
+    ".sidenote-graph-dialog button",
   ].join(", ");
 
   var tones = {

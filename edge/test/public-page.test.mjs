@@ -105,6 +105,21 @@ test("single pages avoid duplicating a Markdown H1", async () => {
   assert.match(single, /\{!titleInBody && <h1 class="post-title"/);
 });
 
+test("sidenote typography stays compact, rich, and wrappable", async () => {
+  const css = await readFile(siteCssPath, "utf8");
+  const italicRule = css.match(/\.sidenote-copy em\s*\{([^}]*)\}/)?.[1] || "";
+
+  assert.match(css, /font-family:\s*"Doto";[\s\S]*?font-weight:\s*100 900;/);
+  assert.match(css, /\.sidenote-copy\s*\{[\s\S]*?font-size:\s*11\.6px;[\s\S]*?font-weight:\s*700;/);
+  assert.match(css, /\.sidenote-copy strong\s*\{[\s\S]*?font-weight:\s*900;/);
+  assert.match(italicRule, /font-style:\s*oblique 10deg;/);
+  assert.match(italicRule, /font-synthesis:\s*style;/);
+  assert.doesNotMatch(italicRule, /display:\s*inline-block|transform:/);
+  assert.match(css, /\.sidenote-tone--green\s*\{\s*color:\s*var\(--accent\);/);
+  assert.match(css, /\.sidenote-tone--blue\s*\{\s*color:\s*#8fb8ff;/);
+  assert.match(css, /\.sidenote-tone--amber\s*\{\s*color:\s*#f0c36e;/);
+});
+
 test("the production shell does not offer or restore raw article mode", async () => {
   const [layout, infrastructure] = await Promise.all([
     readFile(siteLayoutPath, "utf8"),
@@ -267,7 +282,7 @@ test("keeps the quote archive inside the standard site shell", async () => {
 
   assert.match(layout, /<p class="site-title"><a href=\{homePath\}>\{siteTitle\}<\/a><\/p>/);
   assert.match(layout, /authorMode \? "author-mode" : ""/);
-  assert.match(layout, /<aside class="column nav-column">[\s\S]*?<Nav items=\{navigation\}/);
+  assert.match(layout, /<aside class="column nav-column">[\s\S]*?<Nav[\s\S]*?items=\{navigation\}/);
   assert.doesNotMatch(layout, /quotes-header-navigation|friendlyArchiveLabels|\{!isQuotes/);
   assert.doesNotMatch(publicPage, /layout === "quotes" \? null|quoteNavigationSections/);
   assert.match(sidebar, />\{month\.key\}<\/a>/);
