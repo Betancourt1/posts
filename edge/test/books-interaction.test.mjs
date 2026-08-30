@@ -8,6 +8,7 @@ import {
   bookMoreLabel,
   nextBookBatch,
 } from "../client/books.js";
+import { previewBookCoverUrl } from "../src/components/_utils.js";
 
 const booksPath = new URL("../src/components/Books.astro", import.meta.url);
 const bookRowPath = new URL("../src/components/BookRow.astro", import.meta.url);
@@ -18,6 +19,33 @@ const booksContentPath = new URL("../../content_en/books/", import.meta.url);
 test("book cover verifier rejects placeholder dimensions", () => {
   assert.equal(hasUsableCoverDimensions({ width: 1, height: 1 }), false);
   assert.equal(hasUsableCoverDimensions({ width: 100, height: 100 }), true);
+});
+
+test("uses provider thumbnails only for book preview images", () => {
+  assert.equal(
+    previewBookCoverUrl("https://covers.openlibrary.org/b/isbn/9788433901828-L.jpg?default=false"),
+    "https://covers.openlibrary.org/b/isbn/9788433901828-M.jpg?default=false",
+  );
+  assert.equal(
+    previewBookCoverUrl("https://is1-ssl.mzstatic.com/image/thumb/example/cover.png/600x600bb.jpg"),
+    "https://is1-ssl.mzstatic.com/image/thumb/example/cover.png/120x180bb.jpg",
+  );
+  assert.equal(
+    previewBookCoverUrl("https://images-na.ssl-images-amazon.com/images/P/9788412943139.01.LZZZZZZZ.jpg"),
+    "https://images-na.ssl-images-amazon.com/images/P/9788412943139.01._SL120_.jpg",
+  );
+  assert.equal(
+    previewBookCoverUrl("https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/123i/456.jpg"),
+    "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/123i/456._SX120_.jpg",
+  );
+  assert.equal(previewBookCoverUrl("/uploads/cover.jpg"), "/uploads/cover.jpg");
+  assert.equal(previewBookCoverUrl("https://example.com/cover.jpg"), "https://example.com/cover.jpg");
+  assert.equal(previewBookCoverUrl("https://EXAMPLE.com/a%2fb.jpg"), "https://EXAMPLE.com/a%2fb.jpg");
+  assert.equal(
+    previewBookCoverUrl("https://covers.openlibrary.org/b/isbn/example-X.jpg?size=%2f"),
+    "https://covers.openlibrary.org/b/isbn/example-X.jpg?size=%2f",
+  );
+  assert.equal(previewBookCoverUrl("not a URL"), "not a URL");
 });
 
 test("reveals books in independent batches of six", () => {
@@ -61,6 +89,7 @@ test("renders hidden rows and a progressive button for each shelf", async () => 
   assert.match(bookRow, /data-book-extra=\{initiallyHidden/);
   assert.match(bookRow, /hidden=\{initiallyHidden\}/);
   assert.match(bookRow, /book\.image/);
+  assert.match(bookRow, /src=\{previewBookCoverUrl\(book\.image\)\}/);
   assert.match(bookRow, /loading=\{initiallyHidden \? "lazy" : "eager"\}/);
   assert.match(layout, /isBooks[\s\S]*type="module" src="\/js\/books\.js"/);
   assert.match(css, /\.book-shelf-row\[hidden\]\s*\{\s*display:\s*none;/);

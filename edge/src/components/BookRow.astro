@@ -1,5 +1,5 @@
 ---
-import { normalizeBookProgress, plainExcerpt } from "./_utils";
+import { normalizeBookProgress, plainExcerpt, previewBookCoverUrl } from "./_utils";
 import type { BookItem, Language } from "./types";
 
 interface Props {
@@ -30,7 +30,7 @@ const opinion = book.review ? plainExcerpt(book.review) : "";
     {book.image && (
       <a class="book-cover" href={book.href} tabindex="-1" aria-hidden="true">
         <img
-          src={book.image}
+          src={previewBookCoverUrl(book.image)}
           alt={book.imageAlt || ""}
           loading={initiallyHidden ? "lazy" : "eager"}
           decoding="async"
