@@ -681,9 +681,12 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   gap: 8px;
 }
 
-.site-header-actions .site-header-controls {
+.site-header-search {
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: min(20rem, 100%);
+  margin: 10px auto 0;
 }
 
 .theme-toggle,
@@ -831,6 +834,10 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   padding: 0;
   background: transparent;
   border: 0;
+}
+
+.sidebar-column {
+  top: 78px;
 }
 
 .nav-title {
@@ -2700,22 +2707,6 @@ sup, sub { line-height: 0; }
     gap: 4px;
   }
 
-  .site-header-actions .search-trigger {
-    justify-content: center;
-    width: 44px;
-    min-width: 44px;
-    padding: 0;
-  }
-
-  .site-header-actions .search-trigger svg {
-    margin-right: 0 !important;
-  }
-
-  .site-header-actions .search-trigger span,
-  .site-header-actions .search-trigger kbd {
-    display: none;
-  }
-
   .typo-dropdown {
     right: auto;
     left: 50%;
@@ -2913,22 +2904,60 @@ body.search-active {
 .search-trigger {
   display: inline-flex;
   align-items: center;
-  border: 1px solid var(--line);
+  gap: 0.5rem;
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--line);
   border-radius: 0;
-  padding: 0.35rem 0.65rem;
+  padding: 0.4rem 0;
   background: transparent;
   color: var(--ink-dim);
   font-size: 0.8rem;
   line-height: 1.25;
+  text-align: left;
   cursor: pointer;
   min-height: 40px;
-  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.search-trigger-icon {
+  flex: none;
+  width: 13px;
+  height: 13px;
+}
+
+.search-trigger > span {
+  flex: 1;
+  padding-left: 0.5rem;
+  border-left: 1px solid var(--accent);
+}
+
+.search-kbd {
+  margin-left: auto;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--ink-dim);
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 400;
 }
 
 .search-trigger:hover {
-  background: var(--bg-soft) !important;
-  color: var(--accent) !important;
-  border-color: var(--accent) !important;
+  background: transparent !important;
+  color: var(--ink) !important;
+  border-bottom-color: var(--accent) !important;
+}
+
+.search-trigger:hover .search-trigger-icon {
+  color: var(--accent);
+}
+
+.search-trigger:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 4px;
+  border-bottom-color: var(--accent);
 }
 
 .zen-toggle-btn {
@@ -4257,6 +4286,10 @@ html.infra-mode .infra-raw-block {
 @media (max-width: 720px) {
   .ssh-terminal-open-btn {
     display: none !important;
+  }
+
+  .search-kbd {
+    display: none;
   }
 
   .theme-toggle,

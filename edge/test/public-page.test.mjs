@@ -101,6 +101,19 @@ test("uses a pipette for grayscale and the historical contrast icon for themes",
   assert.match(layout, /themeToggle\.setAttribute\("title", label\)/);
   assert.doesNotMatch(css, /html\.grayscale-mode\s*\{[^}]*filter:/s);
   assert.match(css, /html\.grayscale-mode body > :not\(\.site-header\),[\s\S]*?\.site-header > :not\(\.site-header-actions\)\s*\{[\s\S]*?filter:\s*grayscale\(100%\)/);
+  assert.match(css, /\.sidebar-column\s*\{\s*top:\s*78px;/);
+  const actionsStart = layout.indexOf('<div class="site-header-actions">');
+  const actionsEnd = layout.indexOf("\n      </div>", actionsStart);
+  const searchStart = layout.indexOf('<div class="site-header-search">');
+  assert.ok(actionsStart >= 0 && actionsEnd > actionsStart && searchStart > actionsEnd);
+  assert.match(layout, /lang === "es" \? "buscar en el archivo" : "search the archive"/);
+  assert.match(layout, /<svg class="search-trigger-icon"/);
+  assert.match(layout, /<kbd class="search-kbd">Ctrl K<\/kbd>/);
+  assert.match(css, /\.site-header-search\s*\{[\s\S]*?justify-content:\s*center;[\s\S]*?width:\s*min\(20rem, 100%\);[\s\S]*?margin:\s*10px auto 0;/);
+  assert.match(css, /\.search-trigger\s*\{[\s\S]*?width:\s*100%;[\s\S]*?border:\s*0;[\s\S]*?border-bottom:\s*1px solid var\(--line\);/);
+  assert.match(css, /\.search-trigger > span\s*\{[\s\S]*?border-left:\s*1px solid var\(--accent\);/);
+  assert.match(css, /\.search-kbd\s*\{[\s\S]*?border:\s*0;[\s\S]*?background:\s*transparent;/);
+  assert.match(css, /@media \(max-width: 720px\)\s*\{[\s\S]*?\.search-kbd\s*\{\s*display:\s*none;/);
 });
 
 test("keeps the Citas title in Spanish notebook navigation", async () => {
