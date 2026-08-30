@@ -2263,74 +2263,22 @@ body.graph-maximized .ssh-terminal-overlay {
   text-decoration: none;
 }
 
-.post-context-button {
-  display: inline-flex;
-  width: 40px;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  color: var(--ink-dim);
-  cursor: pointer;
+.sidenote-sidebar {
+  width: 100%;
 }
 
-.post-context-button:hover,
-.post-context-button:focus-visible {
-  color: var(--accent);
-}
-
-.post-context-button svg {
-  width: 17px;
-  height: 17px;
-}
-
-.sidenote-graph-dialog {
-  width: min(70rem, calc(100vw - 2rem));
-  max-width: none;
-  max-height: calc(100vh - 2rem);
-  border: 1px solid var(--line);
-  border-radius: 0;
-  background: var(--bg);
-  color: var(--ink);
-  padding: 1rem;
-}
-
-.sidenote-graph-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.72);
-}
-
-.sidenote-graph-dialog-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-}
-
-.sidenote-graph-dialog-header h2 {
-  margin: 0;
-  color: var(--accent);
-  font-size: 0.82rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.sidenote-graph-dialog-header button {
-  width: 40px;
-  height: 40px;
-  border: 0;
-  background: transparent;
-  color: var(--ink-dim);
-  font-size: 1.25rem;
-}
-
-.sidenote-graph-dialog .home-graph {
-  margin: 0;
-}
-
-.sidenote-graph-dialog .knowledge-graph {
-  height: min(68vh, 46rem);
+.sidenote-sidebar-graph {
+  max-height: 24rem;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transform-origin: top;
+  transition-property: opacity, max-height, margin-bottom, transform, visibility;
+  transition-duration: 0.28s, 0.42s, 0.42s, 0.42s, 0s;
+  transition-timing-function: var(--ease-out);
+  transition-delay: 0s;
 }
 
 @media (min-width: 1001px) {
@@ -2372,13 +2320,6 @@ body.graph-maximized .ssh-terminal-overlay {
 @media (max-width: 1000px) {
   .sidebar-column--sidenotes {
     display: none;
-  }
-}
-
-@media print {
-  .sidenote-graph-dialog,
-  .post-context-button {
-    display: none !important;
   }
 }
 
@@ -3199,6 +3140,42 @@ body.zen-mode-returning .layout {
   body.zen-mode-fading .sidebar-column,
   body.zen-mode-returning .sidebar-column {
     transform: translate3d(calc(100% + max(0px, 50vw - 720px) + 64px), 0, 0);
+  }
+
+  body.has-sidenotes.zen-mode .sidebar-column--sidenotes,
+  body.has-sidenotes.zen-mode-returning .sidebar-column--sidenotes {
+    display: block !important;
+    width: 260px;
+    pointer-events: auto;
+    visibility: visible;
+    transform: translate3d(0, 0, 0);
+    overflow: visible;
+    transition: none;
+  }
+
+  body.has-sidenotes.zen-mode .sidenote-sidebar-graph,
+  body.has-sidenotes.zen-mode-returning .sidenote-sidebar-graph {
+    max-height: 0;
+    margin-bottom: 0;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-6px);
+    transition-delay: 0s, 0s, 0s, 0s, 0.42s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidenote-sidebar-graph {
+    transform: none;
+    transition-duration: 0.12s, 0s, 0s, 0s, 0s;
+    transition-delay: 0s;
+  }
+
+  body.has-sidenotes.zen-mode .sidenote-sidebar-graph,
+  body.has-sidenotes.zen-mode-returning .sidenote-sidebar-graph {
+    transform: none;
+    transition-delay: 0s, 0.12s, 0.12s, 0s, 0.12s;
   }
 }
 

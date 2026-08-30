@@ -41,7 +41,10 @@
         nextTop = top + item.offsetHeight + 22;
       });
 
-      rail.style.minHeight = Math.ceil(Math.max(article ? article.offsetHeight : 0, nextTop)) + "px";
+      var remainingArticleHeight = article
+        ? Math.max(0, article.getBoundingClientRect().bottom - railTop)
+        : 0;
+      rail.style.minHeight = Math.ceil(Math.max(remainingArticleHeight, nextTop)) + "px";
     }
 
     function schedulePosition() {
@@ -50,7 +53,7 @@
     }
 
     function syncPlacement() {
-      var useRail = desktop.matches && !printMode && !document.body.classList.contains("zen-mode");
+      var useRail = desktop.matches && !printMode;
       if (!useRail) {
         restoreEndnotes();
         return;
@@ -75,27 +78,20 @@
       attributes: true,
       attributeFilter: ["class"],
     });
+    var graph = document.querySelector(".sidenote-sidebar-graph");
     if ("ResizeObserver" in window) {
       var article = document.querySelector(".post--has-sidenotes");
       if (article) new ResizeObserver(schedulePosition).observe(article);
+      if (graph) new ResizeObserver(schedulePosition).observe(graph);
+    }
+    if (graph) {
+      graph.addEventListener("transitionend", function (event) {
+        if (event.propertyName === "max-height" || event.propertyName === "margin-bottom") {
+          schedulePosition();
+        }
+      });
     }
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(schedulePosition);
-
-    var graphDialog = document.getElementById("sidenote-graph-dialog");
-    var graphOpen = document.querySelector("[data-sidenote-graph-open]");
-    var graphClose = document.getElementById("sidenote-graph-close");
-    if (graphDialog && graphOpen && graphClose) {
-      graphOpen.addEventListener("click", function () {
-        graphDialog.showModal();
-        window.requestAnimationFrame(function () {
-          window.dispatchEvent(new Event("resize"));
-        });
-      });
-      graphClose.addEventListener("click", function () { graphDialog.close(); });
-      graphDialog.addEventListener("click", function (event) {
-        if (event.target === graphDialog) graphDialog.close();
-      });
-    }
 
     syncPlacement();
   }

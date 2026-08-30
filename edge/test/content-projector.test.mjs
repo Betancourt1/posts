@@ -117,19 +117,27 @@ test("preserves nested photo metadata from a real source", async () => {
   assert.equal(document.searchable, true);
 });
 
-test("keeps the requested bilingual content inventories aligned", async () => {
-  function relativeFiles(root, files) {
-    return files
+test("keeps visible bilingual inventories aligned while allowing local drafts", async () => {
+  async function relativeFiles(root, files) {
+    const projected = await Promise.all(files
       .filter((file) => path.basename(file) !== "_index.md")
-      .map((file) => path.relative(root, file).split(path.sep).join("/"))
-      .sort();
+      .map(async (file) => {
+        const sourcePath = path.relative(REPO_ROOT, file).split(path.sep).join("/");
+        const source = projectSource({
+          path: sourcePath,
+          rawMarkdown: await readFile(file, "utf8"),
+        });
+        if (source.documents.every((document) => document.draft || document.hidden)) return null;
+        return path.relative(root, file).split(path.sep).join("/");
+      }));
+    return projected.filter(Boolean).sort();
   }
 
   for (const section of ["posts", "lit", "fotografia"]) {
     const spanishRoot = path.join(REPO_ROOT, "content_es", section);
     const englishRoot = path.join(REPO_ROOT, "content_en", section);
-    const spanishFiles = relativeFiles(spanishRoot, await markdownFiles(spanishRoot));
-    const englishFiles = relativeFiles(englishRoot, await markdownFiles(englishRoot));
+    const spanishFiles = await relativeFiles(spanishRoot, await markdownFiles(spanishRoot));
+    const englishFiles = await relativeFiles(englishRoot, await markdownFiles(englishRoot));
 
     assert.deepEqual(englishFiles, spanishFiles, `${section} must expose the same entries`);
     for (const relativePath of spanishFiles) {
@@ -437,9 +445,9 @@ test("projects the complete repository with the migration count contract", async
   const documents = projections.flatMap((projection) => projection.documents);
   const routes = documents.flatMap((document) => document.routes);
 
-  assert.equal(files.length, 365);
-  assert.equal(documents.length, 463);
+  assert.equal(files.length, 366);
+  assert.equal(documents.length, 464);
   assert.equal(documents.filter((document) => document.searchable).length, 432);
-  assert.equal(routes.filter((route) => route.kind === "canonical").length, 463);
+  assert.equal(routes.filter((route) => route.kind === "canonical").length, 464);
   assert.equal(routes.filter((route) => route.kind === "alias").length, 122);
 });
