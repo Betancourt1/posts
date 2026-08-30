@@ -2531,7 +2531,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.imageAlt.value = "";
         els.caption.value = "";
         els.draft.checked = true;
-        els.hidden.checked = true;
+        els.hidden.checked = false;
         els.arenaEnabled.checked = false;
         els.arenaChannelField.hidden = true;
         setArenaState({

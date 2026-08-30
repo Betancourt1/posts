@@ -77,6 +77,14 @@ test("text editor injects its API base and cannot save before content hydration"
   assert.match(html, /result\.deletedUrl/);
 });
 
+test("new text posts start hidden until visibility is explicitly enabled", () => {
+  const html = postEditorHtml();
+
+  assert.match(html, /els\.draft\.checked = true;\s*els\.hidden\.checked = false;/);
+  assert.match(html, /draft: !els\.hidden\.checked,\s*hidden: !els\.hidden\.checked,/);
+  assert.match(html, /els\.hidden\.checked = frontMatter\.draft !== true && frontMatter\.hidden !== true;/);
+});
+
 test("text editor reuses Markdown mode for book templates", () => {
   const html = postEditorHtml();
   const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
