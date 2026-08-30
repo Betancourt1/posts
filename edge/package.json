@@ -22,6 +22,7 @@
     "media:sync": "node scripts/sync-media.mjs",
     "media:sync:local": "node scripts/sync-media.mjs --local",
     "media:sync:dry-run": "node scripts/sync-media.mjs --dry-run",
+    "books:verify-covers": "node scripts/verify-book-covers.mjs",
     "quotes:normalize": "node scripts/normalize-quote-metadata.mjs"
   },
   "dependencies": {

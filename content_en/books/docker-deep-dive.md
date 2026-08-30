@@ -10,6 +10,8 @@ book_author: "Nigel Poulton"
 book_status: "read"
 goodreads_id: "36411996"
 goodreads_url: "https://www.goodreads.com/book/show/36411996"
+image: "https://is1-ssl.mzstatic.com/image/thumb/Publication221/v4/26/5c/ed/265ceda9-ac31-04bf-150d-8fcd2cb9213d/2087d16c-9e9c-424d-831e-5f6b9efc61d3_cover_image.png/600x600bb.jpg"
+image_alt: "Docker Deep Dive — Nigel Poulton"
 rating: 5
 date_read: 2025-07-19
 date_added: 2025-07-15

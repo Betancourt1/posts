@@ -10,6 +10,8 @@ book_author: "Federico Fabregat"
 book_status: "read"
 goodreads_id: "25074641"
 goodreads_url: "https://www.goodreads.com/book/show/25074641"
+image: "https://is1-ssl.mzstatic.com/image/thumb/Publication128/v4/21/66/65/216665d5-fc8c-2bd6-7eba-1ea2f3688e36/1023152398.jpg/600x600bb.jpg"
+image_alt: "Filosofía de clase media (Spanish Edition) — Federico Fabregat"
 rating: 3
 date_added: 2025-07-09
 publication_year: 2013

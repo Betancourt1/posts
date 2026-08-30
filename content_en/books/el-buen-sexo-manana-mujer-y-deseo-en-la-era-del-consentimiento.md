@@ -10,6 +10,8 @@ book_author: "Katherine Angel"
 book_status: "read"
 goodreads_id: "57801487"
 goodreads_url: "https://www.goodreads.com/book/show/57801487"
+image: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1618914489i/57801487.jpg"
+image_alt: "El buen sexo mañana: Mujer y deseo en la era del consentimiento — Katherine Angel"
 rating: 5
 date_read: 2023-07-17
 date_added: 2025-12-30

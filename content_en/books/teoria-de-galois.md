@@ -10,6 +10,8 @@ book_author: "Felipe Zaldívar"
 book_status: "read"
 goodreads_id: "19383962"
 goodreads_url: "https://www.goodreads.com/book/show/19383962"
+image: "https://covers.openlibrary.org/b/isbn/9788476585023-L.jpg?default=false"
+image_alt: "Teoría de Galois — Felipe Zaldívar"
 rating: 5
 date_read: 2021-12-17
 date_added: 2025-12-30

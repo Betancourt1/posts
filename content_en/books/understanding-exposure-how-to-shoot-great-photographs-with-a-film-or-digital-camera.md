@@ -3,6 +3,8 @@ title: "Understanding Exposure: How to Shoot Great Photographs with a Film or Di
 date: 2025-06-24
 tags: ["book", "currently-reading", "technical-books", "photography"]
 summary: "By Bryan Peterson · Reading"
+image: "https://covers.openlibrary.org/b/isbn/9780817463007-L.jpg?default=false"
+image_alt: "Understanding Exposure: How to Shoot Great Photographs with a Film or Digital Camera — Bryan Peterson"
 binding: "Paperback"
 book_author: "Bryan Peterson"
 book_progress: "33"

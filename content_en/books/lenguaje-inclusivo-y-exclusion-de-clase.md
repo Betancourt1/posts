@@ -10,6 +10,8 @@ book_author: "Brigitte Vasallo"
 book_status: "read"
 goodreads_id: "57406497"
 goodreads_url: "https://www.goodreads.com/book/show/57406497"
+image: "https://covers.openlibrary.org/b/isbn/9788418100994-L.jpg?default=false"
+image_alt: "Lenguaje inclusivo y exclusión de clase — Brigitte Vasallo"
 rating: 5
 date_added: 2026-03-22
 bookshelves: ["aforismos", "ciencias-sociales"]

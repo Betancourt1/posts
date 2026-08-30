@@ -10,6 +10,8 @@ book_author: "Franz Kafka"
 book_status: "read"
 goodreads_id: "59186"
 goodreads_url: "https://www.goodreads.com/book/show/59186"
+image: "https://covers.openlibrary.org/b/isbn/9789871165070-L.jpg?default=false"
+image_alt: "La metamorfosis — Franz Kafka"
 rating: 4
 date_read: 2015-09-17
 date_added: 2025-12-30

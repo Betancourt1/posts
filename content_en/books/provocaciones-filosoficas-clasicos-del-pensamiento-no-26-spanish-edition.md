@@ -10,6 +10,8 @@ book_author: "Paul Karl Feyerabend"
 book_status: "read"
 goodreads_id: "25170132"
 goodreads_url: "https://www.goodreads.com/book/show/25170132"
+image: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1426706635i/25170132.jpg"
+image_alt: "Provocaciones filosóficas (Clásicos del Pensamiento nº 26) (Spanish Edition) — Paul Karl Feyerabend"
 rating: 5
 date_read: 2018-06-04
 date_added: 2025-03-02

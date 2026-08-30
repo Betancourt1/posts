@@ -10,6 +10,8 @@ book_author: "Kelsey Hightower"
 book_status: "read"
 goodreads_id: "26759355"
 goodreads_url: "https://www.goodreads.com/book/show/26759355"
+image: "https://covers.openlibrary.org/b/isbn/9781491935675-L.jpg?default=false"
+image_alt: "Kubernetes: Up & Running — Kelsey Hightower"
 additional_authors: ["Brendan Burns", "Joe Beda"]
 date_read: 2025-12-19
 date_added: 2025-12-09

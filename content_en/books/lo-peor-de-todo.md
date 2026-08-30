@@ -10,6 +10,8 @@ book_author: "Ray Loriga"
 book_status: "read"
 goodreads_id: "855286"
 goodreads_url: "https://www.goodreads.com/book/show/855286"
+image: "https://covers.openlibrary.org/b/isbn/9788401423536-L.jpg?default=false"
+image_alt: "Lo peor de todo — Ray Loriga"
 rating: 3
 date_read: 2021-12-02
 date_added: 2025-03-02

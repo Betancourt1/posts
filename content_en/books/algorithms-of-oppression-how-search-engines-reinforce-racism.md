@@ -10,6 +10,8 @@ book_author: "Safiya Umoja Noble"
 book_status: "to-read"
 goodreads_id: "34762552"
 goodreads_url: "https://www.goodreads.com/book/show/34762552"
+image: "https://covers.openlibrary.org/b/isbn/9781479837243-L.jpg?default=false"
+image_alt: "Algorithms of Oppression: How Search Engines Reinforce Racism — Safiya Umoja Noble"
 date_added: 2025-02-17
 bookshelves: ["to-read"]
 publication_year: 2018

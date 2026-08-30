@@ -10,6 +10,8 @@ book_author: "David Graeber"
 book_status: "currently-reading"
 goodreads_id: "6617037"
 goodreads_url: "https://www.goodreads.com/book/show/6617037"
+image: "https://covers.openlibrary.org/b/isbn/9781933633862-L.jpg?default=false"
+image_alt: "Debt: The First 5,000 Years — David Graeber"
 date_added: 2025-02-17
 bookshelves: ["currently-reading"]
 publication_year: 2011

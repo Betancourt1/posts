@@ -47,6 +47,18 @@ quotes:
     source: "Blooming in the Ruins: How Mexican Philosophy Can Guide Us toward the
       Good Life"
     year: "2024"
+  - text: "In a general sense, then, the fact is that worrying about originality
+      (again, in the sense of novelty) will only hold you back. An obsession over
+      uniqueness can paralyze you. You may freeze, become agraid to engage the
+      world confidently -or worse, afraid to think with your own boice and from
+      your own experiencem as happened with me and Lord Byron. It is easy for us
+      to sabotage ourselves with worries over imitation, over producing \"bad
+      copies\" of something previously said or created; dismayed by such thoughts,
+      we may resolve to cease any attempts at creative expression."
+    author: "Carlos Alberto Sánchez"
+    source: "Blooming in the Ruins: How Mexican Philosophy Can Guide Us toward the
+      Good Life"
+    year: "2024"
 aliases: [ "/zettelkasten/carlos-alberto-sanchez/" ]
 ---
 
@@ -65,6 +77,9 @@ aliases: [ "/zettelkasten/carlos-alberto-sanchez/" ]
 > - Carlos Alberto Sánchez -
 
 > So, while alive, be late at parties. You gain nothing by trying to be on time, but you may gain something by being late: more time to get lost in the world, more time to enjoy the journey before getting to the destination, more time to be alone with yourself. Your capitalist, colonized habits may violently react to this strategy, but that dinal appointment with death is always just around the corner, so why hurry?
+> - Carlos Alberto Sánchez -
+
+> In a general sense, then, the fact is that worrying about originality (again, in the sense of novelty) will only hold you back. An obsession over uniqueness can paralyze you. You may freeze, become agraid to engage the world confidently -or worse, afraid to think with your own boice and from your own experiencem as happened with me and Lord Byron. It is easy for us to sabotage ourselves with worries over imitation, over producing "bad copies" of something previously said or created; dismayed by such thoughts, we may resolve to cease any attempts at creative expression.
 > - Carlos Alberto Sánchez -
 
 ## Notas

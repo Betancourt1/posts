@@ -10,6 +10,8 @@ book_author: "Roland Barthes"
 book_status: "read"
 goodreads_id: "15846290"
 goodreads_url: "https://www.goodreads.com/book/show/15846290"
+image: "https://covers.openlibrary.org/b/isbn/9786070300721-L.jpg?default=false"
+image_alt: "Diario de duelo. 26 de octubre de 1977-15 de septiembre de 1979 — Roland Barthes"
 additional_authors: ["Adolfo Castañón"]
 rating: 5
 date_read: 2024-09-30

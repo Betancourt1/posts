@@ -37,8 +37,7 @@ body.code-index .site-title a {
   font-size: 2.55rem;
 }
 
-body.code-index .site-subtitle,
-body.code-index .site-header-controls {
+body.code-index .site-subtitle {
   display: none !important;
 }
 
@@ -409,21 +408,13 @@ body.code-index .site-header-actions {
 
 @media (max-width: 1000px) {
   body.code-index .site-header {
-    padding: 16px;
+    padding: 66px 16px 16px;
   }
 
   body.code-index .site-header-actions {
-    position: absolute;
     top: 13px;
     right: 16px;
-    margin: 0;
     gap: 4px;
-  }
-
-  body.code-index .site-header-actions .typo-container,
-  body.code-index .site-header-actions .infra-toggle,
-  body.code-index .site-header-actions .grayscale-toggle {
-    display: none;
   }
 
   .layout.layout--code-index {
@@ -680,12 +671,18 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 }
 
 .site-header-actions {
-  position: absolute;
+  position: fixed;
   top: 22px;
   right: 32px;
+  z-index: 2000;
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.site-header-actions .site-header-controls {
+  display: flex;
+  align-items: center;
 }
 
 .theme-toggle,
@@ -1618,8 +1615,31 @@ button.quotes-order-option:focus-visible {
   border-bottom: 0;
 }
 
+.book-row-main,
 .book-identity {
   min-width: 0;
+}
+
+.book-row-main {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.book-cover {
+  flex: 0 0 3.25rem;
+  width: 3.25rem;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.book-cover img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 .book-identity h3 {
@@ -1748,6 +1768,11 @@ button.quotes-order-option:focus-visible {
 
   .book-progress {
     width: min(13rem, 100%);
+  }
+
+  .book-cover {
+    flex-basis: 3.75rem;
+    width: 3.75rem;
   }
 
   .book-opinion {
@@ -2665,17 +2690,29 @@ sup, sub { line-height: 0; }
 
 @media (max-width: 1000px) {
   .site-header {
-    padding: 22px 16px 6px;
+    padding: 66px 16px 6px;
   }
 
   .site-header-actions {
-    position: relative;
-    top: auto;
-    right: auto;
-    margin: 10px auto 0;
-    display: flex;
+    top: 10px;
+    right: 12px;
+    gap: 4px;
+  }
+
+  .site-header-actions .search-trigger {
     justify-content: center;
-    gap: 12px;
+    width: 44px;
+    min-width: 44px;
+    padding: 0;
+  }
+
+  .site-header-actions .search-trigger svg {
+    margin-right: 0 !important;
+  }
+
+  .site-header-actions .search-trigger span,
+  .site-header-actions .search-trigger kbd {
+    display: none;
   }
 
   .typo-dropdown {

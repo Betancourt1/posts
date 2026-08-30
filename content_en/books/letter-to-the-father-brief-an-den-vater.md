@@ -10,6 +10,8 @@ book_author: "Franz Kafka"
 book_status: "read"
 goodreads_id: "23995376"
 goodreads_url: "https://www.goodreads.com/book/show/23995376"
+image: "https://covers.openlibrary.org/b/isbn/9780805212662-L.jpg?default=false"
+image_alt: "Letter to the Father / Brief an den Vater — Franz Kafka"
 additional_authors: ["Ernst Kaiser", "Eithne Wilkins", "Tom McCarthy"]
 rating: 5
 date_read: 2024-04-04

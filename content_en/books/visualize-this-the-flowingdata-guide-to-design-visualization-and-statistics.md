@@ -10,6 +10,8 @@ book_author: "Nathan Yau"
 book_status: "to-read"
 goodreads_id: "11054622"
 goodreads_url: "https://www.goodreads.com/book/show/11054622"
+image: "https://covers.openlibrary.org/b/isbn/9780470944882-L.jpg?default=false"
+image_alt: "Visualize This: The FlowingData Guide to Design, Visualization, and Statistics — Nathan Yau"
 date_added: 2025-02-17
 bookshelves: ["to-read"]
 publication_year: 2011

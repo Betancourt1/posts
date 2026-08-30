@@ -10,6 +10,8 @@ book_author: "Michel Nieva"
 book_status: "read"
 goodreads_id: "217273431"
 goodreads_url: "https://www.goodreads.com/book/show/217273431"
+image: "https://covers.openlibrary.org/b/id/15228931-L.jpg?default=false"
+image_alt: "Ciencia ficción capitalista: Cómo los multimillonarios nos salvarán del fin del mundo — Michel Nieva"
 rating: 5
 date_read: 2025-10-25
 date_added: 2025-12-24

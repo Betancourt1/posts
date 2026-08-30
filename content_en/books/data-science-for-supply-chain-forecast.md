@@ -10,6 +10,8 @@ book_author: "Nicolas Vandeput"
 book_status: "read"
 goodreads_id: "43081723"
 goodreads_url: "https://www.goodreads.com/book/show/43081723"
+image: "https://covers.openlibrary.org/b/id/13168990-L.jpg?default=false"
+image_alt: "Data Science for Supply Chain Forecast — Nicolas Vandeput"
 rating: 4
 date_read: 2024-08-01
 date_added: 2025-02-21

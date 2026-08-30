@@ -10,6 +10,8 @@ book_author: "Alan F. Chalmers"
 book_status: "read"
 goodreads_id: "137314"
 goodreads_url: "https://www.goodreads.com/book/show/137314"
+image: "https://covers.openlibrary.org/b/isbn/9780335201099-L.jpg?default=false"
+image_alt: "What Is This Thing Called Science? — Alan F. Chalmers"
 rating: 4
 date_read: 2017-05-03
 date_added: 2025-03-02

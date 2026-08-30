@@ -10,6 +10,8 @@ book_author: "Harry G. Frankfurt"
 book_status: "read"
 goodreads_id: "385"
 goodreads_url: "https://www.goodreads.com/book/show/385"
+image: "https://images-na.ssl-images-amazon.com/images/P/9780691122946.01.LZZZZZZZ.jpg"
+image_alt: "On Bullshit — Harry G. Frankfurt"
 rating: 5
 date_read: 2019-11-17
 date_added: 2025-12-30

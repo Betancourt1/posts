@@ -10,6 +10,8 @@ book_author: "David Graeber"
 book_status: "read"
 goodreads_id: "22245334"
 goodreads_url: "https://www.goodreads.com/book/show/22245334"
+image: "https://covers.openlibrary.org/b/isbn/9781612193748-L.jpg?default=false"
+image_alt: "The Utopia of Rules: On Technology, Stupidity, and the Secret Joys of Bureaucracy — David Graeber"
 rating: 4
 date_read: 2024-02-28
 date_added: 2025-02-17

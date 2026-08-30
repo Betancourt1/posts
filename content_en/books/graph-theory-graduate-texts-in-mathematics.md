@@ -10,6 +10,8 @@ book_author: "Reinhard Diestel"
 book_status: "read"
 goodreads_id: "388052"
 goodreads_url: "https://www.goodreads.com/book/show/388052"
+image: "https://images-na.ssl-images-amazon.com/images/P/9783540261834.01.LZZZZZZZ.jpg"
+image_alt: "Graph Theory (Graduate Texts in Mathematics) — Reinhard Diestel"
 rating: 5
 date_read: 2025-07-01
 date_added: 2025-02-17

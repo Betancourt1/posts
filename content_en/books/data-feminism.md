@@ -10,6 +10,8 @@ book_author: "Catherine D’Ignazio"
 book_status: "read"
 goodreads_id: "51777543"
 goodreads_url: "https://www.goodreads.com/book/show/51777543"
+image: "https://covers.openlibrary.org/b/isbn/9780262044004-L.jpg?default=false"
+image_alt: "Data Feminism — Catherine D’Ignazio"
 additional_authors: ["Lauren F. Klein"]
 rating: 5
 date_read: 2024-03-31

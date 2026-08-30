@@ -3,6 +3,8 @@ title: "Designing Data-Intensive Applications"
 date: 2025-12-30
 tags: ["book", "currently-reading", "data-engineering", "architecture"]
 summary: "By Martin Kleppmann · Reading"
+image: "https://is1-ssl.mzstatic.com/image/thumb/Publication221/v4/fc/84/ca/fc84ca89-4afb-14d1-f9f3-567cfd0c8768/9781098119027.jpg/600x600bb.jpg"
+image_alt: "Designing Data-Intensive Applications — Martin Kleppmann"
 binding: "ebook"
 book_author: "Martin Kleppmann"
 book_progress: "15"

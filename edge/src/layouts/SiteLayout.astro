@@ -170,16 +170,16 @@ const archivesPath = authorMode
             <circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 0 20V2z" fill="currentColor"></path>
           </svg>
         </button>
+        {showSearch && (
+          <div class="site-header-controls">
+            <button class="search-trigger" id="search-trigger" type="button" aria-label={lang === "es" ? "Buscar (Ctrl+K)" : "Search (Ctrl+K)"} aria-controls="search-modal" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px; margin-right: 6px;" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <span>{lang === "es" ? "Buscar..." : "Search..."}</span>
+              <kbd class="search-kbd" style="margin-left: 8px; font-size: 0.7rem; padding: 1px 4px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-weight: normal; color: var(--ink-dim);">Ctrl K</kbd>
+            </button>
+          </div>
+        )}
       </div>
-      {showSearch && (
-        <div class="site-header-controls" style="margin-top: 10px; display: flex; justify-content: center; gap: 10px; align-items: center;">
-          <button class="search-trigger" id="search-trigger" type="button" aria-label={lang === "es" ? "Buscar (Ctrl+K)" : "Search (Ctrl+K)"} aria-controls="search-modal" aria-expanded="false">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px; margin-right: 6px;" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <span>{lang === "es" ? "Buscar..." : "Search..."}</span>
-            <kbd class="search-kbd" style="margin-left: 8px; font-size: 0.7rem; padding: 1px 4px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-weight: normal; color: var(--ink-dim);">Ctrl K</kbd>
-          </button>
-        </div>
-      )}
     </header>
 
     {showSearch && (
