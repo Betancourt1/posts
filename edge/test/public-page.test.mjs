@@ -25,6 +25,7 @@ const siteCssPath = new URL("../../static/css/site.css", import.meta.url);
 const listPath = new URL("../src/components/List.astro", import.meta.url);
 const adminPagePath = new URL("../src/pages/admin/[...path].astro", import.meta.url);
 const publicPageLoaderPath = new URL("../src/lib/public-page.mjs", import.meta.url);
+const typesPath = new URL("../src/components/types.ts", import.meta.url);
 
 test("maps arbitrary admin content routes to their public D1 route", () => {
   assert.equal(publicPathForAdminRoute("/admin/"), "/");
@@ -38,11 +39,13 @@ test("maps arbitrary admin content routes to their public D1 route", () => {
 });
 
 test("admin writing lists include hidden drafts without changing public lists", async () => {
-  const [adminPage, loader, list, publicPage] = await Promise.all([
+  const [adminPage, loader, list, publicPage, types, css] = await Promise.all([
     readFile(adminPagePath, "utf8"),
     readFile(publicPageLoaderPath, "utf8"),
     readFile(listPath, "utf8"),
     readFile(publicPagePath, "utf8"),
+    readFile(typesPath, "utf8"),
+    readFile(siteCssPath, "utf8"),
   ]);
 
   assert.match(adminPage, /includeDrafts:\s*true,[\s\S]*includeHiddenListItems:\s*true/);
@@ -52,6 +55,11 @@ test("admin writing lists include hidden drafts without changing public lists", 
   assert.match(list, /for \(const item of displayItems\)/);
   assert.match(list, /\{displayItems\.map\(\(item\) => \(/);
   assert.match(publicPage, /<List[\s\S]*authorMode=\{authorMode\}/);
+  assert.match(types, /draft\?: boolean;/);
+  assert.match(publicPage, /draft: document\.draft,[\s\S]*hidden: document\.hidden/);
+  assert.match(list, /authorMode && \(item\.draft \|\| item\.hidden\)[\s\S]*class="writing-index-status"[\s\S]*"Borrador" : "Draft"/);
+  assert.equal(list.match(/class="writing-index-status"/g)?.length, 1);
+  assert.match(css, /\.writing-index-status\s*\{[\s\S]*?border:\s*1px solid var\(--accent\);[\s\S]*?text-transform:\s*uppercase;/);
 });
 
 test("recognizes localized tag routes without swallowing normal pages", () => {

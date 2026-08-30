@@ -55,6 +55,7 @@ function listItem(document: any) {
     summary: document.summary || document.description || document.bodyText?.slice(0, 220),
     tags: tagsFor(document),
     section: document.section,
+    draft: document.draft,
     hidden: document.hidden,
   };
 }

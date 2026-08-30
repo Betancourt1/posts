@@ -1236,6 +1236,21 @@ a.guestbook-sender:hover {
   outline-offset: 2px;
 }
 
+.writing-index-status {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-start: 0.55rem;
+  border: 1px solid var(--accent);
+  padding: 0.05rem 0.3rem;
+  color: var(--accent);
+  font-size: 0.62rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: 0.12rem;
+}
+
 .writing-index-summary {
   display: -webkit-box;
   -webkit-box-orient: vertical;

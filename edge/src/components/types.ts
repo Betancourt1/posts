@@ -62,6 +62,7 @@ export interface ContentListItem {
   summaryHtml?: string | null;
   tags?: TagItem[];
   section?: string;
+  draft?: boolean;
   hidden?: boolean;
 }
 

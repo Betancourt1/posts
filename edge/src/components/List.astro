@@ -83,7 +83,12 @@ for (const item of displayItems) {
             <article class="writing-index-row">
               <span class="writing-index-date">{day}</span>
               <div class="writing-index-main">
-                <h3 class="writing-index-title"><a href={item.href}>{item.title}</a></h3>
+                <h3 class="writing-index-title">
+                  <a href={item.href}>{item.title}</a>
+                  {authorMode && (item.draft || item.hidden) && (
+                    <span class="writing-index-status">{lang === "es" ? "Borrador" : "Draft"}</span>
+                  )}
+                </h3>
                 {item.summary && <p class="writing-index-summary">{item.summary}</p>}
               </div>
               {showTags && (item.tags?.length ?? 0) > 0 && (
