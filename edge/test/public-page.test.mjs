@@ -154,6 +154,10 @@ test("keeps interaction sounds opt-in, synthesized, and public-only", async () =
   assert.match(sound, /localStorage\.getItem\(STORAGE_KEY\) === "true"/);
   assert.match(sound, /window\.AudioContext \|\| window\.webkitAudioContext/);
   assert.equal((sound.match(/^    [a-zA-Z]+: \{ start:/gm) || []).length, 4);
+  assert.match(sound, /var secondary = context\.createOscillator\(\)/);
+  assert.match(sound, /oscillator\.connect\(gain\);\s*secondary\.connect\(gain\);\s*gain\.connect\(context\.destination\)/);
+  assert.match(sound, /exponentialRampToValueAtTime\(tone\.gain, now \+ 0\.002\)/);
+  assert.match(sound, /secondary\.stop\(now \+ tone\.duration \+ 0\.004\)/);
   assert.doesNotMatch(sound, /mouseenter|mouseover|\.mp3|\.wav|new Audio\(/);
   assert.match(search, /CustomEvent\("site-sound", \{ detail: \{ tone: "searchResults" \} \}\)/);
   assert.match(graph, /CustomEvent\("site-sound", \{ detail: \{ tone: "navigation" \} \}\)[\s\S]*?window\.location\.assign\(node\.url\)/);

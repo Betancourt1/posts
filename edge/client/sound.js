@@ -7,10 +7,10 @@
   var gestureReady = false;
 
   var tones = {
-    navigation: { start: 1320, end: 1080, duration: 0.032, gain: 0.014, type: "triangle" },
-    searchFocus: { start: 520, end: 760, duration: 0.068, gain: 0.018, type: "sine" },
-    searchResults: { start: 620, end: 920, duration: 0.078, gain: 0.02, type: "sine" },
-    control: { start: 390, end: 540, duration: 0.052, gain: 0.016, type: "triangle" },
+    navigation: { start: 2400, end: 1300, secondaryStart: 3570, secondaryEnd: 1930, duration: 0.018, gain: 0.008 },
+    searchFocus: { start: 1450, end: 880, secondaryStart: 2320, secondaryEnd: 1410, duration: 0.026, gain: 0.009 },
+    searchResults: { start: 1900, end: 1180, secondaryStart: 3070, secondaryEnd: 1910, duration: 0.034, gain: 0.01 },
+    control: { start: 1750, end: 980, secondaryStart: 2740, secondaryEnd: 1530, duration: 0.022, gain: 0.009 },
   };
 
   function storedPreference() {
@@ -43,17 +43,24 @@
 
     var now = context.currentTime;
     var oscillator = context.createOscillator();
+    var secondary = context.createOscillator();
     var gain = context.createGain();
-    oscillator.type = tone.type;
+    oscillator.type = "triangle";
     oscillator.frequency.setValueAtTime(tone.start, now);
     oscillator.frequency.exponentialRampToValueAtTime(tone.end, now + tone.duration);
+    secondary.type = "square";
+    secondary.frequency.setValueAtTime(tone.secondaryStart, now);
+    secondary.frequency.exponentialRampToValueAtTime(tone.secondaryEnd, now + tone.duration);
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(tone.gain, now + 0.006);
+    gain.gain.exponentialRampToValueAtTime(tone.gain, now + 0.002);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + tone.duration);
     oscillator.connect(gain);
+    secondary.connect(gain);
     gain.connect(context.destination);
     oscillator.start(now);
-    oscillator.stop(now + tone.duration + 0.01);
+    secondary.start(now);
+    oscillator.stop(now + tone.duration + 0.004);
+    secondary.stop(now + tone.duration + 0.004);
   }
 
   function stopAudio() {
