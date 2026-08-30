@@ -98,6 +98,7 @@ test("uses a pipette for grayscale and keeps search inline", async () => {
   assert.match(layout, /class="header-display-icon theme-contrast-icon"[\s\S]*?<circle cx="12" cy="12" r="10"><\/circle><path d="M12 2a10 10 0 0 1 0 20V2z" fill="currentColor"><\/path>/);
   assert.doesNotMatch(layout, /palette-off-icon|theme-icon-wrapper|sun-icon|moon-icon/);
   assert.match(css, /\.header-display-icon\s*\{[\s\S]*?width:\s*17px;[\s\S]*?height:\s*17px;/);
+  assert.match(css, /\.sound-icon\s*\{[\s\S]*?width:\s*20px;[\s\S]*?height:\s*20px;/);
   assert.doesNotMatch(css, /\.theme-icon-wrapper|\.sun-icon|\.moon-icon/);
   assert.match(layout, /data-label-enable=\{lang === "es" \? "Activar escala de grises" : "Enable grayscale"\}/);
   assert.match(layout, /data-label-dark=\{lang === "es" \? "Cambiar a tema oscuro" : "Change to dark theme"\}/);

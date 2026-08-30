@@ -801,6 +801,11 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   display: block;
 }
 
+.sound-icon {
+  width: 20px;
+  height: 20px;
+}
+
 .infra-toggle polyline {
   transition: transform 0.16s var(--ease-out);
 }
