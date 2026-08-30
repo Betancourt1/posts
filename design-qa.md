@@ -627,3 +627,42 @@ final result: passed
 - [x] Compare the full page and focused Search region against the selected source.
 
 final result: passed
+
+---
+
+# Single Inline Search Form QA
+
+**Reported issue**
+
+- The centered command strip looked like an input but opened a second search form in a modal.
+- Responsible revision: `ece9d65` (`Restyle centered search trigger`).
+
+**Implementation evidence**
+
+- Resting desktop: `/tmp/search-inline-resting.png` (`1586 × 992` px).
+- Open results desktop: `/tmp/search-inline-results.png` (`1586 × 992` px).
+- Open results mobile: `/tmp/search-inline-mobile.png` (`390 × 844` px).
+- Routes: `/`, `/es/`, and result navigation to `/lit/valerie-solanas/`.
+- Browser path: Browser plugin unavailable; existing local Playwright/Chromium setup used against the built Worker preview.
+
+**Findings**
+
+- No actionable P0, P1, or P2 issues remain.
+- The header contains exactly one `type="search"` input and no trigger button, modal, overlay, or second form.
+- The `320px` transparent command strip keeps its icon, accent divider, bottom rule, and plain shortcut hint.
+- Typing opens a centered results panel directly beneath the input. Results keep the existing D1-backed `/api/search` titles, excerpts, links, language, and `20`-item limit.
+- Ctrl/Cmd+K and `/` focus the same input. Escape clears it and closes results. Outside click closes results without destroying the query; refocus reopens them.
+- English `Valerie` and Spanish `sociedad` queries returned results. The first English result navigated to its canonical route.
+- Desktop results remained inside `1586px`; mobile results remained inside `390px` with no horizontal overflow and a `44px` form target.
+- The search still scrolls away. Fixed display controls remained at `y = 22px`, and the archive sidebar remained at `y = 78px`.
+- No framework overlay or relevant browser console warning/error appeared.
+
+**Implementation checklist**
+
+- [x] Replace the deceptive launcher with the real inline input.
+- [x] Remove modal-only markup, client behavior, and CSS.
+- [x] Preserve search API behavior and result presentation.
+- [x] Verify bilingual, keyboard, dismissal, navigation, responsive, and scroll behavior.
+- [x] Run source regression tests, edge tests, build, and independent audit.
+
+final result: passed

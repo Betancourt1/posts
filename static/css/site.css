@@ -665,7 +665,7 @@ html.curved-scrollbar-active body::-webkit-scrollbar {
 }
 
 /* Scope theme transitions to visual color properties only. */
-html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, blockquote, aside, header, .sidebar-block, .search-trigger, .tag, .graph-range, .column, .nav-list a, svg, circle, line, path, rect, polyline {
+html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, blockquote, aside, header, .sidebar-block, .tag, .graph-range, .column, .nav-list a, svg, circle, line, path, rect, polyline {
   transition-property: background-color, color, border-color, box-shadow, fill, stroke;
   transition-duration: 0.2s;
   transition-timing-function: var(--ease-out);
@@ -682,6 +682,7 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 }
 
 .site-header-search {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -791,24 +792,6 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 
 .infra-toggle.is-active line {
   animation: cursorBlink 1s infinite step-end;
-}
-
-.site-search {
-  max-width: 70ch;
-  margin: 14px auto 0;
-  text-align: left;
-}
-
-.site-search--hidden {
-  display: none;
-}
-
-.site-search-message {
-  margin: 0;
-  padding: 2rem 0;
-  color: var(--ink-dim);
-  font-size: 0.95rem;
-  text-align: center;
 }
 
 .layout {
@@ -2565,7 +2548,7 @@ tr:nth-child(even) { background: var(--table-stripe); }
   font-size: 0.9rem;
 }
 
-button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-trigger):not(.book-shelf-more-button):not(.typo-btn):not(.typo-btn-choice):not(.search-modal-close), .button:not(.graph-tool), a.button {
+button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.book-shelf-more-button):not(.typo-btn):not(.typo-btn-choice), .button:not(.graph-tool), a.button {
   display: inline-block;
   border: 1px solid var(--line);
   border-radius: 0;
@@ -2576,108 +2559,125 @@ button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-
   cursor: pointer;
 }
 
-button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-trigger):not(.book-shelf-more-button):not(.typo-btn):not(.typo-btn-choice):not(.search-modal-close):hover, .button:not(.graph-tool):hover, a.button:hover {
+button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.book-shelf-more-button):not(.typo-btn):not(.typo-btn-choice):hover, .button:not(.graph-tool):hover, a.button:hover {
   border-color: var(--accent);
   color: var(--accent);
 }
 
-button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.search-trigger):not(.book-shelf-more-button):not(.typo-btn):not(.typo-btn-choice):not(.search-modal-close):focus-visible, .button:not(.graph-tool):focus-visible, a.button:focus-visible {
+button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.book-shelf-more-button):not(.typo-btn):not(.typo-btn-choice):focus-visible, .button:not(.graph-tool):focus-visible, a.button:focus-visible {
   outline: 2px dashed var(--accent);
   outline-offset: 3px;
 }
 
-.site-search .search-ui {
+.search-ui__form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   width: 100%;
-  border-top: 1px solid var(--line);
-  padding-top: 12px;
-}
-
-.site-search .search-ui__form {
+  min-height: 40px;
   margin: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 0.4rem 0;
+  color: var(--ink-dim);
+  transition: color 0.2s ease, border-color 0.2s ease;
 }
 
-.site-search .search-ui__search-input {
-  display: block;
+.search-ui__search-input {
+  flex: 1;
   box-sizing: border-box;
-  width: 100%;
-  min-height: 44px;
-  padding: 0.65rem 0.85rem;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--bg-soft);
+  min-width: 0;
+  min-height: 24px;
+  border: 0;
+  border-left: 1px solid var(--accent);
+  border-radius: 0;
+  padding: 0 0 0 0.5rem;
+  background: transparent;
   color: var(--ink);
   font-family: inherit;
-  font-size: 1rem;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-size: 0.8rem;
+  line-height: 1.25;
+  outline: 0;
 }
 
-.site-search .search-ui__search-input::placeholder {
+.search-ui__search-input::placeholder {
   opacity: 1;
-  color: var(--ink-muted);
+  color: var(--ink-dim);
   font-weight: 400;
 }
 
-.site-search .search-ui__search-input:focus-visible {
-  border-color: var(--accent);
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(78,204,163,.14);
+.search-ui__form:focus-within {
+  border-bottom-color: var(--accent);
+  color: var(--accent);
+  outline: 1px solid var(--accent);
+  outline-offset: 4px;
 }
 
-.site-search .search-ui__drawer {
-  display: block;
-  margin-top: 10px;
+.search-ui__drawer {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  z-index: 2050;
+  width: min(42rem, calc(100vw - 2rem));
+  max-height: min(60vh, 32rem);
+  overflow-y: auto;
+  transform: translateX(-50%);
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 0;
   padding: 0 0.85rem 0.65rem;
   background: var(--search-drawer-bg);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.45);
+  text-align: left;
 }
 
-.site-search .search-ui__results-area {
+.search-ui__drawer[hidden] {
+  display: none;
+}
+
+.search-ui__results-area {
   min-width: 100%;
 }
 
-.site-search .search-ui__message {
+.search-ui__message {
   margin: 0;
   padding: 0.75rem 0;
   color: var(--ink-muted);
   font-weight: 600;
+  text-align: center;
   border-bottom: 1px dashed var(--nested-separator);
 }
 
-.site-search .search-ui__results {
+.search-ui__results {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.site-search .search-ui__result {
+.search-ui__result {
   list-style: none;
   border-top: 1px solid var(--result-separator);
   padding: 0.72rem 0 0.8rem;
 }
 
-.site-search .search-ui__result:first-child {
+.search-ui__result:first-child {
   border-top: 0;
 }
 
-.site-search .search-ui__result-title {
+.search-ui__result-title {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
 }
 
-.site-search .search-ui__result-link {
+.search-ui__result-link {
   color: var(--accent);
 }
 
-.site-search .search-ui__result-link:hover {
+.search-ui__result-link:hover {
   color: var(--accent-2);
   text-decoration: underline;
 }
 
-.site-search .search-ui__result-excerpt {
+.search-ui__result-excerpt {
   min-width: 0;
   margin: 0.25rem 0 0;
   color: var(--ink-dim);
@@ -2716,10 +2716,6 @@ sup, sub { line-height: 0; }
 
   .typo-dropdown.is-active {
     transform: translate(-50%, 0);
-  }
-
-  .site-search {
-    margin-top: 12px;
   }
 
   .home-section-head {
@@ -2800,136 +2796,10 @@ sup, sub { line-height: 0; }
 
 }
 
-/* ==========================================================================
-   NUEVAS MEJORAS: Búsqueda Modal, Modo Zen, Backlinks y Media Print
-   ========================================================================== */
-
-/* 1. Búsqueda Modal */
-.search-modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 2100;
-  background: rgba(10, 12, 16, 0.78);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding-top: 10vh;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s var(--ease-out);
-}
-
-.search-modal-overlay.is-visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.search-modal-overlay.is-instant,
-.search-modal-overlay.is-instant .search-modal {
-  transition: none;
-}
-
-.search-modal {
-  width: min(660px, 94%);
-  background: var(--bg-soft);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
-  padding: 1.25rem 1.5rem;
-  transform: translateY(-24px);
-  transition: transform 0.2s var(--ease-out);
-}
-
-.search-modal-overlay.is-visible .search-modal {
-  transform: translateY(0);
-}
-
-.search-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.85rem;
-  padding-bottom: 0.45rem;
-  border-bottom: 1px dashed var(--line);
-}
-
-.search-modal-title {
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--heading);
-}
-
-.search-modal-close {
-  background: transparent;
-  border: 0;
-  color: var(--ink-muted);
-  font-size: 1.6rem;
-  line-height: 1;
-  cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 6px;
-  transition: color 0.2s ease, background-color 0.2s ease;
-}
-
-.search-modal-close:hover {
-  color: var(--accent);
-  background: rgba(78, 204, 163, 0.08);
-}
-
-.search-modal-footer {
-  margin-top: 1rem;
-  font-size: 0.78rem;
-  color: var(--ink-muted);
-  text-align: right;
-  border-top: 1px dashed var(--line);
-  padding-top: 0.5rem;
-}
-
-.search-modal-footer kbd {
-  background: var(--code-bg);
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  padding: 0px 4px;
-  font-family: inherit;
-  color: var(--ink-dim);
-}
-
-body.search-active {
-  overflow: hidden;
-}
-
-/* 2. Disparador de Búsqueda y Modo Zen */
-.search-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  border-radius: 0;
-  padding: 0.4rem 0;
-  background: transparent;
-  color: var(--ink-dim);
-  font-size: 0.8rem;
-  line-height: 1.25;
-  text-align: left;
-  cursor: pointer;
-  min-height: 40px;
-  transition: color 0.2s ease, border-color 0.2s ease;
-}
-
-.search-trigger-icon {
+.search-command-icon {
   flex: none;
   width: 13px;
   height: 13px;
-}
-
-.search-trigger > span {
-  flex: 1;
-  padding-left: 0.5rem;
-  border-left: 1px solid var(--accent);
 }
 
 .search-kbd {
@@ -2942,22 +2812,6 @@ body.search-active {
   font: inherit;
   font-size: 0.7rem;
   font-weight: 400;
-}
-
-.search-trigger:hover {
-  background: transparent !important;
-  color: var(--ink) !important;
-  border-bottom-color: var(--accent) !important;
-}
-
-.search-trigger:hover .search-trigger-icon {
-  color: var(--accent);
-}
-
-.search-trigger:focus-visible {
-  outline: 1px solid var(--accent);
-  outline-offset: 4px;
-  border-bottom-color: var(--accent);
 }
 
 .zen-toggle-btn {
@@ -3201,7 +3055,6 @@ html.curved-scrollbar-active .curved-scrollbar.is-dragging {
   cursor: grabbing;
 }
 
-body.search-active .curved-scrollbar,
 body.graph-maximized .curved-scrollbar {
   opacity: 0;
   pointer-events: none;
@@ -4223,8 +4076,6 @@ html.infra-mode .infra-raw-block {
 
 @media (prefers-reduced-motion: reduce) {
   html,
-  .search-modal-overlay,
-  .search-modal,
   .nav-column,
   .sidebar-column,
   .photo-card-image img,
@@ -4319,7 +4170,7 @@ html.infra-mode .infra-raw-block {
   }
 
   .nav-toggle,
-  .search-trigger,
+  .search-ui__form,
   .archive-filters .filter-btn {
     min-width: 44px;
     min-height: 44px;

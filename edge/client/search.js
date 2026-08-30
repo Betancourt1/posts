@@ -51,47 +51,28 @@
     return fallback || "";
   }
 
-  function createSearchUi(root, lang, copy) {
-    root.textContent = "";
+  function searchView(root) {
+    return {
+      form: root.querySelector(".search-ui__form"),
+      input: root.querySelector(".search-ui__search-input"),
+      drawer: root.querySelector(".search-ui__drawer"),
+      message: root.querySelector(".search-ui__message"),
+      results: root.querySelector(".search-ui__results"),
+    };
+  }
 
-    var ui = document.createElement("div");
-    ui.className = "search-ui";
+  function setResultsOpen(view, open) {
+    view.drawer.hidden = !open;
+    view.input.setAttribute("aria-expanded", open ? "true" : "false");
+  }
 
-    var form = document.createElement("form");
-    form.className = "search-ui__form";
-    form.setAttribute("role", "search");
-
-    var input = document.createElement("input");
-    input.className = "search-ui__search-input";
-    input.type = "search";
-    input.autocomplete = "off";
-    input.spellcheck = false;
-    input.placeholder = root.dataset.searchPlaceholder || copy.placeholder;
-    input.setAttribute("aria-label", root.dataset.searchLabel || copy.label);
-
-    var drawer = document.createElement("div");
-    drawer.className = "search-ui__drawer";
-
-    var area = document.createElement("div");
-    area.className = "search-ui__results-area";
-
-    var message = document.createElement("p");
-    message.className = "search-ui__message";
-    message.setAttribute("aria-live", "polite");
-    message.textContent = copy.idle;
-
-    var results = document.createElement("ol");
-    results.className = "search-ui__results";
-
-    area.appendChild(message);
-    area.appendChild(results);
-    drawer.appendChild(area);
-    form.appendChild(input);
-    ui.appendChild(form);
-    ui.appendChild(drawer);
-    root.appendChild(ui);
-
-    return { form: form, input: input, message: message, results: results };
+  function clearSearch(view, copy) {
+    window.clearTimeout(debounceTimer);
+    if (activeRequest) activeRequest.abort();
+    view.input.value = "";
+    view.results.textContent = "";
+    view.message.textContent = copy.idle;
+    setResultsOpen(view, false);
   }
 
   function renderResults(view, items, copy) {
@@ -156,55 +137,28 @@
     }
   }
 
-  function setupModal(input) {
-    var overlay = document.getElementById("search-modal-overlay");
-    var modal = document.getElementById("search-modal");
-    var trigger = document.getElementById("search-trigger");
-    var closeButton = document.getElementById("search-modal-close");
-    var previousFocus = null;
-    if (!overlay || !modal) return;
-
-    function open() {
-      previousFocus = document.activeElement;
-      overlay.removeAttribute("inert");
-      overlay.setAttribute("aria-hidden", "false");
-      overlay.classList.add("is-visible");
-      document.body.classList.add("search-active");
-      if (trigger) trigger.setAttribute("aria-expanded", "true");
-      window.setTimeout(function () {
-        input.focus();
-        input.select();
-      }, 60);
-    }
-
-    function close() {
-      overlay.classList.remove("is-visible");
-      overlay.setAttribute("aria-hidden", "true");
-      overlay.setAttribute("inert", "");
-      document.body.classList.remove("search-active");
-      if (trigger) trigger.setAttribute("aria-expanded", "false");
-      if (previousFocus && previousFocus.isConnected) previousFocus.focus();
-      else if (trigger) trigger.focus();
-      previousFocus = null;
-    }
-
-    if (trigger) trigger.addEventListener("click", open);
-    if (closeButton) closeButton.addEventListener("click", close);
-    overlay.addEventListener("click", function (event) {
-      if (event.target === overlay) close();
-    });
+  function setupKeyboard(root, view, copy) {
     document.addEventListener("keydown", function (event) {
       var target = event.target;
       var typing = target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName);
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        overlay.classList.contains("is-visible") ? close() : open();
-      } else if (event.key === "Escape" && overlay.classList.contains("is-visible")) {
-        close();
-      } else if (event.key === "/" && !typing && !overlay.classList.contains("is-visible")) {
+        view.input.focus();
+        view.input.select();
+        if (view.input.value.trim()) setResultsOpen(view, true);
+      } else if (event.key === "Escape" && (document.activeElement === view.input || !view.drawer.hidden)) {
         event.preventDefault();
-        open();
+        clearSearch(view, copy);
+      } else if (event.key === "/" && !typing) {
+        event.preventDefault();
+        view.input.focus();
+        view.input.select();
+        if (view.input.value.trim()) setResultsOpen(view, true);
       }
+    });
+
+    document.addEventListener("click", function (event) {
+      if (!root.contains(event.target)) setResultsOpen(view, false);
     });
   }
 
@@ -214,24 +168,35 @@
 
     var lang = pageLanguage();
     var copy = copyFor(lang);
-    var view = createSearchUi(root, lang, copy);
-    setupModal(view.input);
+    var view = searchView(root);
+    if (!view.form || !view.input || !view.drawer || !view.message || !view.results) return;
+    setupKeyboard(root, view, copy);
 
     view.form.addEventListener("submit", function (event) {
       event.preventDefault();
+      window.clearTimeout(debounceTimer);
+      var query = view.input.value.trim();
+      if (!query) return clearSearch(view, copy);
+      setResultsOpen(view, true);
+      search(root, view, query, lang, copy);
     });
     view.input.addEventListener("input", function () {
       window.clearTimeout(debounceTimer);
       var query = view.input.value.trim();
       if (!query) {
-        if (activeRequest) activeRequest.abort();
-        view.results.textContent = "";
-        view.message.textContent = copy.idle;
+        clearSearch(view, copy);
         return;
       }
+      if (activeRequest) activeRequest.abort();
+      view.results.textContent = "";
+      view.message.textContent = copy.searching;
+      setResultsOpen(view, true);
       debounceTimer = window.setTimeout(function () {
         search(root, view, query, lang, copy);
       }, 160);
+    });
+    view.input.addEventListener("focus", function () {
+      if (view.input.value.trim()) setResultsOpen(view, true);
     });
   }
 

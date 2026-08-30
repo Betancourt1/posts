@@ -15,6 +15,7 @@ const publicPagePath = new URL("../src/views/PublicPage.astro", import.meta.url)
 const siteLayoutPath = new URL("../src/layouts/SiteLayout.astro", import.meta.url);
 const singlePath = new URL("../src/components/Single.astro", import.meta.url);
 const infrastructurePath = new URL("../client/infrastructure.js", import.meta.url);
+const searchPath = new URL("../client/search.js", import.meta.url);
 const quotesPath = new URL("../src/components/Quotes.astro", import.meta.url);
 const archivesPath = new URL("../src/components/Archives.astro", import.meta.url);
 const sidebarPath = new URL("../src/components/Sidebar.astro", import.meta.url);
@@ -84,10 +85,11 @@ test("the production shell does not offer or restore raw article mode", async ()
   assert.doesNotMatch(infrastructure, /infra_mode_enabled|initMode/);
 });
 
-test("uses a pipette for grayscale and the historical contrast icon for themes", async () => {
-  const [layout, css] = await Promise.all([
+test("uses a pipette for grayscale and keeps search inline", async () => {
+  const [layout, css, search] = await Promise.all([
     readFile(siteLayoutPath, "utf8"),
     readFile(siteCssPath, "utf8"),
+    readFile(searchPath, "utf8"),
   ]);
 
   assert.match(layout, /class="header-display-icon pipette-icon"[\s\S]*?m12 9-8\.414 8\.414[\s\S]*?m18 9 \.4\.4[\s\S]*?m2 22 \.414-\.414/);
@@ -104,16 +106,28 @@ test("uses a pipette for grayscale and the historical contrast icon for themes",
   assert.match(css, /\.sidebar-column\s*\{\s*top:\s*78px;/);
   const actionsStart = layout.indexOf('<div class="site-header-actions">');
   const actionsEnd = layout.indexOf("\n      </div>", actionsStart);
-  const searchStart = layout.indexOf('<div class="site-header-search">');
+  const searchStart = layout.indexOf('<div class="site-header-search" id="search">');
   assert.ok(actionsStart >= 0 && actionsEnd > actionsStart && searchStart > actionsEnd);
-  assert.match(layout, /lang === "es" \? "buscar en el archivo" : "search the archive"/);
-  assert.match(layout, /<svg class="search-trigger-icon"/);
+  assert.match(layout, /<form class="search-ui__form" role="search">/);
+  assert.match(layout, /<input class="search-ui__search-input" id="site-search-input" type="search"/);
+  assert.match(layout, /placeholder=\{lang === "es" \? "buscar en el archivo" : "search the archive"\}/);
+  assert.match(layout, /<svg class="search-command-icon"/);
   assert.match(layout, /<kbd class="search-kbd">Ctrl K<\/kbd>/);
+  assert.match(layout, /<div class="search-ui__drawer" id="site-search-results" hidden>/);
+  assert.doesNotMatch(layout, /search-trigger|search-modal/);
   assert.match(css, /\.site-header-search\s*\{[\s\S]*?justify-content:\s*center;[\s\S]*?width:\s*min\(20rem, 100%\);[\s\S]*?margin:\s*10px auto 0;/);
-  assert.match(css, /\.search-trigger\s*\{[\s\S]*?width:\s*100%;[\s\S]*?border:\s*0;[\s\S]*?border-bottom:\s*1px solid var\(--line\);/);
-  assert.match(css, /\.search-trigger > span\s*\{[\s\S]*?border-left:\s*1px solid var\(--accent\);/);
+  assert.match(css, /\.search-ui__form\s*\{[\s\S]*?width:\s*100%;[\s\S]*?border-bottom:\s*1px solid var\(--line\);/);
+  assert.match(css, /\.search-ui__search-input\s*\{[\s\S]*?border-left:\s*1px solid var\(--accent\);[\s\S]*?background:\s*transparent;/);
+  assert.match(css, /\.search-ui__drawer\s*\{[\s\S]*?position:\s*absolute;[\s\S]*?top:\s*calc\(100% \+ 8px\);/);
   assert.match(css, /\.search-kbd\s*\{[\s\S]*?border:\s*0;[\s\S]*?background:\s*transparent;/);
   assert.match(css, /@media \(max-width: 720px\)\s*\{[\s\S]*?\.search-kbd\s*\{\s*display:\s*none;/);
+  assert.doesNotMatch(css, /search-modal|body\.search-active/);
+  assert.doesNotMatch(search, /setupModal|search-trigger|search-modal/);
+  assert.match(search, /root\.dataset\.searchEndpoint \|\| "\/api\/search"/);
+  assert.match(search, /url\.searchParams\.set\("lang", lang\)/);
+  assert.match(search, /url\.searchParams\.set\("limit", "20"\)/);
+  assert.match(search, /\(event\.ctrlKey \|\| event\.metaKey\).*event\.key\.toLowerCase\(\) === "k"/);
+  assert.match(search, /event\.key === "Escape"[\s\S]*?clearSearch\(view, copy\)/);
 });
 
 test("keeps the Citas title in Spanish notebook navigation", async () => {

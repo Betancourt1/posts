@@ -172,32 +172,21 @@ const archivesPath = authorMode
         </button>
       </div>
       {showSearch && (
-        <div class="site-header-search">
-          <button class="search-trigger" id="search-trigger" type="button" aria-label={lang === "es" ? "Buscar (Ctrl+K)" : "Search (Ctrl+K)"} aria-controls="search-modal" aria-expanded="false">
-            <svg class="search-trigger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <span>{lang === "es" ? "buscar en el archivo" : "search the archive"}</span>
+        <div class="site-header-search" id="search">
+          <form class="search-ui__form" role="search">
+            <svg class="search-command-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input class="search-ui__search-input" id="site-search-input" type="search" autocomplete="off" spellcheck="false" placeholder={lang === "es" ? "buscar en el archivo" : "search the archive"} aria-label={lang === "es" ? "Buscar en el archivo" : "Search the archive"} aria-controls="site-search-results" aria-expanded="false" />
             <kbd class="search-kbd">Ctrl K</kbd>
-          </button>
+          </form>
+          <div class="search-ui__drawer" id="site-search-results" hidden>
+            <div class="search-ui__results-area">
+              <p class="search-ui__message" aria-live="polite">{lang === "es" ? "Escribe para buscar." : "Type to search."}</p>
+              <ol class="search-ui__results"></ol>
+            </div>
+          </div>
         </div>
       )}
     </header>
-
-    {showSearch && (
-      <div class="search-modal-overlay" id="search-modal-overlay" aria-hidden="true" inert>
-        <div class="search-modal" id="search-modal" role="dialog" aria-modal="true" aria-labelledby="search-modal-title" tabindex="-1">
-          <div class="search-modal-header">
-            <span class="search-modal-title" id="search-modal-title">{lang === "es" ? "Búsqueda global" : "Global search"}</span>
-            <button class="search-modal-close" id="search-modal-close" type="button" aria-label={lang === "es" ? "Cerrar búsqueda" : "Close search"}>&times;</button>
-          </div>
-          <div class="site-search" id="search">
-            <slot name="search">
-              <p class="site-search-message">{lang === "es" ? "Cargando motor de búsqueda..." : "Loading search engine..."}</p>
-            </slot>
-          </div>
-          <div class="search-modal-footer"><span>{lang === "es" ? "Presiona Esc para cerrar" : "Press Esc to close"}</span></div>
-        </div>
-      </div>
-    )}
 
     <div class:list={["layout", { "layout--code-index": isCode, "layout--quotes-index": isQuotes }]}>
       <aside class="column nav-column">
