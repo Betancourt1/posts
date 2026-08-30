@@ -155,8 +155,12 @@ test("keeps interaction sounds opt-in, synthesized, and shared with admin", asyn
   assert.match(sound, /var enabled = false;/);
   assert.match(sound, /var gestureReady = false;/);
   assert.match(sound, /if \(!event\.isTrusted\) return;/);
-  assert.match(sound, /document\.addEventListener\("click",[\s\S]*?target === toggle[\s\S]*?"control" : "navigation"/);
-  assert.match(sound, /\.sidebar-list a\[href\*='\/archives\/'\],[\s\S]*?\.sidebar-more\[href\*='\/archives\/'\],[\s\S]*?\.archive-list \.archive-item > a/);
+  assert.match(sound, /var navigationTargets = \[[\s\S]*?"\.post-card a\[href\]"[\s\S]*?"\.writing-index-row a\[href\]"[\s\S]*?"\.book-shelf-row a\[href\]"[\s\S]*?"\.photo-card a\[href\]"[\s\S]*?"\.quote-index-entry a\[href\]"[\s\S]*?"\.tag\[href\]"[\s\S]*?"\.search-ui__result-link"/);
+  assert.match(sound, /var navigationTargets = \[[\s\S]*?"\.sidebar-column a\[href\]"[\s\S]*?"\.archive-list \.archive-item > a"/);
+  assert.match(sound, /var controlTargets = \[[\s\S]*?"\.site-header-actions button"[\s\S]*?"\.filter-btn"[\s\S]*?"\.zen-toggle-btn"/);
+  assert.match(sound, /document\.addEventListener\("click",[\s\S]*?target === toggle[\s\S]*?target\.matches\(controlTargets\) \? "control" : "navigation"/);
+  assert.match(sound, /target\.id === "site-search-input" \|\| target\.matches\("\.guestbook-form input:not\(\.guestbook-honeypot\), \.guestbook-form textarea"\)[\s\S]*?play\("searchFocus"\)/);
+  assert.match(sound, /document\.addEventListener\("submit",[\s\S]*?!event\.isTrusted \|\| !event\.target\.matches\("\.guestbook-form"\)[\s\S]*?play\("control"\)/);
   assert.match(sound, /localStorage\.getItem\(STORAGE_KEY\) === "true"/);
   assert.match(sound, /window\.AudioContext \|\| window\.webkitAudioContext/);
   assert.equal((sound.match(/^    [a-zA-Z]+: \{ start:/gm) || []).length, 4);

@@ -5,6 +5,24 @@
   var audioContext = null;
   var enabled = false;
   var gestureReady = false;
+  var navigationTargets = [
+    ".nav-list a",
+    ".sidebar-column a[href]",
+    ".archive-list .archive-item > a",
+    ".post-card a[href]",
+    ".writing-index-row a[href]",
+    ".book-shelf-row a[href]",
+    ".photo-card a[href]",
+    ".quote-index-entry a[href]",
+    ".tag[href]",
+    ".search-ui__result-link",
+  ].join(", ");
+  var controlTargets = [
+    ".site-header-actions button",
+    ".site-header-actions a",
+    ".filter-btn",
+    ".zen-toggle-btn",
+  ].join(", ");
 
   var tones = {
     navigation: { start: 2400, end: 1300, secondaryStart: 3570, secondaryEnd: 1930, duration: 0.018, gain: 0.008 },
@@ -102,19 +120,27 @@
       gestureReady = true;
       activateAudio();
       if (!enabled) return;
-      var target = event.target.closest(".site-header-actions button, .site-header-actions a, .nav-list a, .sidebar-list a[href*='/archives/'], .sidebar-more[href*='/archives/'], .archive-list .archive-item > a");
+      var target = event.target.closest(controlTargets + ", " + navigationTargets);
       if (!target || target === toggle) return;
-      play(target.classList.contains("lang-toggle") || target.closest(".site-header-actions") ? "control" : "navigation");
+      play(target.matches(controlTargets) ? "control" : "navigation");
     }, true);
 
     document.addEventListener("focusin", function (event) {
-      if (event.target && event.target.id === "site-search-input") play("searchFocus");
+      var target = event.target;
+      if (target && (target.id === "site-search-input" || target.matches(".guestbook-form input:not(.guestbook-honeypot), .guestbook-form textarea"))) {
+        play("searchFocus");
+      }
     });
 
     document.addEventListener("site-sound", function (event) {
       var tone = event.detail && event.detail.tone;
       if (tone === "navigation" || tone === "searchResults") play(tone);
     });
+
+    document.addEventListener("submit", function (event) {
+      if (!event.isTrusted || !event.target.matches(".guestbook-form")) return;
+      play("control");
+    }, true);
 
     toggle.addEventListener("click", function (event) {
       enabled = !enabled;
