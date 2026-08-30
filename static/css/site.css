@@ -692,6 +692,7 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 
 .theme-toggle,
 .grayscale-toggle,
+.sound-toggle,
 .lang-toggle,
 .infra-toggle {
   border: none !important;
@@ -728,6 +729,7 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 
 .theme-toggle:hover,
 .grayscale-toggle:hover,
+.sound-toggle:hover,
 .lang-toggle:hover,
 .infra-toggle:hover {
   background: transparent !important;
@@ -739,6 +741,7 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 
 .theme-toggle:active,
 .grayscale-toggle:active,
+.sound-toggle:active,
 .lang-toggle:active,
 .infra-toggle:active {
   transform: scale(0.96) !important;
@@ -746,10 +749,31 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 }
 
 .grayscale-toggle.is-active,
+.sound-toggle.is-active,
 .infra-toggle.is-active {
   color: var(--accent) !important;
   border: none !important;
   background: transparent !important;
+}
+
+.sound-wave,
+.sound-slash {
+  transform-origin: center;
+  transition: opacity 0.16s var(--ease-out), transform 0.16s var(--ease-out), filter 0.16s var(--ease-out);
+}
+
+.sound-toggle[aria-pressed="false"] .sound-wave,
+.sound-toggle[aria-pressed="true"] .sound-slash {
+  opacity: 0;
+  transform: scale(0.25);
+  filter: blur(4px);
+}
+
+.sound-toggle[aria-pressed="false"] .sound-slash,
+.sound-toggle[aria-pressed="true"] .sound-wave {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
 }
 
 .infra-toggle::after {
@@ -4042,6 +4066,7 @@ html.infra-mode .infra-raw-block {
 
   .theme-toggle:hover,
   .grayscale-toggle:hover,
+  .sound-toggle:hover,
   .lang-toggle:hover,
   .infra-toggle:hover,
   .typo-toggle:hover {
@@ -4088,6 +4113,7 @@ html.infra-mode .infra-raw-block {
 
   .theme-toggle:hover,
   .grayscale-toggle:hover,
+  .sound-toggle:hover,
   .lang-toggle:hover,
   .infra-toggle:hover,
   .typo-toggle:hover,
@@ -4144,6 +4170,7 @@ html.infra-mode .infra-raw-block {
 
   .theme-toggle,
   .grayscale-toggle,
+  .sound-toggle,
   .lang-toggle,
   .infra-toggle,
   .typo-toggle,

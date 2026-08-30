@@ -130,7 +130,11 @@
         signal: activeRequest.signal,
       });
       if (!response.ok) throw new Error("Search returned " + response.status);
-      renderResults(view, resultList(await response.json()), copy);
+      var items = resultList(await response.json());
+      renderResults(view, items, copy);
+      if (items.length > 0) {
+        document.dispatchEvent(new CustomEvent("site-sound", { detail: { tone: "searchResults" } }));
+      }
     } catch (error) {
       if (error && error.name === "AbortError") return;
       view.message.textContent = copy.error;

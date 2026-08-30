@@ -170,6 +170,15 @@ const archivesPath = authorMode
             <circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 0 20V2z" fill="currentColor"></path>
           </svg>
         </button>
+        {!authorMode && (
+          <button class="sound-toggle" id="sound-toggle" type="button" aria-label={lang === "es" ? "Activar sonidos" : "Enable sounds"} title={lang === "es" ? "Activar sonidos" : "Enable sounds"} aria-pressed="false" data-label-enable={lang === "es" ? "Activar sonidos" : "Enable sounds"} data-label-disable={lang === "es" ? "Desactivar sonidos" : "Disable sounds"}>
+            <svg class="header-display-icon sound-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M11 5 6 9H3v6h3l5 4V5z"></path>
+              <path class="sound-wave" d="M15 9a4 4 0 0 1 0 6"></path>
+              <path class="sound-slash" d="m16 8 5 8"></path>
+            </svg>
+          </button>
+        )}
       </div>
       {showSearch && (
         <div class="site-header-search" id="search">
@@ -284,6 +293,7 @@ const archivesPath = authorMode
     {showSearch && <script is:inline src="/js/search.js" defer></script>}
     <script is:inline src="/js/typography.js" defer></script>
     <script is:inline src="/js/curved-scrollbar.js" defer></script>
+    {!authorMode && <script is:inline src="/js/sound.js" defer></script>}
     {isCode && <script is:inline src="/js/code-portfolio.js" defer></script>}
     {isPhotography && <script is:inline src="/js/photography-grid.js" defer></script>}
     {isBooks && <script is:inline type="module" src="/js/books.js"></script>}

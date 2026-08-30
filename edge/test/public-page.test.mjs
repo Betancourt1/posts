@@ -16,6 +16,8 @@ const siteLayoutPath = new URL("../src/layouts/SiteLayout.astro", import.meta.ur
 const singlePath = new URL("../src/components/Single.astro", import.meta.url);
 const infrastructurePath = new URL("../client/infrastructure.js", import.meta.url);
 const searchPath = new URL("../client/search.js", import.meta.url);
+const soundPath = new URL("../client/sound.js", import.meta.url);
+const graphPath = new URL("../../static/js/knowledge-graph.js", import.meta.url);
 const quotesPath = new URL("../src/components/Quotes.astro", import.meta.url);
 const archivesPath = new URL("../src/components/Archives.astro", import.meta.url);
 const sidebarPath = new URL("../src/components/Sidebar.astro", import.meta.url);
@@ -129,6 +131,32 @@ test("uses a pipette for grayscale and keeps search inline", async () => {
   assert.match(search, /url\.searchParams\.set\("limit", "20"\)/);
   assert.match(search, /\(event\.ctrlKey \|\| event\.metaKey\).*event\.key\.toLowerCase\(\) === "k"/);
   assert.match(search, /event\.key === "Escape"[\s\S]*?clearSearch\(view, copy\)/);
+});
+
+test("keeps interaction sounds opt-in, synthesized, and public-only", async () => {
+  const [layout, css, search, sound, graph] = await Promise.all([
+    readFile(siteLayoutPath, "utf8"),
+    readFile(siteCssPath, "utf8"),
+    readFile(searchPath, "utf8"),
+    readFile(soundPath, "utf8"),
+    readFile(graphPath, "utf8"),
+  ]);
+
+  assert.match(layout, /!authorMode && \(\s*<button class="sound-toggle" id="sound-toggle"/);
+  assert.match(layout, /aria-pressed="false"[\s\S]*?data-label-enable=\{lang === "es" \? "Activar sonidos" : "Enable sounds"\}/);
+  assert.match(layout, /!authorMode && <script is:inline src="\/js\/sound\.js" defer><\/script>/);
+  assert.match(css, /\.theme-toggle,\s*\.grayscale-toggle,\s*\.sound-toggle,[\s\S]*?width:\s*40px;[\s\S]*?height:\s*40px;/);
+  assert.match(css, /@media \(max-width: 720px\)[\s\S]*?\.sound-toggle,[\s\S]*?width:\s*44px !important;[\s\S]*?height:\s*44px !important;/);
+  assert.match(sound, /var enabled = false;/);
+  assert.match(sound, /var gestureReady = false;/);
+  assert.match(sound, /if \(!event\.isTrusted\) return;/);
+  assert.match(sound, /document\.addEventListener\("click",[\s\S]*?target === toggle[\s\S]*?"control" : "navigation"/);
+  assert.match(sound, /localStorage\.getItem\(STORAGE_KEY\) === "true"/);
+  assert.match(sound, /window\.AudioContext \|\| window\.webkitAudioContext/);
+  assert.equal((sound.match(/^    [a-zA-Z]+: \{ start:/gm) || []).length, 4);
+  assert.doesNotMatch(sound, /mouseenter|mouseover|\.mp3|\.wav|new Audio\(/);
+  assert.match(search, /CustomEvent\("site-sound", \{ detail: \{ tone: "searchResults" \} \}\)/);
+  assert.match(graph, /CustomEvent\("site-sound", \{ detail: \{ tone: "navigation" \} \}\)[\s\S]*?window\.location\.assign\(node\.url\)/);
 });
 
 test("keeps the Citas title in Spanish notebook navigation", async () => {
