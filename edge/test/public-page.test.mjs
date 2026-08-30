@@ -102,8 +102,19 @@ test("starts visible book covers promptly and contains mobile header controls", 
     assert.match(layout, new RegExp(origin.replaceAll(".", "\\.")));
   }
   assert.match(layout, /isBooks && bookCoverOrigins\.map[\s\S]*rel="dns-prefetch"[\s\S]*rel="preconnect"/);
-  assert.match(css, /\.site-header-actions\s*\{[\s\S]*?position:\s*fixed;/);
-  assert.match(css, /@media \(max-width:\s*1000px\)[\s\S]*?\.site-header-actions\s*\{[\s\S]*?position:\s*absolute;[\s\S]*?right:\s*auto;[\s\S]*?left:\s*50%;[\s\S]*?transform:\s*translateX\(-50%\);/);
+  assert.ok(layout.indexOf('class="site-title"') < layout.indexOf('class="site-subtitle"'));
+  assert.ok(layout.indexOf('class="site-subtitle"') < layout.indexOf('class="site-header-actions"'));
+  assert.ok(layout.indexOf('class="site-header-actions"') < layout.indexOf('class="site-header-search"'));
+  assert.match(css, /\.site-header-actions\s*\{[\s\S]*?position:\s*fixed;[\s\S]*?top:\s*22px;[\s\S]*?right:\s*32px;/);
+
+  const mobileCss = css.slice(css.lastIndexOf("@media (max-width: 1000px)"));
+  const mobileActions = mobileCss.match(/\.site-header-actions\s*\{([^}]*)\}/)?.[1] || "";
+  assert.match(mobileCss, /\.site-header\s*\{\s*padding:\s*20px 16px 6px;/);
+  assert.match(mobileActions, /position:\s*static;/);
+  assert.match(mobileActions, /width:\s*fit-content;/);
+  assert.match(mobileActions, /margin:\s*8px auto 0;/);
+  assert.match(mobileActions, /transform:\s*none;/);
+  assert.doesNotMatch(mobileActions, /(?:top|right|left):/);
 });
 
 test("uses a pipette for grayscale and keeps search inline", async () => {
