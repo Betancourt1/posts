@@ -715,9 +715,14 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   position: relative;
 }
 
-.site-header-actions .lang-toggle,
-.site-header-actions .typo-toggle {
+.site-header-actions .lang-toggle {
   font-size: 0.76rem;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.site-header-actions .typo-toggle {
+  font-size: 0.82rem;
   letter-spacing: 0;
   line-height: 1;
 }

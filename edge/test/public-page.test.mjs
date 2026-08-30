@@ -99,6 +99,8 @@ test("uses a pipette for grayscale and keeps search inline", async () => {
   assert.doesNotMatch(layout, /palette-off-icon|theme-icon-wrapper|sun-icon|moon-icon/);
   assert.match(css, /\.header-display-icon\s*\{[\s\S]*?width:\s*17px;[\s\S]*?height:\s*17px;/);
   assert.match(css, /\.sound-icon\s*\{[\s\S]*?width:\s*20px;[\s\S]*?height:\s*20px;/);
+  assert.match(css, /\.site-header-actions \.lang-toggle\s*\{[\s\S]*?font-size:\s*0\.76rem;/);
+  assert.match(css, /\.site-header-actions \.typo-toggle\s*\{[\s\S]*?font-size:\s*0\.82rem;/);
   assert.doesNotMatch(css, /\.theme-icon-wrapper|\.sun-icon|\.moon-icon/);
   assert.match(layout, /data-label-enable=\{lang === "es" \? "Activar escala de grises" : "Enable grayscale"\}/);
   assert.match(layout, /data-label-dark=\{lang === "es" \? "Cambiar a tema oscuro" : "Change to dark theme"\}/);
