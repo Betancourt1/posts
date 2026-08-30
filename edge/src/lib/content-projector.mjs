@@ -63,6 +63,8 @@ function createSafeRenderer({ sidenotes = null, hideSidenoteReferences = false, 
   const renderSafeLink = renderer.link.bind(renderer);
   const renderSafeImage = renderer.image.bind(renderer);
   const renderSafeText = renderer.text.bind(renderer);
+  const renderSafeCode = renderer.code.bind(renderer);
+  const renderSafeCodespan = renderer.codespan.bind(renderer);
   let linkDepth = 0;
 
   renderer.html = () => "<!-- raw HTML omitted -->";
@@ -81,6 +83,22 @@ function createSafeRenderer({ sidenotes = null, hideSidenoteReferences = false, 
     if (!href) return escapeHtml(token.text);
     return renderSafeImage({ ...token, href });
   };
+  if (allowSidenoteTones) {
+    renderer.code = function code(token) {
+      return renderSafeCode({
+        ...token,
+        raw: restoreSidenoteTones(token.raw),
+        text: restoreSidenoteTones(token.text),
+      });
+    };
+    renderer.codespan = function codespan(token) {
+      return renderSafeCodespan({
+        ...token,
+        raw: restoreSidenoteTones(token.raw),
+        text: restoreSidenoteTones(token.text),
+      });
+    };
+  }
   renderer.text = function text(token) {
     const source = String(token.text ?? token.raw ?? "");
     const renderFragment = (part) => renderSafeText({
@@ -90,15 +108,14 @@ function createSafeRenderer({ sidenotes = null, hideSidenoteReferences = false, 
       tokens: undefined,
     });
     const pattern = allowSidenoteTones
-      ? new RegExp(`(${SIDENOTE_TONE_OPEN}(?:green|blue|amber)${SIDENOTE_TONE_CLOSE}|${SIDENOTE_TONE_CLOSE})`, "g")
+      ? new RegExp(`(${SIDENOTE_TONE_OPEN}(?:green|blue|amber)${SIDENOTE_TONE_CLOSE}:|:${SIDENOTE_TONE_CLOSE}|\\[\\^(?:[a-zA-Z0-9_-]+)\\])`, "g")
       : SIDENOTE_REFERENCE_PART;
 
     return source.split(pattern).map((part) => {
       if (allowSidenoteTones) {
-        if (part === SIDENOTE_TONE_CLOSE) return "</span>";
-        const tone = part.match(new RegExp(`^${SIDENOTE_TONE_OPEN}(green|blue|amber)${SIDENOTE_TONE_CLOSE}$`))?.[1];
+        if (part === `:${SIDENOTE_TONE_CLOSE}`) return "</span>";
+        const tone = part.match(new RegExp(`^${SIDENOTE_TONE_OPEN}(green|blue|amber)${SIDENOTE_TONE_CLOSE}:$`))?.[1];
         if (tone) return `<span class="sidenote-tone sidenote-tone--${tone}">`;
-        return renderFragment(part);
       }
 
       const reference = part.match(/^\[\^([a-zA-Z0-9_-]+)\]$/);
@@ -157,7 +174,16 @@ function markSidenoteTones(markdown) {
   return String(markdown ?? "")
     .replace(/[\uE000-\uF8FF]/g, "")
     .replace(SIDENOTE_TONE, (_, tone, text) =>
-      `${SIDENOTE_TONE_OPEN}${tone}${SIDENOTE_TONE_CLOSE}${text}${SIDENOTE_TONE_CLOSE}`);
+      `${SIDENOTE_TONE_OPEN}${tone}${SIDENOTE_TONE_CLOSE}:${text}:${SIDENOTE_TONE_CLOSE}`);
+}
+
+function restoreSidenoteTones(markdown) {
+  return String(markdown ?? "")
+    .replace(
+      new RegExp(`${SIDENOTE_TONE_OPEN}(green|blue|amber)${SIDENOTE_TONE_CLOSE}:`, "g"),
+      "{{$1|",
+    )
+    .replaceAll(`:${SIDENOTE_TONE_CLOSE}`, "}}");
 }
 
 function plainSidenoteMarkdown(markdown) {
@@ -422,7 +448,8 @@ function renderSidenoteEndnotes(sidenotes, links, canonicalPath) {
 
 export function renderMarkdown(bodyMarkdown, canonicalPath = "/") {
   const extracted = extractSidenoteDefinitions(bodyMarkdown);
-  const tokens = marked.lexer(extracted.markdown, MARKED_OPTIONS);
+  const plainTokens = marked.lexer(plainSidenoteMarkdown(extracted.markdown), MARKED_OPTIONS);
+  const renderedTokens = marked.lexer(markSidenoteTones(extracted.markdown), MARKED_OPTIONS);
   const links = [];
   const sidenotes = {
     definitions: extracted.definitions,
@@ -430,10 +457,10 @@ export function renderMarkdown(bodyMarkdown, canonicalPath = "/") {
     byId: new Map(),
   };
 
-  collectLinks(tokens, links, canonicalPath);
-  const bodyHtml = marked.parser(tokens, {
+  collectLinks(plainTokens, links, canonicalPath);
+  const bodyHtml = marked.parser(renderedTokens, {
     ...MARKED_OPTIONS,
-    renderer: createSafeRenderer({ sidenotes }),
+    renderer: createSafeRenderer({ sidenotes, allowSidenoteTones: true }),
   });
   const endnotesHtml = renderSidenoteEndnotes(sidenotes, links, canonicalPath);
   const noteText = sidenotes.ordered.map((note) => {
@@ -443,7 +470,7 @@ export function renderMarkdown(bodyMarkdown, canonicalPath = "/") {
 
   return {
     bodyHtml: bodyHtml + endnotesHtml,
-    bodyText: [textFromTokens(tokens, { sidenoteDefinitions: extracted.definitions }).replace(/[ \t]+\n/g, "\n").trim(), noteText]
+    bodyText: [textFromTokens(plainTokens, { sidenoteDefinitions: extracted.definitions }).replace(/[ \t]+\n/g, "\n").trim(), noteText]
       .filter(Boolean)
       .join("\n"),
     links,

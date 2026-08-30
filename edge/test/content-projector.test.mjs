@@ -310,6 +310,45 @@ test("blocks raw HTML and unsafe Markdown URL schemes", () => {
   assert.match(rendered.bodyHtml, /<a href="https:\/\/example\.com">safe<\/a>/);
 });
 
+test("renders safe colored text in normal post bodies", () => {
+  const rendered = renderMarkdown(`Normal {{green|visible}}, {{blue|**strong**}}, and {{amber|_emphasis_}}.
+
+[{{green|Source}}](/source/) and reference[^context].
+
+\`{{green|inline}}\`
+
+\`\`\`md
+{{blue|fenced}}
+\`\`\`
+
+Unsupported {{purple|plain}}. Unsafe {{green|<img src=x onerror=alert(1)>}}
+
+[^context]: Context`);
+
+  assert.match(rendered.bodyHtml, /sidenote-tone--green">visible<\/span>/);
+  assert.match(rendered.bodyHtml, /sidenote-tone--blue"><strong>strong<\/strong><\/span>/);
+  assert.match(rendered.bodyHtml, /sidenote-tone--amber"><em>emphasis<\/em><\/span>/);
+  assert.match(rendered.bodyHtml, /<a href="\/source\/"><span class="sidenote-tone sidenote-tone--green">Source<\/span><\/a>/);
+  assert.match(rendered.bodyHtml, /id="sidenote-ref-1-1"/);
+  assert.match(rendered.bodyHtml, /<code>\{\{green\|inline\}\}<\/code>/);
+  assert.match(rendered.bodyHtml, /\{\{blue\|fenced\}\}/);
+  assert.match(rendered.bodyHtml, /\{\{purple\|plain\}\}/);
+  assert.doesNotMatch(rendered.bodyHtml, /<img|onerror/);
+  assert.match(rendered.bodyText, /Normal visible, strong, and emphasis\./);
+  assert.match(rendered.bodyText, /Unsupported \{\{purple\|plain\}\}/);
+  assert.doesNotMatch(rendered.bodyText, /\{\{(?:green|blue|amber)\||[\uE000-\uF8FF]/);
+  assert.deepEqual(rendered.links[0], {
+    href: "/source/",
+    label: "Source",
+    targetPath: "/source/",
+    external: false,
+  });
+  assert.equal(
+    renderMarkdownSummary("Summary {{green|plain}}"),
+    "<p>Summary {{green|plain}}</p>\n",
+  );
+});
+
 test("renders safe rich-text sidenotes with semantic references and backlinks", () => {
   const rendered = renderMarkdown(`First[^judgment] and repeated[^judgment]. Missing[^missing].
 
