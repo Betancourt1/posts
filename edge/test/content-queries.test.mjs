@@ -373,6 +373,32 @@ test("reads the projected public site through the real D1 API", async (t) => {
       "Destination",
     ]);
 
+    const publicWriting = await loadPublicPage(db, "/posts/");
+    assert.deepEqual(publicWriting.items.map((document) => document.title), [
+      "Ethical Data",
+      "Destination",
+    ]);
+    const adminWriting = await loadPublicPage(db, "/posts/", {
+      includeDrafts: true,
+      includeHiddenListItems: true,
+    });
+    assert.deepEqual(adminWriting.items.map((document) => document.title), [
+      "Draft link",
+      "Hidden link",
+      "Ethical Data",
+      "Destination",
+    ]);
+    assert.deepEqual(
+      (await loadPublicPage(db, "/", { includeHiddenListItems: true })).items,
+      (await loadPublicPage(db, "/")).items,
+      "list-only visibility must not change the home feed",
+    );
+    assert.deepEqual(
+      (await loadPublicPage(db, "/books/", { includeHiddenListItems: true })).items,
+      (await loadPublicPage(db, "/books/")).items,
+      "list-only visibility must not change non-list sections",
+    );
+
     assert.deepEqual(
       (await tagResults(db, "es", "ethics")).map((document) => document.title),
       ["Datos éticos"],

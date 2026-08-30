@@ -22,6 +22,9 @@ const quotesPath = new URL("../src/components/Quotes.astro", import.meta.url);
 const archivesPath = new URL("../src/components/Archives.astro", import.meta.url);
 const sidebarPath = new URL("../src/components/Sidebar.astro", import.meta.url);
 const siteCssPath = new URL("../../static/css/site.css", import.meta.url);
+const listPath = new URL("../src/components/List.astro", import.meta.url);
+const adminPagePath = new URL("../src/pages/admin/[...path].astro", import.meta.url);
+const publicPageLoaderPath = new URL("../src/lib/public-page.mjs", import.meta.url);
 
 test("maps arbitrary admin content routes to their public D1 route", () => {
   assert.equal(publicPathForAdminRoute("/admin/"), "/");
@@ -32,6 +35,23 @@ test("maps arbitrary admin content routes to their public D1 route", () => {
   );
   assert.equal(adminPathForPublicRoute("/"), "/admin/");
   assert.equal(adminPathForPublicRoute("/es/fotografia/"), "/admin/es/fotografia/");
+});
+
+test("admin writing lists include hidden drafts without changing public lists", async () => {
+  const [adminPage, loader, list, publicPage] = await Promise.all([
+    readFile(adminPagePath, "utf8"),
+    readFile(publicPageLoaderPath, "utf8"),
+    readFile(listPath, "utf8"),
+    readFile(publicPagePath, "utf8"),
+  ]);
+
+  assert.match(adminPage, /includeDrafts:\s*true,[\s\S]*includeHiddenListItems:\s*true/);
+  assert.match(loader, /layout === "list" && options\.includeHiddenListItems[\s\S]*includeHidden:\s*true/);
+  assert.match(loader, /layout === "list" \? listItemOptions : options/);
+  assert.match(list, /const displayItems = authorMode \? items : items\.filter\(\(item\) => !item\.hidden\)/);
+  assert.match(list, /for \(const item of displayItems\)/);
+  assert.match(list, /\{displayItems\.map\(\(item\) => \(/);
+  assert.match(publicPage, /<List[\s\S]*authorMode=\{authorMode\}/);
 });
 
 test("recognizes localized tag routes without swallowing normal pages", () => {

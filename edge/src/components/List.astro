@@ -24,7 +24,7 @@ const {
   showTags = true,
   editorial = false,
 } = Astro.props;
-const visibleItems = items.filter((item) => !item.hidden);
+const displayItems = authorMode ? items : items.filter((item) => !item.hidden);
 const addLabel = lang === "es" ? "Nuevo post" : "New post";
 const monthAbbreviations = lang === "es"
   ? ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
@@ -41,7 +41,7 @@ function editorialDate(value: ContentListItem["date"]) {
 }
 
 const editorialGroups: { year: string | null; rows: { item: ContentListItem; day: string }[] }[] = [];
-for (const item of visibleItems) {
+for (const item of displayItems) {
   const date = editorialDate(item.date);
   const year = date?.year ?? null;
   let group = editorialGroups[editorialGroups.length - 1];
@@ -104,7 +104,7 @@ for (const item of visibleItems) {
   </section>
 ) : (
   <section class="post-list">
-    {visibleItems.map((item) => (
+    {displayItems.map((item) => (
       <article class="post-card">
         <div class="post-card-top">
           <div class="post-card-meta">{displayDate(item.date)}</div>
