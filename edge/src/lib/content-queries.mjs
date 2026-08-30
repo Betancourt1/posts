@@ -1,3 +1,7 @@
+import { renderMarkdown } from "./content-projector.mjs";
+
+const SUPPORTED_BODY_TONE = /\{\{(?:green|blue|amber)\|[^{}\n]+\}\}/;
+
 const GRAPH_IGNORED_TAGS = new Set([
   "book",
   "read",
@@ -70,7 +74,7 @@ function hydrateDocument(row) {
   if (!row) return null;
 
   const { frontmatterJson, tagsJson, ...document } = row;
-  return {
+  const hydrated = {
     ...document,
     draft: Boolean(document.draft),
     hidden: Boolean(document.hidden),
@@ -79,6 +83,20 @@ function hydrateDocument(row) {
     frontMatter: parseJson(frontmatterJson, {}, "front matter"),
     tags: parseJson(tagsJson, [], "tags"),
   };
+
+  if (
+    typeof hydrated.bodyMarkdown === "string"
+    && SUPPORTED_BODY_TONE.test(hydrated.bodyMarkdown)
+  ) {
+    const rendered = renderMarkdown(
+      hydrated.bodyMarkdown,
+      hydrated.canonicalPath || hydrated.path || "/",
+    );
+    hydrated.bodyHtml = rendered.bodyHtml;
+    hydrated.bodyText = rendered.bodyText;
+  }
+
+  return hydrated;
 }
 
 function hydrateDocuments(result) {

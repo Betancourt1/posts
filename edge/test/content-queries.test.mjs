@@ -537,6 +537,53 @@ test("reads the projected public site through the real D1 API", async (t) => {
       assert.ok(archivePage.items[0].tags.length > 0);
     }
   });
+
+  await t.test("repairs stale colored bodies while preserving the no-tone fast path", async () => {
+    await db.batch([
+      db.prepare(`
+        UPDATE documents
+        SET body_markdown = ?, body_text = ?, body_html = ?
+        WHERE source_path = 'content_en/posts/hidden-link.md'
+      `).bind(
+        "Styled {{green|visible}}, {{blue|**strong**}}, and `{{amber|code}}`. Unsupported {{purple|plain}}.",
+        "STALE {{green|visible}}",
+        "<p>STALE {{green|visible}}</p>",
+      ),
+      db.prepare(`
+        UPDATE documents
+        SET body_text = 'stored fast-path text',
+            body_html = '<p data-fast-path>stored fast-path html</p>'
+        WHERE source_path = 'content_en/posts/target.md'
+      `),
+    ]);
+
+    const repaired = await resolveDocument(db, "/posts/hidden-link/");
+    assert.equal(repaired.path, "/posts/hidden-link/");
+    assert.equal(repaired.canonicalPath, "/posts/hidden-link/");
+    assert.equal(repaired.draft, false);
+    assert.equal(repaired.hidden, true);
+    assert.equal(repaired.searchable, false);
+    assert.match(repaired.bodyHtml, /sidenote-tone--green">visible<\/span>/);
+    assert.match(repaired.bodyHtml, /sidenote-tone--blue"><strong>strong<\/strong><\/span>/);
+    assert.match(repaired.bodyHtml, /<code>\{\{amber\|code\}\}<\/code>/);
+    assert.match(repaired.bodyHtml, /\{\{purple\|plain\}\}/);
+    assert.doesNotMatch(repaired.bodyHtml, /STALE/);
+    assert.match(repaired.bodyText, /Styled visible, strong, and code/);
+    assert.doesNotMatch(repaired.bodyText, /STALE|\{\{(?:green|blue|amber)\|/);
+
+    const bodyItems = await sectionItems(db, "en", "posts", {
+      body: true,
+      includeHidden: true,
+    });
+    assert.match(
+      bodyItems.find((document) => document.sourcePath === "content_en/posts/hidden-link.md").bodyHtml,
+      /sidenote-tone--green">visible<\/span>/,
+    );
+
+    const fastPath = await resolveDocument(db, "/posts/target/");
+    assert.equal(fastPath.bodyText, "stored fast-path text");
+    assert.equal(fastPath.bodyHtml, "<p data-fast-path>stored fast-path html</p>");
+  });
 });
 
 test("archive month aggregation preserves ordering, validation, and input limits", async (t) => {
