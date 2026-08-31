@@ -7,4 +7,8 @@ summary: "El precio de la eficiencia en la era de la AI"
 hidden: true
 ---
 
-Decidí estudiar la carrera de matemáticas cuando tenía unos 17 años. A decir verdad, no era muy consciente de qué {{green|implicaciones}} tendría esa decisión en mi vida o qué cosas aprendería por el camino. Todo lo que sabía de lo que hacía un matemático venía de historias que leí. En aquel momento hacía mi servicio social en una biblioteca y, como toda persona que aprecie leer, decidí aprovechar todo ese tiempo para leer tanto como pudiera. Leí un montón de filosofía, de teología (en esos días era muy religioso) y, sí, también de matemáticas. En concreto leí un libro que me marcó: El último teorema de Fermat de Simon Lehna Singh. En este libro, el autor nos cuenta cómo la humanidad lidió con un problema
+Decidí estudiar la carrera de matemáticas cuando tenía unos 17 años. A decir verdad, no era muy consciente de qué implicaciones tendría esa decisión en mi vida o qué cosas aprendería por el camino. Todo lo que sabía de lo que hacía un matemático venía de historias que leí. En aquel momento hacía mi servicio social en una biblioteca y, como toda persona que aprecie leer, decidí aprovechar todo ese tiempo para leer tanto como pudiera. Leí un montón de filosofía, de teología (en esos días era muy religioso) y, sí, también de matemáticas. En concreto leí un libro que me marcó: El último teorema de Fermat de Simon Lehna Singh[^note-1]. En este libro, el autor nos cuenta cómo la humanidad lidió con un problema aparentemente simple de matemáticas [^note-2]
+
+[^note-1]: Puede leerse en este [enlace](https://archive.org/details/elultimoteoremad0000sing).
+
+[^note-2]: Un problema inocentemente dejado incompleto al margen de la hoja como esta nota.
