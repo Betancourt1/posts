@@ -5,6 +5,20 @@ import { notebookEditorHtml } from "./notebook-editor-template.js";
 import { postEditorHtml } from "./post-editor-template.js";
 import { onRequestGet as getEditor } from "../admin/editor.js";
 
+test("standalone editors inherit the shared opt-in sound player without adding a toggle", () => {
+  const options = { assetOrigin: "https://assets.example" };
+  const editors = [
+    postEditorHtml(options),
+    notebookEditorHtml(options),
+    imageEditorHtml(options),
+  ];
+
+  for (const html of editors) {
+    assert.match(html, /<script src="https:\/\/assets\.example\/js\/sound\.js" defer><\/script>/);
+    assert.doesNotMatch(html, /id="sound-toggle"/);
+  }
+});
+
 test("notebook editor clears stale private flags and exposes verified publication states", () => {
   const html = notebookEditorHtml({ siteOrigin: "https://example.com/admin" });
   assert.match(html, /nextFrontMatter\.draft = null/);

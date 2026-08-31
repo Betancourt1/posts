@@ -1817,6 +1817,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         <button type="button" class="arena-details-retry" id="arena-details-retry" hidden>Reintentar</button>
       </div>
   </aside>
+  <script src="${siteAssetUrl("js/sound.js")}" defer></script>
   <script src="${EDITOR_CORE_URL}"></script>
   <script>
     (function () {

@@ -211,7 +211,7 @@ test("uses a pipette for grayscale and keeps search inline", async () => {
   assert.match(search, /event\.key === "Escape"[\s\S]*?clearSearch\(view, copy\)/);
 });
 
-test("keeps interaction sounds opt-in, synthesized, and shared with admin", async () => {
+test("keeps recorded interaction sounds opt-in and shared with admin", async () => {
   const [layout, css, search, sound, graph] = await Promise.all([
     readFile(siteLayoutPath, "utf8"),
     readFile(siteCssPath, "utf8"),
@@ -230,25 +230,27 @@ test("keeps interaction sounds opt-in, synthesized, and shared with admin", asyn
   assert.match(sound, /var enabled = false;/);
   assert.match(sound, /var gestureReady = false;/);
   assert.match(sound, /if \(!event\.isTrusted\) return;/);
+  assert.match(sound, /interaction-default\.wav/);
+  assert.match(sound, /interaction-navigation\.wav/);
+  assert.match(sound, /interaction-subcontrol\.wav/);
+  assert.match(sound, /var interactionTargets = \[[\s\S]*?"button"[\s\S]*?"a\[href\]"[\s\S]*?"summary"/);
   assert.match(sound, /var navigationTargets = \[[\s\S]*?"\.post-card a\[href\]"[\s\S]*?"\.writing-index-row a\[href\]"[\s\S]*?"\.book-shelf-row a\[href\]"[\s\S]*?"\.photo-card a\[href\]"[\s\S]*?"\.quote-index-entry a\[href\]"[\s\S]*?"\.tag\[href\]"[\s\S]*?"\.search-ui__result-link"/);
   assert.match(sound, /var navigationTargets = \[[\s\S]*?"\.sidebar-column a\[href\]"[\s\S]*?"\.archive-list \.archive-item > a"/);
-  assert.match(sound, /var controlTargets = \[[\s\S]*?"\.site-header-actions button"[\s\S]*?"\.filter-btn"[\s\S]*?"\.zen-toggle-btn"/);
-  assert.match(sound, /document\.addEventListener\("click",[\s\S]*?target === toggle[\s\S]*?target\.matches\(controlTargets\) \? "control" : "navigation"/);
-  assert.match(sound, /target\.id === "site-search-input" \|\| target\.matches\("\.guestbook-form input:not\(\.guestbook-honeypot\), \.guestbook-form textarea"\)[\s\S]*?play\("searchFocus"\)/);
-  assert.match(sound, /document\.addEventListener\("submit",[\s\S]*?!event\.isTrusted \|\| !event\.target\.matches\("\.guestbook-form"\)[\s\S]*?play\("control"\)/);
+  assert.match(sound, /var destructiveTargets = \[[\s\S]*?"\.author-action-button--danger"[\s\S]*?"\.danger-button"[\s\S]*?"#delete-page"/);
+  assert.match(sound, /var subcontrolTargets = \[[\s\S]*?"\.typo-dropdown button"[\s\S]*?"\.author-more-menu button"[\s\S]*?"\.settings button"[\s\S]*?"\.inspector button"/);
+  assert.match(sound, /function sampleForTarget\(target\)[\s\S]*?target\.matches\(destructiveTargets\) \|\| target\.matches\(navigationTargets\)[\s\S]*?return "navigation";[\s\S]*?target\.matches\(subcontrolTargets\)[\s\S]*?return "subcontrol";[\s\S]*?return "default";/);
+  assert.match(sound, /document\.addEventListener\("click",[\s\S]*?target === toggle[\s\S]*?play\(sampleForTarget\(target\)\)/);
+  assert.match(sound, /target\.id === "site-search-input" \|\| target\.matches\("\.guestbook-form input:not\(\.guestbook-honeypot\), \.guestbook-form textarea"\)[\s\S]*?play\("default"\)/);
+  assert.match(sound, /document\.addEventListener\("submit",[\s\S]*?!event\.isTrusted \|\| !event\.target\.matches\("\.guestbook-form"\)[\s\S]*?!event\.submitter[\s\S]*?play\("default"\)/);
   assert.match(sound, /localStorage\.getItem\(STORAGE_KEY\) === "true"/);
   assert.match(sound, /window\.AudioContext \|\| window\.webkitAudioContext/);
-  assert.equal((sound.match(/^    [a-zA-Z]+: \{ start:/gm) || []).length, 4);
-  assert.match(sound, /var OUTPUT_GAIN_MULTIPLIER = 2\.16;/);
-  assert.match(sound, /navigation: \{[^\n]*gain: 0\.008 \}/);
-  assert.equal((sound.match(/gain: 0\.009 \}/g) || []).length, 2);
-  assert.match(sound, /searchResults: \{[^\n]*gain: 0\.01 \}/);
-  assert.match(sound, /var secondary = context\.createOscillator\(\)/);
-  assert.match(sound, /oscillator\.connect\(gain\);\s*secondary\.connect\(gain\);\s*gain\.connect\(context\.destination\)/);
-  assert.equal((sound.match(/tone\.gain \* OUTPUT_GAIN_MULTIPLIER/g) || []).length, 1);
-  assert.match(sound, /exponentialRampToValueAtTime\(tone\.gain \* OUTPUT_GAIN_MULTIPLIER, now \+ 0\.002\)/);
-  assert.match(sound, /secondary\.stop\(now \+ tone\.duration \+ 0\.004\)/);
-  assert.doesNotMatch(sound, /mouseenter|mouseover|\.mp3|\.wav|new Audio\(/);
+  assert.match(sound, /var SAMPLE_GAIN = 1;/);
+  assert.match(sound, /fetch\(sample\.url, \{ cache: "force-cache" \}\)/);
+  assert.match(sound, /context\.decodeAudioData\(data\.slice\(0\)\)/);
+  assert.match(sound, /var source = context\.createBufferSource\(\)/);
+  assert.match(sound, /gain\.gain\.value = SAMPLE_GAIN;/);
+  assert.match(sound, /source\.connect\(gain\);\s*gain\.connect\(context\.destination\);\s*source\.start\(\)/);
+  assert.doesNotMatch(sound, /createOscillator|exponentialRampToValueAtTime|new Audio\(/);
   assert.match(search, /CustomEvent\("site-sound", \{ detail: \{ tone: "searchResults" \} \}\)/);
   assert.match(graph, /CustomEvent\("site-sound", \{ detail: \{ tone: "navigation" \} \}\)[\s\S]*?window\.location\.assign\(node\.url\)/);
 });

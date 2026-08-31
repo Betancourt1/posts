@@ -1677,6 +1677,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
     <button type="button" class="primary-button" id="mobile-publish" aria-describedby="status" disabled>Publicar</button>
   </footer>
 
+  <script src="${siteAssetUrl("js/sound.js")}" defer></script>
   <script src="${EDITOR_CORE_URL}"></script>
   <script>
     (function () {

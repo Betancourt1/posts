@@ -25,6 +25,11 @@ const staticFiles = [
   "js/typography.js",
   "og-image.png",
   "site.webmanifest",
+  "sounds/interaction-default.wav",
+  "sounds/interaction-navigation.wav",
+  "sounds/interaction-subcontrol.wav",
+  "sounds/LICENSE-MECHVIBESDX.txt",
+  "sounds/PROVENANCE.md",
 ];
 
 async function copy(sourceRoot, sourcePath, destinationPath = sourcePath) {
