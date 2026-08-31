@@ -86,6 +86,37 @@ const pages = {
   },
 };
 
+const essayCaretFixture = `## ¿Por qué matemáticas?
+
+Decidí estudiar matemáticas cuando tenía unos 17 años. A decir verdad, no era muy consciente de qué implicaciones tendría esa decisión en mi vida o qué cosas aprendería por el camino. En aquel momento hacía mi servicio social en una biblioteca y, como toda persona que aprecie leer, decidí aprovechar todo ese tiempo para leer tanto como pudiera. Leí un montón de filosofía, de teología (en esos días era muy religioso) y, sí, también de matemáticas. En concreto leí un libro que me marcó: El último teorema de Fermat de Simon Lehna Singh[^note-1].
+
+En este libro, el autor nos cuenta cómo la humanidad lidió con un problema aparentemente simple [^note-2] durante más de 300 años (tu criterio decidir si eso es mucho tiempo); años en los que las mejores mentes intentaron resolverlo, fallando en el intento. Aunque el libro termina inevitablemente con la solución del problema a manos de Shimura, Taniyama y Wiles, es fácil citar otros libros contando la historia de problemas que no están solucionados [^note-3]. Durante mis tardes en esa biblioteca, leyendo de esas personas que no resolvieron el problema que tenían delante, decidí que yo también quería ser parte de eso alguna vez en mi vida. ¿Por qué un adolescente de 17 años se vería atraído por la historia de cómo un montón de personas no lograron resolver un problema? Respuesta : por amor.
+
+## Por descubrir
+
+> [...] «todas y cada una de las fórmulas que creamos son una fórmula de amor». Las matemáticas son fuente de un conocimiento profundo y atemporal, que llega al corazón de las cosas y nos une a través de culturas, continentes y siglos. Mi sueño es que todos seamos capaces de ver, apreciar y maravillarnos ante la magica belleza y la exquisita armonía de estas ideas, fórmulas y , porque ello proporcionara mucho más significado a nuestro amor por este mundo y por el prójimo.
+> Edward Frenkel
+
+[^note-1]: Puede leerse en este [enlace](https://archive.org/details/elultimoteoremad0000sing).
+
+[^note-2]: Un problema cuya solución fue dejada incompleta al margen de la hoja como esta nota.
+
+[^note-3]: La música de los números primos de Marcus du Satoy así como Amor y Matemáticas de Edward Frenkel son ejemplos hermosos de esto.`;
+
+pages["content_en/posts/2026/agosto/el_matematico_en_el_loop.md"] = {
+  path: "content_en/posts/2026/agosto/el_matematico_en_el_loop.md",
+  url: "/posts/2026/agosto/el_matematico_en_el_loop/",
+  frontMatter: {
+    title: "El matemático en el loop",
+    date: "2026-08-29",
+    tags: ["essays", "mathematics", "artifical-intelligence"],
+    summary: "El precio de la eficiencia en la era de la AI",
+    draft: true,
+    hidden: true,
+  },
+  body: essayCaretFixture,
+};
+
 function json(res, status, payload) {
   res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
   res.end(JSON.stringify(payload));
@@ -370,6 +401,67 @@ async function runCaretViewportCase(browser, origin, viewport) {
   }
 }
 
+async function runExactEssayCaretCase(browser, origin) {
+  const context = await browser.newContext({ viewport: { width: 1710, height: 1067 } });
+  const page = await context.newPage();
+  const query = new URLSearchParams({
+    mode: "edit",
+    path: "content_en/posts/2026/agosto/el_matematico_en_el_loop.md",
+    kind: "post",
+    theme: "light",
+  });
+
+  try {
+    await page.goto(`${origin}/editor?${query}`, { waitUntil: "domcontentloaded" });
+    await waitForEditor(page);
+    if (await page.locator("#settings").isVisible()) await page.locator("#settings-close").click();
+    assert.equal(await page.locator("#body").inputValue(), essayCaretFixture);
+    await page.locator("#view-markdown").click();
+
+    const markdown = page.locator("#markdown-canvas");
+    await markdown.waitFor({ state: "visible" });
+    const markdownValue = await markdown.inputValue();
+    const phrase = "ideas, fórmulas y ";
+    const position = markdownValue.indexOf(phrase) + phrase.length;
+    const viewport = await writingViewport(page);
+    await placeCaret(page, "#markdown-canvas", position, viewport.bottom - 60);
+    const initialScrollY = await page.evaluate(() => window.scrollY);
+
+    for (const character of "ecuaciones") {
+      await page.keyboard.type(character);
+      const state = await page.evaluate(() => ({ scrollY: window.scrollY }));
+      const caret = await textareaCaretBounds(page, "#markdown-canvas");
+      assert.equal(state.scrollY, initialScrollY, `typing ${character} at the visible essay caret must not scroll`);
+      assert.ok(caret.bottom - state.scrollY <= viewport.bottom, `caret must remain visible after typing ${character}`);
+    }
+    assert.equal(await markdown.evaluate((textarea) => textarea.selectionStart), position + "ecuaciones".length);
+
+    const caretBeforeBoundary = await textareaCaretBounds(page, "#markdown-canvas");
+    await page.evaluate(({ caretBottom, visibleBottom }) => {
+      window.scrollTo(0, caretBottom - visibleBottom + 1);
+    }, { caretBottom: caretBeforeBoundary.bottom, visibleBottom: viewport.bottom });
+    const boundaryScrollY = await page.evaluate(() => window.scrollY);
+    await page.keyboard.press("Enter");
+    const centeredCaret = await textareaCaretBounds(page, "#markdown-canvas");
+    const centeredViewport = await writingViewport(page);
+    const centeredScroll = await page.evaluate(() => ({
+      actual: window.scrollY,
+      maximum: Math.max(0, document.documentElement.scrollHeight - window.innerHeight),
+    }));
+    const idealScrollY = ((centeredCaret.top + centeredCaret.bottom) / 2) - centeredViewport.center;
+    const expectedScrollY = Math.max(0, Math.min(centeredScroll.maximum, idealScrollY));
+    assert.notEqual(centeredScroll.actual, boundaryScrollY, "an essay caret that leaves the viewport must scroll");
+    assert.ok(Math.abs(centeredScroll.actual - expectedScrollY) <= 2, "the offscreen essay caret must get as close to center as document bounds allow");
+    assert.equal(await markdown.evaluate((textarea) => textarea.selectionStart), position + "ecuaciones".length + 1);
+  } catch (error) {
+    const screenshotPath = "/tmp/posts-editor-caret-exact-essay.png";
+    await page.screenshot({ path: screenshotPath, fullPage: false }).catch(() => {});
+    throw new Error(`${error.message}\nCaptura: ${screenshotPath}`, { cause: error });
+  } finally {
+    await context.close();
+  }
+}
+
 async function assertEditorContract(page, fixture) {
   const expectedKind = fixture.expectedKind;
   if (expectedKind !== "image" && !(await page.locator("#settings-title").isVisible())) {
@@ -628,10 +720,12 @@ async function main() {
     await runGrayscalePropertiesCase(browser, origin);
     await runCaretViewportCase(browser, origin, { width: 1280, height: 800 });
     await runCaretViewportCase(browser, origin, { width: 390, height: 844 });
+    await runExactEssayCaretCase(browser, origin);
     console.log(`Editor harness: ${fixtures.length * viewports.length} escenarios correctos.`);
     console.log("Autoguardado local: restauración y descarte comprobados.");
     console.log("Propiedades móviles en escala de grises: controles y cierres comprobados.");
     console.log("Cursor del editor: desplazamiento condicionado y centrado comprobados.");
+    console.log("Ensayo exacto: ecuaciones conserva el viewport y el salto real centra el cursor.");
     console.log(`Guardados aislados comprobados: ${savedRequests.length}.`);
   } finally {
     await browser.close();
