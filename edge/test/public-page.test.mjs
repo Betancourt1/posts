@@ -239,7 +239,7 @@ test("keeps interaction sounds opt-in, synthesized, and shared with admin", asyn
   assert.match(sound, /localStorage\.getItem\(STORAGE_KEY\) === "true"/);
   assert.match(sound, /window\.AudioContext \|\| window\.webkitAudioContext/);
   assert.equal((sound.match(/^    [a-zA-Z]+: \{ start:/gm) || []).length, 4);
-  assert.match(sound, /var OUTPUT_GAIN_MULTIPLIER = 1\.44;/);
+  assert.match(sound, /var OUTPUT_GAIN_MULTIPLIER = 2\.16;/);
   assert.match(sound, /navigation: \{[^\n]*gain: 0\.008 \}/);
   assert.equal((sound.match(/gain: 0\.009 \}/g) || []).length, 2);
   assert.match(sound, /searchResults: \{[^\n]*gain: 0\.01 \}/);

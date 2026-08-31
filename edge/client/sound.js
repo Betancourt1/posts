@@ -2,7 +2,7 @@
   "use strict";
 
   var STORAGE_KEY = "site_sound_enabled";
-  var OUTPUT_GAIN_MULTIPLIER = 1.44;
+  var OUTPUT_GAIN_MULTIPLIER = 2.16;
   var audioContext = null;
   var enabled = false;
   var gestureReady = false;
