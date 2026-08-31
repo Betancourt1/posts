@@ -2,6 +2,7 @@
   "use strict";
 
   var STORAGE_KEY = "site_sound_enabled";
+  var OUTPUT_GAIN_MULTIPLIER = 1.2;
   var audioContext = null;
   var enabled = false;
   var gestureReady = false;
@@ -70,7 +71,7 @@
     secondary.frequency.setValueAtTime(tone.secondaryStart, now);
     secondary.frequency.exponentialRampToValueAtTime(tone.secondaryEnd, now + tone.duration);
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(tone.gain, now + 0.002);
+    gain.gain.exponentialRampToValueAtTime(tone.gain * OUTPUT_GAIN_MULTIPLIER, now + 0.002);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + tone.duration);
     oscillator.connect(gain);
     secondary.connect(gain);

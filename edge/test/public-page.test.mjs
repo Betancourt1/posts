@@ -239,9 +239,14 @@ test("keeps interaction sounds opt-in, synthesized, and shared with admin", asyn
   assert.match(sound, /localStorage\.getItem\(STORAGE_KEY\) === "true"/);
   assert.match(sound, /window\.AudioContext \|\| window\.webkitAudioContext/);
   assert.equal((sound.match(/^    [a-zA-Z]+: \{ start:/gm) || []).length, 4);
+  assert.match(sound, /var OUTPUT_GAIN_MULTIPLIER = 1\.2;/);
+  assert.match(sound, /navigation: \{[^\n]*gain: 0\.008 \}/);
+  assert.equal((sound.match(/gain: 0\.009 \}/g) || []).length, 2);
+  assert.match(sound, /searchResults: \{[^\n]*gain: 0\.01 \}/);
   assert.match(sound, /var secondary = context\.createOscillator\(\)/);
   assert.match(sound, /oscillator\.connect\(gain\);\s*secondary\.connect\(gain\);\s*gain\.connect\(context\.destination\)/);
-  assert.match(sound, /exponentialRampToValueAtTime\(tone\.gain, now \+ 0\.002\)/);
+  assert.equal((sound.match(/tone\.gain \* OUTPUT_GAIN_MULTIPLIER/g) || []).length, 1);
+  assert.match(sound, /exponentialRampToValueAtTime\(tone\.gain \* OUTPUT_GAIN_MULTIPLIER, now \+ 0\.002\)/);
   assert.match(sound, /secondary\.stop\(now \+ tone\.duration \+ 0\.004\)/);
   assert.doesNotMatch(sound, /mouseenter|mouseover|\.mp3|\.wav|new Audio\(/);
   assert.match(search, /CustomEvent\("site-sound", \{ detail: \{ tone: "searchResults" \} \}\)/);
