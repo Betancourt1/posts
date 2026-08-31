@@ -1877,6 +1877,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       var bodyHistoryIndex = -1;
       var restoringBodyHistory = false;
       var publicationRedirectNotebook = "";
+      var typingViewportStates = new WeakMap();
+      var caretMirror = null;
+      var caretMarker = null;
       var els = {
         status: document.getElementById("status"),
         notice: document.getElementById("editor-notice"),
@@ -2046,7 +2049,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         });
         els.title.addEventListener("input", function () {
           syncGeneratedSlug();
-          resizeTextarea(els.title);
+          resizeTextareaAfterTyping(els.title);
           markContentEdited();
         });
         els.slug.addEventListener("input", function () {
@@ -2094,12 +2097,18 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           if (!restoringBodyHistory) {
             recordBodyHistory();
           }
-          resizeTextarea(els.body);
+          resizeTextareaAfterTyping(els.body);
         });
         els.markdownCanvas.addEventListener("input", function () {
           syncFieldsFromMarkdown();
-          resizeTextarea(els.markdownCanvas);
+          resizeTextareaAfterTyping(els.markdownCanvas);
           markContentEdited();
+        });
+        [els.title, els.body, els.markdownCanvas].forEach(function (textarea) {
+          textarea.addEventListener("beforeinput", rememberTypingViewport);
+          textarea.addEventListener("blur", function () {
+            typingViewportStates.delete(textarea);
+          });
         });
         [els.title, els.summary, els.body, els.markdownCanvas].forEach(function (input) {
           input.addEventListener("focus", syncWritingState);
@@ -3367,6 +3376,117 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       function resizeTextarea(textarea) {
         textarea.style.height = "auto";
         textarea.style.height = textarea.scrollHeight + "px";
+      }
+
+      function rememberTypingViewport(event) {
+        var textarea = event.currentTarget;
+        if (document.activeElement !== textarea) return;
+        var viewport = writingViewport();
+        typingViewportStates.set(textarea, {
+          scrollX: window.scrollX,
+          scrollY: window.scrollY,
+          width: viewport.width,
+          height: viewport.height,
+          top: viewport.top,
+          bottom: viewport.bottom,
+        });
+      }
+
+      function resizeTextareaAfterTyping(textarea) {
+        var previous = typingViewportStates.get(textarea);
+        typingViewportStates.delete(textarea);
+        resizeTextarea(textarea);
+        if (!previous || document.activeElement !== textarea) return;
+
+        var viewport = writingViewport();
+        if (
+          Math.abs(viewport.width - previous.width) > 1 ||
+          Math.abs(viewport.height - previous.height) > 1 ||
+          Math.abs(viewport.top - previous.top) > 1 ||
+          Math.abs(viewport.bottom - previous.bottom) > 1
+        ) {
+          return;
+        }
+
+        var caret = textareaCaretBounds(textarea);
+        if (!caret) return;
+        var visibleTop = previous.scrollY + previous.top;
+        var visibleBottom = previous.scrollY + previous.bottom;
+        var caretIsVisible = caret.top >= visibleTop && caret.bottom <= visibleBottom;
+        var nextScrollY = previous.scrollY;
+
+        if (!caretIsVisible) {
+          var viewportCenter = (previous.top + previous.bottom) / 2;
+          nextScrollY = caret.top + ((caret.bottom - caret.top) / 2) - viewportCenter;
+        }
+
+        if (window.scrollX !== previous.scrollX || Math.abs(window.scrollY - nextScrollY) > 0.5) {
+          window.scrollTo({ left: previous.scrollX, top: nextScrollY, behavior: "auto" });
+        }
+      }
+
+      function writingViewport() {
+        var visualViewport = window.visualViewport;
+        var top = visualViewport ? visualViewport.offsetTop : 0;
+        var width = visualViewport ? visualViewport.width : window.innerWidth;
+        var height = visualViewport ? visualViewport.height : window.innerHeight;
+        var bottom = top + height;
+        var topbar = document.querySelector(".topbar");
+        var topbarRect = topbar ? topbar.getBoundingClientRect() : null;
+        var topbarPosition = topbar ? window.getComputedStyle(topbar).position : "";
+        if (topbarRect && (topbarPosition === "fixed" || topbarPosition === "sticky") && topbarRect.top <= top + 1) {
+          top = Math.min(bottom, Math.max(top, topbarRect.bottom));
+        }
+        var formatbarRect = els.formatbar.getBoundingClientRect();
+        if (window.getComputedStyle(els.formatbar).position === "fixed" && formatbarRect.bottom >= bottom - 1) {
+          bottom = Math.max(top, Math.min(bottom, formatbarRect.top));
+        }
+        return { width: width, height: height, top: top, bottom: bottom };
+      }
+
+      function textareaCaretBounds(textarea) {
+        var position = textarea.selectionEnd;
+        if (typeof position !== "number") return null;
+        ensureCaretMirror();
+
+        var styles = window.getComputedStyle(textarea);
+        [
+          "boxSizing", "borderTopWidth", "borderRightWidth", "borderBottomWidth", "borderLeftWidth",
+          "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "fontFamily", "fontSize",
+          "fontStyle", "fontVariant", "fontWeight", "fontStretch", "lineHeight", "letterSpacing",
+          "wordSpacing", "tabSize", "textAlign", "textIndent", "textTransform", "direction",
+          "whiteSpace", "wordBreak", "overflowWrap",
+        ].forEach(function (property) {
+          caretMirror.style[property] = styles[property];
+        });
+        caretMirror.style.width = textarea.getBoundingClientRect().width + "px";
+        caretMirror.replaceChildren(document.createTextNode(textarea.value.slice(0, position)), caretMarker);
+        caretMarker.textContent = textarea.value.slice(position, position + 1) || ".";
+
+        var textareaRect = textarea.getBoundingClientRect();
+        var mirrorRect = caretMirror.getBoundingClientRect();
+        var markerRect = caretMarker.getBoundingClientRect();
+        var lineHeight = parseFloat(styles.lineHeight);
+        if (!Number.isFinite(lineHeight)) lineHeight = markerRect.height || parseFloat(styles.fontSize) * 1.2;
+        var top = window.scrollY + textareaRect.top + (markerRect.top - mirrorRect.top) - textarea.scrollTop;
+        return { top: top, bottom: top + lineHeight };
+      }
+
+      function ensureCaretMirror() {
+        if (caretMirror) return;
+        caretMirror = document.createElement("div");
+        caretMirror.setAttribute("aria-hidden", "true");
+        caretMirror.style.position = "fixed";
+        caretMirror.style.top = "0";
+        caretMirror.style.left = "-100000px";
+        caretMirror.style.height = "auto";
+        caretMirror.style.minHeight = "0";
+        caretMirror.style.maxHeight = "none";
+        caretMirror.style.overflow = "hidden";
+        caretMirror.style.visibility = "hidden";
+        caretMirror.style.pointerEvents = "none";
+        caretMarker = document.createElement("span");
+        document.body.appendChild(caretMirror);
       }
 
       function setStatus(message, error) {

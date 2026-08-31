@@ -220,6 +220,156 @@ async function waitForEditor(page) {
   });
 }
 
+async function textareaCaretBounds(page, selector) {
+  return page.locator(selector).evaluate((textarea) => {
+    const styles = window.getComputedStyle(textarea);
+    const mirror = document.createElement("div");
+    const marker = document.createElement("span");
+    const position = textarea.selectionEnd;
+    mirror.style.position = "fixed";
+    mirror.style.top = "0";
+    mirror.style.left = "-100000px";
+    mirror.style.height = "auto";
+    mirror.style.minHeight = "0";
+    mirror.style.maxHeight = "none";
+    mirror.style.overflow = "hidden";
+    mirror.style.visibility = "hidden";
+    [
+      "boxSizing", "borderTopWidth", "borderRightWidth", "borderBottomWidth", "borderLeftWidth",
+      "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "fontFamily", "fontSize",
+      "fontStyle", "fontVariant", "fontWeight", "fontStretch", "lineHeight", "letterSpacing",
+      "wordSpacing", "tabSize", "textAlign", "textIndent", "textTransform", "direction",
+      "whiteSpace", "wordBreak", "overflowWrap",
+    ].forEach((property) => {
+      mirror.style[property] = styles[property];
+    });
+    mirror.style.width = `${textarea.getBoundingClientRect().width}px`;
+    mirror.append(document.createTextNode(textarea.value.slice(0, position)), marker);
+    marker.textContent = textarea.value.slice(position, position + 1) || ".";
+    document.body.appendChild(mirror);
+
+    const textareaRect = textarea.getBoundingClientRect();
+    const mirrorRect = mirror.getBoundingClientRect();
+    const markerRect = marker.getBoundingClientRect();
+    const lineHeight = Number.parseFloat(styles.lineHeight) || markerRect.height || Number.parseFloat(styles.fontSize) * 1.2;
+    const top = window.scrollY + textareaRect.top + (markerRect.top - mirrorRect.top) - textarea.scrollTop;
+    mirror.remove();
+    return { top, bottom: top + lineHeight };
+  });
+}
+
+async function writingViewport(page) {
+  return page.evaluate(() => {
+    const visualViewport = window.visualViewport;
+    let top = visualViewport ? visualViewport.offsetTop : 0;
+    const height = visualViewport ? visualViewport.height : window.innerHeight;
+    let bottom = top + height;
+    const topbar = document.querySelector(".topbar");
+    const topbarRect = topbar?.getBoundingClientRect();
+    const topbarPosition = topbar ? window.getComputedStyle(topbar).position : "";
+    if (topbarRect && ["fixed", "sticky"].includes(topbarPosition) && topbarRect.top <= top + 1) {
+      top = Math.min(bottom, Math.max(top, topbarRect.bottom));
+    }
+    const formatbar = document.querySelector(".formatbar");
+    const formatbarRect = formatbar.getBoundingClientRect();
+    if (window.getComputedStyle(formatbar).position === "fixed" && formatbarRect.bottom >= bottom - 1) {
+      bottom = Math.max(top, Math.min(bottom, formatbarRect.top));
+    }
+    return { top, bottom, center: (top + bottom) / 2 };
+  });
+}
+
+async function placeCaret(page, selector, position, clientY) {
+  await page.locator(selector).evaluate((textarea, caretPosition) => {
+    textarea.focus({ preventScroll: true });
+    textarea.setSelectionRange(caretPosition, caretPosition);
+  }, position);
+  const caret = await textareaCaretBounds(page, selector);
+  await page.evaluate(({ caretCenter, targetClientY }) => {
+    window.scrollTo(0, caretCenter - targetClientY);
+  }, { caretCenter: (caret.top + caret.bottom) / 2, targetClientY: clientY });
+}
+
+async function runCaretViewportCase(browser, origin, viewport) {
+  const context = await browser.newContext({ viewport });
+  const page = await context.newPage();
+  const query = new URLSearchParams({
+    mode: "edit",
+    path: "content_es/posts/2026/julio/nota-de-prueba.md",
+    kind: "post",
+    theme: "dark",
+  });
+
+  try {
+    await page.goto(`${origin}/editor?${query}`, { waitUntil: "domcontentloaded" });
+    await waitForEditor(page);
+    if (await page.locator("#settings").isVisible()) await page.locator("#settings-close").click();
+
+    const lines = Array.from({ length: 80 }, (_, index) => (
+      `${String(index + 1).padStart(2, "0")} ${"A wrapped editor line with enough words to exercise the responsive textarea width. ".repeat(2)}`
+    ));
+    const bodyValue = lines.join("\n");
+    await page.locator("#body").fill(bodyValue);
+
+    const viewportBounds = await writingViewport(page);
+    const visiblePosition = bodyValue.indexOf("20 ") + 3;
+    await placeCaret(page, "#body", visiblePosition, viewportBounds.center);
+    const visibleScrollY = await page.evaluate(() => window.scrollY);
+    await page.keyboard.type("x");
+    assert.ok(Math.abs((await page.evaluate(() => window.scrollY)) - visibleScrollY) <= 1, "typing at a visible caret must not scroll");
+    assert.equal(await page.locator("#body").evaluate((textarea) => textarea.selectionStart), visiblePosition + 1);
+
+    const manualScrollY = Math.max(0, visibleScrollY - 120);
+    await page.evaluate((top) => window.scrollTo(0, top), manualScrollY);
+    await page.waitForTimeout(50);
+    assert.ok(Math.abs((await page.evaluate(() => window.scrollY)) - manualScrollY) <= 1, "manual scrolling after typing must remain untouched");
+
+    const offscreenPosition = bodyValue.indexOf("60 ") + 3;
+    await placeCaret(page, "#body", offscreenPosition, viewportBounds.center);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.keyboard.type("y");
+    const centeredCaret = await textareaCaretBounds(page, "#body");
+    const centeredViewport = await writingViewport(page);
+    const centeredClientY = ((centeredCaret.top + centeredCaret.bottom) / 2) - await page.evaluate(() => window.scrollY);
+    assert.ok(Math.abs(centeredClientY - centeredViewport.center) <= 2, "an offscreen body caret must move to the viewport center");
+    assert.equal(await page.locator("#body").evaluate((textarea) => textarea.selectionStart), offscreenPosition + 1);
+
+    await placeCaret(page, "#body", 0, centeredViewport.center);
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await page.keyboard.type("t");
+    assert.ok((await page.evaluate(() => window.scrollY)) <= 1, "centering must clamp at the top of the document");
+
+    const bodyEnd = (await page.locator("#body").inputValue()).length;
+    await placeCaret(page, "#body", bodyEnd, centeredViewport.center);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.keyboard.type("b");
+    const bottomScroll = await page.evaluate(() => ({
+      actual: window.scrollY,
+      maximum: Math.max(0, document.documentElement.scrollHeight - window.innerHeight),
+    }));
+    assert.ok(Math.abs(bottomScroll.actual - bottomScroll.maximum) <= 1, "centering must clamp at the bottom of the document");
+
+    await page.locator(viewport.width < 600 ? "#mobile-view-markdown" : "#view-markdown").click();
+    const markdown = page.locator("#markdown-canvas");
+    await markdown.waitFor({ state: "visible" });
+    const markdownValue = await markdown.inputValue();
+    const markdownPosition = Math.floor(markdownValue.length * 0.75);
+    await placeCaret(page, "#markdown-canvas", markdownPosition, centeredViewport.center);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.keyboard.type("z");
+    const markdownCaret = await textareaCaretBounds(page, "#markdown-canvas");
+    const markdownViewport = await writingViewport(page);
+    const markdownClientY = ((markdownCaret.top + markdownCaret.bottom) / 2) - await page.evaluate(() => window.scrollY);
+    assert.ok(Math.abs(markdownClientY - markdownViewport.center) <= 2, "an offscreen Markdown caret must move to the viewport center");
+  } catch (error) {
+    const screenshotPath = `/tmp/posts-editor-caret-${viewport.width}x${viewport.height}.png`;
+    await page.screenshot({ path: screenshotPath, fullPage: false }).catch(() => {});
+    throw new Error(`${error.message}\nCaptura: ${screenshotPath}`, { cause: error });
+  } finally {
+    await context.close();
+  }
+}
+
 async function assertEditorContract(page, fixture) {
   const expectedKind = fixture.expectedKind;
   if (expectedKind !== "image" && !(await page.locator("#settings-title").isVisible())) {
@@ -476,9 +626,12 @@ async function main() {
     }
     await runDraftRestoreCase(browser, origin);
     await runGrayscalePropertiesCase(browser, origin);
+    await runCaretViewportCase(browser, origin, { width: 1280, height: 800 });
+    await runCaretViewportCase(browser, origin, { width: 390, height: 844 });
     console.log(`Editor harness: ${fixtures.length * viewports.length} escenarios correctos.`);
     console.log("Autoguardado local: restauración y descarte comprobados.");
     console.log("Propiedades móviles en escala de grises: controles y cierres comprobados.");
+    console.log("Cursor del editor: desplazamiento condicionado y centrado comprobados.");
     console.log(`Guardados aislados comprobados: ${savedRequests.length}.`);
   } finally {
     await browser.close();
