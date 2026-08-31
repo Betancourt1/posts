@@ -161,7 +161,7 @@ const rawSource = [
     var key = "zen_mode_enabled";
     var returnFrame = null;
 
-    function setZen(enabled) {
+    function setZen(enabled, instant) {
       if (returnFrame !== null) {
         cancelAnimationFrame(returnFrame);
         returnFrame = null;
@@ -182,10 +182,15 @@ const rawSource = [
         body.classList.remove("zen-mode", "zen-mode-returning");
       }
 
+      if (enabled && instant) {
+        var graph = document.querySelector(".sidenote-sidebar-graph");
+        if (graph) graph.classList.add("is-zen-collapsed");
+      }
+
       button.classList.toggle("is-active", enabled);
       try { localStorage.setItem(key, enabled ? "true" : "false"); } catch (error) {}
     }
-    try { setZen(localStorage.getItem(key) === "true"); } catch (error) {}
+    try { setZen(localStorage.getItem(key) === "true", true); } catch (error) {}
     button.addEventListener("click", function () { setZen(!body.classList.contains("zen-mode")); });
   });
 </script>

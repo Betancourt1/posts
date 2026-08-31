@@ -10,6 +10,7 @@
     endnotes.before(placeholder);
 
     var desktop = window.matchMedia("(min-width: 1001px)");
+    var graph = document.querySelector(".sidenote-sidebar-graph");
     var printMode = false;
     var frame = 0;
 
@@ -49,7 +50,30 @@
 
     function schedulePosition() {
       window.cancelAnimationFrame(frame);
-      frame = window.requestAnimationFrame(positionRailNotes);
+      frame = window.requestAnimationFrame(function () {
+        frame = 0;
+        positionRailNotes();
+      });
+    }
+
+    function positionRailNotesNow() {
+      window.cancelAnimationFrame(frame);
+      frame = 0;
+      positionRailNotes();
+    }
+
+    function setGraphCollapsed(collapsed) {
+      if (!graph || graph.classList.contains("is-zen-collapsed") === collapsed) return;
+      graph.classList.toggle("is-zen-collapsed", collapsed);
+      positionRailNotesNow();
+    }
+
+    function syncGraphZenState() {
+      if (!document.body.classList.contains("zen-mode")) {
+        setGraphCollapsed(false);
+      } else if (graph && graph.classList.contains("is-zen-collapsed")) {
+        positionRailNotesNow();
+      }
     }
 
     function syncPlacement() {
@@ -63,7 +87,12 @@
       schedulePosition();
     }
 
-    desktop.addEventListener("change", syncPlacement);
+    desktop.addEventListener("change", function () {
+      var startsCollapsed = desktop.matches && document.body.classList.contains("zen-mode");
+      if (graph) graph.classList.toggle("is-zen-collapsed", startsCollapsed);
+      syncPlacement();
+      if (startsCollapsed) positionRailNotesNow();
+    });
     window.addEventListener("resize", schedulePosition, { passive: true });
     window.addEventListener("load", schedulePosition, { once: true });
     window.addEventListener("beforeprint", function () {
@@ -74,26 +103,33 @@
       printMode = false;
       syncPlacement();
     });
-    new MutationObserver(syncPlacement).observe(document.body, {
+    new MutationObserver(function () {
+      syncPlacement();
+      syncGraphZenState();
+    }).observe(document.body, {
       attributes: true,
       attributeFilter: ["class"],
     });
-    var graph = document.querySelector(".sidenote-sidebar-graph");
     if ("ResizeObserver" in window) {
       var article = document.querySelector(".post--has-sidenotes");
       if (article) new ResizeObserver(schedulePosition).observe(article);
-      if (graph) new ResizeObserver(schedulePosition).observe(graph);
     }
     if (graph) {
       graph.addEventListener("transitionend", function (event) {
-        if (event.propertyName === "max-height" || event.propertyName === "margin-bottom") {
-          schedulePosition();
-        }
+        if (
+          event.target === graph &&
+          event.propertyName === "opacity" &&
+          desktop.matches &&
+          document.body.classList.contains("zen-mode")
+        ) setGraphCollapsed(true);
       });
     }
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(schedulePosition);
 
+    var startsCollapsed = desktop.matches && document.body.classList.contains("zen-mode");
+    if (graph && startsCollapsed) graph.classList.add("is-zen-collapsed");
     syncPlacement();
+    if (startsCollapsed) positionRailNotesNow();
   }
 
   if (document.readyState === "loading") {
