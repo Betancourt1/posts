@@ -437,10 +437,7 @@ function renderSidenoteEndnotes(sidenotes, links, canonicalPath) {
       ...MARKED_OPTIONS,
       renderer: createSafeRenderer({ allowSidenoteTones: true }),
     });
-    const backlinks = note.references.map((referenceId, index) =>
-      `<a class="sidenote-backlink" href="#${referenceId}" role="doc-backlink">↩${note.references.length > 1 ? ` ${index + 1}` : ""}</a>`
-    ).join(" ");
-    return `<li class="sidenote-item" id="sidenote-${note.number}" data-sidenote-number="${note.number}"><span class="sidenote-number" aria-hidden="true">${String(note.number).padStart(2, "0")}</span><span class="sidenote-copy">${noteHtml}<span class="sidenote-backlinks">${backlinks}</span></span></li>`;
+    return `<li class="sidenote-item" id="sidenote-${note.number}" data-sidenote-number="${note.number}"><span class="sidenote-number" aria-hidden="true">${String(note.number).padStart(2, "0")}</span><span class="sidenote-copy">${noteHtml}</span></li>`;
   }).join("");
 
   return `<section class="sidenote-endnotes" role="doc-endnotes"><ol class="sidenote-list">${items}</ol></section>`;

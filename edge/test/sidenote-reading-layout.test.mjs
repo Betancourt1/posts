@@ -59,7 +59,8 @@ test("reading rail places the graph above notes without a header trigger", async
   assert.doesNotMatch(css, /\.sidenote-sidebar-graph\s*\{[\s\S]*?(?:transition:\s*all|will-change)/);
   assert.doesNotMatch(css, /body\.has-sidenotes\.zen-mode \.nav-column/);
   assert.match(css, /@media \(max-width: 1000px\)[\s\S]*?\.sidebar-column--sidenotes\s*\{[\s\S]*?display:\s*none;/);
-  assert.doesNotMatch(css, /\.sidenote-endnotes\.is-in-rail \.sidenote-backlinks\s*\{[\s\S]*?display:\s*none;/);
+  assert.match(css, /\.sidenote-backlinks\s*\{[\s\S]*?display:\s*none;/);
+  assert.doesNotMatch(css, /\.sidenote-backlink(?::|\s*\{)/);
   assert.doesNotMatch(css, /\.post-context-button|\.sidenote-graph-dialog/);
   assert.doesNotMatch(layout, /Margin notes|Notas al margen/);
 });

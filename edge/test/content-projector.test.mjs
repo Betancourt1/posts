@@ -349,7 +349,7 @@ Unsupported {{purple|plain}}. Unsafe {{green|<img src=x onerror=alert(1)>}}
   );
 });
 
-test("renders safe rich-text sidenotes with semantic references and backlinks", () => {
+test("renders safe rich-text sidenotes without redundant return arrows", () => {
   const rendered = renderMarkdown(`First[^judgment] and repeated[^judgment]. Missing[^missing].
 
 \`inline[^judgment]\`
@@ -365,8 +365,8 @@ test("renders safe rich-text sidenotes with semantic references and backlinks", 
   assert.match(rendered.bodyHtml, /sidenote-tone--green">visible<\/span>/);
   assert.match(rendered.bodyHtml, /sidenote-tone--blue">linked<\/span>/);
   assert.match(rendered.bodyHtml, /sidenote-tone--amber">contested<\/span>/);
-  assert.match(rendered.bodyHtml, /href="#sidenote-ref-1-1"/);
-  assert.match(rendered.bodyHtml, /href="#sidenote-ref-1-2"/);
+  assert.match(rendered.bodyHtml, /href="\/source\/"/);
+  assert.doesNotMatch(rendered.bodyHtml, /sidenote-backlinks?|href="#sidenote-ref|↩/);
   assert.match(rendered.bodyHtml, /Missing\[\^missing\]/);
   assert.match(rendered.bodyHtml, /<code>inline\[\^judgment\]<\/code>/);
   assert.doesNotMatch(rendered.bodyHtml, /This duplicate|<script>/);

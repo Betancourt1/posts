@@ -2190,9 +2190,7 @@ body.graph-maximized .ssh-terminal-overlay {
 }
 
 .sidenote-reference a:hover,
-.sidenote-reference a:focus-visible,
-.sidenote-backlink:hover,
-.sidenote-backlink:focus-visible {
+.sidenote-reference a:focus-visible {
   color: var(--accent-2);
 }
 
@@ -2250,17 +2248,7 @@ body.graph-maximized .ssh-terminal-overlay {
 .sidenote-tone--amber { color: #f0c36e; }
 
 .sidenote-backlinks {
-  display: inline-flex;
-  gap: 0.35rem;
-  margin-inline-start: 0.45rem;
-  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
-  font-size: 0.68rem;
-  font-weight: 600;
-}
-
-.sidenote-backlink {
-  color: var(--accent);
-  text-decoration: none;
+  display: none;
 }
 
 .sidenote-sidebar {
