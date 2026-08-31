@@ -289,8 +289,8 @@ async function textareaCaretBounds(page, selector) {
   });
 }
 
-async function writingViewport(page) {
-  return page.evaluate(() => {
+async function writingViewport(page, scrollOwnerSelector = "") {
+  return page.evaluate((ownerSelector) => {
     const visualViewport = window.visualViewport;
     let top = visualViewport ? visualViewport.offsetTop : 0;
     const height = visualViewport ? visualViewport.height : window.innerHeight;
@@ -306,19 +306,37 @@ async function writingViewport(page) {
     if (window.getComputedStyle(formatbar).position === "fixed" && formatbarRect.bottom >= bottom - 1) {
       bottom = Math.max(top, Math.min(bottom, formatbarRect.top));
     }
+    if (ownerSelector) {
+      const owner = document.querySelector(ownerSelector);
+      const ownerRect = owner.getBoundingClientRect();
+      const ownerTop = ownerRect.top + owner.clientTop;
+      const ownerBottom = ownerTop + owner.clientHeight;
+      top = Math.max(top, ownerTop);
+      bottom = Math.max(top, Math.min(bottom, ownerBottom));
+    }
     return { top, bottom, center: (top + bottom) / 2 };
-  });
+  }, scrollOwnerSelector);
 }
 
-async function placeCaret(page, selector, position, clientY) {
+async function placeCaret(page, selector, position, clientY, scrollOwnerSelector = "") {
   await page.locator(selector).evaluate((textarea, caretPosition) => {
     textarea.focus({ preventScroll: true });
     textarea.setSelectionRange(caretPosition, caretPosition);
   }, position);
   const caret = await textareaCaretBounds(page, selector);
-  await page.evaluate(({ caretCenter, targetClientY }) => {
+  await page.evaluate(({ caretCenter, targetClientY, ownerSelector }) => {
+    const caretClientY = caretCenter - window.scrollY;
+    if (ownerSelector) {
+      const owner = document.querySelector(ownerSelector);
+      owner.scrollTop += caretClientY - targetClientY;
+      return;
+    }
     window.scrollTo(0, caretCenter - targetClientY);
-  }, { caretCenter: (caret.top + caret.bottom) / 2, targetClientY: clientY });
+  }, {
+    caretCenter: (caret.top + caret.bottom) / 2,
+    targetClientY: clientY,
+    ownerSelector: scrollOwnerSelector,
+  });
 }
 
 async function runCaretViewportCase(browser, origin, viewport) {
@@ -408,7 +426,7 @@ async function runExactEssayCaretCase(browser, origin) {
     mode: "edit",
     path: "content_en/posts/2026/agosto/el_matematico_en_el_loop.md",
     kind: "post",
-    theme: "light",
+    theme: "dark",
   });
 
   try {
@@ -420,38 +438,69 @@ async function runExactEssayCaretCase(browser, origin) {
 
     const markdown = page.locator("#markdown-canvas");
     await markdown.waitFor({ state: "visible" });
+    await page.evaluate(() => {
+      document.body.style.height = "calc(100dvh + 15rem)";
+      const writer = document.querySelector(".writer");
+      writer.style.height = "45rem";
+      writer.style.overflowY = "auto";
+    });
+    await page.evaluate(() => window.scrollTo(0, 100));
+    await page.waitForTimeout(50);
+
+    const scrollMetrics = await page.locator(".writer").evaluate((writer) => ({
+      clientHeight: writer.clientHeight,
+      scrollHeight: writer.scrollHeight,
+    }));
+    assert.ok(scrollMetrics.scrollHeight > scrollMetrics.clientHeight, "the exact essay regression must exercise a scrolling .writer");
+
     const markdownValue = await markdown.inputValue();
     const phrase = "ideas, fórmulas y ";
     const position = markdownValue.indexOf(phrase) + phrase.length;
-    const viewport = await writingViewport(page);
-    await placeCaret(page, "#markdown-canvas", position, viewport.bottom - 60);
-    const initialScrollY = await page.evaluate(() => window.scrollY);
+    const viewport = await writingViewport(page, ".writer");
+    await placeCaret(page, "#markdown-canvas", position, viewport.bottom - 60, ".writer");
+    const initialScroll = await page.evaluate(() => ({
+      window: window.scrollY,
+      writer: document.querySelector(".writer").scrollTop,
+    }));
 
     for (const character of "ecuaciones") {
       await page.keyboard.type(character);
-      const state = await page.evaluate(() => ({ scrollY: window.scrollY }));
+      const state = await page.evaluate(() => ({
+        window: window.scrollY,
+        writer: document.querySelector(".writer").scrollTop,
+      }));
       const caret = await textareaCaretBounds(page, "#markdown-canvas");
-      assert.equal(state.scrollY, initialScrollY, `typing ${character} at the visible essay caret must not scroll`);
-      assert.ok(caret.bottom - state.scrollY <= viewport.bottom, `caret must remain visible after typing ${character}`);
+      assert.equal(state.window, initialScroll.window, `typing ${character} must not move the outer window`);
+      assert.equal(state.writer, initialScroll.writer, `typing ${character} at the visible essay caret must not move .writer`);
+      assert.ok(caret.bottom - state.window <= viewport.bottom, `caret must remain visible after typing ${character}`);
     }
     assert.equal(await markdown.evaluate((textarea) => textarea.selectionStart), position + "ecuaciones".length);
 
-    const caretBeforeBoundary = await textareaCaretBounds(page, "#markdown-canvas");
-    await page.evaluate(({ caretBottom, visibleBottom }) => {
-      window.scrollTo(0, caretBottom - visibleBottom + 1);
-    }, { caretBottom: caretBeforeBoundary.bottom, visibleBottom: viewport.bottom });
-    const boundaryScrollY = await page.evaluate(() => window.scrollY);
+    await page.locator(".writer").evaluate((writer) => {
+      writer.scrollTop = 0;
+    });
+    const boundaryScroll = await page.evaluate(() => ({
+      window: window.scrollY,
+      writer: document.querySelector(".writer").scrollTop,
+    }));
     await page.keyboard.press("Enter");
     const centeredCaret = await textareaCaretBounds(page, "#markdown-canvas");
-    const centeredViewport = await writingViewport(page);
+    const centeredViewport = await writingViewport(page, ".writer");
     const centeredScroll = await page.evaluate(() => ({
-      actual: window.scrollY,
-      maximum: Math.max(0, document.documentElement.scrollHeight - window.innerHeight),
+      window: window.scrollY,
+      writer: document.querySelector(".writer").scrollTop,
+      maximum: Math.max(0, document.querySelector(".writer").scrollHeight - document.querySelector(".writer").clientHeight),
     }));
-    const idealScrollY = ((centeredCaret.top + centeredCaret.bottom) / 2) - centeredViewport.center;
-    const expectedScrollY = Math.max(0, Math.min(centeredScroll.maximum, idealScrollY));
-    assert.notEqual(centeredScroll.actual, boundaryScrollY, "an essay caret that leaves the viewport must scroll");
-    assert.ok(Math.abs(centeredScroll.actual - expectedScrollY) <= 2, "the offscreen essay caret must get as close to center as document bounds allow");
+    const caretClientCenter = ((centeredCaret.top + centeredCaret.bottom) / 2) - centeredScroll.window;
+    assert.equal(centeredScroll.window, boundaryScroll.window, "centering inside .writer must not move the outer window");
+    assert.notEqual(centeredScroll.writer, boundaryScroll.writer, "an essay caret outside .writer must move that container");
+    if (centeredScroll.writer <= 1) {
+      assert.ok(caretClientCenter <= centeredViewport.center + 2, "a top-clamped caret may remain only above the viewport center");
+    } else if (Math.abs(centeredScroll.writer - centeredScroll.maximum) <= 1) {
+      assert.ok(caretClientCenter >= centeredViewport.center - 2, "a bottom-clamped caret may remain only below the viewport center");
+    } else {
+      assert.ok(Math.abs(caretClientCenter - centeredViewport.center) <= 2, "the offscreen essay caret must land at the .writer viewport center");
+    }
     assert.equal(await markdown.evaluate((textarea) => textarea.selectionStart), position + "ecuaciones".length + 1);
   } catch (error) {
     const screenshotPath = "/tmp/posts-editor-caret-exact-essay.png";

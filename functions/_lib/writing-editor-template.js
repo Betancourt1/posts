@@ -289,6 +289,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       font-size: var(--editor-body-size);
       line-height: 1.65;
       white-space: pre-wrap;
+      overflow: hidden;
     }
     .paper.markdown-mode .title-input,
     .paper.markdown-mode .subtitle-input,
@@ -3381,10 +3382,17 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       function rememberTypingViewport(event) {
         var textarea = event.currentTarget;
         if (document.activeElement !== textarea) return;
-        var viewport = writingViewport();
+        var scrollOwner = typingScrollOwner(textarea);
+        var scrollPosition = readScrollPosition(scrollOwner);
+        var viewport = writingViewport(scrollOwner);
         typingViewportStates.set(textarea, {
-          scrollX: window.scrollX,
-          scrollY: window.scrollY,
+          scrollOwner: scrollOwner,
+          scrollLeft: scrollPosition.left,
+          scrollTop: scrollPosition.top,
+          windowScrollX: window.scrollX,
+          windowScrollY: window.scrollY,
+          ownerWidth: scrollOwner.clientWidth,
+          ownerHeight: scrollOwner.clientHeight,
           width: viewport.width,
           height: viewport.height,
           top: viewport.top,
@@ -3398,7 +3406,17 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         resizeTextarea(textarea);
         if (!previous || document.activeElement !== textarea) return;
 
-        var viewport = writingViewport();
+        var scrollOwner = typingScrollOwner(textarea);
+        if (scrollOwner !== previous.scrollOwner) return;
+        if (scrollOwner.clientWidth !== previous.ownerWidth || scrollOwner.clientHeight !== previous.ownerHeight) return;
+
+        if (!isDocumentScrollOwner(scrollOwner) && (
+          window.scrollX !== previous.windowScrollX || window.scrollY !== previous.windowScrollY
+        )) {
+          window.scrollTo({ left: previous.windowScrollX, top: previous.windowScrollY, behavior: "auto" });
+        }
+
+        var viewport = writingViewport(scrollOwner);
         if (
           Math.abs(viewport.width - previous.width) > 1 ||
           Math.abs(viewport.height - previous.height) > 1 ||
@@ -3410,22 +3428,61 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
         var caret = textareaCaretBounds(textarea);
         if (!caret) return;
-        var visibleTop = previous.scrollY + previous.top;
-        var visibleBottom = previous.scrollY + previous.bottom;
-        var caretIsVisible = caret.top >= visibleTop && caret.bottom <= visibleBottom;
-        var nextScrollY = previous.scrollY;
+        var currentScroll = readScrollPosition(scrollOwner);
+        var scrollDelta = currentScroll.top - previous.scrollTop;
+        var caretTopAtPreviousScroll = caret.top + scrollDelta;
+        var caretBottomAtPreviousScroll = caret.bottom + scrollDelta;
+        var caretIsVisible = caretTopAtPreviousScroll >= previous.top && caretBottomAtPreviousScroll <= previous.bottom;
+        var nextScrollTop = previous.scrollTop;
 
         if (!caretIsVisible) {
           var viewportCenter = (previous.top + previous.bottom) / 2;
-          nextScrollY = caret.top + ((caret.bottom - caret.top) / 2) - viewportCenter;
+          var caretCenter = (caretTopAtPreviousScroll + caretBottomAtPreviousScroll) / 2;
+          nextScrollTop = previous.scrollTop + caretCenter - viewportCenter;
         }
 
-        if (window.scrollX !== previous.scrollX || Math.abs(window.scrollY - nextScrollY) > 0.5) {
-          window.scrollTo({ left: previous.scrollX, top: nextScrollY, behavior: "auto" });
+        nextScrollTop = Math.max(0, Math.min(maximumScrollTop(scrollOwner), nextScrollTop));
+        if (currentScroll.left !== previous.scrollLeft || Math.abs(currentScroll.top - nextScrollTop) > 0.5) {
+          writeScrollPosition(scrollOwner, previous.scrollLeft, nextScrollTop);
         }
       }
 
-      function writingViewport() {
+      function typingScrollOwner(textarea) {
+        var element = textarea.parentElement;
+        while (element && element !== document.body) {
+          var overflowY = window.getComputedStyle(element).overflowY;
+          if (/^(auto|scroll|overlay)$/.test(overflowY) && element.scrollHeight > element.clientHeight + 1) {
+            return element;
+          }
+          element = element.parentElement;
+        }
+        return document.scrollingElement || document.documentElement;
+      }
+
+      function isDocumentScrollOwner(scrollOwner) {
+        return scrollOwner === document.scrollingElement || scrollOwner === document.documentElement || scrollOwner === document.body;
+      }
+
+      function readScrollPosition(scrollOwner) {
+        if (isDocumentScrollOwner(scrollOwner)) {
+          return { left: window.scrollX, top: window.scrollY };
+        }
+        return { left: scrollOwner.scrollLeft, top: scrollOwner.scrollTop };
+      }
+
+      function writeScrollPosition(scrollOwner, left, top) {
+        if (isDocumentScrollOwner(scrollOwner)) {
+          window.scrollTo({ left: left, top: top, behavior: "auto" });
+          return;
+        }
+        scrollOwner.scrollTo({ left: left, top: top, behavior: "auto" });
+      }
+
+      function maximumScrollTop(scrollOwner) {
+        return Math.max(0, scrollOwner.scrollHeight - scrollOwner.clientHeight);
+      }
+
+      function writingViewport(scrollOwner) {
         var visualViewport = window.visualViewport;
         var top = visualViewport ? visualViewport.offsetTop : 0;
         var width = visualViewport ? visualViewport.width : window.innerWidth;
@@ -3440,6 +3497,13 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         var formatbarRect = els.formatbar.getBoundingClientRect();
         if (window.getComputedStyle(els.formatbar).position === "fixed" && formatbarRect.bottom >= bottom - 1) {
           bottom = Math.max(top, Math.min(bottom, formatbarRect.top));
+        }
+        if (!isDocumentScrollOwner(scrollOwner)) {
+          var ownerRect = scrollOwner.getBoundingClientRect();
+          var ownerTop = ownerRect.top + scrollOwner.clientTop;
+          var ownerBottom = ownerTop + scrollOwner.clientHeight;
+          top = Math.max(top, ownerTop);
+          bottom = Math.max(top, Math.min(bottom, ownerBottom));
         }
         return { width: width, height: height, top: top, bottom: bottom };
       }
@@ -3468,7 +3532,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         var markerRect = caretMarker.getBoundingClientRect();
         var lineHeight = parseFloat(styles.lineHeight);
         if (!Number.isFinite(lineHeight)) lineHeight = markerRect.height || parseFloat(styles.fontSize) * 1.2;
-        var top = window.scrollY + textareaRect.top + (markerRect.top - mirrorRect.top) - textarea.scrollTop;
+        var top = textareaRect.top + (markerRect.top - mirrorRect.top) - textarea.scrollTop;
         return { top: top, bottom: top + lineHeight };
       }
 
