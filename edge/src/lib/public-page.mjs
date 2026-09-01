@@ -142,10 +142,17 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
   const archivePromise = layout === "archives"
     ? archiveItems(db, document.lang, { ...options, tags: false })
     : Promise.resolve(null);
+  const listItemOptions = layout === "list" && options.includeHiddenListItems
+    ? { ...options, includeHidden: true }
+    : options;
   const itemsPromise = layout === "home"
     ? recentPosts(db, document.lang, { ...options, limit: 10 })
     : ["list", "books", "photography", "code", "quotes"].includes(layout)
-      ? sectionItems(db, document.lang, document.section, { ...options, body: ["list", "books"].includes(layout) })
+      ? sectionItems(db, document.lang, document.section, {
+          ...(layout === "list" ? listItemOptions : options),
+          body: ["list", "books"].includes(layout),
+          includeLanguageFallback: layout === "list" && document.section === "posts",
+        })
       : Promise.resolve([]);
   const backlinksPromise = layout === "single" && ["posts", "zettelkasten"].includes(document.section)
     ? backlinks(db, document.id, options)

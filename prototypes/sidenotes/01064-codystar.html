@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Side notes · 01064 · Codystar</title>
+  <style>
+    @font-face {
+      font-family:"Codystar";
+      font-style:normal;
+      font-weight:400;
+      font-display:swap;
+      src:url("https://fonts.gstatic.com/s/codystar/v19/FwZY7-Q1xVk-40qxOu6H6Mk.woff2") format("woff2");
+    }
+    :root { color-scheme: dark; --bg:#050706; --ink:#d8ddd9; --muted:#87918b; --line:#24302a; --accent:#63e6b3; --surface:#0a0f0c; }
+    * { box-sizing:border-box; }
+    html { background:var(--bg); }
+    body { margin:0; color:var(--ink); background:var(--bg); font:16px/1.72 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    a { color:inherit; }
+    a:focus-visible { outline:2px dashed var(--accent); outline-offset:4px; }
+    .shell { width:min(1080px, calc(100% - 36px)); margin:auto; padding:34px 0 80px; }
+    header { display:flex; align-items:end; justify-content:space-between; gap:24px; padding-bottom:22px; border-bottom:1px solid var(--line); }
+    .brand { margin:0; color:var(--accent); font-size:2rem; line-height:1; }
+    .subtitle { margin:.45rem 0 0; color:var(--muted); font-size:.78rem; }
+    nav { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; }
+    nav a { padding:.32rem .55rem; border:1px solid var(--line); color:var(--muted); font-size:.7rem; text-decoration:none; }
+    nav a[aria-current="page"] { border-color:var(--accent); color:var(--accent); }
+    .intro { max-width:650px; margin:64px 0 42px; }
+    h1 { margin:0; font:500 clamp(2.2rem, 7vw, 4.8rem)/.96 Georgia, serif; letter-spacing:-.045em; }
+    .dek { margin:24px 0 0; color:var(--muted); font:1.05rem/1.65 Georgia, serif; }
+    .article-grid { display:grid; grid-template-columns:minmax(0, 650px) minmax(190px, 250px); gap:clamp(36px, 8vw, 100px); align-items:start; }
+    article { font:1.08rem/1.85 Georgia, serif; }
+    article p { margin:0 0 1.65em; }
+    .note-ref { color:var(--accent); font:600 .64rem/1 ui-monospace, monospace; text-decoration:none; vertical-align:.42rem; margin-left:.12rem; }
+    .note-ref::before { content:"["; }
+    .note-ref::after { content:"]"; }
+    aside { position:sticky; top:24px; }
+    .margin-note { display:grid; grid-template-columns:24px 1fr; gap:9px; margin:0 0 18px; padding:10px 11px; color:var(--muted); font-size:.72rem; line-height:1.55; }
+    .margin-note span { font-family:"Codystar", monospace; font-size:1rem; line-height:1.5; letter-spacing:.02em; font-synthesis:none; }
+    .margin-note:target { color:var(--ink); background:color-mix(in srgb, var(--accent) 10%, transparent); }
+    .margin-note b { color:var(--accent); font-weight:600; }
+    footer { margin-top:72px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:.68rem; }
+    @media (max-width:760px) {
+      .shell { width:min(100% - 28px, 650px); padding-top:22px; }
+      header { align-items:flex-start; flex-direction:column; }
+      nav { justify-content:flex-start; }
+      .intro { margin-top:48px; }
+      .article-grid { display:block; }
+      aside { position:static; display:block; margin-top:42px; }
+      .margin-note { grid-template-columns:28px 1fr; margin-bottom:10px; font-size:.78rem; }
+    }
+    @media (prefers-reduced-motion:reduce) { * { scroll-behavior:auto !important; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div><p class="brand">betancourt</p><p class="subtitle">side-note laboratory</p></div>
+      <nav aria-label="Compare grid-note fonts">
+        <a href="0102-quiet-highlight.html">0102 parent</a>
+        <a href="01060-rubik-pixels.html">Rubik Pixels</a>
+        <a href="01061-sixtyfour.html">Sixtyfour</a>
+        <a href="01062-workbench.html">Workbench</a>
+        <a href="01063-jacquard-12.html">Jacquard 12</a>
+        <a href="01064-codystar.html" aria-current="page">Codystar</a>
+      </nav>
+    </header>
+    <section class="intro">
+      <h1>The human in the loop</h1>
+      <p class="dek">A short comparison text about attention, judgment, and the systems we build around them.</p>
+    </section>
+    <div class="article-grid">
+      <article>
+        <p>We often describe automation as the removal of human intervention. Yet the most consequential systems still depend on a person somewhere inside the loop.<a class="note-ref" href="#note-1" aria-label="Read side note 1">1</a></p>
+        <p>The interesting question is not whether the human remains, but where judgment is placed. A person may approve an output, correct an exception, or absorb the uncertainty that the system cannot represent.<a class="note-ref" href="#note-2" aria-label="Read side note 2">2</a></p>
+        <p>Side notes offer a similar design problem. They should make context available without forcing every reader to leave the main argument.<a class="note-ref" href="#note-3" aria-label="Read side note 3">3</a></p>
+      </article>
+      <aside aria-label="Margin notes">
+        <p class="margin-note" id="note-1"><b>01</b><span>The phrase comes from cybernetics: a system that includes human judgment inside its feedback cycle.</span></p>
+        <p class="margin-note" id="note-2"><b>02</b><span>Efficiency is not neutral here. It decides which forms of attention are counted and which are discarded.</span></p>
+        <p class="margin-note" id="note-3"><b>03</b><span>A side note should remain optional: available at the point of curiosity without becoming a gate to the argument.</span></p>
+      </aside>
+    </div>
+    <footer>Persistent context on wide screens · conventional endnotes on narrow screens</footer>
+  </main>
+</body>
+</html>

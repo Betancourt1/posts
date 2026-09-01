@@ -44,3 +44,31 @@ export function normalizeBookProgress(value) {
   if (!Number.isFinite(progress)) return null;
   return Math.max(0, Math.min(100, Math.round(progress)));
 }
+
+export function previewBookCoverUrl(value) {
+  if (typeof value !== "string" || !value.startsWith("https://")) return value;
+
+  let url;
+  try {
+    url = new URL(value);
+  } catch {
+    return value;
+  }
+
+  const originalPathname = url.pathname;
+
+  if (url.hostname === "covers.openlibrary.org") {
+    url.pathname = url.pathname.replace(/-L(\.jpe?g)$/i, "-M$1");
+  } else if (url.hostname === "is1-ssl.mzstatic.com") {
+    url.pathname = url.pathname.replace(/\/600x600bb\.jpg$/i, "/120x180bb.jpg");
+  } else if (url.hostname === "images-na.ssl-images-amazon.com") {
+    url.pathname = url.pathname.replace(/\.01\.LZZZZZZZ(\.jpe?g)$/i, ".01._SL120_$1");
+  } else if (
+    url.hostname === "m.media-amazon.com"
+    && url.pathname.includes("/compressed.photo.goodreads.com/")
+  ) {
+    url.pathname = url.pathname.replace(/(\.jpe?g)$/i, "._SX120_$1");
+  }
+
+  return url.pathname === originalPathname ? value : url.toString();
+}

@@ -585,3 +585,100 @@ final result: passed
 - [x] Root tests, graph test, Astro diagnostics, production build, and browser capture completed.
 
 final result: passed
+
+---
+
+# Centered Search Command Strip QA
+
+**Source visual truth**
+
+- Selected option 1: `/root/.codex/generated_images/01a050c2-69d6-76b0-9d5f-0dd2784a463f/exec-31118589-9af9-45d2-a6fe-8d972f58729f.png` (`1586 × 992` px).
+
+**Implementation evidence**
+
+- Desktop capture: `/tmp/search-option1-implementation.png` (`1586 × 992` px).
+- Keyboard-focus capture: `/tmp/search-option1-focus.png` (`1586 × 992` px).
+- Mobile capture: `/tmp/search-option1-mobile.png` (`390 × 844` px).
+- Full-view comparison: `/tmp/search-option1-comparison.png` (`3172 × 992` px).
+- Resting and focused search comparison: `/tmp/search-option1-focus-comparison.png` (`900 × 200` px).
+- State: English home route, dark theme, resting and keyboard-focused Search states; Spanish label and scrolled desktop state verified separately.
+
+**Findings**
+
+- No actionable P0, P1, or P2 differences remain in the selected search treatment.
+- The command strip is centered at `320px`, transparent, and uses one bottom rule with a restrained turquoise divider after the existing search icon.
+- The label is lowercase and localized as `search the archive` / `buscar en el archivo`; `Ctrl K` remains plain, unboxed text aligned to the right.
+- Hover changes the baseline and icon to turquoise. Keyboard focus adds a visible one-pixel turquoise outline without changing the resting surface.
+- At `390 × 844`, only the shortcut hint is hidden and the trigger retains a `44px` touch target.
+- The Search trigger scrolls with the document. The language, typography, grayscale, and theme controls remain fixed at `y = 22px`, while the archive sidebar begins at `y = 78px`.
+- Click, Escape, and Ctrl+K modal behavior passed. English and Spanish routes rendered without browser console errors.
+
+**Deliberate non-search differences from the generated option**
+
+- The implementation preserves the live D1-backed graph, current content, existing navigation, and responsive page geometry. The generated reference varies the graph's stochastic node arrangement and slightly enlarges some surrounding content; these areas were explicitly outside the search-only scope.
+- The implementation keeps the accepted compact `320px` search width to align with the existing header scale.
+
+**Implementation checklist**
+
+- [x] Match selected option 1's command-strip treatment.
+- [x] Preserve fixed upper-right controls and archive clearance.
+- [x] Preserve modal behavior and Ctrl+K.
+- [x] Verify English, Spanish, desktop, mobile, hover, focus, and scroll states.
+- [x] Compare the full page and focused Search region against the selected source.
+
+final result: passed
+
+---
+
+# Single Inline Search Form QA
+
+**Reported issue**
+
+- The centered command strip looked like an input but opened a second search form in a modal.
+- Responsible revision: `ece9d65` (`Restyle centered search trigger`).
+
+**Implementation evidence**
+
+- Resting desktop: `/tmp/search-inline-resting.png` (`1586 × 992` px).
+- Open results desktop: `/tmp/search-inline-results.png` (`1586 × 992` px).
+- Open results mobile: `/tmp/search-inline-mobile.png` (`390 × 844` px).
+- Routes: `/`, `/es/`, and result navigation to `/lit/valerie-solanas/`.
+- Browser path: Browser plugin unavailable; existing local Playwright/Chromium setup used against the built Worker preview.
+
+**Findings**
+
+- No actionable P0, P1, or P2 issues remain.
+- The header contains exactly one `type="search"` input and no trigger button, modal, overlay, or second form.
+- The `320px` transparent command strip keeps its icon, accent divider, bottom rule, and plain shortcut hint.
+- Typing opens a centered results panel directly beneath the input. Results keep the existing D1-backed `/api/search` titles, excerpts, links, language, and `20`-item limit.
+- Ctrl/Cmd+K and `/` focus the same input. Escape clears it and closes results. Outside click closes results without destroying the query; refocus reopens them.
+- English `Valerie` and Spanish `sociedad` queries returned results. The first English result navigated to its canonical route.
+- Desktop results remained inside `1586px`; mobile results remained inside `390px` with no horizontal overflow and a `44px` form target.
+- The search still scrolls away. Fixed display controls remained at `y = 22px`, and the archive sidebar remained at `y = 78px`.
+- No framework overlay or relevant browser console warning/error appeared.
+
+**Implementation checklist**
+
+- [x] Replace the deceptive launcher with the real inline input.
+- [x] Remove modal-only markup, client behavior, and CSS.
+- [x] Preserve search API behavior and result presentation.
+- [x] Verify bilingual, keyboard, dismissal, navigation, responsive, and scroll behavior.
+- [x] Run source regression tests, edge tests, build, and independent audit.
+
+final result: passed
+
+---
+
+# Search Icon Divider Removal QA
+
+- Requested outcome: remove the green vertical rule beside the search icon without changing search behavior or other styling.
+- Desktop evidence: `/tmp/search-no-divider-resting.png` and `/tmp/search-no-divider-results.png` at `1586 × 992`.
+- Mobile evidence: `/tmp/search-no-divider-mobile.png` at `390 × 844`.
+- Browser path: Browser plugin unavailable; existing local Playwright/Chromium setup used against `/` and `/es/` on the built Worker preview.
+- Computed styles confirmed `border-left-width: 0px` and `padding-left: 0px` in desktop and mobile states.
+- The parent form's existing `0.5rem` gap now provides the complete icon-to-input spacing.
+- Resting, focused, and results-open states retain the bottom rule, focus outline, search behavior, fixed controls, sidebar clearance, and responsive result panel.
+- English and Spanish queries, shortcuts, Escape, outside-click dismissal, navigation, scrolling, and console checks remain passing.
+- No horizontal overflow or visible non-search regression was found.
+
+final result: passed

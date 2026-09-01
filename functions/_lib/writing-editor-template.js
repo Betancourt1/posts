@@ -289,6 +289,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       font-size: var(--editor-body-size);
       line-height: 1.65;
       white-space: pre-wrap;
+      overflow: hidden;
     }
     .paper.markdown-mode .title-input,
     .paper.markdown-mode .subtitle-input,
@@ -940,6 +941,22 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       margin: 0 0.15rem;
       flex: 0 0 auto;
     }
+    .sidenote-tone-button {
+      width: 1.9rem;
+      min-width: 1.9rem;
+      border-radius: 999px;
+      font-size: 0;
+    }
+    .sidenote-tone-button::after {
+      content: "";
+      width: 0.7rem;
+      height: 0.7rem;
+      border-radius: 999px;
+      background: currentColor;
+    }
+    .sidenote-tone-button[data-sidenote-tone="green"] { color: #4ecca3; }
+    .sidenote-tone-button[data-sidenote-tone="blue"] { color: #8fb8ff; }
+    .sidenote-tone-button[data-sidenote-tone="amber"] { color: #f0c36e; }
     .subtitle-input {
       width: 100%;
       border: 0;
@@ -1645,6 +1662,10 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       <span class="divider" id="insert-divider-before"></span>
       <span class="toolbar-group" id="insert-toolbar-group" aria-label="Insertar">
         <button type="button" id="toolbar-image" title="Insertar imagen" aria-label="Insertar imagen">${ICONS.image}</button>
+        <button type="button" id="toolbar-sidenote" title="Insertar nota al margen" aria-label="Insertar nota al margen"><span aria-hidden="true">[1]</span></button>
+        <button type="button" class="sidenote-tone-button" data-sidenote-tone="green" aria-label="Texto verde" title="Texto verde"></button>
+        <button type="button" class="sidenote-tone-button" data-sidenote-tone="blue" aria-label="Texto azul" title="Texto azul"></button>
+        <button type="button" class="sidenote-tone-button" data-sidenote-tone="amber" aria-label="Texto ámbar" title="Texto ámbar"></button>
       </span>
       <button type="button" class="mobile-markdown-toggle" id="mobile-view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">${ICONS.code}</button>
       <span class="divider" id="insert-divider-after"></span>
@@ -1796,6 +1817,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         <button type="button" class="arena-details-retry" id="arena-details-retry" hidden>Reintentar</button>
       </div>
   </aside>
+  <script src="${siteAssetUrl("js/sound.js")}" defer></script>
   <script src="${EDITOR_CORE_URL}"></script>
   <script>
     (function () {
@@ -1857,6 +1879,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       var bodyHistoryIndex = -1;
       var restoringBodyHistory = false;
       var publicationRedirectNotebook = "";
+      var typingViewportStates = new WeakMap();
+      var caretMirror = null;
+      var caretMarker = null;
       var els = {
         status: document.getElementById("status"),
         notice: document.getElementById("editor-notice"),
@@ -1881,6 +1906,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         insertToolbarGroup: document.getElementById("insert-toolbar-group"),
         insertDividerAfter: document.getElementById("insert-divider-after"),
         toolbarImage: document.getElementById("toolbar-image"),
+        toolbarSidenote: document.getElementById("toolbar-sidenote"),
         notebookField: document.getElementById("notebook-field"),
         notebook: document.getElementById("notebook"),
         slugField: document.getElementById("slug-field"),
@@ -2025,7 +2051,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         });
         els.title.addEventListener("input", function () {
           syncGeneratedSlug();
-          resizeTextarea(els.title);
+          resizeTextareaAfterTyping(els.title);
           markContentEdited();
         });
         els.slug.addEventListener("input", function () {
@@ -2073,12 +2099,18 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           if (!restoringBodyHistory) {
             recordBodyHistory();
           }
-          resizeTextarea(els.body);
+          resizeTextareaAfterTyping(els.body);
         });
         els.markdownCanvas.addEventListener("input", function () {
           syncFieldsFromMarkdown();
-          resizeTextarea(els.markdownCanvas);
+          resizeTextareaAfterTyping(els.markdownCanvas);
           markContentEdited();
+        });
+        [els.title, els.body, els.markdownCanvas].forEach(function (textarea) {
+          textarea.addEventListener("beforeinput", rememberTypingViewport);
+          textarea.addEventListener("blur", function () {
+            typingViewportStates.delete(textarea);
+          });
         });
         [els.title, els.summary, els.body, els.markdownCanvas].forEach(function (input) {
           input.addEventListener("focus", syncWritingState);
@@ -2118,6 +2150,12 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.settingsBackdrop.addEventListener("click", closeSettings);
         els.toolbarImage.addEventListener("click", function () {
           els.imageFile.click();
+        });
+        els.toolbarSidenote.addEventListener("click", insertSidenoteSample);
+        Array.from(document.querySelectorAll("[data-sidenote-tone]")).forEach(function (button) {
+          button.addEventListener("click", function () {
+            insertSidenoteTone(button.dataset.sidenoteTone);
+          });
         });
         els.imageFile.addEventListener("change", uploadImage);
         Array.from(document.querySelectorAll("[data-format]")).forEach(function (button) {
@@ -2531,7 +2569,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.imageAlt.value = "";
         els.caption.value = "";
         els.draft.checked = true;
-        els.hidden.checked = true;
+        els.hidden.checked = false;
         els.arenaEnabled.checked = false;
         els.arenaChannelField.hidden = true;
         setArenaState({
@@ -2873,6 +2911,44 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           });
         };
         reader.readAsDataURL(file);
+      }
+
+      function nextSidenoteId(markdown) {
+        var number = 1;
+        while (new RegExp("\\\\[\\\\^note-" + number + "\\\\]").test(markdown)) number += 1;
+        return "note-" + number;
+      }
+
+      function insertSidenoteSample() {
+        var target = activeTextArea();
+        var cursor = Math.max(0, Math.min(target.selectionEnd || 0, target.value.length));
+        var id = nextSidenoteId(target.value);
+        var reference = "[^" + id + "]";
+        var sample = "**Human judgment** can be _situated_ and {{green|visible}}, {{blue|linked}}, or {{amber|contested}}.";
+        var separator = target.value.endsWith("\\n\\n") ? "" : (target.value.endsWith("\\n") ? "\\n" : "\\n\\n");
+        var nextValue = target.value.slice(0, cursor) + reference + target.value.slice(cursor);
+        nextValue += separator + "[^" + id + "]: " + sample + "\\n";
+
+        if (target === els.body) recordBodyHistory();
+        target.value = nextValue;
+        resizeTextarea(target);
+        if (target === els.markdownCanvas) {
+          syncFieldsFromMarkdown();
+          markContentEdited();
+        } else {
+          recordBodyHistory();
+        }
+
+        var nextCursor = cursor + reference.length;
+        target.focus();
+        target.selectionStart = target.selectionEnd = nextCursor;
+        setStatus("Ejemplo de nota al margen insertado");
+      }
+
+      function insertSidenoteTone(tone) {
+        if (!["green", "blue", "amber"].includes(tone)) return;
+        wrapSelection("{{" + tone + "|", "}}");
+        setStatus("Color de nota insertado");
       }
 
       function insertAtCursor(textarea, text) {
@@ -3302,6 +3378,180 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       function resizeTextarea(textarea) {
         textarea.style.height = "auto";
         textarea.style.height = textarea.scrollHeight + "px";
+      }
+
+      function rememberTypingViewport(event) {
+        var textarea = event.currentTarget;
+        if (document.activeElement !== textarea) return;
+        var scrollOwner = typingScrollOwner(textarea);
+        var scrollPosition = readScrollPosition(scrollOwner);
+        var viewport = writingViewport(scrollOwner);
+        typingViewportStates.set(textarea, {
+          scrollOwner: scrollOwner,
+          scrollLeft: scrollPosition.left,
+          scrollTop: scrollPosition.top,
+          windowScrollX: window.scrollX,
+          windowScrollY: window.scrollY,
+          ownerWidth: scrollOwner.clientWidth,
+          ownerHeight: scrollOwner.clientHeight,
+          width: viewport.width,
+          height: viewport.height,
+          top: viewport.top,
+          bottom: viewport.bottom,
+        });
+      }
+
+      function resizeTextareaAfterTyping(textarea) {
+        var previous = typingViewportStates.get(textarea);
+        typingViewportStates.delete(textarea);
+        resizeTextarea(textarea);
+        if (!previous || document.activeElement !== textarea) return;
+
+        var scrollOwner = typingScrollOwner(textarea);
+        if (scrollOwner !== previous.scrollOwner) return;
+        if (scrollOwner.clientWidth !== previous.ownerWidth || scrollOwner.clientHeight !== previous.ownerHeight) return;
+
+        if (!isDocumentScrollOwner(scrollOwner) && (
+          window.scrollX !== previous.windowScrollX || window.scrollY !== previous.windowScrollY
+        )) {
+          window.scrollTo({ left: previous.windowScrollX, top: previous.windowScrollY, behavior: "auto" });
+        }
+
+        var viewport = writingViewport(scrollOwner);
+        if (
+          Math.abs(viewport.width - previous.width) > 1 ||
+          Math.abs(viewport.height - previous.height) > 1 ||
+          Math.abs(viewport.top - previous.top) > 1 ||
+          Math.abs(viewport.bottom - previous.bottom) > 1
+        ) {
+          return;
+        }
+
+        var caret = textareaCaretBounds(textarea);
+        if (!caret) return;
+        var currentScroll = readScrollPosition(scrollOwner);
+        var scrollDelta = currentScroll.top - previous.scrollTop;
+        var caretTopAtPreviousScroll = caret.top + scrollDelta;
+        var caretBottomAtPreviousScroll = caret.bottom + scrollDelta;
+        var caretIsVisible = caretTopAtPreviousScroll >= previous.top && caretBottomAtPreviousScroll <= previous.bottom;
+        var nextScrollTop = previous.scrollTop;
+
+        if (!caretIsVisible) {
+          var viewportCenter = (previous.top + previous.bottom) / 2;
+          var caretCenter = (caretTopAtPreviousScroll + caretBottomAtPreviousScroll) / 2;
+          nextScrollTop = previous.scrollTop + caretCenter - viewportCenter;
+        }
+
+        nextScrollTop = Math.max(0, Math.min(maximumScrollTop(scrollOwner), nextScrollTop));
+        if (currentScroll.left !== previous.scrollLeft || Math.abs(currentScroll.top - nextScrollTop) > 0.5) {
+          writeScrollPosition(scrollOwner, previous.scrollLeft, nextScrollTop);
+        }
+      }
+
+      function typingScrollOwner(textarea) {
+        var element = textarea.parentElement;
+        while (element && element !== document.body) {
+          var overflowY = window.getComputedStyle(element).overflowY;
+          if (/^(auto|scroll|overlay)$/.test(overflowY) && element.scrollHeight > element.clientHeight + 1) {
+            return element;
+          }
+          element = element.parentElement;
+        }
+        return document.scrollingElement || document.documentElement;
+      }
+
+      function isDocumentScrollOwner(scrollOwner) {
+        return scrollOwner === document.scrollingElement || scrollOwner === document.documentElement || scrollOwner === document.body;
+      }
+
+      function readScrollPosition(scrollOwner) {
+        if (isDocumentScrollOwner(scrollOwner)) {
+          return { left: window.scrollX, top: window.scrollY };
+        }
+        return { left: scrollOwner.scrollLeft, top: scrollOwner.scrollTop };
+      }
+
+      function writeScrollPosition(scrollOwner, left, top) {
+        if (isDocumentScrollOwner(scrollOwner)) {
+          window.scrollTo({ left: left, top: top, behavior: "auto" });
+          return;
+        }
+        scrollOwner.scrollTo({ left: left, top: top, behavior: "auto" });
+      }
+
+      function maximumScrollTop(scrollOwner) {
+        return Math.max(0, scrollOwner.scrollHeight - scrollOwner.clientHeight);
+      }
+
+      function writingViewport(scrollOwner) {
+        var visualViewport = window.visualViewport;
+        var top = visualViewport ? visualViewport.offsetTop : 0;
+        var width = visualViewport ? visualViewport.width : window.innerWidth;
+        var height = visualViewport ? visualViewport.height : window.innerHeight;
+        var bottom = top + height;
+        var topbar = document.querySelector(".topbar");
+        var topbarRect = topbar ? topbar.getBoundingClientRect() : null;
+        var topbarPosition = topbar ? window.getComputedStyle(topbar).position : "";
+        if (topbarRect && (topbarPosition === "fixed" || topbarPosition === "sticky") && topbarRect.top <= top + 1) {
+          top = Math.min(bottom, Math.max(top, topbarRect.bottom));
+        }
+        var formatbarRect = els.formatbar.getBoundingClientRect();
+        if (window.getComputedStyle(els.formatbar).position === "fixed" && formatbarRect.bottom >= bottom - 1) {
+          bottom = Math.max(top, Math.min(bottom, formatbarRect.top));
+        }
+        if (!isDocumentScrollOwner(scrollOwner)) {
+          var ownerRect = scrollOwner.getBoundingClientRect();
+          var ownerTop = ownerRect.top + scrollOwner.clientTop;
+          var ownerBottom = ownerTop + scrollOwner.clientHeight;
+          top = Math.max(top, ownerTop);
+          bottom = Math.max(top, Math.min(bottom, ownerBottom));
+        }
+        return { width: width, height: height, top: top, bottom: bottom };
+      }
+
+      function textareaCaretBounds(textarea) {
+        var position = textarea.selectionEnd;
+        if (typeof position !== "number") return null;
+        ensureCaretMirror();
+
+        var styles = window.getComputedStyle(textarea);
+        [
+          "boxSizing", "borderTopWidth", "borderRightWidth", "borderBottomWidth", "borderLeftWidth",
+          "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "fontFamily", "fontSize",
+          "fontStyle", "fontVariant", "fontWeight", "fontStretch", "lineHeight", "letterSpacing",
+          "wordSpacing", "tabSize", "textAlign", "textIndent", "textTransform", "direction",
+          "whiteSpace", "wordBreak", "overflowWrap",
+        ].forEach(function (property) {
+          caretMirror.style[property] = styles[property];
+        });
+        caretMirror.style.width = textarea.getBoundingClientRect().width + "px";
+        caretMirror.replaceChildren(document.createTextNode(textarea.value.slice(0, position)), caretMarker);
+        caretMarker.textContent = textarea.value.slice(position, position + 1) || ".";
+
+        var textareaRect = textarea.getBoundingClientRect();
+        var mirrorRect = caretMirror.getBoundingClientRect();
+        var markerRect = caretMarker.getBoundingClientRect();
+        var lineHeight = parseFloat(styles.lineHeight);
+        if (!Number.isFinite(lineHeight)) lineHeight = markerRect.height || parseFloat(styles.fontSize) * 1.2;
+        var top = textareaRect.top + (markerRect.top - mirrorRect.top) - textarea.scrollTop;
+        return { top: top, bottom: top + lineHeight };
+      }
+
+      function ensureCaretMirror() {
+        if (caretMirror) return;
+        caretMirror = document.createElement("div");
+        caretMirror.setAttribute("aria-hidden", "true");
+        caretMirror.style.position = "fixed";
+        caretMirror.style.top = "0";
+        caretMirror.style.left = "-100000px";
+        caretMirror.style.height = "auto";
+        caretMirror.style.minHeight = "0";
+        caretMirror.style.maxHeight = "none";
+        caretMirror.style.overflow = "hidden";
+        caretMirror.style.visibility = "hidden";
+        caretMirror.style.pointerEvents = "none";
+        caretMarker = document.createElement("span");
+        document.body.appendChild(caretMirror);
       }
 
       function setStatus(message, error) {

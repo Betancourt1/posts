@@ -1,3 +1,7 @@
+import { renderMarkdown } from "./content-projector.mjs";
+
+const SUPPORTED_BODY_TONE = /\{\{(?:green|blue|amber)\|[^{}\n]+\}\}/;
+
 const GRAPH_IGNORED_TAGS = new Set([
   "book",
   "read",
@@ -70,7 +74,7 @@ function hydrateDocument(row) {
   if (!row) return null;
 
   const { frontmatterJson, tagsJson, ...document } = row;
-  return {
+  const hydrated = {
     ...document,
     draft: Boolean(document.draft),
     hidden: Boolean(document.hidden),
@@ -79,6 +83,20 @@ function hydrateDocument(row) {
     frontMatter: parseJson(frontmatterJson, {}, "front matter"),
     tags: parseJson(tagsJson, [], "tags"),
   };
+
+  if (
+    typeof hydrated.bodyMarkdown === "string"
+    && SUPPORTED_BODY_TONE.test(hydrated.bodyMarkdown)
+  ) {
+    const rendered = renderMarkdown(
+      hydrated.bodyMarkdown,
+      hydrated.canonicalPath || hydrated.path || "/",
+    );
+    hydrated.bodyHtml = rendered.bodyHtml;
+    hydrated.bodyText = rendered.bodyText;
+  }
+
+  return hydrated;
 }
 
 function hydrateDocuments(result) {
@@ -222,6 +240,54 @@ export async function sectionItems(db, lang, section, options = {}) {
   const { includeDrafts, includeHidden } = visibilityOptions(options);
   const includeBody = options.body === true;
   const limit = positiveLimit(options.limit, 500);
+  const selectedLanguage = language(lang);
+
+  if (options.includeLanguageFallback) {
+    const result = await db.prepare(`
+      WITH ranked AS (
+        SELECT
+          d.id,
+          canonical.path,
+          ROW_NUMBER() OVER (
+            PARTITION BY COALESCE(NULLIF(d.translation_key, ''), d.document_key)
+            ORDER BY
+              CASE WHEN d.lang = ? THEN 0 ELSE 1 END,
+              d.generated ASC,
+              canonical.path ASC,
+              d.id ASC
+          ) AS language_rank
+        FROM documents AS d
+        JOIN routes AS canonical
+          ON canonical.document_id = d.id
+         AND canonical.kind = 'canonical'
+        WHERE d.section = ?
+          AND d.kind = 'page'
+          AND (? = 1 OR d.draft = 0)
+          AND (? = 1 OR d.hidden = 0)
+      )
+      SELECT
+        ${documentColumns("d", { body: includeBody })},
+        ranked.path AS path
+      FROM ranked
+      JOIN documents AS d ON d.id = ranked.id
+      WHERE ranked.language_rank = 1
+      ORDER BY
+        CASE WHEN d.date IS NULL OR d.date = '' THEN 1 ELSE 0 END,
+        d.date DESC,
+        d.title COLLATE NOCASE DESC,
+        ranked.path DESC
+      LIMIT ?
+    `).bind(
+      selectedLanguage,
+      String(section || "").trim(),
+      includeDrafts,
+      includeHidden,
+      limit,
+    ).all();
+
+    return hydrateDocuments(result);
+  }
+
   const result = await db.prepare(`
     SELECT
       ${documentColumns("d", { body: includeBody })},
@@ -242,7 +308,7 @@ export async function sectionItems(db, lang, section, options = {}) {
       canonical.path DESC
     LIMIT ?
   `).bind(
-    language(lang),
+    selectedLanguage,
     String(section || "").trim(),
     includeDrafts,
     includeHidden,
@@ -256,7 +322,8 @@ export async function navSections(db, lang, options = {}) {
   const { includeDrafts, includeHidden } = visibilityOptions(options);
   const result = await db.prepare(`
     SELECT
-      ${documentColumns("d", { tags: options.tags !== false })},
+      d.title,
+      d.section,
       canonical.path AS path
     FROM documents AS d
     JOIN routes AS canonical
@@ -276,7 +343,7 @@ export async function navSections(db, lang, options = {}) {
     ORDER BY d.title COLLATE NOCASE, canonical.path
   `).bind(language(lang), includeDrafts, includeHidden).all();
 
-  return hydrateDocuments(result);
+  return result.results || [];
 }
 
 export async function archiveItems(db, lang, options = {}) {
@@ -313,22 +380,39 @@ export async function archiveItems(db, lang, options = {}) {
 
 export async function archiveMonthCounts(db, lang, options = {}) {
   const { includeDrafts, includeHidden } = visibilityOptions(options);
+  const limit = positiveLimit(options.limit, 1000);
   const result = await db.prepare(`
-    SELECT substr(date, 1, 7) AS key, COUNT(*) AS count
-    FROM documents
-    WHERE lang = ?
-      AND kind = 'page'
-      AND section <> ''
-      AND section <> 'about'
-      AND date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]*'
-      AND (? = 1 OR draft = 0)
-      AND (? = 1 OR hidden = 0)
-    GROUP BY substr(date, 1, 7)
-    ORDER BY key DESC
+    WITH archive_rows AS (
+      SELECT substr(d.date, 1, 7) AS month
+      FROM documents AS d
+      JOIN routes AS canonical
+        ON canonical.document_id = d.id
+       AND canonical.kind = 'canonical'
+      WHERE d.lang = ?
+        AND d.kind = 'page'
+        AND d.section <> ''
+        AND d.section <> 'about'
+        AND (? = 1 OR d.draft = 0)
+        AND (? = 1 OR d.hidden = 0)
+      ORDER BY
+        CASE WHEN d.date IS NULL OR d.date = '' THEN 1 ELSE 0 END,
+        d.date DESC,
+        d.title COLLATE NOCASE DESC,
+        canonical.path DESC
+      LIMIT ?
+    )
+    SELECT month AS key, COUNT(*) AS count
+    FROM archive_rows
+    WHERE month GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]'
+    GROUP BY month
+    ORDER BY month DESC
     LIMIT 12
-  `).bind(language(lang), includeDrafts, includeHidden).all();
+  `).bind(language(lang), includeDrafts, includeHidden, limit).all();
 
-  return (result.results || []).map(({ key, count }) => ({ key, count: Number(count) }));
+  return (result.results || []).map(({ key, count }) => ({
+    key,
+    count: Number(count),
+  }));
 }
 
 export async function recentPosts(db, lang, options = {}) {

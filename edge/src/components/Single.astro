@@ -53,6 +53,7 @@ const dateLabel = displayDate(date);
 const isPhoto = images.length > 0 || section === "fotografia";
 const wordCount = bodyMarkdown.trim() ? bodyMarkdown.trim().split(/\s+/).length : 0;
 const readingTime = Math.max(1, Math.ceil(wordCount / 220));
+const hasSidenotes = bodyHtml.includes('class="sidenote-endnotes"');
 const metadata = [
   sourcePath ? `file:         ${sourcePath}` : null,
   `title:        ${title}`,
@@ -78,7 +79,7 @@ const rawSource = [
 ---
 
 <article
-  class:list={["post", { "photo-post": isPhoto }]}
+  class:list={["post", { "photo-post": isPhoto, "post--has-sidenotes": hasSidenotes }]}
 >
   <header class="post-header">
     <div class="post-header-top" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 8px;">
@@ -95,10 +96,12 @@ const rawSource = [
           </>
         )}
         {!isPhoto && (
-          <button type="button" class="zen-toggle-btn" id="zen-toggle-btn" aria-label={lang === "es" ? "Modo lectura Zen" : "Zen reading mode"} title={lang === "es" ? "Modo lectura Zen" : "Zen reading mode"}>
-            <svg class="zen-icon-normal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-            <svg class="zen-icon-active" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-          </button>
+          <>
+            <button type="button" class="zen-toggle-btn" id="zen-toggle-btn" aria-label={lang === "es" ? "Modo lectura Zen" : "Zen reading mode"} title={lang === "es" ? "Modo lectura Zen" : "Zen reading mode"}>
+              <svg class="zen-icon-normal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <svg class="zen-icon-active" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            </button>
+          </>
         )}
       </div>}
     </div>
@@ -158,7 +161,7 @@ const rawSource = [
     var key = "zen_mode_enabled";
     var returnFrame = null;
 
-    function setZen(enabled) {
+    function setZen(enabled, instant) {
       if (returnFrame !== null) {
         cancelAnimationFrame(returnFrame);
         returnFrame = null;
@@ -179,10 +182,15 @@ const rawSource = [
         body.classList.remove("zen-mode", "zen-mode-returning");
       }
 
+      if (enabled && instant) {
+        var graph = document.querySelector(".sidenote-sidebar-graph");
+        if (graph) graph.classList.add("is-zen-collapsed");
+      }
+
       button.classList.toggle("is-active", enabled);
       try { localStorage.setItem(key, enabled ? "true" : "false"); } catch (error) {}
     }
-    try { setZen(localStorage.getItem(key) === "true"); } catch (error) {}
+    try { setZen(localStorage.getItem(key) === "true", true); } catch (error) {}
     button.addEventListener("click", function () { setZen(!body.classList.contains("zen-mode")); });
   });
 </script>

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Side notes · Option 3 · Anchored note rail</title>
+  <style>
+    :root { color-scheme:dark; --bg:#050706; --ink:#d8ddd9; --muted:#87918b; --line:#24302a; --accent:#63e6b3; --surface:#0a0f0c; }
+    * { box-sizing:border-box; }
+    html { background:var(--bg); }
+    body { margin:0; color:var(--ink); background:var(--bg); font:16px/1.72 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    a { color:inherit; }
+    button { font:inherit; }
+    a:focus-visible, button:focus-visible { outline:2px dashed var(--accent); outline-offset:4px; }
+    .shell { width:min(1080px, calc(100% - 36px)); margin:auto; padding:34px 0 80px; }
+    header { display:flex; align-items:end; justify-content:space-between; gap:24px; padding-bottom:22px; border-bottom:1px solid var(--line); }
+    .brand { margin:0; color:var(--accent); font-size:2rem; line-height:1; }
+    .subtitle { margin:.45rem 0 0; color:var(--muted); font-size:.78rem; }
+    nav { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; }
+    nav a { padding:.32rem .55rem; border:1px solid var(--line); color:var(--muted); font-size:.7rem; text-decoration:none; }
+    nav a[aria-current="page"] { border-color:var(--accent); color:var(--accent); }
+    .intro { max-width:650px; margin:64px 0 42px; }
+    h1 { margin:0; font:500 clamp(2.2rem, 7vw, 4.8rem)/.96 Georgia, serif; letter-spacing:-.045em; }
+    .dek { margin:24px 0 0; color:var(--muted); font:1.05rem/1.65 Georgia, serif; }
+    .article-grid { display:grid; grid-template-columns:minmax(0, 650px) minmax(210px, 270px); gap:clamp(36px, 8vw, 100px); align-items:start; }
+    article { font:1.08rem/1.85 Georgia, serif; }
+    article p { margin:0 0 1.65em; }
+    .anchor { padding:0 .08em; border:0; border-bottom:1px dashed var(--accent); color:inherit; background:transparent; font:inherit; cursor:pointer; }
+    .anchor::after { content:attr(data-note-number); margin-left:.18rem; color:var(--accent); font:600 .58rem/1 ui-monospace, monospace; vertical-align:.52rem; }
+    .anchor[aria-expanded="true"] { color:var(--accent); border-bottom-style:solid; }
+    aside { position:sticky; top:24px; min-height:190px; padding:18px; border:1px solid var(--line); background:var(--surface); }
+    aside h2 { margin:0 0 24px; color:var(--muted); font-size:.67rem; letter-spacing:.14em; text-transform:uppercase; }
+    .rail-note { color:var(--muted); font-size:.74rem; line-height:1.6; }
+    .rail-note[hidden] { display:none; }
+    .rail-note b { display:block; margin-bottom:8px; color:var(--accent); font-size:.65rem; letter-spacing:.12em; }
+    .rail-hint { color:var(--muted); font-size:.72rem; }
+    footer { margin-top:72px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:.68rem; }
+    @media (max-width:760px) {
+      .shell { width:min(100% - 28px, 650px); padding-top:22px; }
+      header { align-items:flex-start; flex-direction:column; }
+      nav { justify-content:flex-start; }
+      .intro { margin-top:48px; }
+      .article-grid { display:flex; flex-direction:column; }
+      article { order:1; }
+      aside { position:static; order:2; width:100%; min-height:160px; }
+    }
+    @media (prefers-reduced-motion:reduce) { * { scroll-behavior:auto !important; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div><p class="brand">betancourt</p><p class="subtitle">side-note laboratory</p></div>
+      <nav aria-label="Compare side-note options">
+        <a href="01-footnote-margin.html">01 margin</a>
+        <a href="02-inline-toggle.html">02 inline</a>
+        <a href="03-anchored-rail.html" aria-current="page">03 rail</a>
+      </nav>
+    </header>
+    <section class="intro">
+      <h1>The human in the loop</h1>
+      <p class="dek">A short comparison text about attention, judgment, and the systems we build around them.</p>
+    </section>
+    <div class="article-grid">
+      <article>
+        <p>We often describe automation as the removal of human intervention. Yet the most consequential systems still depend on <button class="anchor" type="button" data-note-number="1" aria-expanded="false" aria-controls="note-1">a person somewhere inside the loop</button>.</p>
+        <p>The interesting question is not whether the human remains, but where judgment is placed. A person may approve an output, correct an exception, or <button class="anchor" type="button" data-note-number="2" aria-expanded="false" aria-controls="note-2">absorb the uncertainty</button> that the system cannot represent.</p>
+        <p>Side notes offer a similar design problem. They should <button class="anchor" type="button" data-note-number="3" aria-expanded="false" aria-controls="note-3">make context available</button> without forcing every reader to leave the main argument.</p>
+      </article>
+      <aside aria-live="polite" aria-label="Selected side note">
+        <h2>Selected note</h2>
+        <p class="rail-hint" id="rail-hint">Choose an underlined phrase to inspect its note.</p>
+        <p class="rail-note" id="note-1" hidden><b>NOTE 01</b>The phrase comes from cybernetics: a system that includes human judgment inside its feedback cycle.</p>
+        <p class="rail-note" id="note-2" hidden><b>NOTE 02</b>Efficiency is not neutral here. It decides which forms of attention are counted and which are discarded.</p>
+        <p class="rail-note" id="note-3" hidden><b>NOTE 03</b>A side note should remain optional: available at the point of curiosity without becoming a gate to the argument.</p>
+      </aside>
+    </div>
+    <footer>Phrase-level annotations · one focused note occupies the rail at a time</footer>
+  </main>
+  <script>
+    var anchors = Array.from(document.querySelectorAll(".anchor"));
+    var notes = Array.from(document.querySelectorAll(".rail-note"));
+    var hint = document.getElementById("rail-hint");
+    anchors.forEach(function (button) {
+      button.addEventListener("click", function () {
+        var selectedId = button.getAttribute("aria-controls");
+        anchors.forEach(function (item) { item.setAttribute("aria-expanded", String(item === button)); });
+        notes.forEach(function (note) { note.hidden = note.id !== selectedId; });
+        hint.hidden = true;
+      });
+    });
+  </script>
+</body>
+</html>

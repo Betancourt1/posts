@@ -1008,6 +1008,7 @@
       var world = screenToWorld(pos.x, pos.y);
       var node = pickNode(world.x, world.y);
       if (node && node.url) {
+        document.dispatchEvent(new CustomEvent("site-sound", { detail: { tone: "navigation" } }));
         window.location.assign(node.url);
       }
     });

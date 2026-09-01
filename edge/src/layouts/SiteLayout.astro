@@ -2,6 +2,7 @@
 import Nav from "../components/Nav.astro";
 import Sidebar from "../components/Sidebar.astro";
 import AuthorTools from "../components/AuthorTools.astro";
+import KnowledgeGraph from "../components/KnowledgeGraph.astro";
 import { displayDate, safeJson } from "../components/_utils";
 import type {
   ArchiveMonth,
@@ -22,6 +23,7 @@ interface Props {
   pageClass?: string;
   showSidebar?: boolean;
   showSearch?: boolean;
+  hasSidenotes?: boolean;
   authorMode?: boolean;
   siteTitle?: string;
   subtitle?: string;
@@ -44,6 +46,7 @@ const {
   pageClass = "",
   showSidebar = page.layout !== "code" && page.layout !== "not-found",
   showSearch = true,
+  hasSidenotes = false,
   authorMode = false,
   siteTitle = "betancourt",
   subtitle = lang === "es" ? "aquí escribo cosas" : "here I write things",
@@ -59,10 +62,16 @@ const socialImageUrl = /^https?:\/\//.test(socialImage)
   : new URL(socialImage, origin).toString();
 const isCode = page.layout === "code";
 const isBooks = page.layout === "books";
+const bookCoverOrigins = [
+  "https://covers.openlibrary.org",
+  "https://is1-ssl.mzstatic.com",
+  "https://m.media-amazon.com",
+  "https://images-na.ssl-images-amazon.com",
+];
 const isPhotography = page.layout === "photography";
 const isQuotes = page.layout === "quotes";
 const isNotFound = page.layout === "not-found";
-const bodyClass = [pageClass, authorMode ? "author-mode" : "", isCode ? "code-index" : "", isQuotes ? "quotes-index-page" : "", isNotFound ? "not-found" : ""].filter(Boolean).join(" ");
+const bodyClass = [pageClass, hasSidenotes ? "has-sidenotes" : "", authorMode ? "author-mode" : "", isCode ? "code-index" : "", isQuotes ? "quotes-index-page" : "", isNotFound ? "not-found" : ""].filter(Boolean).join(" ");
 const updatedAt = page.updatedAt || new Date();
 const updatedDate = displayDate(updatedAt);
 const updatedLabel = updatedDate
@@ -122,6 +131,13 @@ const archivesPath = authorMode
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImageUrl} />
     <link rel="preload" href="/fonts/Jersey10-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    {hasSidenotes && <link rel="preload" href="/fonts/Doto-Variable.woff2" as="font" type="font/woff2" crossorigin />}
+    {isBooks && bookCoverOrigins.map((origin) => (
+      <>
+        <link rel="dns-prefetch" href={origin} />
+        <link rel="preconnect" href={origin} />
+      </>
+    ))}
     <link rel="stylesheet" href="/css/site.css" />
     <link rel="apple-touch-icon" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
@@ -170,45 +186,58 @@ const archivesPath = authorMode
             <circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 0 20V2z" fill="currentColor"></path>
           </svg>
         </button>
-        {showSearch && (
-          <div class="site-header-controls">
-            <button class="search-trigger" id="search-trigger" type="button" aria-label={lang === "es" ? "Buscar (Ctrl+K)" : "Search (Ctrl+K)"} aria-controls="search-modal" aria-expanded="false">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px; margin-right: 6px;" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <span>{lang === "es" ? "Buscar..." : "Search..."}</span>
-              <kbd class="search-kbd" style="margin-left: 8px; font-size: 0.7rem; padding: 1px 4px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-weight: normal; color: var(--ink-dim);">Ctrl K</kbd>
-            </button>
-          </div>
-        )}
+        <button class="sound-toggle" id="sound-toggle" type="button" aria-label={lang === "es" ? "Activar sonidos" : "Enable sounds"} title={lang === "es" ? "Activar sonidos" : "Enable sounds"} aria-pressed="false" data-label-enable={lang === "es" ? "Activar sonidos" : "Enable sounds"} data-label-disable={lang === "es" ? "Desactivar sonidos" : "Disable sounds"}>
+          <svg class="header-display-icon sound-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M11 5 6 9H3v6h3l5 4V5z"></path>
+            <path class="sound-wave" d="M15 9a4 4 0 0 1 0 6"></path>
+            <path class="sound-slash" d="m16 8 5 8"></path>
+          </svg>
+        </button>
       </div>
-    </header>
-
-    {showSearch && (
-      <div class="search-modal-overlay" id="search-modal-overlay" aria-hidden="true" inert>
-        <div class="search-modal" id="search-modal" role="dialog" aria-modal="true" aria-labelledby="search-modal-title" tabindex="-1">
-          <div class="search-modal-header">
-            <span class="search-modal-title" id="search-modal-title">{lang === "es" ? "Búsqueda global" : "Global search"}</span>
-            <button class="search-modal-close" id="search-modal-close" type="button" aria-label={lang === "es" ? "Cerrar búsqueda" : "Close search"}>&times;</button>
+      {showSearch && (
+        <div class="site-header-search" id="search">
+          <form class="search-ui__form" role="search">
+            <svg class="search-command-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input class="search-ui__search-input" id="site-search-input" type="search" autocomplete="off" spellcheck="false" placeholder={lang === "es" ? "buscar en el archivo" : "search the archive"} aria-label={lang === "es" ? "Buscar en el archivo" : "Search the archive"} aria-controls="site-search-results" aria-expanded="false" />
+            <kbd class="search-kbd">Ctrl K</kbd>
+          </form>
+          <div class="search-ui__drawer" id="site-search-results" hidden>
+            <div class="search-ui__results-area">
+              <p class="search-ui__message" aria-live="polite">{lang === "es" ? "Escribe para buscar." : "Type to search."}</p>
+              <ol class="search-ui__results"></ol>
+            </div>
           </div>
-          <div class="site-search" id="search">
-            <slot name="search">
-              <p class="site-search-message">{lang === "es" ? "Cargando motor de búsqueda..." : "Loading search engine..."}</p>
-            </slot>
-          </div>
-          <div class="search-modal-footer"><span>{lang === "es" ? "Presiona Esc para cerrar" : "Press Esc to close"}</span></div>
         </div>
-      </div>
-    )}
+      )}
+    </header>
 
     <div class:list={["layout", { "layout--code-index": isCode, "layout--quotes-index": isQuotes }]}>
       <aside class="column nav-column">
-        <Nav items={navigation} lang={lang} activePath={currentPath} activeSection={page.section} authorMode={authorMode} />
+        <Nav
+          items={navigation}
+          lang={lang}
+          activePath={currentPath}
+          activeSection={page.section}
+          authorMode={authorMode}
+        />
       </aside>
       <main class:list={["column", "content-column", { "content-column--books": isBooks, "content-column--code-index": isCode, "content-column--photo-index": isPhotography, "content-column--quotes-index": isQuotes }]}>
         <div class="content-inner"><slot /></div>
       </main>
       {showSidebar && (
-        <aside class="column sidebar-column">
-          <Sidebar lang={lang} archives={archiveMonths} archivesHref={archivesPath} graphData={page.isHome ? null : page.graphData} />
+        <aside class:list={["column", "sidebar-column", { "sidebar-column--sidenotes": hasSidenotes }]}>
+          {hasSidenotes
+            ? (
+              <div class="sidenote-sidebar">
+                {page.graphData && (
+                  <div class="sidebar-block sidebar-block--graph sidenote-sidebar-graph">
+                    <KnowledgeGraph data={page.graphData} lang={lang} variant="sidebar" />
+                  </div>
+                )}
+                <div class="sidenote-rail" id="sidenote-rail"></div>
+              </div>
+            )
+            : <Sidebar lang={lang} archives={archiveMonths} archivesHref={archivesPath} graphData={page.isHome ? null : page.graphData} />}
         </aside>
       )}
     </div>
@@ -295,9 +324,11 @@ const archivesPath = authorMode
     {showSearch && <script is:inline src="/js/search.js" defer></script>}
     <script is:inline src="/js/typography.js" defer></script>
     <script is:inline src="/js/curved-scrollbar.js" defer></script>
+    <script is:inline src="/js/sound.js" defer></script>
     {isCode && <script is:inline src="/js/code-portfolio.js" defer></script>}
     {isPhotography && <script is:inline src="/js/photography-grid.js" defer></script>}
     {isBooks && <script is:inline type="module" src="/js/books.js"></script>}
+    {hasSidenotes && <script is:inline src="/js/sidenote-reading.js" defer></script>}
     {authorMode && <script is:inline src="/js/author-tools.js" defer></script>}
   </body>
 </html>

@@ -117,19 +117,27 @@ test("preserves nested photo metadata from a real source", async () => {
   assert.equal(document.searchable, true);
 });
 
-test("keeps the requested bilingual content inventories aligned", async () => {
-  function relativeFiles(root, files) {
-    return files
+test("keeps visible bilingual inventories aligned while allowing local drafts", async () => {
+  async function relativeFiles(root, files) {
+    const projected = await Promise.all(files
       .filter((file) => path.basename(file) !== "_index.md")
-      .map((file) => path.relative(root, file).split(path.sep).join("/"))
-      .sort();
+      .map(async (file) => {
+        const sourcePath = path.relative(REPO_ROOT, file).split(path.sep).join("/");
+        const source = projectSource({
+          path: sourcePath,
+          rawMarkdown: await readFile(file, "utf8"),
+        });
+        if (source.documents.every((document) => document.draft || document.hidden)) return null;
+        return path.relative(root, file).split(path.sep).join("/");
+      }));
+    return projected.filter(Boolean).sort();
   }
 
   for (const section of ["posts", "lit", "fotografia"]) {
     const spanishRoot = path.join(REPO_ROOT, "content_es", section);
     const englishRoot = path.join(REPO_ROOT, "content_en", section);
-    const spanishFiles = relativeFiles(spanishRoot, await markdownFiles(spanishRoot));
-    const englishFiles = relativeFiles(englishRoot, await markdownFiles(englishRoot));
+    const spanishFiles = await relativeFiles(spanishRoot, await markdownFiles(spanishRoot));
+    const englishFiles = await relativeFiles(englishRoot, await markdownFiles(englishRoot));
 
     assert.deepEqual(englishFiles, spanishFiles, `${section} must expose the same entries`);
     for (const relativePath of spanishFiles) {
@@ -300,6 +308,128 @@ test("blocks raw HTML and unsafe Markdown URL schemes", () => {
   assert.doesNotMatch(rendered.bodyHtml, /<script|javascript:|data:text\/html/i);
   assert.match(rendered.bodyHtml, /<!-- raw HTML omitted -->/);
   assert.match(rendered.bodyHtml, /<a href="https:\/\/example\.com">safe<\/a>/);
+});
+
+test("renders safe colored text in normal post bodies", () => {
+  const rendered = renderMarkdown(`Normal {{green|visible}}, {{blue|**strong**}}, and {{amber|_emphasis_}}.
+
+[{{green|Source}}](/source/) and reference[^context].
+
+\`{{green|inline}}\`
+
+\`\`\`md
+{{blue|fenced}}
+\`\`\`
+
+Unsupported {{purple|plain}}. Unsafe {{green|<img src=x onerror=alert(1)>}}
+
+[^context]: Context`);
+
+  assert.match(rendered.bodyHtml, /sidenote-tone--green">visible<\/span>/);
+  assert.match(rendered.bodyHtml, /sidenote-tone--blue"><strong>strong<\/strong><\/span>/);
+  assert.match(rendered.bodyHtml, /sidenote-tone--amber"><em>emphasis<\/em><\/span>/);
+  assert.match(rendered.bodyHtml, /<a href="\/source\/"><span class="sidenote-tone sidenote-tone--green">Source<\/span><\/a>/);
+  assert.match(rendered.bodyHtml, /id="sidenote-ref-1-1"/);
+  assert.match(rendered.bodyHtml, /<code>\{\{green\|inline\}\}<\/code>/);
+  assert.match(rendered.bodyHtml, /\{\{blue\|fenced\}\}/);
+  assert.match(rendered.bodyHtml, /\{\{purple\|plain\}\}/);
+  assert.doesNotMatch(rendered.bodyHtml, /<img|onerror/);
+  assert.match(rendered.bodyText, /Normal visible, strong, and emphasis\./);
+  assert.match(rendered.bodyText, /Unsupported \{\{purple\|plain\}\}/);
+  assert.doesNotMatch(rendered.bodyText, /\{\{(?:green|blue|amber)\||[\uE000-\uF8FF]/);
+  assert.deepEqual(rendered.links[0], {
+    href: "/source/",
+    label: "Source",
+    targetPath: "/source/",
+    external: false,
+  });
+  assert.equal(
+    renderMarkdownSummary("Summary {{green|plain}}"),
+    "<p>Summary {{green|plain}}</p>\n",
+  );
+});
+
+test("renders safe rich-text sidenotes without redundant return arrows", () => {
+  const rendered = renderMarkdown(`First[^judgment] and repeated[^judgment]. Missing[^missing].
+
+\`inline[^judgment]\`
+
+[^judgment]: **Human judgment** can be _situated_ and {{green|visible}}, {{blue|linked}}, or {{amber|contested}}. [Source](/source/) <script>alert(1)</script>
+[^judgment]: This duplicate must not replace the first definition.`);
+
+  assert.match(rendered.bodyHtml, /id="sidenote-ref-1-1"/);
+  assert.match(rendered.bodyHtml, /id="sidenote-ref-1-2"/);
+  assert.match(rendered.bodyHtml, /id="sidenote-1"/);
+  assert.match(rendered.bodyHtml, /<strong>Human judgment<\/strong>/);
+  assert.match(rendered.bodyHtml, /<em>situated<\/em>/);
+  assert.match(rendered.bodyHtml, /sidenote-tone--green">visible<\/span>/);
+  assert.match(rendered.bodyHtml, /sidenote-tone--blue">linked<\/span>/);
+  assert.match(rendered.bodyHtml, /sidenote-tone--amber">contested<\/span>/);
+  assert.match(rendered.bodyHtml, /href="\/source\/"/);
+  assert.doesNotMatch(rendered.bodyHtml, /sidenote-backlinks?|href="#sidenote-ref|↩/);
+  assert.match(rendered.bodyHtml, /Missing\[\^missing\]/);
+  assert.match(rendered.bodyHtml, /<code>inline\[\^judgment\]<\/code>/);
+  assert.doesNotMatch(rendered.bodyHtml, /This duplicate|<script>/);
+  assert.match(rendered.bodyHtml, /<!-- raw HTML omitted -->/);
+  assert.match(rendered.bodyText, /First and repeated\. Missing\[\^missing\]\./);
+  assert.match(rendered.bodyText, /Human judgment can be situated and visible, linked, or contested/);
+  assert.deepEqual(rendered.links, [{
+    href: "/source/",
+    label: "Source",
+    targetPath: "/source/",
+    external: false,
+  }]);
+});
+
+test("leaves sidenote-like syntax inside fenced code and strips notes from summaries", () => {
+  const rendered = renderMarkdown(`Before[^real].
+
+\`\`\`md
+[^code]: code definition
+inside[^real]
+\`\`\`
+
+[^real]: {{green|Real note}}
+[^ malformed]: not a valid definition`);
+
+  assert.match(rendered.bodyHtml, /code definition/);
+  assert.match(rendered.bodyHtml, /inside\[\^real\]/);
+  assert.match(rendered.bodyHtml, /\[\^ malformed\]: not a valid definition/);
+  assert.equal((rendered.bodyHtml.match(/class="sidenote-item"/g) || []).length, 1);
+  assert.equal(
+    renderMarkdownSummary("Before[^real].\n\n[^real]: Hidden note"),
+    "<p>Before.</p>\n",
+  );
+});
+
+test("does not allow unsupported sidenote tones to create markup", () => {
+  const rendered = renderMarkdown(`Text[^tone].
+
+[^tone]: {{purple|No class}} {{green|<img src=x onerror=alert(1)>}}`);
+
+  assert.match(rendered.bodyHtml, /\{\{purple\|No class\}\}/);
+  assert.doesNotMatch(rendered.bodyHtml, /sidenote-tone--purple|<img|onerror/);
+  assert.match(rendered.bodyHtml, /sidenote-tone--green/);
+});
+
+test("keeps sidenote references literal inside Markdown link labels", () => {
+  const rendered = renderMarkdown(`[linked[^note]](/target/) and plain[^note].
+
+[^note]: Context`);
+
+  assert.match(rendered.bodyHtml, /<a href="\/target\/">linked\[\^note\]<\/a>/);
+  assert.equal((rendered.bodyHtml.match(/role="doc-noteref"/g) || []).length, 1);
+  assert.doesNotMatch(rendered.bodyHtml, /<a href="\/target\/">[^<]*<a /);
+});
+
+test("preserves valid Markdown entities in body and sidenote tones", () => {
+  const rendered = renderMarkdown(`AT&amp;T[^entity].
+
+[^entity]: {{green|R&amp;D}}`);
+
+  assert.match(rendered.bodyHtml, /<p>AT&amp;T/);
+  assert.match(rendered.bodyHtml, /sidenote-tone--green">R&amp;D<\/span>/);
+  assert.doesNotMatch(rendered.bodyHtml, /&amp;amp;/);
 });
 
 test("generates the canonical English book as a matching Spanish document", async () => {

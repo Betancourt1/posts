@@ -35,26 +35,28 @@ function contentHref(path: string) {
   return authorMode ? adminPathForPublicRoute(path) : path;
 }
 
-function tagHref(slug: string) {
-  return contentHref(`${lang === "es" ? "/es" : ""}/tags/${slug}/`);
+function tagHref(slug: string, targetLang: Language = lang) {
+  return contentHref(`${targetLang === "es" ? "/es" : ""}/tags/${slug}/`);
 }
 
-function tagsFor(document: any) {
+function tagsFor(document: any, targetLang: Language = lang) {
   return (document.tags || []).map((tag: any) => ({
     label: tag.label,
     slug: tag.slug,
-    href: tagHref(tag.slug),
+    href: tagHref(tag.slug, targetLang),
   }));
 }
 
 function listItem(document: any) {
+  const itemLang = document.lang === "es" || document.lang === "en" ? document.lang : lang;
   return {
     title: document.title,
     href: contentHref(document.path),
     date: document.date,
     summary: document.summary || document.description || document.bodyText?.slice(0, 220),
-    tags: tagsFor(document),
+    tags: tagsFor(document, itemLang),
     section: document.section,
+    draft: document.draft,
     hidden: document.hidden,
   };
 }
@@ -170,6 +172,7 @@ const navigation = navigationItems(model.navigation || []);
 const items = (model.items || []).map(listItem);
 const title = model.title || (lang === "es" ? "Sin título" : "Untitled");
 const description = model.description || undefined;
+const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").includes('class="sidenote-endnotes"');
 ---
 
 <SiteLayout
@@ -181,6 +184,7 @@ const description = model.description || undefined;
   archiveMonths={model.archiveMonths || []}
   title={title}
   description={description}
+  hasSidenotes={hasSidenotes}
   authorMode={authorMode}
   canonical={canonical}
   showSearch

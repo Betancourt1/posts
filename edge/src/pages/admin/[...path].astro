@@ -12,7 +12,10 @@ import {
 export const prerender = false;
 
 const publicPath = publicPathForAdminRoute(Astro.url.pathname);
-let model: any = await loadPublicPage(env.DB, publicPath, { includeDrafts: true });
+let model: any = await loadPublicPage(env.DB, publicPath, {
+  includeDrafts: true,
+  includeHiddenListItems: true,
+});
 const redirectPath = model?.redirect ? adminPathForPublicRoute(model.redirect) : "";
 if (redirectPath) return Astro.redirect(redirectPath, 301);
 if (!model) {

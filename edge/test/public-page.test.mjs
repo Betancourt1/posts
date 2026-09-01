@@ -15,10 +15,17 @@ const publicPagePath = new URL("../src/views/PublicPage.astro", import.meta.url)
 const siteLayoutPath = new URL("../src/layouts/SiteLayout.astro", import.meta.url);
 const singlePath = new URL("../src/components/Single.astro", import.meta.url);
 const infrastructurePath = new URL("../client/infrastructure.js", import.meta.url);
+const searchPath = new URL("../client/search.js", import.meta.url);
+const soundPath = new URL("../client/sound.js", import.meta.url);
+const graphPath = new URL("../../static/js/knowledge-graph.js", import.meta.url);
 const quotesPath = new URL("../src/components/Quotes.astro", import.meta.url);
 const archivesPath = new URL("../src/components/Archives.astro", import.meta.url);
 const sidebarPath = new URL("../src/components/Sidebar.astro", import.meta.url);
 const siteCssPath = new URL("../../static/css/site.css", import.meta.url);
+const listPath = new URL("../src/components/List.astro", import.meta.url);
+const adminPagePath = new URL("../src/pages/admin/[...path].astro", import.meta.url);
+const publicPageLoaderPath = new URL("../src/lib/public-page.mjs", import.meta.url);
+const typesPath = new URL("../src/components/types.ts", import.meta.url);
 
 test("maps arbitrary admin content routes to their public D1 route", () => {
   assert.equal(publicPathForAdminRoute("/admin/"), "/");
@@ -29,6 +36,32 @@ test("maps arbitrary admin content routes to their public D1 route", () => {
   );
   assert.equal(adminPathForPublicRoute("/"), "/admin/");
   assert.equal(adminPathForPublicRoute("/es/fotografia/"), "/admin/es/fotografia/");
+});
+
+test("admin writing lists include hidden drafts without changing public lists", async () => {
+  const [adminPage, loader, list, publicPage, types, css] = await Promise.all([
+    readFile(adminPagePath, "utf8"),
+    readFile(publicPageLoaderPath, "utf8"),
+    readFile(listPath, "utf8"),
+    readFile(publicPagePath, "utf8"),
+    readFile(typesPath, "utf8"),
+    readFile(siteCssPath, "utf8"),
+  ]);
+
+  assert.match(adminPage, /includeDrafts:\s*true,[\s\S]*includeHiddenListItems:\s*true/);
+  assert.match(loader, /layout === "list" && options\.includeHiddenListItems[\s\S]*includeHidden:\s*true/);
+  assert.match(loader, /layout === "list" \? listItemOptions : options/);
+  assert.match(list, /const displayItems = authorMode \? items : items\.filter\(\(item\) => !item\.hidden\)/);
+  assert.match(list, /for \(const item of displayItems\)/);
+  assert.match(list, /\{displayItems\.map\(\(item\) => \(/);
+  assert.match(publicPage, /<List[\s\S]*authorMode=\{authorMode\}/);
+  assert.match(publicPage, /tagsFor\(document, itemLang\)/);
+  assert.match(publicPage, /targetLang === "es" \? "\/es" : ""/);
+  assert.match(types, /draft\?: boolean;/);
+  assert.match(publicPage, /draft: document\.draft,[\s\S]*hidden: document\.hidden/);
+  assert.match(list, /authorMode && \(item\.draft \|\| item\.hidden\)[\s\S]*class="writing-index-status"[\s\S]*"Borrador" : "Draft"/);
+  assert.equal(list.match(/class="writing-index-status"/g)?.length, 1);
+  assert.match(css, /\.writing-index-status\s*\{[\s\S]*?border:\s*1px solid var\(--accent\);[\s\S]*?text-transform:\s*uppercase;/);
 });
 
 test("recognizes localized tag routes without swallowing normal pages", () => {
@@ -81,6 +114,21 @@ test("single pages avoid duplicating a Markdown H1", async () => {
   assert.match(single, /\{!titleInBody && <h1 class="post-title"/);
 });
 
+test("sidenote typography stays compact, rich, and wrappable", async () => {
+  const css = await readFile(siteCssPath, "utf8");
+  const italicRule = css.match(/\.sidenote-copy em\s*\{([^}]*)\}/)?.[1] || "";
+
+  assert.match(css, /font-family:\s*"Doto";[\s\S]*?font-weight:\s*100 900;/);
+  assert.match(css, /\.sidenote-copy\s*\{[\s\S]*?font-size:\s*11\.6px;[\s\S]*?font-weight:\s*700;/);
+  assert.match(css, /\.sidenote-copy strong\s*\{[\s\S]*?font-weight:\s*900;/);
+  assert.match(italicRule, /font-style:\s*oblique 10deg;/);
+  assert.match(italicRule, /font-synthesis:\s*style;/);
+  assert.doesNotMatch(italicRule, /display:\s*inline-block|transform:/);
+  assert.match(css, /\.sidenote-tone--green\s*\{\s*color:\s*var\(--accent\);/);
+  assert.match(css, /\.sidenote-tone--blue\s*\{\s*color:\s*#8fb8ff;/);
+  assert.match(css, /\.sidenote-tone--amber\s*\{\s*color:\s*#f0c36e;/);
+});
+
 test("the production shell does not offer or restore raw article mode", async () => {
   const [layout, infrastructure] = await Promise.all([
     readFile(siteLayoutPath, "utf8"),
@@ -91,21 +139,127 @@ test("the production shell does not offer or restore raw article mode", async ()
   assert.doesNotMatch(infrastructure, /infra_mode_enabled|initMode/);
 });
 
-test("uses a pipette for grayscale and the historical contrast icon for themes", async () => {
+test("starts visible book covers promptly and contains mobile header controls", async () => {
   const [layout, css] = await Promise.all([
     readFile(siteLayoutPath, "utf8"),
     readFile(siteCssPath, "utf8"),
+  ]);
+
+  for (const origin of [
+    "https://covers.openlibrary.org",
+    "https://is1-ssl.mzstatic.com",
+    "https://m.media-amazon.com",
+    "https://images-na.ssl-images-amazon.com",
+  ]) {
+    assert.match(layout, new RegExp(origin.replaceAll(".", "\\.")));
+  }
+  assert.match(layout, /isBooks && bookCoverOrigins\.map[\s\S]*rel="dns-prefetch"[\s\S]*rel="preconnect"/);
+  assert.ok(layout.indexOf('class="site-title"') < layout.indexOf('class="site-subtitle"'));
+  assert.ok(layout.indexOf('class="site-subtitle"') < layout.indexOf('class="site-header-actions"'));
+  assert.ok(layout.indexOf('class="site-header-actions"') < layout.indexOf('class="site-header-search"'));
+  assert.match(css, /\.site-header-actions\s*\{[\s\S]*?position:\s*fixed;[\s\S]*?top:\s*22px;[\s\S]*?right:\s*32px;/);
+
+  const mobileCss = css.slice(css.lastIndexOf("@media (max-width: 1000px)"));
+  const mobileActions = mobileCss.match(/\.site-header-actions\s*\{([^}]*)\}/)?.[1] || "";
+  assert.match(mobileCss, /\.site-header\s*\{\s*padding:\s*20px 16px 6px;/);
+  assert.match(mobileActions, /position:\s*static;/);
+  assert.match(mobileActions, /width:\s*fit-content;/);
+  assert.match(mobileActions, /margin:\s*8px auto 0;/);
+  assert.match(mobileActions, /transform:\s*none;/);
+  assert.doesNotMatch(mobileActions, /(?:top|right|left):/);
+});
+
+test("uses a pipette for grayscale and keeps search inline", async () => {
+  const [layout, css, search] = await Promise.all([
+    readFile(siteLayoutPath, "utf8"),
+    readFile(siteCssPath, "utf8"),
+    readFile(searchPath, "utf8"),
   ]);
 
   assert.match(layout, /class="header-display-icon pipette-icon"[\s\S]*?m12 9-8\.414 8\.414[\s\S]*?m18 9 \.4\.4[\s\S]*?m2 22 \.414-\.414/);
   assert.match(layout, /class="header-display-icon theme-contrast-icon"[\s\S]*?<circle cx="12" cy="12" r="10"><\/circle><path d="M12 2a10 10 0 0 1 0 20V2z" fill="currentColor"><\/path>/);
   assert.doesNotMatch(layout, /palette-off-icon|theme-icon-wrapper|sun-icon|moon-icon/);
   assert.match(css, /\.header-display-icon\s*\{[\s\S]*?width:\s*17px;[\s\S]*?height:\s*17px;/);
+  assert.match(css, /\.sound-icon\s*\{[\s\S]*?width:\s*20px;[\s\S]*?height:\s*20px;/);
+  assert.match(css, /\.site-header-actions \.lang-toggle\s*\{[\s\S]*?font-size:\s*0\.76rem;/);
+  assert.match(css, /\.site-header-actions \.typo-toggle\s*\{[\s\S]*?font-size:\s*0\.82rem;/);
   assert.doesNotMatch(css, /\.theme-icon-wrapper|\.sun-icon|\.moon-icon/);
   assert.match(layout, /data-label-enable=\{lang === "es" \? "Activar escala de grises" : "Enable grayscale"\}/);
   assert.match(layout, /data-label-dark=\{lang === "es" \? "Cambiar a tema oscuro" : "Change to dark theme"\}/);
   assert.match(layout, /grayscaleToggle\.setAttribute\("aria-pressed", enabled \? "true" : "false"\)/);
   assert.match(layout, /themeToggle\.setAttribute\("title", label\)/);
+  assert.doesNotMatch(css, /html\.grayscale-mode\s*\{[^}]*filter:/s);
+  assert.match(css, /html\.grayscale-mode body > :not\(\.site-header\),[\s\S]*?\.site-header > :not\(\.site-header-actions\)\s*\{[\s\S]*?filter:\s*grayscale\(100%\)/);
+  assert.match(css, /\.sidebar-column\s*\{\s*top:\s*78px;/);
+  const actionsStart = layout.indexOf('<div class="site-header-actions">');
+  const actionsEnd = layout.indexOf("\n      </div>", actionsStart);
+  const searchStart = layout.indexOf('<div class="site-header-search" id="search">');
+  assert.ok(actionsStart >= 0 && actionsEnd > actionsStart && searchStart > actionsEnd);
+  assert.match(layout, /<form class="search-ui__form" role="search">/);
+  assert.match(layout, /<input class="search-ui__search-input" id="site-search-input" type="search"/);
+  assert.match(layout, /placeholder=\{lang === "es" \? "buscar en el archivo" : "search the archive"\}/);
+  assert.match(layout, /<svg class="search-command-icon"/);
+  assert.match(layout, /<kbd class="search-kbd">Ctrl K<\/kbd>/);
+  assert.match(layout, /<div class="search-ui__drawer" id="site-search-results" hidden>/);
+  assert.doesNotMatch(layout, /search-trigger|search-modal/);
+  assert.match(css, /\.site-header-search\s*\{[\s\S]*?justify-content:\s*center;[\s\S]*?width:\s*min\(20rem, 100%\);[\s\S]*?margin:\s*10px auto 0;/);
+  assert.match(css, /\.search-ui__form\s*\{[\s\S]*?width:\s*100%;[\s\S]*?border-bottom:\s*1px solid var\(--line\);/);
+  assert.match(css, /\.search-ui__search-input\s*\{[\s\S]*?border:\s*0;[\s\S]*?padding:\s*0;[\s\S]*?background:\s*transparent;/);
+  assert.doesNotMatch(css, /\.search-ui__search-input\s*\{[^}]*border-left:/s);
+  assert.match(css, /\.search-ui__drawer\s*\{[\s\S]*?position:\s*absolute;[\s\S]*?top:\s*calc\(100% \+ 8px\);/);
+  assert.match(css, /\.search-kbd\s*\{[\s\S]*?border:\s*0;[\s\S]*?background:\s*transparent;/);
+  assert.match(css, /@media \(max-width: 720px\)\s*\{[\s\S]*?\.search-kbd\s*\{\s*display:\s*none;/);
+  assert.doesNotMatch(css, /search-modal|body\.search-active/);
+  assert.doesNotMatch(search, /setupModal|search-trigger|search-modal/);
+  assert.match(search, /root\.dataset\.searchEndpoint \|\| "\/api\/search"/);
+  assert.match(search, /url\.searchParams\.set\("lang", lang\)/);
+  assert.match(search, /url\.searchParams\.set\("limit", "20"\)/);
+  assert.match(search, /\(event\.ctrlKey \|\| event\.metaKey\).*event\.key\.toLowerCase\(\) === "k"/);
+  assert.match(search, /event\.key === "Escape"[\s\S]*?clearSearch\(view, copy\)/);
+});
+
+test("keeps recorded interaction sounds opt-in and shared with admin", async () => {
+  const [layout, css, search, sound, graph] = await Promise.all([
+    readFile(siteLayoutPath, "utf8"),
+    readFile(siteCssPath, "utf8"),
+    readFile(searchPath, "utf8"),
+    readFile(soundPath, "utf8"),
+    readFile(graphPath, "utf8"),
+  ]);
+
+  assert.match(layout, /<button class="sound-toggle" id="sound-toggle"/);
+  assert.doesNotMatch(layout, /!authorMode && \(\s*<button class="sound-toggle"/);
+  assert.match(layout, /aria-pressed="false"[\s\S]*?data-label-enable=\{lang === "es" \? "Activar sonidos" : "Enable sounds"\}/);
+  assert.match(layout, /<script is:inline src="\/js\/sound\.js" defer><\/script>/);
+  assert.doesNotMatch(layout, /!authorMode && <script is:inline src="\/js\/sound\.js"/);
+  assert.match(css, /\.theme-toggle,\s*\.grayscale-toggle,\s*\.sound-toggle,[\s\S]*?width:\s*40px;[\s\S]*?height:\s*40px;/);
+  assert.match(css, /@media \(max-width: 720px\)[\s\S]*?\.sound-toggle,[\s\S]*?width:\s*44px !important;[\s\S]*?height:\s*44px !important;/);
+  assert.match(sound, /var enabled = false;/);
+  assert.match(sound, /var gestureReady = false;/);
+  assert.match(sound, /if \(!event\.isTrusted\) return;/);
+  assert.match(sound, /interaction-default\.wav/);
+  assert.match(sound, /interaction-navigation\.wav/);
+  assert.match(sound, /interaction-subcontrol\.wav/);
+  assert.match(sound, /var interactionTargets = \[[\s\S]*?"button"[\s\S]*?"a\[href\]"[\s\S]*?"summary"/);
+  assert.match(sound, /var navigationTargets = \[[\s\S]*?"\.post-card a\[href\]"[\s\S]*?"\.writing-index-row a\[href\]"[\s\S]*?"\.book-shelf-row a\[href\]"[\s\S]*?"\.photo-card a\[href\]"[\s\S]*?"\.quote-index-entry a\[href\]"[\s\S]*?"\.tag\[href\]"[\s\S]*?"\.search-ui__result-link"/);
+  assert.match(sound, /var navigationTargets = \[[\s\S]*?"\.sidebar-column a\[href\]"[\s\S]*?"\.archive-list \.archive-item > a"/);
+  assert.match(sound, /var destructiveTargets = \[[\s\S]*?"\.author-action-button--danger"[\s\S]*?"\.danger-button"[\s\S]*?"#delete-page"/);
+  assert.match(sound, /var subcontrolTargets = \[[\s\S]*?"\.typo-dropdown button"[\s\S]*?"\.author-more-menu button"[\s\S]*?"\.settings button"[\s\S]*?"\.inspector button"/);
+  assert.match(sound, /function sampleForTarget\(target\)[\s\S]*?target\.matches\(destructiveTargets\) \|\| target\.matches\(navigationTargets\)[\s\S]*?return "navigation";[\s\S]*?target\.matches\(subcontrolTargets\)[\s\S]*?return "subcontrol";[\s\S]*?return "default";/);
+  assert.match(sound, /document\.addEventListener\("click",[\s\S]*?target === toggle[\s\S]*?play\(sampleForTarget\(target\)\)/);
+  assert.match(sound, /target\.id === "site-search-input" \|\| target\.matches\("\.guestbook-form input:not\(\.guestbook-honeypot\), \.guestbook-form textarea"\)[\s\S]*?play\("default"\)/);
+  assert.match(sound, /document\.addEventListener\("submit",[\s\S]*?!event\.isTrusted \|\| !event\.target\.matches\("\.guestbook-form"\)[\s\S]*?!event\.submitter[\s\S]*?play\("default"\)/);
+  assert.match(sound, /localStorage\.getItem\(STORAGE_KEY\) === "true"/);
+  assert.match(sound, /window\.AudioContext \|\| window\.webkitAudioContext/);
+  assert.match(sound, /var SAMPLE_GAIN = 1;/);
+  assert.match(sound, /fetch\(sample\.url, \{ cache: "force-cache" \}\)/);
+  assert.match(sound, /context\.decodeAudioData\(data\.slice\(0\)\)/);
+  assert.match(sound, /var source = context\.createBufferSource\(\)/);
+  assert.match(sound, /gain\.gain\.value = SAMPLE_GAIN;/);
+  assert.match(sound, /source\.connect\(gain\);\s*gain\.connect\(context\.destination\);\s*source\.start\(\)/);
+  assert.doesNotMatch(sound, /createOscillator|exponentialRampToValueAtTime|new Audio\(/);
+  assert.match(search, /CustomEvent\("site-sound", \{ detail: \{ tone: "searchResults" \} \}\)/);
+  assert.match(graph, /CustomEvent\("site-sound", \{ detail: \{ tone: "navigation" \} \}\)[\s\S]*?window\.location\.assign\(node\.url\)/);
 });
 
 test("keeps the Citas title in Spanish notebook navigation", async () => {
@@ -144,7 +298,7 @@ test("keeps the quote archive inside the standard site shell", async () => {
 
   assert.match(layout, /<p class="site-title"><a href=\{homePath\}>\{siteTitle\}<\/a><\/p>/);
   assert.match(layout, /authorMode \? "author-mode" : ""/);
-  assert.match(layout, /<aside class="column nav-column">[\s\S]*?<Nav items=\{navigation\}/);
+  assert.match(layout, /<aside class="column nav-column">[\s\S]*?<Nav[\s\S]*?items=\{navigation\}/);
   assert.doesNotMatch(layout, /quotes-header-navigation|friendlyArchiveLabels|\{!isQuotes/);
   assert.doesNotMatch(publicPage, /layout === "quotes" \? null|quoteNavigationSections/);
   assert.match(sidebar, />\{month\.key\}<\/a>/);

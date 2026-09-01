@@ -16,6 +16,7 @@ const staticFiles = [
   "fonts/Jersey10-OFL.txt",
   "fonts/Jersey10-Regular.ttf",
   "fonts/Jersey10-Regular.woff2",
+  "fonts/Doto-Variable.woff2",
   "js/author-tools.js",
   "js/code-portfolio.js",
   "js/curved-scrollbar.js",
@@ -24,6 +25,11 @@ const staticFiles = [
   "js/typography.js",
   "og-image.png",
   "site.webmanifest",
+  "sounds/interaction-default.wav",
+  "sounds/interaction-navigation.wav",
+  "sounds/interaction-subcontrol.wav",
+  "sounds/LICENSE-MECHVIBESDX.txt",
+  "sounds/PROVENANCE.md",
 ];
 
 async function copy(sourceRoot, sourcePath, destinationPath = sourcePath) {
