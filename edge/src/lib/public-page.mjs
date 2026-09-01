@@ -1,4 +1,5 @@
 import {
+  archiveMonthCounts,
   archiveItems,
   backlinks,
   documentTags,
@@ -59,14 +60,16 @@ export function archiveMonths(items) {
 
 async function siteChrome(db, lang, archives = null, options = {}) {
   const [navigation, allArchives, updatedAt] = await Promise.all([
-    navSections(db, lang, options),
-    archives ? Promise.resolve(archives) : archiveItems(db, lang, options),
+    navSections(db, lang, { ...options, tags: false }),
+    archives !== null
+      ? Promise.resolve(archiveMonths(archives))
+      : archiveMonthCounts(db, lang, options),
     latestSyncTimestamp(db),
   ]);
 
   return {
     navigation,
-    archiveMonths: archiveMonths(allArchives),
+    archiveMonths: allArchives,
     updatedAt,
   };
 }
@@ -126,7 +129,7 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
   const synthetic = syntheticRoute(path);
   if (synthetic) return syntheticPage(db, synthetic, options);
 
-  const document = await resolveDocument(db, path, options);
+  const document = await resolveDocument(db, path, { ...options, tags: false });
   if (!document) return null;
 
   if (document.routeKind === "alias") {
@@ -135,9 +138,9 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
 
   const layout = layoutForDocument(document);
   const tagsPromise = documentTags(db, document.id);
-  const translationPromise = translationPeer(db, document.id, options);
+  const translationPromise = translationPeer(db, document.id, { ...options, tags: false });
   const archivePromise = layout === "archives"
-    ? archiveItems(db, document.lang, options)
+    ? archiveItems(db, document.lang, { ...options, tags: false })
     : Promise.resolve(null);
   const itemsPromise = layout === "home"
     ? recentPosts(db, document.lang, { ...options, limit: 10 })

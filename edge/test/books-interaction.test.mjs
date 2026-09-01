@@ -72,7 +72,7 @@ test("renders hidden rows and a progressive button for each shelf", async () => 
 test("every registered book has a direct HTTPS cover and accessible image text", async () => {
   const names = (await readdir(booksContentPath))
     .filter((name) => name.endsWith(".md") && name !== "_index.md");
-  assert.equal(names.length, 97);
+  assert.equal(names.length, 98);
 
   for (const name of names) {
     const markdown = await readFile(new URL(name, booksContentPath), "utf8");

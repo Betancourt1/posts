@@ -17,7 +17,7 @@ const GRAPH_IGNORED_TAGS = new Set([
   "cita",
 ]);
 
-function documentColumns(alias, { body = false } = {}) {
+function documentColumns(alias, { body = false, tags = true } = {}) {
   return `
     ${alias}.id,
     ${alias}.document_key AS documentKey,
@@ -38,7 +38,7 @@ function documentColumns(alias, { body = false } = {}) {
     ${alias}.hidden,
     ${alias}.searchable,
     ${alias}.generated,
-    ${alias}.updated_at AS updatedAt,
+    ${alias}.updated_at AS updatedAt${tags ? `,
     COALESCE((
       SELECT json_group_array(json_object(
         'label', ordered_tags.label,
@@ -51,7 +51,7 @@ function documentColumns(alias, { body = false } = {}) {
         WHERE document_tags.document_id = ${alias}.id
         ORDER BY document_tags.position
       ) AS ordered_tags
-    ), '[]') AS tagsJson
+    ), '[]') AS tagsJson` : ""}
   `;
 }
 
@@ -156,7 +156,7 @@ export async function resolveDocument(db, path, options = {}) {
   const { includeDrafts } = visibilityOptions(options);
   const row = await db.prepare(`
     SELECT
-      ${documentColumns("d", { body: true })},
+      ${documentColumns("d", { body: true, tags: options.tags !== false })},
       requested.kind AS routeKind,
       requested.path AS requestedPath,
       canonical.path AS canonicalPath,
@@ -190,7 +190,7 @@ export async function translationPeer(db, id, options = {}) {
   const { includeDrafts, includeHidden } = visibilityOptions(options);
   const row = await db.prepare(`
     SELECT
-      ${documentColumns("peer")},
+      ${documentColumns("peer", { tags: options.tags !== false })},
       canonical.path AS canonicalPath,
       canonical.path AS path
     FROM documents AS current
@@ -256,7 +256,7 @@ export async function navSections(db, lang, options = {}) {
   const { includeDrafts, includeHidden } = visibilityOptions(options);
   const result = await db.prepare(`
     SELECT
-      ${documentColumns("d")},
+      ${documentColumns("d", { tags: options.tags !== false })},
       canonical.path AS path
     FROM documents AS d
     JOIN routes AS canonical
@@ -284,7 +284,7 @@ export async function archiveItems(db, lang, options = {}) {
   const limit = positiveLimit(options.limit, 1000);
   const result = await db.prepare(`
     SELECT
-      ${documentColumns("d")},
+      ${documentColumns("d", { tags: options.tags !== false })},
       canonical.path AS path,
       CASE
         WHEN d.date IS NULL OR d.date = '' THEN NULL
@@ -309,6 +309,26 @@ export async function archiveItems(db, lang, options = {}) {
   `).bind(language(lang), includeDrafts, includeHidden, limit).all();
 
   return hydrateDocuments(result);
+}
+
+export async function archiveMonthCounts(db, lang, options = {}) {
+  const { includeDrafts, includeHidden } = visibilityOptions(options);
+  const result = await db.prepare(`
+    SELECT substr(date, 1, 7) AS key, COUNT(*) AS count
+    FROM documents
+    WHERE lang = ?
+      AND kind = 'page'
+      AND section <> ''
+      AND section <> 'about'
+      AND date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]*'
+      AND (? = 1 OR draft = 0)
+      AND (? = 1 OR hidden = 0)
+    GROUP BY substr(date, 1, 7)
+    ORDER BY key DESC
+    LIMIT 12
+  `).bind(language(lang), includeDrafts, includeHidden).all();
+
+  return (result.results || []).map(({ key, count }) => ({ key, count: Number(count) }));
 }
 
 export async function recentPosts(db, lang, options = {}) {

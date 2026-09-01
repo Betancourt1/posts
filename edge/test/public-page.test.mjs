@@ -64,6 +64,13 @@ test("derives language and recent archive counts from runtime rows", () => {
   );
 });
 
+test("loads compact archive months except when the archive page already has its rows", async () => {
+  const source = await readFile(new URL("../src/lib/public-page.mjs", import.meta.url), "utf8");
+
+  assert.match(source, /archives !== null[\s\S]*?archiveMonths\(archives\)[\s\S]*?archiveMonthCounts\(db, lang, options\)/);
+  assert.match(source, /archiveItems\(db, document\.lang, \{ \.\.\.options, tags: false \}\)/);
+});
+
 test("single pages avoid duplicating a Markdown H1", async () => {
   const [publicPage, single] = await Promise.all([
     readFile(publicPagePath, "utf8"),

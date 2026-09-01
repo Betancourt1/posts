@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { Miniflare } from "miniflare";
 
 import {
+  archiveMonthCounts,
   archiveItems,
   backlinks,
   documentTags,
@@ -252,6 +253,8 @@ test("reads the projected public site through the real D1 API", async (t) => {
     assert.equal(spanish.path, "/es/posts/datos-eticos/");
     assert.equal(spanish.frontMatter.translationKey, "ethical-data");
     assert.deepEqual(spanish.tags.map((tag) => tag.label), ["ethics", "essays"]);
+    assert.deepEqual((await translationPeer(db, english.id, { tags: false })).tags, []);
+    assert.deepEqual((await resolveDocument(db, "/posts/ethical-data/", { tags: false })).tags, []);
   });
 
   await t.test("pairs Guestbook and Visitas as localized views of one wall", async () => {
@@ -285,6 +288,23 @@ test("reads the projected public site through the real D1 API", async (t) => {
       (await archiveItems(db, "en")).map(({ title, year }) => [title, year]),
       [["Ethical Data", "2026"], ["Destination", "2026"]],
     );
+    assert.deepEqual(
+      (await archiveItems(db, "en", { tags: false })).map((document) => document.tags),
+      [[], []],
+    );
+    assert.deepEqual(await archiveMonthCounts(db, "en"), [
+      { key: "2026-07", count: 2 },
+    ]);
+    assert.deepEqual(await archiveMonthCounts(db, "es"), [
+      { key: "2026-07", count: 1 },
+    ]);
+    assert.deepEqual(
+      await archiveMonthCounts(db, "en", { includeDrafts: true, includeHidden: true }),
+      [{ key: "2026-07", count: 4 }],
+    );
+    assert.deepEqual((await navSections(db, "en", { tags: false })).map((document) => document.tags), [
+      [], [], [], [],
+    ]);
 
     const tags = await tagIndex(db, "en");
     assert.equal(tags.find((tag) => tag.slug === "ethics").count, 1);
