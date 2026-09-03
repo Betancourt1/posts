@@ -1,6 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { deleteNotebook, deletePage, invalidateNotebooksCache, listNotebooks, savePage } from "./content.js";
+import {
+  createPost,
+  deleteNotebook,
+  deletePage,
+  invalidateNotebooksCache,
+  listNotebooks,
+  photographyMirrorPath,
+  savePage,
+  savePageFrontMatter,
+} from "./content.js";
 import { formatMarkdown, splitMarkdown } from "./markdown.js";
 
 const env = {
@@ -337,3 +346,113 @@ test("listNotebooks reuses its short-lived repository cache", async () => {
     invalidateNotebooksCache();
   }
 });
+
+test("photographyMirrorPath maps between English and Spanish photography posts but ignores index and other sections", () => {
+  assert.equal(photographyMirrorPath("content_es/fotografia/mariposa.md"), "content_en/fotografia/mariposa.md");
+  assert.equal(photographyMirrorPath("content_en/fotografia/spider.md"), "content_es/fotografia/spider.md");
+  assert.equal(photographyMirrorPath("content_es/fotografia/_index.md"), null);
+  assert.equal(photographyMirrorPath("content_en/fotografia/_index.md"), null);
+  assert.equal(photographyMirrorPath("content_es/posts/2026/julio/post.md"), null);
+});
+
+test("createPost, savePage, savePageFrontMatter, and deletePage automatically mirror photography posts", async () => {
+  const originalFetch = globalThis.fetch;
+  const files = new Map();
+
+  globalThis.fetch = async (url, options = {}) => {
+    const method = options.method || "GET";
+    const urlObj = new URL(url);
+    const contentsMatch = urlObj.pathname.match(/\/contents\/(.+)/);
+    const filePath = contentsMatch ? decodeURIComponent(contentsMatch[1]) : "";
+
+    if (method === "GET") {
+      if (files.has(filePath)) {
+        return jsonResponse(200, {
+          type: "file",
+          path: filePath,
+          sha: files.get(filePath).sha,
+          content: encoded(files.get(filePath).content),
+        });
+      }
+      return jsonResponse(404, { message: "Not Found" });
+    }
+
+    if (method === "PUT") {
+      const body = JSON.parse(options.body);
+      const content = Buffer.from(body.content, "base64").toString("utf8");
+      files.set(filePath, { content, sha: "sha-" + Math.random().toString(36).slice(2) });
+      return jsonResponse(200, { commit: { sha: "commit-sha" } });
+    }
+
+    if (method === "DELETE") {
+      files.delete(filePath);
+      return jsonResponse(200, { commit: { sha: "delete-sha" } });
+    }
+
+    throw new Error(`Unhandled request: ${method} ${url}`);
+  };
+
+  files.set("content_es/fotografia/_index.md", { content: "---\ntitle: Fotografía\n---", sha: "index-es" });
+  files.set("content_en/fotografia/_index.md", { content: "---\ntitle: Photography\n---", sha: "index-en" });
+
+  try {
+    // 1. Create post in Spanish photography
+    const created = await createPost(env, {
+      notebook: "content_es/fotografia",
+      title: "Nueva Foto",
+      date: "2026-09-03",
+      image: "/uploads/photo.jpg",
+      tags: "photography",
+      body: "",
+    });
+
+    assert.equal(created.path, "content_es/fotografia/nueva-foto.md");
+    assert.equal(created.mirrorPath, "content_en/fotografia/nueva-foto.md");
+    assert.ok(files.has("content_es/fotografia/nueva-foto.md"));
+    assert.ok(files.has("content_en/fotografia/nueva-foto.md"));
+    assert.equal(
+      files.get("content_es/fotografia/nueva-foto.md").content,
+      files.get("content_en/fotografia/nueva-foto.md").content,
+    );
+
+    // 2. Save page updates both files
+    const saved = await savePage(env, {
+      path: "content_es/fotografia/nueva-foto.md",
+      frontMatter: { title: "Foto Actualizada" },
+      body: "Un comentario",
+    });
+
+    assert.equal(saved.changed, true);
+    assert.equal(
+      files.get("content_es/fotografia/nueva-foto.md").content,
+      files.get("content_en/fotografia/nueva-foto.md").content,
+    );
+    assert.match(files.get("content_en/fotografia/nueva-foto.md").content, /Foto Actualizada/);
+
+    // 3. Save front matter updates both files
+    await savePageFrontMatter(env, "content_es/fotografia/nueva-foto.md", {
+      arena_enabled: true,
+      arena_channel_id: "12345",
+    });
+
+    assert.equal(
+      files.get("content_es/fotografia/nueva-foto.md").content,
+      files.get("content_en/fotografia/nueva-foto.md").content,
+    );
+    assert.match(files.get("content_en/fotografia/nueva-foto.md").content, /arena_channel_id: "12345"/);
+
+    // 4. Delete page removes both files
+    const deleted = await deletePage(env, {
+      path: "content_es/fotografia/nueva-foto.md",
+      deleteImages: false,
+    });
+
+    assert.equal(deleted.path, "content_es/fotografia/nueva-foto.md");
+    assert.equal(deleted.mirrorPath, "content_en/fotografia/nueva-foto.md");
+    assert.ok(!files.has("content_es/fotografia/nueva-foto.md"));
+    assert.ok(!files.has("content_en/fotografia/nueva-foto.md"));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+

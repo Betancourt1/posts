@@ -192,3 +192,47 @@ test("returns 500 instead of claiming success when a deleted source is missing",
   assert.match(payload.detail, /did not return any content files/);
   assert.deepEqual(payload.saved, { deletedFiles: ["static/uploads/cover.webp"] });
 });
+
+test("projects both language files after saving a photography post", async () => {
+  const events = [];
+  const env = { DB: { name: "DB" }, CONTENT_PROJECTOR_VERSION: "1" };
+  const response = success({
+    path: "content_es/fotografia/mariposa.md",
+    commitSha: "commit-123",
+    changed: true,
+  });
+
+  const fakes = projectionFakes(events, {
+    async replaceProjectedSource(_db, projection) {
+      events.push(`replace:${projection.source.path}`);
+    },
+  });
+
+  const result = await synchronizeAdminMutation(env, response, "save-page", fakes);
+  assert.equal(result.status, 200);
+  assert.deepEqual(events, [
+    "read:content_es/fotografia/mariposa.md",
+    "project:content_es/fotografia/mariposa.md:blob-sha:commit-123:1",
+    "replace:content_es/fotografia/mariposa.md",
+    "read:content_en/fotografia/mariposa.md",
+    "project:content_en/fotografia/mariposa.md:blob-sha:commit-123:1",
+    "replace:content_en/fotografia/mariposa.md",
+    "finish",
+  ]);
+});
+
+test("deletes both language sources after deleting a photography post", async () => {
+  const events = [];
+  const env = { DB: { name: "DB" } };
+  const response = success({
+    path: "content_es/fotografia/mariposa.md",
+  });
+
+  const fakes = projectionFakes(events);
+  const result = await synchronizeAdminMutation(env, response, "delete-page", fakes);
+  assert.equal(result.status, 200);
+  assert.deepEqual(events, [
+    "delete:content_es/fotografia/mariposa.md,content_en/fotografia/mariposa.md",
+    "finish",
+  ]);
+});

@@ -14,6 +14,7 @@ import {
   syncArenaPage,
 } from "../functions/_lib/arena.js";
 import { normalizeBookFrontMatter } from "../functions/_lib/book-content.js";
+import { photographyMirrorPath } from "../functions/_lib/content.js";
 import { imageEditorHtml } from "../functions/_lib/image-editor-template.js";
 import { editorCoreClientScript } from "../functions/_lib/editor-core-client.js";
 import { resolveEditorPath } from "../functions/_lib/editor-routing.js";
@@ -693,10 +694,17 @@ function createPost(payload) {
     frontMatter.hidden = true;
   }
 
+  const created = writeContentFile(relativePath, frontMatter, body, false);
+  const mirrorPath = photographyMirrorPath(relativePath);
+  if (mirrorPath) {
+    writeContentFile(mirrorPath, frontMatter, body, false);
+  }
+
   return {
-    ...writeContentFile(relativePath, frontMatter, body, false),
+    ...created,
     changed: true,
     frontMatter,
+    mirrorPath: mirrorPath || null,
   };
 }
 
@@ -739,11 +747,35 @@ function savePage(payload) {
   if (changed) {
     writeFileSync(absolutePath, nextContent, "utf8");
   }
+
+  const mirrorPath = photographyMirrorPath(relativePath);
+  if (mirrorPath) {
+    const { absolutePath: mirrorAbsolute } = safeContentPath(mirrorPath);
+    if (existsSync(mirrorAbsolute)) {
+      const mirrorCurrent = parseMarkdownFile(mirrorPath);
+      const mirrorFrontMatter = {
+        ...mirrorCurrent.frontMatter,
+        ...(payload.frontMatter || {}),
+      };
+      Object.entries(payload.frontMatter || {}).forEach(([key, value]) => {
+        if (value === null) delete mirrorFrontMatter[key];
+      });
+      normalizePhotoFrontMatter(mirrorPath, mirrorFrontMatter);
+      const mirrorNextContent = formatMarkdown(mirrorFrontMatter, body);
+      if (mirrorNextContent !== readFileSync(mirrorAbsolute, "utf8")) {
+        writeFileSync(mirrorAbsolute, mirrorNextContent, "utf8");
+      }
+    } else {
+      writeContentFile(mirrorPath, frontMatter, body, false);
+    }
+  }
+
   return {
     path: relativePath,
     url: contentPathToUrl(relativePath),
     changed,
     frontMatter,
+    mirrorPath: mirrorPath || null,
   };
 }
 
@@ -949,6 +981,12 @@ function normalizePhotoFrontMatter(relativePath, frontMatter) {
     return;
   }
 
+  if (Array.isArray(frontMatter.tags)) {
+    frontMatter.tags = [
+      ...new Set(frontMatter.tags.map((tag) => ["fotografia", "fotografía"].includes(tag) ? "photography" : tag)),
+    ];
+  }
+
   const fallbackAlt = String(frontMatter.title || frontMatter.summary || "Imagen").trim() || "Imagen";
   const firstGalleryAlt = Array.isArray(frontMatter.images)
     ? String(frontMatter.images[0]?.alt || frontMatter.images[0]?.image_alt || "").trim()
@@ -1015,6 +1053,15 @@ function deletePage(payload) {
   const deletedImages = [];
 
   unlinkSync(absolutePath);
+
+  const mirrorPath = photographyMirrorPath(relativePath);
+  if (mirrorPath) {
+    const { absolutePath: mirrorAbsolute } = safeContentPath(mirrorPath);
+    if (existsSync(mirrorAbsolute)) {
+      unlinkSync(mirrorAbsolute);
+    }
+  }
+
   imagePaths.forEach((imagePath) => {
     if (deleteImagePath(imagePath)) {
       deletedImages.push(imagePath);
@@ -1025,6 +1072,7 @@ function deletePage(payload) {
     path: relativePath,
     deletedImages,
     url: fallbackUrlForContent(relativePath),
+    mirrorPath: mirrorPath || null,
   };
 }
 

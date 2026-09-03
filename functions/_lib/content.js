@@ -230,7 +230,7 @@ function normalizePhotoFrontMatter(path, frontMatter) {
     return;
   }
 
-  if (path.startsWith("content_es/fotografia/") && Array.isArray(frontMatter.tags)) {
+  if (Array.isArray(frontMatter.tags)) {
     frontMatter.tags = [
       ...new Set(frontMatter.tags.map((tag) => ["fotografia", "fotografía"].includes(tag) ? "photography" : tag)),
     ];
@@ -255,6 +255,18 @@ function normalizePhotoFrontMatter(path, frontMatter) {
       };
     });
   }
+}
+
+export function photographyMirrorPath(path) {
+  if (typeof path !== "string") return null;
+  const normalized = path.trim().replace(/^\/+/, "");
+  if (/^content_es\/fotografia\/[^/]+\.md$/.test(normalized) && !normalized.endsWith("/_index.md")) {
+    return normalized.replace(/^content_es\/fotografia\//, "content_en/fotografia/");
+  }
+  if (/^content_en\/fotografia\/[^/]+\.md$/.test(normalized) && !normalized.endsWith("/_index.md")) {
+    return normalized.replace(/^content_en\/fotografia\//, "content_es/fotografia/");
+  }
+  return null;
 }
 
 async function deleteUploadPath(env, path) {
@@ -440,7 +452,24 @@ export async function createPost(env, payload) {
     message: commitMessage("Crea", path),
   });
 
-  return { path, url: contentPathToUrl(path), changed: true, frontMatter };
+  const mirrorPath = photographyMirrorPath(path);
+  if (mirrorPath) {
+    const mirrorExisting = await readGitHubFile(env, mirrorPath);
+    await writeGitHubFile(env, {
+      path: mirrorPath,
+      content: formatMarkdown(frontMatter, body),
+      message: commitMessage("Crea", mirrorPath),
+      sha: mirrorExisting?.sha,
+    });
+  }
+
+  return {
+    path,
+    url: contentPathToUrl(path),
+    changed: true,
+    frontMatter,
+    mirrorPath: mirrorPath || null,
+  };
 }
 
 function imageItemsFromPayload(value) {
@@ -543,12 +572,44 @@ export async function savePage(env, payload) {
 
   if (path.endsWith("/_index.md")) invalidateNotebooksCache();
 
+  const mirrorPath = photographyMirrorPath(path);
+  if (mirrorPath) {
+    const mirrorCurrent = await readGitHubFile(env, mirrorPath);
+    if (mirrorCurrent) {
+      const mirrorParsed = splitMarkdown(mirrorCurrent.content);
+      const mirrorFrontMatter = {
+        ...mirrorParsed.frontMatter,
+        ...(payload.frontMatter || {}),
+      };
+      Object.entries(payload.frontMatter || {}).forEach(([key, value]) => {
+        if (value === null) delete mirrorFrontMatter[key];
+      });
+      normalizePhotoFrontMatter(mirrorPath, mirrorFrontMatter);
+      const mirrorContent = formatMarkdown(mirrorFrontMatter, body);
+      if (mirrorContent !== mirrorCurrent.content) {
+        await writeGitHubFile(env, {
+          path: mirrorPath,
+          content: mirrorContent,
+          message: commitMessage("Edita", mirrorPath),
+          sha: mirrorCurrent.sha,
+        });
+      }
+    } else {
+      await writeGitHubFile(env, {
+        path: mirrorPath,
+        content,
+        message: commitMessage("Crea", mirrorPath),
+      });
+    }
+  }
+
   return {
     path,
     url: contentPathToUrl(path),
     changed: true,
     frontMatter,
     commitSha: String(result?.commit?.sha || ""),
+    mirrorPath: mirrorPath || null,
   };
 }
 
@@ -591,12 +652,38 @@ export async function savePageFrontMatter(env, pathValue, patch) {
 
   if (path.endsWith("/_index.md")) invalidateNotebooksCache();
 
+  const mirrorPath = photographyMirrorPath(path);
+  if (mirrorPath) {
+    const mirrorCurrent = await readGitHubFile(env, mirrorPath);
+    if (mirrorCurrent) {
+      const mirrorParsed = splitMarkdown(mirrorCurrent.content);
+      const mirrorFrontMatter = {
+        ...mirrorParsed.frontMatter,
+        ...(patch || {}),
+      };
+      Object.entries(patch || {}).forEach(([key, value]) => {
+        if (value === null) delete mirrorFrontMatter[key];
+      });
+      normalizePhotoFrontMatter(mirrorPath, mirrorFrontMatter);
+      const mirrorContent = formatMarkdown(mirrorFrontMatter, mirrorParsed.body);
+      if (mirrorContent !== mirrorCurrent.content) {
+        await writeGitHubFile(env, {
+          path: mirrorPath,
+          content: mirrorContent,
+          message: commitMessage("Edita", mirrorPath),
+          sha: mirrorCurrent.sha,
+        });
+      }
+    }
+  }
+
   return {
     path,
     url: contentPathToUrl(path),
     changed: true,
     frontMatter,
     commitSha: String(result?.commit?.sha || ""),
+    mirrorPath: mirrorPath || null,
   };
 }
 
@@ -633,6 +720,18 @@ export async function deletePage(env, payload) {
     sha: current.sha,
   });
 
+  const mirrorPath = photographyMirrorPath(path);
+  if (mirrorPath) {
+    const mirrorCurrent = await readGitHubFile(env, mirrorPath);
+    if (mirrorCurrent) {
+      await deleteGitHubFile(env, {
+        path: mirrorPath,
+        message: commitMessage("Elimina", mirrorPath),
+        sha: mirrorCurrent.sha,
+      });
+    }
+  }
+
   for (const imagePath of imagePaths) {
     if (await deleteUploadPath(env, imagePath)) {
       deletedImages.push(imagePath);
@@ -644,6 +743,7 @@ export async function deletePage(env, payload) {
     deletedUrl: contentPathToUrl(path),
     deletedImages,
     url: fallbackUrlForContent(path),
+    mirrorPath: mirrorPath || null,
   };
 }
 

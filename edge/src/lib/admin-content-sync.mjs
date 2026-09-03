@@ -1,3 +1,4 @@
+import { photographyMirrorPath } from "../../../functions/_lib/content.js";
 import { readGitHubFile } from "../../../functions/_lib/github.js";
 
 import { projectSource } from "./content-projector.mjs";
@@ -53,27 +54,39 @@ function requiredPath(payload) {
 
 async function projectCanonicalFile(env, payload, dependencies) {
   const path = requiredPath(payload);
-  const file = await dependencies.readGitHubFile(env, path);
-
-  if (!file) {
-    throw new Error(`The canonical GitHub file could not be read after saving: ${path}`);
+  const targets = [path];
+  const mirror = payload.mirrorPath || photographyMirrorPath(path);
+  if (mirror && !targets.includes(mirror)) {
+    targets.push(mirror);
   }
 
-  const projection = dependencies.projectSource({
-    path: file.path,
-    rawMarkdown: file.content,
-    blobSha: file.sha,
-    commitSha: payload.commitSha || null,
-    projectorVersion: String(env.CONTENT_PROJECTOR_VERSION || "1"),
-  });
+  for (const targetPath of targets) {
+    const file = await dependencies.readGitHubFile(env, targetPath);
 
-  await dependencies.replaceProjectedSource(env.DB, projection, null);
+    if (!file) {
+      if (targetPath === path) {
+        throw new Error(`The canonical GitHub file could not be read after saving: ${path}`);
+      }
+      continue;
+    }
+
+    const projection = dependencies.projectSource({
+      path: file.path,
+      rawMarkdown: file.content,
+      blobSha: file.sha,
+      commitSha: payload.commitSha || null,
+      projectorVersion: String(env.CONTENT_PROJECTOR_VERSION || "1"),
+    });
+
+    await dependencies.replaceProjectedSource(env.DB, projection, null);
+  }
 }
 
 function deletedContentPaths(action, payload) {
+  const mirror = payload?.mirrorPath || photographyMirrorPath(payload?.path);
   const candidates = action === "delete-notebook"
     ? payload?.deletedFiles
-    : [payload?.path];
+    : [payload?.path, mirror];
   const paths = [...new Set(
     (Array.isArray(candidates) ? candidates : [])
       .map((path) => String(path || "").trim())
