@@ -64,6 +64,13 @@ export interface ContentListItem {
   section?: string;
   draft?: boolean;
   hidden?: boolean;
+  image?: string | null;
+  thumbnail?: string | null;
+  imageAlt?: string | null;
+  caption?: string | null;
+  imageCount?: number;
+  width?: number;
+  height?: number;
 }
 
 export interface QuoteRecord {

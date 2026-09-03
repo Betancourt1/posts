@@ -47,8 +47,20 @@ function tagsFor(document: any, targetLang: Language = lang) {
   }));
 }
 
+function photoImages(value: unknown) {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((image: any) => image?.src ? [{
+    src: image.src,
+    thumb: image.thumb || image.thumbnail || null,
+    alt: image.alt || image.image_alt || null,
+    caption: image.caption || null,
+  }] : []);
+}
+
 function listItem(document: any) {
   const itemLang = document.lang === "es" || document.lang === "en" ? document.lang : lang;
+  const gallery = photoImages(document.frontMatter?.images);
+  const first = gallery[0];
   return {
     title: document.title,
     href: contentHref(document.path),
@@ -58,6 +70,13 @@ function listItem(document: any) {
     section: document.section,
     draft: document.draft,
     hidden: document.hidden,
+    image: document.frontMatter?.image || first?.src || null,
+    thumbnail: document.frontMatter?.thumbnail || document.frontMatter?.thumb || first?.thumb || null,
+    imageAlt: document.frontMatter?.image_alt || first?.alt || null,
+    caption: document.frontMatter?.caption || first?.caption || null,
+    imageCount: gallery.length,
+    width: document.frontMatter?.width,
+    height: document.frontMatter?.height,
   };
 }
 
@@ -108,15 +127,6 @@ function navigationItems(sections: any[]) {
     items.push({ title: section.title, href: section.path, section: section.section });
   }
   return items.map((item) => ({ ...item, href: contentHref(item.href) }));
-}
-
-function photoImages(value: unknown) {
-  if (!Array.isArray(value)) return [];
-  return value.flatMap((image: any) => image?.src ? [{
-    src: image.src,
-    alt: image.alt || image.image_alt || null,
-    caption: image.caption || null,
-  }] : []);
 }
 
 function bookReview(markdown: string) {
@@ -215,21 +225,40 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
             </span>
           </div>
           <div class="post-list">
-            {items.map((item: any) => (
-              <article class="post-card">
-                <div class="post-card-top">
-                  <div class="post-card-meta">{displayDate(item.date)}</div>
-                  {item.section && (
-                    <span class={`archive-badge archive-badge--${item.section}`}>
-                      {badgeLabel(item.section, lang)}
-                    </span>
+            {items.map((item: any) => {
+              const isPhoto = item.section === "fotografia" && Boolean(item.thumbnail || item.image);
+              const photoSrc = item.thumbnail || item.image;
+              return (
+                <article class:list={["post-card", { "post-card--photo": isPhoto }]}>
+                  <div class="post-card-top">
+                    <div class="post-card-meta">{displayDate(item.date)}</div>
+                    {item.section && (
+                      <span class={`archive-badge archive-badge--${item.section}`}>
+                        {badgeLabel(item.section, lang)}
+                      </span>
+                    )}
+                  </div>
+                  {isPhoto && (
+                    <a class="post-card-image" href={item.href} aria-label={item.title}>
+                      <img
+                        src={photoSrc}
+                        alt={item.imageAlt || item.title}
+                        loading="lazy"
+                        decoding="async"
+                        width={item.width}
+                        height={item.height}
+                      />
+                      {(item.imageCount || 0) > 1 && (
+                        <span class="photo-card-count">{item.imageCount} {lang === "es" ? "imágenes" : "images"}</span>
+                      )}
+                    </a>
                   )}
-                </div>
-                <h2><a href={item.href}>{item.title}</a></h2>
-                {item.summary && <p class="post-summary">{item.summary}</p>}
-                {item.tags.length > 0 && <TagList tags={item.tags} lang={lang} />}
-              </article>
-            ))}
+                  <h2><a href={item.href}>{item.title}</a></h2>
+                  {item.summary && <p class="post-summary">{item.summary}</p>}
+                  {item.tags.length > 0 && <TagList tags={item.tags} lang={lang} />}
+                </article>
+              );
+            })}
           </div>
         </section>
       )}

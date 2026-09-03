@@ -333,10 +333,16 @@ test("renders every complete quote in the central mosaic", async () => {
 test("renders the recent posts feed on the home page below the headerless knowledge graph", async () => {
   const source = await readFile(publicPagePath, "utf8");
   const knowledgeGraph = await readFile(new URL("../src/components/KnowledgeGraph.astro", import.meta.url), "utf8");
+  const css = await readFile(new URL("../../static/css/site.css", import.meta.url), "utf8");
 
   assert.match(source, /<KnowledgeGraph[\s\S]*?class="home-section home-feed"/);
   assert.match(source, /\{lang === "es" \? "Reciente" : "Recent"\}/);
   assert.match(source, /archive-badge--\$\{item\.section\}/);
+  assert.match(source, /item\.section === "fotografia" && Boolean\(item\.thumbnail \|\| item\.image\)/);
+  assert.match(source, /class="post-card-image"/);
+  assert.match(source, /class="photo-card-count"/);
+  assert.match(css, /\.post-card-image\s*\{/);
+  assert.match(css, /\.post-card-image img\s*\{/);
   assert.doesNotMatch(knowledgeGraph, /<h2>\{copy\.title\}<\/h2>/);
   assert.doesNotMatch(knowledgeGraph, /class:list=\{\["knowledge-graph-hint"/);
 });
