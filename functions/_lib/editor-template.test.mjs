@@ -182,6 +182,14 @@ test("image editor uses one explicit save action and lightweight previews", () =
   assert.match(html, /function redirectToNotebook\(\)/);
   assert.match(html, /return syncArenaAfterSave\(els\.draft\.checked\);[\s\S]{0,500}redirectToNotebook\(\);/);
   assert.doesNotMatch(html, /function verifySavedPublication|waitForPublicState/);
+  assert.match(html, />Sincronizando el sitio<\/li>/);
+  assert.doesNotMatch(html, />Desplegando<\/li>/);
+  assert.match(html, /if \(error\.projectionFailed\)/);
+  assert.match(html, /savedPath = persisted\.path \|\| savedPath/);
+  assert.match(html, /GitHub guardó el post, pero falló la sincronización con el sitio\./);
+  assert.match(html, /Vuelve a usar el botón de guardado para reintentar\./);
+  assert.match(html, /setSaveState\("GitHub guardado", "error"\)/);
+  assert.match(html, /"projection-error"/);
   assert.doesNotMatch(html, /content: ">";/);
   assert.match(html, /function loadExistingPhoto\(\)/);
   assert.match(html, /request\("\/page\?path=" \+ encodeURIComponent\(sourcePath\)\)/);

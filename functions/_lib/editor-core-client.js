@@ -156,7 +156,13 @@ export const editorCoreClientScript = String.raw`(function (global) {
           return {};
         }).then(function (payload) {
           if (!response.ok || payload.error) {
-            throw new Error(payload.error || "Author API error.");
+            var message = payload.error || "Author API error.";
+            if (payload.detail) message += " " + payload.detail;
+            var error = new Error(message);
+            error.projectionFailed = payload.projectionFailed === true;
+            error.detail = String(payload.detail || "");
+            error.saved = payload.saved || null;
+            throw error;
           }
           return payload;
         });

@@ -64,6 +64,34 @@ test("EditorCore API client rejects application errors", async () => {
   assert.equal(requests[0].options.method, "POST");
 });
 
+test("EditorCore preserves projection failure details and saved state", async () => {
+  const core = loadCore(async () => ({
+    ok: false,
+    json: async () => ({
+      error: "GitHub was updated, but the live content projection failed.",
+      projectionFailed: true,
+      detail: "D1 unavailable",
+      saved: {
+        path: "content_en/fotografia/saved.md",
+        url: "/fotografia/saved/",
+      },
+    }),
+  }));
+  const client = core.create({ apiBase: "/admin/api", siteOrigin: "https://example.com/admin" });
+
+  await assert.rejects(client.postJson("/create-post", {}), (error) => {
+    assert.equal(
+      error.message,
+      "GitHub was updated, but the live content projection failed. D1 unavailable",
+    );
+    assert.equal(error.projectionFailed, true);
+    assert.equal(error.detail, "D1 unavailable");
+    assert.equal(error.saved.path, "content_en/fotografia/saved.md");
+    assert.equal(error.saved.url, "/fotografia/saved/");
+    return true;
+  });
+});
+
 test("EditorCore waits for both canonical and uncached public state", async () => {
   const statuses = [404, 404, 200, 200];
   const requests = [];

@@ -22,11 +22,12 @@ const DEFAULT_DEPENDENCIES = {
   replaceProjectedSource,
 };
 
-function projectionErrorResponse(error) {
+function projectionErrorResponse(error, saved = null) {
   return new Response(JSON.stringify({
     error: "GitHub was updated, but the live content projection failed.",
     projectionFailed: true,
     detail: String(error?.message || error),
+    saved,
   }), {
     status: 500,
     headers: {
@@ -95,9 +96,10 @@ export async function synchronizeAdminMutation(
   if (!response.ok) return response;
 
   const dependencies = { ...DEFAULT_DEPENDENCIES, ...dependencyOverrides };
+  let payload = null;
 
   try {
-    const payload = await mutationPayload(response);
+    payload = await mutationPayload(response);
 
     if (PROJECT_ACTIONS.has(action)) {
       await projectCanonicalFile(env, payload, dependencies);
@@ -110,7 +112,7 @@ export async function synchronizeAdminMutation(
     await dependencies.finishProjection(env.DB);
     return response;
   } catch (error) {
-    return projectionErrorResponse(error);
+    return projectionErrorResponse(error, payload);
   }
 }
 

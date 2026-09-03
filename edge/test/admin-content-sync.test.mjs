@@ -169,6 +169,7 @@ test("returns an explicit 500 when the live projection fails", async () => {
     error: "GitHub was updated, but the live content projection failed.",
     projectionFailed: true,
     detail: "D1 unavailable",
+    saved: { path: "content_en/posts/saved.md" },
   });
   assert.deepEqual(events, [
     "read:content_en/posts/saved.md",
@@ -189,4 +190,5 @@ test("returns 500 instead of claiming success when a deleted source is missing",
   const payload = await result.json();
   assert.equal(payload.projectionFailed, true);
   assert.match(payload.detail, /did not return any content files/);
+  assert.deepEqual(payload.saved, { deletedFiles: ["static/uploads/cover.webp"] });
 });

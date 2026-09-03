@@ -1658,7 +1658,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         <h2>Publicación</h2>
         <ol class="publication-steps">
           <li class="publication-step" id="publication-saved-step">Guardado en GitHub</li>
-          <li class="publication-step" id="publication-deploy-step">Desplegando</li>
+          <li class="publication-step" id="publication-deploy-step">Sincronizando el sitio</li>
           <li class="publication-step" id="publication-public-step">Disponible en el blog</li>
         </ol>
         <p class="publication-status-copy" id="publication-status-copy">Publica para iniciar el proceso.</p>
@@ -2844,10 +2844,11 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         if (!validatePost(saveAsDraft)) return;
         setBusy(true);
         setSaveState("Guardando...", "saving");
-        setPublicationState("saving", "Guardando cambios en GitHub.");
+        setPublicationState("saving", images.length > 1 ? "Subiendo imágenes." : "Subiendo imagen.");
         setStatus(images.length > 1 ? "Preparando imágenes." : "Preparando imagen.", false);
         publicationRedirectNotebook = savedPath ? notebookPathForContent(savedPath) : els.notebook.value;
         ensureUploadedImages().then(function () {
+          setPublicationState("saving", "Guardando en GitHub y sincronizando el sitio.");
           var draft = saveAsDraft ? true : false;
           els.draft.checked = draft;
           var frontMatter = imageFrontMatter(draft);
@@ -2894,6 +2895,19 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           // Product contract: GitHub -> Are.na -> Notebook. Code deployment is unrelated.
           redirectToNotebook();
         }).catch(function (error) {
+          if (error.projectionFailed) {
+            var persisted = error.saved || {};
+            savedPath = persisted.path || savedPath;
+            savedUrl = persisted.url || savedUrl;
+            hasUnsavedChanges = false;
+            var projectionMessage = "GitHub guardó el post, pero falló la sincronización con el sitio.";
+            if (error.detail) projectionMessage += " " + error.detail;
+            projectionMessage += " Vuelve a usar el botón de guardado para reintentar.";
+            setPublicationState("projection-error", projectionMessage);
+            setStatus(projectionMessage, true);
+            setSaveState("GitHub guardado", "error");
+            return;
+          }
           setSaveState("Error al guardar", "error");
           setPublicationState("error", error.message);
           setStatus(error.message, true);
@@ -2920,11 +2934,11 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         [els.publicationSavedStep, els.publicationDeployStep, els.publicationPublicStep].forEach(function (step) {
           step.classList.remove("is-active", "is-complete");
         });
-        if (["saved", "deploying", "pending", "public", "admin", "draft"].indexOf(state) !== -1) {
+        if (["saved", "deploying", "pending", "public", "admin", "draft", "projection-error"].indexOf(state) !== -1) {
           els.publicationSavedStep.classList.add("is-complete");
         }
         if (state === "saving" || state === "error") els.publicationSavedStep.classList.add("is-active");
-        if (state === "deploying" || state === "pending") els.publicationDeployStep.classList.add("is-active");
+        if (state === "deploying" || state === "pending" || state === "projection-error") els.publicationDeployStep.classList.add("is-active");
         if (state === "public") {
           els.publicationDeployStep.classList.add("is-complete");
           els.publicationPublicStep.classList.add("is-complete");
