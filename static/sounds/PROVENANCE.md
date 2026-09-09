@@ -50,12 +50,25 @@ Apply FFmpeg `equalizer=f=1750:t=q:w=1.5:g=-9` to the denoised float32 signal.
 Use the same 176/353-sample fades and RMS compensation with a 0.72 peak ceiling
 as above, then round to PCM16. This replaces the default's previous 2 kHz EQ.
 
-Compared with the original, final 1.5–2 kHz energy is about 5.4 dB lower;
+Before the final release adjustment below, 1.5–2 kHz energy is about 5.4 dB lower;
 900–1,400 Hz body energy is only 0.4 dB lower. RMS over the final 50–75.5 ms is
-4.8 dB lower, including reduced natural decay. Overall RMS is about 1.2 dB lower.
+4.8 dB lower, including reduced natural decay. Overall RMS at that stage is about 1.2 dB lower.
+
+### Default click: earlier, smoother release
+
+Starting from the default candidate at `bee7b27`, preserve samples 0–528 exactly.
+For samples 529–1322, multiply PCM by
+`cos((i - 529) / (1323 - 529) * pi / 2)^2`, then round to PCM16.
+Set sample 1323 onward to zero. This fades from approximately 12 ms to 30 ms;
+file duration remains 75.5 ms. Apply no normalization or additional EQ.
+
+This removes the lingering ending identified by the user while keeping the onset
+bit-identical. Overall RMS is only 0.13 dB below the preceding candidate
+(about 1.38 dB below the original). The final samples were already zero before
+this edit; an abrupt digital cutoff was not established as the cause.
 
 | Site asset | RMS relative to original | SHA-256 |
 | --- | --- | --- |
-| `interaction-default.wav` | 0.866 | `f95df100a6bbfa09946c7b6448257c42645a3bead6488f005efc181c62edfd2c` |
+| `interaction-default.wav` | 0.853 | `ac8f10021c3b69c3c5c445cc989719f91514e73d74b93a83dff531ce2e417269` |
 | `interaction-navigation.wav` | 0.823 | `418dd176f32323dbf1dda1eb4f011621861cc1372fce178634cc16529078e89e` |
 | `interaction-subcontrol.wav` | 1.000 | `7d9d2b0c6ee7e2be01442c7a59be57b95a1f332d6e44c8dbf7547662cbc61327` |
