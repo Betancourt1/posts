@@ -251,12 +251,11 @@ test("keeps recorded interaction sounds opt-in and shared with admin", async () 
   assert.match(sound, /document\.addEventListener\("submit",[\s\S]*?!event\.isTrusted \|\| !event\.target\.matches\("\.guestbook-form"\)[\s\S]*?!event\.submitter[\s\S]*?play\("default"\)/);
   assert.match(sound, /localStorage\.getItem\(STORAGE_KEY\) === "true"/);
   assert.match(sound, /window\.AudioContext \|\| window\.webkitAudioContext/);
-  assert.match(sound, /var SAMPLE_GAIN = 1;/);
+  assert.match(sound, /var SAMPLE_GAIN = 0\.3;/);
   assert.match(sound, /fetch\(sample\.url, \{ cache: "force-cache" \}\)/);
   assert.match(sound, /context\.decodeAudioData\(data\.slice\(0\)\)/);
   assert.match(sound, /var source = context\.createBufferSource\(\)/);
-  assert.match(sound, /gain\.gain\.value = SAMPLE_GAIN;/);
-  assert.match(sound, /source\.connect\(gain\);\s*gain\.connect\(context\.destination\);\s*source\.start\(\)/);
+  assert.match(sound, /source\.connect\(filter\);\s*filter\.connect\(gain\);\s*gain\.connect\(context\.destination\);\s*source\.start\(now\)/);
   assert.doesNotMatch(sound, /createOscillator|exponentialRampToValueAtTime|new Audio\(/);
   assert.match(search, /CustomEvent\("site-sound", \{ detail: \{ tone: "searchResults" \} \}\)/);
   assert.match(graph, /CustomEvent\("site-sound", \{ detail: \{ tone: "navigation" \} \}\)[\s\S]*?window\.location\.assign\(node\.url\)/);

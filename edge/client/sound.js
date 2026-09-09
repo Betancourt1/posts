@@ -2,7 +2,7 @@
   "use strict";
 
   var STORAGE_KEY = "site_sound_enabled";
-  var SAMPLE_GAIN = 1;
+  var SAMPLE_GAIN = 0.3;
   var audioContext = null;
   var enabled = false;
   var gestureReady = false;
@@ -140,11 +140,22 @@
     if (!enabled || !buffer || context !== audioContext) return;
     var source = context.createBufferSource();
     var gain = context.createGain();
+    var filter = context.createBiquadFilter();
+    var now = context.currentTime;
+    var end = now + buffer.duration;
     source.buffer = buffer;
-    gain.gain.value = SAMPLE_GAIN;
-    source.connect(gain);
+    filter.type = "lowpass";
+    filter.frequency.value = 2400;
+    filter.Q.value = 0;
+    // Round off the mechanical key's attack and release as well as its treble.
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(SAMPLE_GAIN, now + 0.008);
+    gain.gain.setValueAtTime(SAMPLE_GAIN, end - 0.012);
+    gain.gain.linearRampToValueAtTime(0, end);
+    source.connect(filter);
+    filter.connect(gain);
     gain.connect(context.destination);
-    source.start();
+    source.start(now);
   }
 
   function play(sampleName) {
