@@ -5,9 +5,12 @@ import test from "node:test";
 
 const assets = {
   "interaction-default.wav": {
-    hash: "3f6a9aaab6a68285ea291f390b1a2cf6bf03f882b61eb7174e6a7f3bf3bf5250",
+    hash: "f95df100a6bbfa09946c7b6448257c42645a3bead6488f005efc181c62edfd2c",
     originalRms: 0.09557853088152007,
-    originalBandEnergy: 0.0037248588347876745,
+    originalBandEnergy: 0.003537075413517252,
+    bandLow: 1500,
+    bandHigh: 2000,
+    originalTailRms: 0.006119250753860416,
     samples: 3330,
   },
   "interaction-navigation.wav": {
@@ -37,9 +40,9 @@ test("interaction samples keep their audited hashes and PCM properties", async (
     assert.equal(data.readUInt32LE(40) / 2, expected.samples);
     const pcm = Array.from({ length: expected.samples }, (_, i) => data.readInt16LE(44 + i * 2) / 32768);
     const rms = Math.sqrt(pcm.reduce((sum, value) => sum + value * value, 0) / pcm.length);
-    // Measure energy around the reported harsh band, 1.6–2.5 kHz.
+    // Measure each sample's targeted resonance band.
     let bandEnergy = 0;
-    for (let k = Math.ceil(1600 * pcm.length / 44100); k <= Math.floor(2500 * pcm.length / 44100); k++) {
+    for (let k = Math.ceil((expected.bandLow ?? 1600) * pcm.length / 44100); k <= Math.floor((expected.bandHigh ?? 2500) * pcm.length / 44100); k++) {
       let real = 0;
       let imaginary = 0;
       for (let i = 0; i < pcm.length; i++) {
@@ -55,6 +58,11 @@ test("interaction samples keep their audited hashes and PCM properties", async (
     assert.ok(Math.max(...pcm.map(Math.abs)) <= 0.721);
     assert.equal(pcm[0], 0);
     assert.equal(pcm.at(-1), 0);
+    if (expected.originalTailRms) {
+      const tail = pcm.slice(Math.floor(0.05 * 44100));
+      const tailRms = Math.sqrt(tail.reduce((sum, value) => sum + value * value, 0) / tail.length);
+      assert.ok(tailRms < expected.originalTailRms * 0.65);
+    }
   }
 });
 
