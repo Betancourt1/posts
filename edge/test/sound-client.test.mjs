@@ -29,8 +29,6 @@ function createHarness({ stored = false, withToggle = false, failFetch = false }
   const decodes = [];
   const sources = [];
   const starts = [];
-  const gains = [];
-  const filters = [];
   let oscillatorCalls = 0;
   let storedValue = stored ? "true" : "false";
 
@@ -47,7 +45,6 @@ function createHarness({ stored = false, withToggle = false, failFetch = false }
   class FakeAudioContext {
     constructor() {
       this.destination = {};
-      this.currentTime = 1;
       this.state = "running";
     }
 
@@ -62,13 +59,13 @@ function createHarness({ stored = false, withToggle = false, failFetch = false }
     decodeAudioData(data) {
       const id = new Uint8Array(data)[0];
       decodes.push(id);
-      return Promise.resolve({ id, duration: 0.075 });
+      return Promise.resolve({ id });
     }
 
     createBufferSource() {
       const source = {
         buffer: null,
-        connect(node) { source.output = node; },
+        connect() {},
         start() {
           starts.push(source.buffer.id);
         },
@@ -78,26 +75,7 @@ function createHarness({ stored = false, withToggle = false, failFetch = false }
     }
 
     createGain() {
-      const events = [];
-      const gain = {
-        gain: {
-          setValueAtTime(value, time) { events.push(["set", value, time]); },
-          linearRampToValueAtTime(value, time) { events.push(["ramp", value, time]); },
-        },
-        events,
-        connect(node) { gain.output = node; },
-      };
-      gains.push(gain);
-      return gain;
-    }
-
-    createBiquadFilter() {
-      const filter = {
-        frequency: { value: 0 }, Q: { value: 0 },
-        connect(node) { filter.output = node; },
-      };
-      filters.push(filter);
-      return filter;
+      return { gain: { value: 0 }, connect() {} };
     }
 
     createOscillator() {
@@ -145,8 +123,6 @@ function createHarness({ stored = false, withToggle = false, failFetch = false }
   vm.runInNewContext(soundSource, sandbox);
 
   return {
-    gains,
-    filters,
     decodes,
     fetches,
     sources,
@@ -233,28 +209,4 @@ test("sample loading failures stay silent and are not retried per action", async
   assert.equal(harness.fetches.length, 3);
   assert.deepEqual(harness.starts, []);
   assert.equal(harness.oscillatorCalls(), 0);
-});
-
-test("all interaction samples use quiet filtered playback with a softened envelope", async () => {
-  const harness = createHarness({ stored: true });
-  harness.dispatch("pointerdown", { isTrusted: true });
-  await flushTasks();
-  await flushTasks();
-  for (const selectors of [["button"], ["a[href]"], ["button", ".settings button"]]) {
-    harness.dispatch("click", { isTrusted: true, target: target(selectors) });
-  }
-  assert.deepEqual(harness.starts, [1, 2, 3]);
-  for (const [index, source] of harness.sources.entries()) {
-    const filter = harness.filters[index];
-    const gain = harness.gains[index];
-    assert.equal(source.output, filter);
-    assert.equal(filter.output, gain);
-    assert.equal(filter.type, "lowpass");
-    assert.equal(filter.frequency.value, 2400);
-    assert.equal(filter.Q.value, 0);
-    assert.deepEqual(gain.events, [
-      ["set", 0, 1], ["ramp", 0.3, 1.008],
-      ["set", 0.3, 1.075 - 0.012], ["ramp", 0, 1.075],
-    ]);
-  }
 });

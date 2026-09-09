@@ -5,15 +5,21 @@ import test from "node:test";
 
 const assets = {
   "interaction-default.wav": {
-    hash: "b01df4c1c6df661838a5294dde6076364333db046b6157bcfa85ad19370a8511",
+    hash: "f8f4e8acc5dcf1818d426d70099aa25f193855d93776b77aee1b35debcd155d2",
+    originalRms: 0.09557853088152007,
+    originalStep: 0.487335205078125,
     samples: 3330,
   },
   "interaction-navigation.wav": {
-    hash: "6d41881cdbabefe990afdc462bab64511841c13be99310f896b7800aea463af2",
+    hash: "425eddbb18360e4b3940e3c0e126f20a0818df4d2d7ea31ccce66079d89b6c2f",
+    originalRms: 0.061325879484656745,
+    originalStep: 0.6732177734375,
     samples: 2845,
   },
   "interaction-subcontrol.wav": {
-    hash: "28677e5e11d5ecc64348bac8d2a5b48ff2e37c1464a935ff019442c2a1cb5bf6",
+    hash: "bf63c6e0ccaf734ef5949c678e2f593051c76d99a69af9dfe818ac289c12ea6d",
+    originalRms: 0.043599676221479464,
+    originalStep: 1.05096435546875,
     samples: 4322,
   },
 };
@@ -29,6 +35,15 @@ test("interaction samples keep their audited hashes and PCM properties", async (
     assert.equal(data.readUInt32LE(24), 44100);
     assert.equal(data.readUInt16LE(34), 16);
     assert.equal(data.readUInt32LE(40) / 2, expected.samples);
+    const pcm = Array.from({ length: expected.samples }, (_, i) => data.readInt16LE(44 + i * 2) / 32768);
+    const rms = Math.sqrt(pcm.reduce((sum, value) => sum + value * value, 0) / pcm.length);
+    const maxStep = Math.max(...pcm.slice(1).map((value, i) => Math.abs(value - pcm[i])));
+    // Preserve the original body level while removing abrupt transients.
+    assert.ok(rms >= expected.originalRms * 0.92 && rms <= expected.originalRms * 1.01);
+    assert.ok(maxStep < expected.originalStep * 0.4);
+    assert.ok(Math.max(...pcm.map(Math.abs)) <= 0.721);
+    assert.equal(pcm[0], 0);
+    assert.equal(pcm.at(-1), 0);
   }
 });
 
