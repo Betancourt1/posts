@@ -19,19 +19,25 @@ See `LICENSE-MECHVIBESDX.txt` for the upstream MIT license.
 
 ## Remastered site assets
 
-The deployed candidates are derived from the original WAVs in repository commit
+These local candidates are derived from the original WAVs in repository commit
 `8f0a3d5`, preserving their sample count, sample rate, mono layout, and PCM16 format.
 Playback uses unity gain; there is no additional runtime filter or envelope.
 
-Processing: decode with FFmpeg, apply `lowpass=f=3000:p=2:w=0.707` to float32,
+Processing: decode with FFmpeg, apply `equalizer=f=2000:t=q:w=1:g=-12` to float32,
 then multiply sample `i` by `min(1, i/176) * min(1, (N-1-i)/353)`.
-This rounds the first 4 ms and last 8 ms. Scale the result by the smaller of
-original RMS / processed RMS and 0.72 / processed peak; round to PCM16.
-This restores body level after treble removal without exceeding the original
-peak ceiling (apart from PCM rounding). No pitch or duration changes are applied.
+The bell EQ targets the reported harshness around 2 kHz; it replaces the previous
+3 kHz low-pass filter. The envelope rounds the first 4 ms and last 8 ms.
+Scale by the smaller of original RMS / processed RMS and 0.72 / processed peak;
+round to PCM16. No pitch or duration changes are applied.
+
+The peak ceiling limits RMS recovery: default and navigation are approximately
+1.6 and 1.7 dB below their original RMS; subcontrol retains its original RMS.
+The -12 dB EQ setting is before compensation. Measured energy in the 1.6–2.5 kHz
+band falls approximately 6.0, 10.5, and 10.1 dB respectively after compensation.
+This is a targeted spectral change; it does not aim to suppress all treble.
 
 | Site asset | RMS relative to original | SHA-256 |
 | --- | --- | --- |
-| `interaction-default.wav` | 0.932 | `f8f4e8acc5dcf1818d426d70099aa25f193855d93776b77aee1b35debcd155d2` |
-| `interaction-navigation.wav` | 1.000 | `425eddbb18360e4b3940e3c0e126f20a0818df4d2d7ea31ccce66079d89b6c2f` |
-| `interaction-subcontrol.wav` | 1.000 | `bf63c6e0ccaf734ef5949c678e2f593051c76d99a69af9dfe818ac289c12ea6d` |
+| `interaction-default.wav` | 0.831 | `3f6a9aaab6a68285ea291f390b1a2cf6bf03f882b61eb7174e6a7f3bf3bf5250` |
+| `interaction-navigation.wav` | 0.823 | `418dd176f32323dbf1dda1eb4f011621861cc1372fce178634cc16529078e89e` |
+| `interaction-subcontrol.wav` | 1.000 | `7d9d2b0c6ee7e2be01442c7a59be57b95a1f332d6e44c8dbf7547662cbc61327` |
