@@ -36,39 +36,29 @@ The -12 dB EQ setting is before compensation. Measured energy in the 1.6–2.5 k
 band falls approximately 10.5 and 10.1 dB respectively after compensation.
 This is a targeted spectral change; it does not aim to suppress all treble.
 
-### Default click: targeted resonance and light noise cleanup
+### Default click: resonance adjustment with original texture
 
-Start again from the original default WAV at `8f0a3d5`. Estimate low-level tail
-energy with a 256-sample Hann STFT, 64-sample hop, and 256 zeros padded at each end.
-Use median power per bin from frames centered between 50 and 70 ms as the noise
-estimate. This tail also includes natural key decay; it is not a noise-only recording.
-For each frame use gain `sqrt(max(0.35^2, 1 - noisePower / max(framePower, 1e-20)))`.
-Invert the FFT, overlap-add with a Hann window, divide by accumulated squared
-window weights, and trim the padding to the original length.
-
-Apply FFmpeg `equalizer=f=1750:t=q:w=1.5:g=-9` to the denoised float32 signal.
+Start from the original default WAV at `8f0a3d5`. Apply FFmpeg
+`equalizer=f=1750:t=q:w=1.5:g=-9` directly to the original float32 signal.
 Use the same 176/353-sample fades and RMS compensation with a 0.72 peak ceiling
-as above, then round to PCM16. This replaces the default's previous 2 kHz EQ.
+as above, then round to PCM16. No noise estimation or spectral subtraction is
+applied. This restores the source texture previously affected by denoising.
 
-Before the final release adjustment below, 1.5–2 kHz energy is about 5.4 dB lower;
-900–1,400 Hz body energy is only 0.4 dB lower. RMS over the final 50–75.5 ms is
-4.8 dB lower, including reduced natural decay. Overall RMS at that stage is about 1.2 dB lower.
+### Default click: retain the accepted earlier release
 
-### Default click: earlier, smoother release
+Preserve samples 0–528 of the EQ-only intermediate exactly. For samples 529–1322,
+multiply PCM by `cos((i - 529) / (1323 - 529) * pi / 2)^2`, then round to PCM16.
+Set sample 1323 onward to zero. This preserves the accepted release envelope
+from `986289a`, fading from approximately 12 ms to 30 ms; the file remains 75.5 ms.
+Apply no additional normalization or EQ after the release envelope.
 
-Starting from the default candidate at `bee7b27`, preserve samples 0–528 exactly.
-For samples 529–1322, multiply PCM by
-`cos((i - 529) / (1323 - 529) * pi / 2)^2`, then round to PCM16.
-Set sample 1323 onward to zero. This fades from approximately 12 ms to 30 ms;
-file duration remains 75.5 ms. Apply no normalization or additional EQ.
-
-This removes the lingering ending identified by the user while keeping the onset
-bit-identical. Overall RMS is only 0.13 dB below the preceding candidate
-(about 1.38 dB below the original). The final samples were already zero before
-this edit; an abrupt digital cutoff was not established as the cause.
+The final result is close to `986289a`: denoising primarily affected the tail
+that the accepted release already removes. Removing denoising alone does not
+restore the original frequency balance, since the 1.75 kHz EQ remains applied.
+Overall RMS is about 1.38 dB below the original, within 0.01 dB of `986289a`.
 
 | Site asset | RMS relative to original | SHA-256 |
 | --- | --- | --- |
-| `interaction-default.wav` | 0.853 | `ac8f10021c3b69c3c5c445cc989719f91514e73d74b93a83dff531ce2e417269` |
+| `interaction-default.wav` | 0.853 | `3aade082f27831bf63f8774de888a12072ca0190c28a369298bf33b36c0c18de` |
 | `interaction-navigation.wav` | 0.823 | `418dd176f32323dbf1dda1eb4f011621861cc1372fce178634cc16529078e89e` |
 | `interaction-subcontrol.wav` | 1.000 | `7d9d2b0c6ee7e2be01442c7a59be57b95a1f332d6e44c8dbf7547662cbc61327` |

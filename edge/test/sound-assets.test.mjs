@@ -5,13 +5,12 @@ import test from "node:test";
 
 const assets = {
   "interaction-default.wav": {
-    hash: "ac8f10021c3b69c3c5c445cc989719f91514e73d74b93a83dff531ce2e417269",
+    hash: "3aade082f27831bf63f8774de888a12072ca0190c28a369298bf33b36c0c18de",
     originalRms: 0.09557853088152007,
     originalBandEnergy: 0.003537075413517252,
     bandLow: 1500,
     bandHigh: 2000,
-    originalTailRms: 0.006119250753860416,
-    attackHash: "055494688ac7d6a4c7562b2fb192f7bb03da1950df3a59fb139c623ab8b2cc0a",
+    attackHash: "45f649635821d22d710969abcc397f162e3d30dcdb8926b7cc290a656891911e",
     samples: 3330,
   },
   "interaction-navigation.wav": {
@@ -62,11 +61,6 @@ test("interaction samples keep their audited hashes and PCM properties", async (
     if (expected.attackHash) {
       assert.equal(createHash("sha256").update(data.subarray(44, 44 + 529 * 2)).digest("hex"), expected.attackHash);
       assert.ok(pcm.slice(1323).every((value) => value === 0));
-    }
-    if (expected.originalTailRms) {
-      const tail = pcm.slice(Math.floor(0.05 * 44100));
-      const tailRms = Math.sqrt(tail.reduce((sum, value) => sum + value * value, 0) / tail.length);
-      assert.ok(tailRms < expected.originalTailRms * 0.65);
     }
   }
 });
