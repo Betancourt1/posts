@@ -25,6 +25,8 @@ const staticFiles = [
   "js/typography.js",
   "og-image.png",
   "site.webmanifest",
+  "sounds/button-down.m4a",
+  "sounds/button-up.m4a",
   "sounds/interaction-default.wav",
   "sounds/interaction-navigation.wav",
   "sounds/interaction-subcontrol.wav",

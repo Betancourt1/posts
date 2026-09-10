@@ -78,3 +78,16 @@ test("the edge build copies every sample and its attribution", async () => {
   assert.match(provenance, /a13c4181feff1217399765f5b6be6f2c7392eeb3/);
   assert.match(provenance, /peak-normalized to `0\.72`/);
 });
+
+test("Making Software button samples remain exact copies and ship in the build", async () => {
+  const prepare = await readFile(new URL("../scripts/prepare-public.mjs", import.meta.url), "utf8");
+  const hashes = {
+    "button-down.m4a": "fc2ecbc443c9eacbe0dc45d5afd2344ce47af79aeee849290f9abdaa8cb7046d",
+    "button-up.m4a": "c2f86b93aae7b55a802e3aee2da63d32a2e8f047fe0d4743292cb45a60e3bb2f",
+  };
+  for (const [name, hash] of Object.entries(hashes)) {
+    const data = await readFile(new URL(`../../static/sounds/${name}`, import.meta.url));
+    assert.equal(createHash("sha256").update(data).digest("hex"), hash);
+    assert.ok(prepare.includes(`"sounds/${name}"`));
+  }
+});

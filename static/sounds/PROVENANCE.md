@@ -62,3 +62,18 @@ Overall RMS is about 1.38 dB below the original, within 0.01 dB of `986289a`.
 | `interaction-default.wav` | 0.853 | `3aade082f27831bf63f8774de888a12072ca0190c28a369298bf33b36c0c18de` |
 | `interaction-navigation.wav` | 0.823 | `418dd176f32323dbf1dda1eb4f011621861cc1372fce178634cc16529078e89e` |
 | `interaction-subcontrol.wav` | 1.000 | `7d9d2b0c6ee7e2be01442c7a59be57b95a1f332d6e44c8dbf7547662cbc61327` |
+
+## Main button press and release
+
+These two files are byte-for-byte copies selected by the site owner from
+[Making Software](https://www.makingsoftware.com/chapters/rasterisation-and-anti-aliasing).
+No EQ, denoising, gain normalization, or speed change was applied.
+
+| Site asset | Source | SHA-256 |
+| --- | --- | --- |
+| `button-down.m4a` | https://www.makingsoftware.com/sound/button_down.m4a | `fc2ecbc443c9eacbe0dc45d5afd2344ce47af79aeee849290f9abdaa8cb7046d` |
+| `button-up.m4a` | https://www.makingsoftware.com/sound/button_up.m4a | `c2f86b93aae7b55a802e3aee2da63d32a2e8f047fe0d4743292cb45a60e3bb2f` |
+
+Retrieved 2026-09-09 from the browser's loaded audio responses. The upstream
+reuse license has not been established; the MechvibesDX license above applies
+only to the keyboard-derived WAV files, not these Making Software files.

@@ -6,6 +6,8 @@
   var audioContext = null;
   var enabled = false;
   var gestureReady = false;
+  var activePress = null;
+  var lastRelease = null;
   var sampleData = {};
   var sampleDataPromises = {};
   var decodedBuffers = {};
@@ -19,12 +21,16 @@
   }
 
   var samples = {
+    buttonDown: { url: soundAsset("button-down.m4a") },
+    buttonUp: { url: soundAsset("button-up.m4a") },
     default: { url: soundAsset("interaction-default.wav") },
     navigation: { url: soundAsset("interaction-navigation.wav") },
     subcontrol: { url: soundAsset("interaction-subcontrol.wav") },
   };
 
+  var buttonTargets = "button, [role='button'], input[type='button'], input[type='submit'], input[type='reset'], a.button, a.lang-toggle";
   var interactionTargets = [
+    buttonTargets,
     "button",
     "a[href]",
     "summary",
@@ -159,6 +165,45 @@
     });
   }
 
+  function beginPress(event, key) {
+    if (!enabled || activePress) return;
+    var target = event.target && event.target.closest(buttonTargets);
+    if (!target || target.disabled || target.matches('[aria-disabled="true"]')) return;
+    if (key === " " && target.matches("a[href]")) return;
+    lastRelease = null;
+    var context = activateAudio();
+    if (!context) return;
+    var press = { target: target, pointerId: event.pointerId, key: key, context: context, up: null, navigate: null };
+    activePress = press;
+    function start(down, up) {
+      if (activePress !== press || !down || !up) return;
+      press.up = up;
+      startSample(context, down);
+    }
+    if (decodedBuffers.buttonDown && decodedBuffers.buttonUp) {
+      start(decodedBuffers.buttonDown, decodedBuffers.buttonUp);
+    } else {
+      // An already-released first press must not play late when decoding finishes.
+      Promise.all([decodeSample("buttonDown", context), decodeSample("buttonUp", context)])
+        .then(function (buffers) { start(buffers[0], buffers[1]); });
+    }
+  }
+
+  function endPress(event, key) {
+    if (!activePress || activePress.key !== key) return;
+    if (!key && activePress.pointerId !== event.pointerId) return;
+    var press = activePress;
+    activePress = null;
+    if (press.up) startSample(press.context, press.up);
+    lastRelease = { target: press.target, delay: press.up ? press.up.duration * 1000 : 0 };
+    if (press.navigate) setTimeout(press.navigate, lastRelease.delay);
+  }
+
+  function cancelPress() {
+    activePress = null;
+    lastRelease = null;
+  }
+
   function warmSamples() {
     if (!enabled) return;
     Object.keys(samples).forEach(function (sampleName) {
@@ -178,6 +223,7 @@
   }
 
   function stopAudio() {
+    cancelPress();
     if (!audioContext) return;
     audioContext.close().catch(function () {});
     audioContext = null;
@@ -206,13 +252,27 @@
       gestureReady = true;
       activateAudio();
       warmSamples();
+      if (event.button === 0 && event.isPrimary !== false) beginPress(event, null);
     }, true);
+
+    document.addEventListener("pointerup", function (event) {
+      if (event.isTrusted && event.button === 0) endPress(event, null);
+    }, true);
+    document.addEventListener("pointercancel", function (event) {
+      if (activePress && !activePress.key && activePress.pointerId === event.pointerId) cancelPress();
+    }, true);
+    window.addEventListener("blur", cancelPress);
 
     document.addEventListener("keydown", function (event) {
       if (!event.isTrusted) return;
       gestureReady = true;
       activateAudio();
       warmSamples();
+      if (!event.repeat && (event.key === " " || event.key === "Enter")) beginPress(event, event.key);
+    }, true);
+
+    document.addEventListener("keyup", function (event) {
+      if (event.isTrusted && (event.key === " " || event.key === "Enter")) endPress(event, event.key);
     }, true);
 
     document.addEventListener("click", function (event) {
@@ -222,6 +282,23 @@
       if (!enabled) return;
       var target = event.target.closest(interactionTargets);
       if (!target || target === toggle) return;
+      if (target.matches(buttonTargets)) {
+        // Let the language-switch release finish before replacing this document.
+        if (target.matches("a.lang-toggle") && !event.defaultPrevented &&
+            !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey &&
+            (!target.target || target.target === "_self") && !target.hasAttribute("download")) {
+          var navigate = function () { window.location.assign(target.href); };
+          if (activePress && activePress.target === target) {
+            event.preventDefault();
+            activePress.navigate = navigate;
+          } else if (lastRelease && lastRelease.target === target) {
+            event.preventDefault();
+            setTimeout(navigate, lastRelease.delay);
+            lastRelease = null;
+          }
+        }
+        return;
+      }
       play(sampleForTarget(target));
     }, true);
 
@@ -252,7 +329,7 @@
           gestureReady = true;
           activateAudio();
           warmSamples();
-          play("default");
+          play("buttonUp");
         }
         else stopAudio();
       });
