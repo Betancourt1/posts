@@ -3,6 +3,8 @@
 
   var STORAGE_KEY = "site_sound_enabled";
   var SAMPLE_GAIN = 1;
+  var BUTTON_SOUND_GAP_MS = 120;
+  var releaseTimer = null;
   var audioContext = null;
   var enabled = false;
   var gestureReady = false;
@@ -171,6 +173,7 @@
     if (!target || target.disabled || target.matches('[aria-disabled="true"]')) return;
     if (key === " " && target.matches("a[href]")) return;
     lastRelease = null;
+    clearTimeout(releaseTimer);
     var context = activateAudio();
     if (!context) return;
     var press = { target: target, pointerId: event.pointerId, key: key, context: context, up: null, navigate: null };
@@ -178,6 +181,7 @@
     function start(down, up) {
       if (activePress !== press || !down || !up) return;
       press.up = up;
+      press.startedAt = performance.now();
       startSample(context, down);
     }
     if (decodedBuffers.buttonDown && decodedBuffers.buttonUp) {
@@ -194,12 +198,18 @@
     if (!key && activePress.pointerId !== event.pointerId) return;
     var press = activePress;
     activePress = null;
-    if (press.up) startSample(press.context, press.up);
-    lastRelease = { target: press.target, delay: press.up ? press.up.duration * 1000 : 0 };
+    var remaining = press.up ? Math.max(0, BUTTON_SOUND_GAP_MS - (performance.now() - press.startedAt)) : 0;
+    if (press.up) {
+      if (remaining) releaseTimer = setTimeout(function () { startSample(press.context, press.up); }, remaining);
+      else startSample(press.context, press.up);
+    }
+    lastRelease = { target: press.target, delay: press.up ? remaining + press.up.duration * 1000 : 0 };
     if (press.navigate) setTimeout(press.navigate, lastRelease.delay);
   }
 
   function cancelPress() {
+    clearTimeout(releaseTimer);
+    releaseTimer = null;
     activePress = null;
     lastRelease = null;
   }

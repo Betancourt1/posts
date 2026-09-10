@@ -32,6 +32,7 @@ function createHarness({ stored = false, withToggle = false, failFetch = false }
   const sources = [];
   const navigations = [];
   const timers = [];
+  let now = 0;
   const starts = [];
   let oscillatorCalls = 0;
   let storedValue = stored ? "true" : "false";
@@ -121,7 +122,9 @@ function createHarness({ stored = false, withToggle = false, failFetch = false }
       },
     },
     URL,
-    setTimeout(handler, delay) { timers.push({ handler, delay }); },
+    performance: { now: () => now },
+    setTimeout(handler, delay) { const timer = { handler, delay }; timers.push(timer); return timer; },
+    clearTimeout(timer) { const index = timers.indexOf(timer); if (index !== -1) timers.splice(index, 1); },
     window: { location: { assign(url) { navigations.push(url); } }, AudioContext: FakeAudioContext, addEventListener(type, handler) { windowListeners.set(type, handler); } },
   };
 
@@ -130,6 +133,7 @@ function createHarness({ stored = false, withToggle = false, failFetch = false }
   return {
     navigations,
     timers,
+    advance(ms) { now += ms; },
     runTimers() { timers.splice(0).forEach(timer => timer.handler()); },
     decodes,
     fetches,
@@ -244,6 +248,7 @@ test("main buttons play down on press and up on outside release without a third 
   assert.deepEqual(harness.starts, [4]);
   harness.dispatch("pointerup", pressEvent({ target: target([]) }));
   harness.dispatch("click", event);
+  harness.runTimers();
   assert.deepEqual(harness.starts, [4, 5]);
 });
 
@@ -258,6 +263,7 @@ test("Enter and Space pair sounds once despite native clicks and key repeat", as
     harness.dispatch("keyup", { ...event, key: "Escape" });
     harness.dispatch("keyup", event);
     harness.dispatch("click", event);
+    harness.runTimers();
     assert.deepEqual(harness.starts, [4, 5]);
   }
 });
@@ -285,6 +291,7 @@ test("first fast press never plays late or reverses order while decoding", async
   assert.deepEqual(harness.starts, []);
   harness.dispatch("pointerdown", event);
   harness.dispatch("pointerup", event);
+  harness.runTimers();
   assert.deepEqual(harness.starts, [4, 5]);
 });
 
@@ -315,6 +322,7 @@ test("all button types and language links get paired sounds", async () => {
     harness.dispatch("pointerdown", event);
     harness.dispatch("pointerup", event);
     harness.dispatch("click", { ...event, preventDefault() {} });
+    harness.runTimers();
     assert.deepEqual(harness.starts, [4, 5]);
   }
 });
@@ -334,9 +342,9 @@ test("language mouse click waits only for release audio; held Enter waits for ke
       assert.equal(harness.timers.length, 0);
       harness.dispatch("keyup", event);
     }
-    assert.deepEqual(harness.starts, [4, 5]);
-    assert.equal(harness.timers[0].delay, 110);
+    assert.deepEqual(harness.timers.map(timer => timer.delay), [120, 230]);
     harness.runTimers();
+    assert.deepEqual(harness.starts, [4, 5]);
     assert.deepEqual(harness.navigations, ["/es/"]);
   }
 });
@@ -348,7 +356,8 @@ test("language modifiers, new tabs, downloads and cancellation preserve browser 
     harness.dispatch("pointerdown", event);
     harness.dispatch("pointerup", event);
     harness.dispatch("click", { ...event, preventDefault() { assert.fail("modified click intercepted"); } });
-    assert.equal(harness.timers.length, 0);
+    harness.runTimers();
+    assert.deepEqual(harness.navigations, []);
   }
   for (const attributes of [{ target: "_blank" }, { hasAttribute() { return true; } }]) {
     const harness = await readyHarness();
@@ -356,7 +365,8 @@ test("language modifiers, new tabs, downloads and cancellation preserve browser 
     harness.dispatch("pointerdown", event);
     harness.dispatch("pointerup", event);
     harness.dispatch("click", { ...event, preventDefault() { assert.fail("link behavior intercepted"); } });
-    assert.equal(harness.timers.length, 0);
+    harness.runTimers();
+    assert.deepEqual(harness.navigations, []);
   }
   const harness = await readyHarness();
   const event = pressEvent({ target: target(["a[href]", "a.lang-toggle"]), key: "Enter" });
@@ -365,4 +375,33 @@ test("language modifiers, new tabs, downloads and cancellation preserve browser 
   harness.blur();
   harness.dispatch("keyup", event);
   assert.equal(harness.timers.length, 0);
+});
+
+
+test("quick release has a 120ms minimum gap; a long hold releases immediately", async () => {
+  for (const held of [20, 75, 120, 300]) {
+    const harness = await readyHarness();
+    harness.dispatch("pointerdown", pressEvent());
+    harness.advance(held);
+    harness.dispatch("pointerup", pressEvent());
+    if (held < 120) {
+      assert.deepEqual(harness.starts, [4]);
+      assert.equal(harness.timers[0].delay, 120 - held);
+      harness.runTimers();
+    } else assert.equal(harness.timers.length, 0);
+    assert.deepEqual(harness.starts, [4, 5]);
+  }
+});
+
+test("muting, blur, or a new press cancels the delayed release", async () => {
+  for (const action of ["mute", "blur", "press"]) {
+    const harness = await readyHarness({ withToggle: true });
+    harness.dispatch("pointerdown", pressEvent());
+    harness.dispatch("pointerup", pressEvent());
+    if (action === "mute") harness.clickToggle();
+    else if (action === "blur") harness.blur();
+    else harness.dispatch("pointerdown", pressEvent());
+    harness.runTimers();
+    assert.deepEqual(harness.starts, action === "press" ? [4, 4] : [4]);
+  }
 });
