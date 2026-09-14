@@ -7,7 +7,7 @@ image: "https://covers.openlibrary.org/b/isbn/9788433901828-L.jpg?default=false"
 image_alt: "Ensayismo — Brian Dillon"
 binding: "Paperback"
 book_author: "Brian Dillon"
-book_progress: "15"
+book_progress: "25"
 book_status: "currently-reading"
 bookshelves: ["currently-reading", "ensayo", "crítica-literaria", "escritura"]
 date_added: "2026-08-30"
@@ -23,7 +23,7 @@ translationKey: "goodreads-123985110"
 
 **Author:** Brian Dillon
 **Status:** Currently reading
-**Progress:** 15%
+**Progress:** 25%
 **Added:** 2026-08-30
 **Published:** 2023
 **Publisher:** Editorial Anagrama
