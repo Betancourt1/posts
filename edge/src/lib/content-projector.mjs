@@ -73,7 +73,7 @@ function createSafeRenderer({ sidenotes = null, hideSidenoteReferences = false, 
     linkDepth += 1;
     try {
       if (!href) return this.parser.parseInline(token.tokens || []);
-      return `${renderSafeLink({ ...token, href })}\n`;
+      return renderSafeLink({ ...token, href });
     } finally {
       linkDepth -= 1;
     }
@@ -441,6 +441,11 @@ function renderSidenoteEndnotes(sidenotes, links, canonicalPath) {
   }).join("");
 
   return `<section class="sidenote-endnotes" role="doc-endnotes"><ol class="sidenote-list">${items}</ol></section>`;
+}
+
+// Older D1 projections contain an extra newline inserted by the link renderer.
+export function removeLegacyLinkSpacing(html) {
+  return String(html || "").replace(/<\/a>\n(?=[.,;:!?])/g, "</a>");
 }
 
 export function renderMarkdown(bodyMarkdown, canonicalPath = "/") {

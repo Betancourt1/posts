@@ -53,7 +53,7 @@ test("treats legacy Markdown without front matter as body content", () => {
 test("renders taxonomy summaries", () => {
   assert.equal(
     renderMarkdownSummary('Quote "one" and escaped \\"two\\"... [note](/note/)'),
-    '<p>Quote “one” and escaped &quot;two&quot;… <a href="/note/">note</a>\n</p>\n',
+    '<p>Quote “one” and escaped &quot;two&quot;… <a href="/note/">note</a></p>\n',
   );
 
   const automatic = renderMarkdownSummary(

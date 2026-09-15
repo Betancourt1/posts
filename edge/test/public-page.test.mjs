@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { removeLegacyLinkSpacing, renderMarkdown } from "../src/lib/content-projector.mjs";
 
 import {
   adminPathForPublicRoute,
@@ -26,6 +27,26 @@ const listPath = new URL("../src/components/List.astro", import.meta.url);
 const adminPagePath = new URL("../src/pages/admin/[...path].astro", import.meta.url);
 const publicPageLoaderPath = new URL("../src/lib/public-page.mjs", import.meta.url);
 const typesPath = new URL("../src/components/types.ts", import.meta.url);
+
+test("renders link punctuation without inserting spaces and preserves authored spacing", async () => {
+  const publicPage = await readFile(publicPagePath, "utf8");
+  assert.doesNotMatch(publicPage, /restoreLegacyLinkSpacing/);
+  assert.match(publicPage, /set:html=\{removeLegacyLinkSpacing\(page\.bodyHtml\)\}/);
+  assert.match(publicPage, /bodyHtml=\{removeLegacyLinkSpacing\(page\.bodyHtml \|\| ""\)\}/);
+
+  for (const punctuation of [",", ".", ";", ":", "!", "?"]) {
+    const { bodyHtml } = renderMarkdown(`[Kimi](https://example.com)${punctuation} [Meta](https://example.com) y texto.`);
+    assert.ok(bodyHtml.includes(`</a>${punctuation} `));
+    assert.ok(bodyHtml.includes("</a> y texto."));
+  }
+  const { bodyHtml } = renderMarkdown("Nota[^1].\n\n[^1]: Ver [OpenAI](https://example.com). Después [Platzi](https://example.com) o leer.");
+  assert.ok(bodyHtml.includes("</a>. Después "));
+  assert.ok(bodyHtml.includes("</a> o leer."));
+  const legacy = '<a href="/">Kimi</a>\n, <a href="/">Meta</a>\n. <a href="/">Platzi</a>\n o leer.';
+  assert.equal(removeLegacyLinkSpacing(legacy), '<a href="/">Kimi</a>, <a href="/">Meta</a>. <a href="/">Platzi</a>\n o leer.');
+  assert.equal(removeLegacyLinkSpacing('<a href="/">Autor</a> , texto'), '<a href="/">Autor</a> , texto');
+  assert.equal(removeLegacyLinkSpacing(bodyHtml), bodyHtml);
+});
 
 test("maps arbitrary admin content routes to their public D1 route", () => {
   assert.equal(publicPathForAdminRoute("/admin/"), "/");
