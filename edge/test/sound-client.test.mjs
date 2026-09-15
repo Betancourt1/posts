@@ -330,3 +330,21 @@ test("a delayed touch click does not replay the pair, but a later accessibility 
   await flushTasks();
   assert.deepEqual(harness.starts.map(start => start.id), [1, 2, 1, 2]);
 });
+
+test("touch stays silent until a completed click, including canceled scroll gestures", async () => {
+  const harness = createHarness({ stored: true });
+  const button = target();
+  const touch = { isTrusted: true, target: button, button: 0, pointerId: 2, pointerType: "touch" };
+  harness.dispatch("pointerdown", touch);
+  harness.dispatch("pointercancel", touch);
+  await flushTasks();
+  await flushTasks();
+  assert.deepEqual(harness.starts, []);
+  harness.dispatch("pointerdown", touch);
+  harness.dispatch("pointerup", touch);
+  await flushTasks();
+  assert.deepEqual(harness.starts, []);
+  harness.dispatch("click", { ...touch, detail: 1 });
+  await flushTasks();
+  assert.deepEqual(harness.starts, [{ id: 1, time: 0, rate: 1 }, { id: 2, time: 0.2, rate: 1.2 }]);
+});

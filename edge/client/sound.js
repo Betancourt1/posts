@@ -211,7 +211,7 @@
       activateAudio();
       warmSamples();
       var target = interactionTarget(event);
-      if (enabled && target && target !== toggle && event.button === 0) {
+      if (enabled && target && target !== toggle && event.button === 0 && event.pointerType !== "touch") {
         beginPress(target, null, event.pointerId);
       }
     }, true);

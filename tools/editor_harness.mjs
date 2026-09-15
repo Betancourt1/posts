@@ -171,7 +171,7 @@ async function startHarnessServer(savedRequests) {
       return;
     }
 
-    if (req.method === "GET" && url.pathname === "/fixture.png") {
+    if (req.method === "GET" && ["/fixture.png", "/favicon-16.png", "/favicon-32.png"].includes(url.pathname)) {
       res.writeHead(200, { "Content-Type": "image/png" });
       res.end(fixtureImage);
       return;
@@ -258,6 +258,62 @@ async function waitForEditor(page) {
     const status = document.querySelector("#saved-pill, #save-state");
     return status && !/Cargando|Guardando/.test(status.textContent || "");
   });
+}
+
+async function runToolbarScrollCase(browser, origin, viewport) {
+  const context = await browser.newContext({ viewport });
+  const page = await context.newPage();
+  try {
+    await page.goto(`${origin}/post-editor?mode=edit&path=content_es/posts/2026/julio/nota-de-prueba.md`);
+    await waitForEditor(page);
+    const content = Array.from({ length: 140 }, (_, i) => `Linea${String(i).padStart(3, "0")} texto.`).join("\n");
+    await page.locator("#body").fill(content);
+    for (const mode of ["render", "markdown"]) {
+      if (mode === "markdown") {
+        await page.locator(viewport.width <= 900 ? "#mobile-view-markdown" : "#view-markdown").click();
+      }
+      const textarea = page.locator(mode === "markdown" ? "#markdown-canvas" : "#body");
+      await textarea.evaluate((element) => {
+        const index = element.value.indexOf("Linea040");
+        element.focus({ preventScroll: true });
+        element.setSelectionRange(index, index + 8);
+        const line = element.value.slice(0, index).split("\n").length - 1;
+        const top = element.getBoundingClientRect().top + scrollY + parseFloat(getComputedStyle(element).lineHeight) * line;
+        window.scrollTo(0, top - 350);
+      });
+      await page.waitForTimeout(50);
+      if (viewport.width > 900) {
+        const gap = await page.evaluate(() => document.querySelector(".formatbar").getBoundingClientRect().top - document.querySelector(".topbar").getBoundingClientRect().bottom);
+        assert.ok(Math.abs(gap) < 0.01, "the sticky toolbar must meet the header without a text-revealing gap");
+      }
+      const before = await page.evaluate(() => scrollY);
+      await page.locator('[data-format="bold"]').click();
+      await page.waitForTimeout(50);
+      assert.ok(Math.abs((await page.evaluate(() => scrollY)) - before) <= 1, "formatting must preserve the viewport");
+      assert.equal(await textarea.evaluate(element => element.value.slice(element.selectionStart, element.selectionEnd)), "Linea040");
+      for (const format of ["italic", "heading", ...(mode === "render" ? ["undo", "redo"] : [])]) {
+        const scroll = await page.evaluate(() => scrollY);
+        await page.locator(`[data-format="${format}"]`).click();
+        await page.waitForTimeout(50);
+        assert.ok(Math.abs((await page.evaluate(() => scrollY)) - scroll) <= 1, `${format} must preserve the viewport`);
+      }
+      const scroll = await page.evaluate(() => scrollY);
+      const selected = await textarea.evaluate(element => element.value.slice(element.selectionStart, element.selectionEnd));
+      const toggle = page.locator(viewport.width <= 900 ? "#mobile-view-markdown" : "#view-markdown");
+      await toggle.click();
+      await page.waitForTimeout(50);
+      assert.ok(Math.abs((await page.evaluate(() => scrollY)) - scroll) <= 1, "switching Markdown mode must preserve the viewport");
+      const otherTextarea = page.locator(mode === "markdown" ? "#body" : "#markdown-canvas");
+      assert.equal(await otherTextarea.evaluate(element => element.value.slice(element.selectionStart, element.selectionEnd)), selected);
+      await toggle.click();
+      await page.waitForTimeout(50);
+    }
+  } catch (error) {
+    await page.screenshot({ path: `/tmp/posts-toolbar-scroll-${viewport.width}.png` });
+    throw error;
+  } finally {
+    await context.close();
+  }
 }
 
 async function textareaCaretBounds(page, selector) {
@@ -782,6 +838,7 @@ async function main() {
     await runCaretViewportCase(browser, origin, { width: 1280, height: 800 });
     await runCaretViewportCase(browser, origin, { width: 390, height: 844 });
     await runExactEssayCaretCase(browser, origin);
+    for (const viewport of viewports) await runToolbarScrollCase(browser, origin, viewport);
     console.log(`Editor harness: ${fixtures.length * viewports.length} escenarios correctos.`);
     console.log("Autoguardado local: restauración y descarte comprobados.");
     console.log("Propiedades móviles en escala de grises: controles y cierres comprobados.");

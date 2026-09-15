@@ -16,6 +16,8 @@ Both use gain 0.1. The reference uses mouse down/up events without a minimum
 delay. This implementation adds a 200 ms minimum between the audible starts;
 it is a local timing choice, not a measured doubling of the reference.
 Keyboard, touch, and interactions without a release event use the same pair.
+On touch screens the pair starts only after a completed click; touching a
+button to begin scrolling or canceling a gesture stays silent.
 
 Reference implementation inspected in
 `/_next/static/chunks/app/chapters/%5B...slug%5D/layout-b9f7b1cd899b5641.js`,
