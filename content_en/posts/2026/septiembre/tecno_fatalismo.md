@@ -3,11 +3,9 @@ title: "Tecno-Fatalismo"
 date: 2026-09-15
 draft: true
 tags: []
-summary: "sDo not underestimate the power of this technology. These will soon be superhuman systems that can hack anything, revolutionize any field overnight, and acquire real power and resources. We have all witnessed the progress in each of these domains, and progress is not slowing."
+summary: "Do not underestimate the power of this technology. These will soon be superhuman systems that can hack anything, revolutionize any field overnight, and acquire real power and resources. We have all witnessed the progress in each of these domains, and progress is not slowing.[_Jakob Coxon_](https://x.com/hilbertspaess/status/2097476201283834281)"
 hidden: true
 ---
-
-> [_Jakob Coxon_](https://x.com/hilbertspaess/status/2097476201283834281)
 
 En los últimos días el internet —supongo que no solamente el internet pero weno, tengo la edad que tengo— se ha llenado de alarmas y discusiones sobre la posibilidad de que la Inteligencia Artificial (lo que sea que ellos quieran decir con eso) nos mate a todos y, para evitarlo, las empresas encargadas de desarrollar esta tecnología tienen que parar. En realidad es difícil plantear cómo se ha desarrollado esta discusión de forma confiable pues han participado múltiples personajes, tanto dentro[^note-1] del sector como fuera de él[^note-2], y el discurso manejado por todos ellos es más bien dispar y a veces hasta contradictorio. Asimismo, ha habido un claro ofuscamiento por parte de noticieros e influencers sobre el tema que, con buenas intenciones —supongo—, han contribuido su parte para esparcir malentendidos sobre cómo funcionan estas tecnologías y cuáles son sus posibles riesgos. Todo esto ha llevado la discusión, en mi opinión, al lado más aburrido e irrelevante al que podía ir: si estos modelos pueden volverse conscientes y matarnos a todos. Entonces...
 
