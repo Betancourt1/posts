@@ -2402,15 +2402,15 @@ html.image-viewer-open {
 }
 
 .image-viewer::backdrop {
-  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
 }
 
 .image-viewer > img {
   display: block;
   width: auto;
   height: auto;
-  max-width: 100%;
-  max-height: calc(100dvh - 96px);
+  max-width: min(84vw, 960px);
+  max-height: 66dvh;
   object-fit: contain;
 }
 

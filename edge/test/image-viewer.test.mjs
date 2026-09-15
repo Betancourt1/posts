@@ -21,10 +21,15 @@ function element() {
       return event;
     },
     focus(options) { this.focusOptions = options; },
+    getBoundingClientRect() { return { left: 100, top: 200, width: 300, height: 200 }; },
+    animate(frames, options) {
+      this.animation = { frames, options, cancel() { this.canceled = true; } };
+      return this.animation;
+    },
   };
 }
 
-function setup(linked = false) {
+function setup(linked = false, reducedMotion = false) {
   const root = element();
   const image = Object.assign(element(), { src: "/fallback.jpg", currentSrc: "/full.jpg", alt: "Violeta" });
   const trigger = linked ? element() : image;
@@ -37,7 +42,7 @@ function setup(linked = false) {
     showModal() { this.open = true; },
     close() { this.open = false; this.emit("close"); },
   });
-  vm.runInNewContext(source, { document: {
+  vm.runInNewContext(source, { window: { matchMedia: () => ({ matches: reducedMotion }) }, document: {
     documentElement: root,
     querySelector: () => dialog,
     querySelectorAll: () => [image],
@@ -85,4 +90,24 @@ test("modified link clicks retain the original link behavior", () => {
   const { trigger, dialog } = setup(true);
   assert.equal(trigger.emit("click", { ctrlKey: true }).prevented, false);
   assert.equal(dialog.open, undefined);
+});
+
+test("animates from the source rectangle and cancels the animation on close", () => {
+  const { image, trigger, expanded, dialog } = setup();
+  image.getBoundingClientRect = () => ({ left: 0, top: 50, width: 150, height: 100 });
+  trigger.emit("click");
+  assert.equal(expanded.animation.frames[0].transform, "translate(-175px, -200px) scale(0.5, 0.5)");
+  assert.equal(expanded.animation.frames[1].transform, "none");
+  assert.equal(expanded.animation.options.duration, 280);
+  dialog.close();
+  assert.equal(expanded.animation.canceled, true);
+});
+
+test("respects reduced motion without changing opening or closing", () => {
+  const { trigger, expanded, dialog } = setup(false, true);
+  trigger.emit("click");
+  assert.equal(dialog.open, true);
+  assert.equal(expanded.animation, undefined);
+  dialog.close();
+  assert.equal(dialog.open, false);
 });
