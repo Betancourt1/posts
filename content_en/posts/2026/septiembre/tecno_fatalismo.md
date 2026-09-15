@@ -24,7 +24,7 @@ Generalmente la línea argumentativa estos días ha sido:
 
 Ahora bien, podemos discutir en torno a si **1** tiene sentido, pero no es posible darle el mismo beneficio a **2**. Redundar sobre si los LLM serán conscientes y provocarán el apocalipsis es simplemente ocioso. Un evento como ese requiere no solamente una ASI (algo altamente especulativo de por sí) sino también una infraestructura tecnológica y una cadena de suministro que no existe y que construir está más allá de nuestra capacidad como civilización. Aún si construimos una ASI, esta no tendrá jamás los medios materiales para provocar un apocalipsis.[^note-4] Entonces, considero que se debería de pasar por alto toda discusión que vire hacia **2** y **3**. 
 
-## Riesgos
+## Usos maliciosos
 Si los LLM nunca serán Skynet, ¿qué púede significar **1**? No vivo en la cabeza de esos techbros, y soy muy latinoamericano como para poder siquiera imaginar cómo ven el mundo, pero con toda seguridad para ellos _todos_ es igual a Occidente[^note-6] en sus momentos más generosos. Dicho esto, intentaré extraer de su discurso a qué se pueden estar refiriendo.
 
 ### Occidente
@@ -40,12 +40,33 @@ Este test fue saturado por el modelo GPT 6 de OpenAI hace menos de un mes, lo qu
 ### Armas autónomas
 Gran tema. Personalmente no me fascinan las armas y no me fascina cómo el propio concepto de estado suele estar directamente relacionado con estas, pero no podemos hablar de ninguna tecnología si no hablamos también de cómo inevitablemente serán usadas como armas. Esto no debe de ser diferente para los modelos de visión por computadora y los modelos de lenguaje. Si estos modelos son cada vez mejores en el uso de computadores, y las armas modernas son computadoras, entonces los modelos actuales muy probablemente también serán cada vez mejores en el uso de armamentos. En este sentido hay una sospechosa carencia de benchmarks, por lo que no podemos asegurar cuantitativamente qué tan mejores son los nuevos modelos vs los anteriores en el arte de matar gente. Lo que sí podemos afirmar es que actualmente ya matan gente[^note-14], así que cabe esperar que esto continúe así si no se consiguen regulaciones y acuerdos entre distintas naciones para detener el uso de estas tecnologías. El creciente uso de armas autónomas en el conflicto Ucrania vs Rusia puede ser un precedente para otros conflictos como Israel vs Palestina o en un futuro China vs Taiwan. Asimismo, en muchos años, grupos no estatales pueden adquirir estas tecnologías a un coste razonable y utilizarlo contra estadod nación que no los posean, como los cárteles de la droga en Latinoamérica, grupos yihadistas en Asia, células terroristas en Europa o grupos guerrilleros en África. Todo esto pasará a menos que se consigan regulaciones serias pronto respecto a la investigación de estos posibles usos.
 
+### Riesgos climáticos
+Una posible carrera armamentista y económica entre superpotencias queriendo marcar su predominio en el terreno de la inteligencia artificial puede provocar un abaratamiento desmedido de estas tecnologías. Esto puede sonar positivo si no fuera porque también va a provocar una demanda inducida y, con ello, un cuello de botella importante fruto de la explotación de recursos naturales[^note-21]. Aunque existen intentos activos por mejorar la eficiencia energética de estas tecnologías, reducir su consumo de combustibles fósiles y eliminar su consumo de agua[^note-22], en estos momentos esas mejoras son marginales. 
+
 ### Misceláneo
-Ya me cansé. He estado escribiendo desde temprano. Así que voy a hacer una breve lista aquí de otros posibles riesgos con literatura que pueden revisar junto con un pequeño comentario.
+Voy a hacer una breve lista aquí de otros posibles riesgos con literatura que pueden revisar junto con un pequeño comentario.
 
 #### Vigilancia masiva
 Sip. Estos modelos pueden y son usados para vigilar masivamente a ciudadanos. No es sorprendente, la cantidad de imágenes que procesa un centro de vigilancia es inmensa y un modelo de visión puede procesar millones de registros de video en un tiempo risible para detectar conductas sospechosas y reportarlo en tiempo record. Lo ha hecho Irán, USA, Australia, India, Argentina y México [^note-15].
 
+#### Manipulación de la opinión pública por medio de redes sociales
+Estas tecnologías son capaces de ofuscar rápidamente el discurso público a partir de generar montones de imágenes, posts, fake news y comentarios. El uso no es nuevo de los actuales modelos de lenguaje pero estos han permitido que la escala y sofisticación de estos métodos sea mucho mayor[^note-16].
+
+## Usos no maliciosos pero potencialmente perjudiciales
+Todo lo anterior representa una lista no exhaustiva de riesgos de uso pernicioso. Es decir, asumen de antemano que alguien querrá usar estas tecnologías contra alguien más fruto de sus intereses. Esta clasificación no implica que los riesgos debajo nacerán siempre de una buena voluntad o que no son moralmente cuestionables o fruto de una desigualdad poder, simplemente implica que, en general, pueden ocurrir incluso si ninguno de los agentes involucrados actúa de mala fe.
+
+### Discriminación algorítmica
+Existe un excelente libro previo a la aparición de los LLM que sigue siendo de lo más actual: Weapons of Math Destruction[^note-17]. Un montón de personas hoy en día esperan a que un trámite las elija de algún modo (un proceso de selección de personal, una convocatoria para una beca, un proceso de layoff, un proceso judicial) y otro montón considerable de esas personas serán discriminadas por un modelo de lenguaje sin llegar a saberlo. Hoy por hoy existe poca regulación sobre cómo, con qué datos o bajo qué estándares entrenar a estos sistemas de decisión, lo que es especialmente problemático porque la cantidad de organizaciones usándolos crece todos los días. En el libro que mencioné antes hay un sinfín de ejemplos, léanlo. 
+
+### Gestión algorítmica del trabajo
+Un gran ejemplo de la irrupción de estas tecnologías en los espacios de trabajo es el caso de [Meta](https://www.reuters.com/investigations/mark-zuckerberg-had-bold-plan-replace-meta-staff-with-ai-heres-how-it-imploded-2026-08-26/). A grandes rasgos, un montón de empleados fueron utilizados para generar un dataset que se usaría para entrenar a un sistema para reemplazarlos. Este caso es de libro, pero hay escenarios menos drásticos, como el creciente uso de sistemas de vigilancia hacia empleados[^note-18], o la desaparición gradual de roles de entrada en la industria tecnológica[^note-19], etc.
+
+### Degradación del sistema educativo
+El sistema educativo dependía enormemente de la dificultad que implicaba producir texto que cumpliera con ciertos criterios de calidad (como buena ortografía, gramática, etc.). Esta dificultad imponía una fricción que obligaba a estudiantes a estudiar largas horas para volverse capaces de producir este texto y a los profesores el pasar largas horas leyendo todo este texto para proporcionar retroalimentación. Asimismo, los profesores tenían que pasar ellos mismos largas sesiones de lectura de bibliografía, materiales de enseñanza, etc. Los LLM han roto esta economía que permitía que el sistema educativo funcionara y ahora tenemos profesores revisando con modelos de lenguaje tareas hechas con modelos de lenguaje[^note-20], un proceso del cual la única ganadora es la empresa que provee ese servicio (o a Nvidia, que es la única empresa ganando dinero de verdad con todo esto, pero anyway).
+
+### Misceláneo
+#### Externalidades energéticas y ambientales
+Aunque toda la tecnología
 
 [^note-1]: Empezando por el propio Jakob Coxon, pero también [Sam Altman](https://x.com/sama/status/2093060670472241368), [Jackub Pachoki](https://x.com/merettm/status/2096630018495377464), [Dario Amodei](https://x.com/DarioAmodei/status/2098773920774074715) y un gran etcétera. 
 
@@ -76,3 +97,17 @@ Sip. Estos modelos pueden y son usados para vigilar masivamente a ciudadanos. No
 [^note-14]: Lo siento si estás en un celular y tienes que bajar la pantalla hasta acá cada vez que ves una anotación. No creo encontrar una alternativa pronto. Sin embargo, puedo darte algunos ejemplos de modelos de lenguaje y de visión usadas en armamento: [Ucrania](https://arstechnica.com/ai/2026/08/ukraines-drones-get-ai-upgrades-for-kamikaze-strikes-future-swarm-attacks/), [Elbit Systems](https://www.elbitsystems.com/news/one2many-elbit-systems-fuse-introduces-military-grade-autonomous-systems-built-scale), [Anduril](https://www.militarytimes.com/industry/techwatch/2026/07/20/thunderstruck-anduril-unveils-autonomous-attack-rotorcraft) y [China](https://www.investing.com/news/world-news/exclusivechinese-military-researchers-tap-us-ai-models-to-train-defence-systems-4826783).
 
 [^note-15]: _Sigh_... [Irán](https://www.anthropic.com/threat-intelligence-report-september-2026), [USA](https://www.wired.com/story/flock-safety-os-investigate/), [Australia](https://www.abc.net.au/news/2026-08-11/ai-police-face-screening-trial-sparks-privacy-concern/107009644), [India](https://www.reuters.com/world/india/modi-faces-challenge-activists-over-surveillance-india-youth-protest-2026-07-27/), [Argentina](https://www.amnesty.org/en/latest/news/2026/08/argentina-unchecked-deployment-of-ai-driven-surveillance-reinforces-a-techno-authoritarian-infrastructure-of-social-control/), [México](https://www.gob.mx/sspc/prensa/sspc-expone-casos-de-exito-del-uso-de-inteligencia-artificial-en-investigacion-y-seguridad)
+
+[^note-16]: Véase [Irán](https://openai.com/index/disrupting-deceptive-uses-of-ai-by-covert-influence-operations/), [China](https://www.microsoft.com/en-us/security/security-insider/intelligence-reports/), [Rusia / Doppelgänger](https://openai.com/index/disrupting-deceptive-uses-of-ai-by-covert-influence-operations/), [Israel / STOIC](https://openai.com/index/disrupting-deceptive-uses-of-ai-by-covert-influence-operations/), [Meta — operaciones de influencia](https://transparency.meta.com/metasecurity/threat-reporting/), [Microsoft — operaciones de influencia](https://www.microsoft.com/en-us/security/security-insider/intelligence-reports/)
+
+[^note-17]: Estoy seguro de que a Cathy O'Neil no le molesta la piratería. Lo pueden leer [aquí](https://www.u-cursos.cl/ingenieria/2021/1/CC7910/1/material_docente/detalle?id=4009190). btw, recomiendo leer todo lo que ella haya escrito.
+
+[^note-18]: Véase este [paper](https://www.ilo.org/publications/ai-systems-work-changing-psychosocial-work-environment) que propone la necesidad de examinar el efecto psicológico que tienen estos sistemas en los empleados.
+
+[^note-19]: Un estudio al respecto puede encontrarse [aquí](https://www.alejandrobarros.com/wp-content/uploads/2025/11/ssrn-5425555.pdf).
+
+[^note-20]: Esto se ha estudiado ya, puedo recomendar [este paper](https://www.sciencedirect.com/science/article/pii/S2590291126003530) que no leí completo. Pero mi conclusión aquí es que, por favor, lean y escriban las cosas por ustedes mismos tanto como puedan. 
+
+[^note-21]: Especialmente preocupante consideranto todos los problemas climáticos asociados al uso excesivo de esta tecnología: [Mayor demanda eléctrica y emisiones de CO₂](https://www.iea.org/reports/energy-and-ai/ai-and-climate-change), [Estrés hídrico y consumo de agua](https://www.sciencedirect.com/science/article/pii/S0043135426005488),[Residuos electrónicos y extracción de materias primas](https://www.unep.org/resources/report/artificial-intelligence-ai-end-end-environmental-impact-full-ai-lifecycle-needs-be), [Presión local sobre redes eléctricas y recursos hídricos](https://www.nature.com/articles/s41893-025-01681-y)
+
+[^note-22]: QuantumFracture tiene un [video](https://www.youtube.com/watch?v=hiNTexWNNGc) sobre esto que expone bien el estado de estos intentos.
