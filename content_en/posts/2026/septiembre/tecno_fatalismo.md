@@ -10,7 +10,6 @@ hidden: true
 ## Las noticias
 
 > Do not underestimate the power of this technology. These will soon be superhuman systems that can hack anything, revolutionize any field overnight, and acquire real power and resources. We have all witnessed the progress in each of these domains, and progress is not slowing.
-
 > [_Jakob Coxon_](https://x.com/hilbertspaess/status/2097476201283834281)
 
 En los últimos días el internet —supongo que no solamente el internet pero weno, tengo la edad que tengo— se ha llenado de alarmas y discusiones sobre la posibilidad de que la Inteligencia Artificial (lo que sea que ellos quieran decir con eso) nos mate a todos y, para evitarlo, las empresas encargadas de desarrollar esta tecnología tienen que parar. En realidad es difícil plantear cómo se ha desarrollado esta discusión de forma confiable pues han participado múltiples personajes, tanto dentro[^note-1] del sector como fuera de él[^note-2], y el discurso manejado por todos ellos es más bien dispar y a veces hasta contradictorio. Asimismo, ha habido un claro ofuscamiento por parte de noticieros e influencers sobre el tema que, con buenas intenciones —supongo—, han contribuido su parte para esparcir malentendidos sobre cómo funcionan estas tecnologías y cuáles son sus posibles riesgos. Todo esto ha llevado la discusión, en mi opinión, al lado más aburrido e irrelevante al que podía ir: si estos modelos pueden volverse conscientes y matarnos a todos. Entonces...
@@ -27,7 +26,7 @@ Generalmente la línea argumentativa estos días ha sido:
 Ahora bien, podemos discutir en torno a si **1** tiene sentido, pero no es posible darle el mismo beneficio a **2**. Redundar sobre si los LLM serán conscientes y provocarán el apocalipsis es simplemente ocioso. Un evento como ese requiere no solamente una ASI (algo altamente especulativo de por sí) sino también una infraestructura tecnológica y una cadena de suministro que no existe y que construir está más allá de nuestra capacidad como civilización. Aún si construimos una ASI, esta no tendrá jamás los medios materiales para provocar un apocalipsis.[^note-4] Entonces, considero que se debería de pasar por alto toda discusión que vire hacia **2** y **3**. 
 
 ### Occidente
-Si los LLM nunca serán Skynet, ¿qué púede significar **1**? No vivo en la cabeza de esos techbros que trabajan para OpenAI pero, con toda seguridad, para ellos _todos_ es igual a Occidente en sus momentos más generosos. De todas formas trabajar en un laboratorio no garantiza de por sí una perspectiva privilegiada del fenómeno[^note-5].
+Si los LLM nunca serán Skynet, ¿qué púede significar **1**? No vivo en la cabeza de esos techbros, y soy muy latinoamericano como para poder siquiera imaginar cómo ven el mundo, pero con toda seguridad para ellos _todos_ es igual a Occidente[^note-6] en sus momentos más generosos. De todas formas trabajar en un laboratorio no garantiza de por sí una perspectiva privilegiada del fenómeno[^note-5]. 
 
 
 [^note-1]: Empezando por el propio Jakob Coxon, pero también [Sam Altman](https://x.com/sama/status/2093060670472241368), [Jackub Pachoki](https://x.com/merettm/status/2096630018495377464), [Dario Amodei](https://x.com/DarioAmodei/status/2098773920774074715) y un gran etcétera. 
@@ -38,4 +37,6 @@ Si los LLM nunca serán Skynet, ¿qué púede significar **1**? No vivo en la ca
 
 [^note-4]: Sobre esto también hay mucha literatura, pero creo que [este ensayo](https://www.understandingai.org/p/why-im-not-worried-about-ai-taking) de Thimoty B. Lee es lo que más se parece a mi opinión en este sentido. También recomendaría leer el ensayo Ciencia Ficción Capitalista de Michel Nieva para entender por qué hemos tenido que redundar en algo como esto. 
 
-[^note-5]: **Human judgment** can be _situated_ and {{green|visible}}, {{blue|linked}}, or {{amber|contested}}.
+[^note-5]: Ejemplos de esto hay un montón pero el [dude de Google](https://www.bbc.com/mundo/noticias-61787944) que tuvo un meltdown por un modelo de 2022 es bastante ilustrativo.
+
+[^note-6]: Que, por cierto, tema interesante el de pensar a Occidente como una sola identidad política a través del tiempo. Pero bueno, este ensayo no va de eso.
