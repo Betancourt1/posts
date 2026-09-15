@@ -884,7 +884,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       background: #ffffff;
       overflow-x: auto;
       overflow-y: hidden;
-      position: relative;
+      position: sticky;
+      top: var(--topbar-height);
+      z-index: 18;
     }
     .formatbar-inner {
       width: min(var(--writer-width), 100%);
@@ -3496,6 +3498,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           top = Math.min(bottom, Math.max(top, topbarRect.bottom));
         }
         var formatbarRect = els.formatbar.getBoundingClientRect();
+        if (window.getComputedStyle(els.formatbar).position === "sticky" && formatbarRect.top <= top + 1) {
+          top = Math.min(bottom, Math.max(top, formatbarRect.bottom));
+        }
         if (window.getComputedStyle(els.formatbar).position === "fixed" && formatbarRect.bottom >= bottom - 1) {
           bottom = Math.max(top, Math.min(bottom, formatbarRect.top));
         }

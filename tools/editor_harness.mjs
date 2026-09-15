@@ -312,6 +312,9 @@ async function writingViewport(page, scrollOwnerSelector = "") {
     }
     const formatbar = document.querySelector(".formatbar");
     const formatbarRect = formatbar.getBoundingClientRect();
+    if (window.getComputedStyle(formatbar).position === "sticky" && formatbarRect.top <= top + 1) {
+      top = Math.min(bottom, Math.max(top, formatbarRect.bottom));
+    }
     if (window.getComputedStyle(formatbar).position === "fixed" && formatbarRect.bottom >= bottom - 1) {
       bottom = Math.max(top, Math.min(bottom, formatbarRect.top));
     }
