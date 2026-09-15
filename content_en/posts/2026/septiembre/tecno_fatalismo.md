@@ -3,7 +3,7 @@ title: "Tecno-Fatalismo"
 date: 2026-09-15
 draft: true
 tags: []
-summary: "Do not underestimate the power of this technology. These will soon be superhuman systems that can hack anything, revolutionize any field overnight, and acquire real power and resources. We have all witnessed the progress in each of these domains, and progress is not slowing."
+summary: "sDo not underestimate the power of this technology. These will soon be superhuman systems that can hack anything, revolutionize any field overnight, and acquire real power and resources. We have all witnessed the progress in each of these domains, and progress is not slowing."
 hidden: true
 ---
 
