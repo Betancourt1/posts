@@ -2,7 +2,8 @@
   "use strict";
 
   var STORAGE_KEY = "site_sound_enabled";
-  var SAMPLE_GAIN = 1;
+  var SAMPLE_GAIN = 0.1;
+  var MIN_RELEASE_DELAY = 0.2;
   var audioContext = null;
   var enabled = false;
   var gestureReady = false;
@@ -11,6 +12,9 @@
   var decodedBuffers = {};
   var decodePromises = {};
   var failedSamples = {};
+  var activePress = null;
+  var clickTarget = null;
+  var clickFromKeyboard = false;
   var scriptUrl = document.currentScript && document.currentScript.src;
 
   function soundAsset(filename) {
@@ -19,9 +23,8 @@
   }
 
   var samples = {
-    default: { url: soundAsset("interaction-default.wav") },
-    navigation: { url: soundAsset("interaction-navigation.wav") },
-    subcontrol: { url: soundAsset("interaction-subcontrol.wav") },
+    press: { url: soundAsset("button_up.m4a"), rate: 1 },
+    release: { url: soundAsset("button_down.m4a"), rate: 1.2 },
   };
 
   var interactionTargets = [
@@ -32,42 +35,9 @@
     "input[type='checkbox']",
     "input[type='radio']",
     "select",
-  ].join(", ");
-  var navigationTargets = [
-    "a[href]",
-    ".back-button",
-    "#back",
-    ".nav-list a",
-    ".sidebar-column a[href]",
-    ".archive-list .archive-item > a",
-    ".post-card a[href]",
-    ".writing-index-row a[href]",
-    ".book-shelf-row a[href]",
-    ".photo-card a[href]",
-    ".quote-index-entry a[href]",
-    ".tag[href]",
-    ".search-ui__result-link",
-  ].join(", ");
-  var destructiveTargets = [
-    ".author-action-button--danger",
-    ".author-danger-button",
-    ".danger-button",
-    ".image-delete-button",
-    ".draft-restore-discard",
-    "[data-author-action='delete-post']",
-    "[data-author-action='delete-notebook']",
-    "#delete-page",
-    "#delete-image",
-    "#remove-image",
-  ].join(", ");
-  var subcontrolTargets = [
-    ".typo-dropdown button",
-    ".author-more-actions > summary",
-    ".author-more-menu button",
-    ".author-more-menu a[href]",
-    ".settings button",
-    ".arena-details button",
-    ".inspector button",
+    "#site-search-input",
+    ".guestbook-form input:not(.guestbook-honeypot)",
+    ".guestbook-form textarea",
   ].join(", ");
 
   function storedPreference() {
@@ -136,27 +106,41 @@
     return decodePromises[sampleName];
   }
 
-  function startSample(context, buffer) {
+  function startSample(context, buffer, sampleName, when) {
     if (!enabled || !buffer || context !== audioContext) return;
     var source = context.createBufferSource();
     var gain = context.createGain();
     source.buffer = buffer;
+    source.playbackRate.value = samples[sampleName].rate;
     gain.gain.value = SAMPLE_GAIN;
     source.connect(gain);
     gain.connect(context.destination);
-    source.start();
+    var startedAt = Math.max(context.currentTime, when || 0);
+    source.start(startedAt);
+    return { context: context, startedAt: startedAt };
   }
 
-  function play(sampleName) {
+  function play(sampleName, when) {
     var context = activateAudio();
-    if (!context || !samples[sampleName]) return;
+    if (!context || !samples[sampleName]) return Promise.resolve(null);
     if (decodedBuffers[sampleName]) {
-      startSample(context, decodedBuffers[sampleName]);
-      return;
+      return Promise.resolve(startSample(context, decodedBuffers[sampleName], sampleName, when));
     }
-    decodeSample(sampleName, context).then(function (buffer) {
-      startSample(context, buffer);
+    return decodeSample(sampleName, context).then(function (buffer) {
+      return startSample(context, buffer, sampleName, when);
     });
+  }
+
+  function releaseSound(press) {
+    press.then(function (first) {
+      if (first && enabled && first.context === audioContext) {
+        play("release", first.startedAt + MIN_RELEASE_DELAY);
+      }
+    });
+  }
+
+  function playPair() {
+    releaseSound(play("press"));
   }
 
   function warmSamples() {
@@ -171,13 +155,33 @@
     });
   }
 
-  function sampleForTarget(target) {
-    if (target.matches(destructiveTargets) || target.matches(navigationTargets)) return "navigation";
-    if (target.matches(subcontrolTargets)) return "subcontrol";
-    return "default";
+  function interactionTarget(event) {
+    var target = event.target && event.target.closest(interactionTargets);
+    if (!target || target.disabled || target.getAttribute("aria-disabled") === "true") return null;
+    return target;
+  }
+
+  function beginPress(target, key, pointerId) {
+    clickTarget = target;
+    clickFromKeyboard = key !== null;
+    activePress = { target: target, key: key, pointerId: pointerId, sound: play("press") };
+  }
+
+  function endPress() {
+    if (!activePress) return;
+    var target = activePress.target;
+    releaseSound(activePress.sound);
+    activePress = null;
+    if (clickFromKeyboard) {
+      setTimeout(function () {
+        if (clickTarget === target) clickTarget = null;
+      }, 0);
+    }
   }
 
   function stopAudio() {
+    activePress = null;
+    clickTarget = null;
     if (!audioContext) return;
     audioContext.close().catch(function () {});
     audioContext = null;
@@ -206,6 +210,21 @@
       gestureReady = true;
       activateAudio();
       warmSamples();
+      var target = interactionTarget(event);
+      if (enabled && target && target !== toggle && event.button === 0) {
+        beginPress(target, null, event.pointerId);
+      }
+    }, true);
+
+    document.addEventListener("pointerup", function (event) {
+      if (event.isTrusted && activePress && activePress.pointerId === event.pointerId) endPress();
+    }, true);
+
+    document.addEventListener("pointercancel", function (event) {
+      if (activePress && activePress.pointerId === event.pointerId) {
+        activePress = null;
+        clickTarget = null;
+      }
     }, true);
 
     document.addEventListener("keydown", function (event) {
@@ -213,6 +232,15 @@
       gestureReady = true;
       activateAudio();
       warmSamples();
+      var target = interactionTarget(event);
+      if (!enabled || !target || target === toggle || event.repeat) return;
+      if ((event.key === "Enter" || event.key === " ") && !target.matches("input:not([type='checkbox']):not([type='radio']), textarea, select")) {
+        beginPress(target, event.key, null);
+      }
+    }, true);
+
+    document.addEventListener("keyup", function (event) {
+      if (event.isTrusted && activePress && activePress.key === event.key) endPress();
     }, true);
 
     document.addEventListener("click", function (event) {
@@ -220,27 +248,30 @@
       gestureReady = true;
       activateAudio();
       if (!enabled) return;
-      var target = event.target.closest(interactionTargets);
+      var target = interactionTarget(event);
       if (!target || target === toggle) return;
-      play(sampleForTarget(target));
+      if (target === clickTarget && (activePress || clickFromKeyboard || event.detail !== 0)) {
+        if (!activePress) clickTarget = null;
+        return;
+      }
+      playPair();
     }, true);
 
     document.addEventListener("focusin", function (event) {
       var target = event.target;
       if (target && (target.id === "site-search-input" || target.matches(".guestbook-form input:not(.guestbook-honeypot), .guestbook-form textarea"))) {
-        play("default");
+        if (!activePress || activePress.target !== target) playPair();
       }
     });
 
     document.addEventListener("site-sound", function (event) {
       var tone = event.detail && event.detail.tone;
-      if (tone === "navigation") play("navigation");
-      else if (tone === "searchResults") play("default");
+      if (tone === "navigation" || tone === "searchResults") playPair();
     });
 
     document.addEventListener("submit", function (event) {
       if (!event.isTrusted || !event.target.matches(".guestbook-form")) return;
-      if (!event.submitter) play("default");
+      if (!event.submitter) playPair();
     }, true);
 
     if (toggle) {
@@ -252,7 +283,7 @@
           gestureReady = true;
           activateAudio();
           warmSamples();
-          play("default");
+          playPair();
         }
         else stopAudio();
       });

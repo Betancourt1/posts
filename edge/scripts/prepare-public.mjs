@@ -25,9 +25,8 @@ const staticFiles = [
   "js/typography.js",
   "og-image.png",
   "site.webmanifest",
-  "sounds/interaction-default.wav",
-  "sounds/interaction-navigation.wav",
-  "sounds/interaction-subcontrol.wav",
+  "sounds/button_up.m4a",
+  "sounds/button_down.m4a",
   "sounds/LICENSE-MECHVIBESDX.txt",
   "sounds/PROVENANCE.md",
 ];

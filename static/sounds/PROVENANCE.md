@@ -1,5 +1,33 @@
 # Interaction sound provenance
 
+## Active press and release pair
+
+The two M4A files were downloaded unchanged on 2026-09-15 from the
+[Making Software reference](https://www.makingsoftware.com/chapters/drawing-curves)
+explicitly selected for this site. The reference's button component uses the
+following order despite the filenames:
+
+| Phase | Source | Playback rate | SHA-256 |
+| --- | --- | --- | --- |
+| Press | `https://www.makingsoftware.com/sound/button_up.m4a` | 1 | `c2f86b93aae7b55a802e3aee2da63d32a2e8f047fe0d4743292cb45a60e3bb2f` |
+| Release | `https://www.makingsoftware.com/sound/button_down.m4a` | 1.2 | `fc2ecbc443c9eacbe0dc45d5afd2344ce47af79aeee849290f9abdaa8cb7046d` |
+
+Both use gain 0.1. The reference uses mouse down/up events without a minimum
+delay. This implementation adds a 200 ms minimum between the audible starts;
+it is a local timing choice, not a measured doubling of the reference.
+Keyboard, touch, and interactions without a release event use the same pair.
+
+Reference implementation inspected in
+`/_next/static/chunks/app/chapters/%5B...slug%5D/layout-b9f7b1cd899b5641.js`,
+modules 70109 (button) and 43224 (sound player).
+No reuse license was identified for these two files; the MechvibesDX license
+below applies only to the archived WAV files.
+
+## Archived keyboard samples
+
+These originals are retained for provenance and are no longer copied into the
+production build.
+
 The interaction sounds are extracted from the bundled keyboard sound packs in
 [MechvibesDX](https://github.com/hainguyents13/mechvibes-dx) at commit
 `a13c4181feff1217399765f5b6be6f2c7392eeb3`.

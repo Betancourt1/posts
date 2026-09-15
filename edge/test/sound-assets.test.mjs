@@ -37,7 +37,16 @@ test("the edge build copies every sample and its attribution", async () => {
   const license = await readFile(new URL("../../static/sounds/LICENSE-MECHVIBESDX.txt", import.meta.url), "utf8");
   const provenance = await readFile(new URL("../../static/sounds/PROVENANCE.md", import.meta.url), "utf8");
 
-  for (const name of Object.keys(assets)) assert.match(preparePublic, new RegExp(`sounds/${name.replaceAll(".", "\\.")}`));
+  for (const [name, hash] of Object.entries({
+    "button_up.m4a": "c2f86b93aae7b55a802e3aee2da63d32a2e8f047fe0d4743292cb45a60e3bb2f",
+    "button_down.m4a": "fc2ecbc443c9eacbe0dc45d5afd2344ce47af79aeee849290f9abdaa8cb7046d",
+  })) {
+    const data = await readFile(new URL(`../../static/sounds/${name}`, import.meta.url));
+    assert.equal(createHash("sha256").update(data).digest("hex"), hash);
+    assert.match(preparePublic, new RegExp(`sounds/${name.replaceAll(".", "\\.")}`));
+    assert.match(provenance, new RegExp(hash));
+  }
+  assert.doesNotMatch(preparePublic, /sounds\/interaction-.*\.wav/);
   assert.match(preparePublic, /sounds\/LICENSE-MECHVIBESDX\.txt/);
   assert.match(preparePublic, /sounds\/PROVENANCE\.md/);
   assert.match(license, /Copyright \(c\) 2026 Hải Nguyễn/);
