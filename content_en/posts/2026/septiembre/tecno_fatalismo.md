@@ -62,11 +62,16 @@ Existe un excelente libro previo a la aparición de los LLM que sigue siendo de 
 Un gran ejemplo de la irrupción de estas tecnologías en los espacios de trabajo es el caso de [Meta](https://www.reuters.com/investigations/mark-zuckerberg-had-bold-plan-replace-meta-staff-with-ai-heres-how-it-imploded-2026-08-26/). A grandes rasgos, un montón de empleados fueron utilizados para generar un dataset que se usaría para entrenar a un sistema para reemplazarlos. Este caso es de libro, pero hay escenarios menos drásticos, como el creciente uso de sistemas de vigilancia hacia empleados[^note-18], o la desaparición gradual de roles de entrada en la industria tecnológica[^note-19], etc.
 
 ### Degradación del sistema educativo
-El sistema educativo dependía enormemente de la dificultad que implicaba producir texto que cumpliera con ciertos criterios de calidad (como buena ortografía, gramática, etc.). Esta dificultad imponía una fricción que obligaba a estudiantes a estudiar largas horas para volverse capaces de producir este texto y a los profesores el pasar largas horas leyendo todo este texto para proporcionar retroalimentación. Asimismo, los profesores tenían que pasar ellos mismos largas sesiones de lectura de bibliografía, materiales de enseñanza, etc. Los LLM han roto esta economía que permitía que el sistema educativo funcionara y ahora tenemos profesores revisando con modelos de lenguaje tareas hechas con modelos de lenguaje[^note-20], un proceso del cual la única ganadora es la empresa que provee ese servicio (o a Nvidia, que es la única empresa ganando dinero de verdad con todo esto, pero anyway).
+El sistema educativo dependía enormemente de la dificultad que implicaba producir texto que cumpliera con ciertos criterios de calidad (como buena ortografía, gramática, etc.). Esta dificultad imponía una fricción que obligaba a estudiantes a estudiar largas horas para volverse capaces de producir este texto y a los profesores el pasar largas horas leyendo todo este texto para proporcionar retroalimentación. Asimismo, los profesores tenían que pasar ellos mismos largas sesiones de lectura de bibliografía, materiales de enseñanza, etc. Los LLM han roto esta economía que permitía que el sistema educativo funcionara y ahora tenemos profesores revisando con modelos de lenguaje tareas hechas con modelos de lenguaje[^note-20], un proceso del cual la única ganadora es la empresa que provee ese servicio (o a Nvidia o TSMC, que son las únicas empresas ganando dinero de verdad con todo esto, pero anyway).
 
-### Misceláneo
-#### Externalidades energéticas y ambientales
-Aunque toda la tecnología
+## ¿Qué hacer?
+Paremos aquí. Desde luego hay muchos riesgos que no he tocado, y desde luego de algunos que sí puede decirse mucho más. Pero espero que mi punto haya quedado claro: existen razones para preocuparse. Aquí conviene recordar una cita de Emil Cioran:
+
+> No soy pesimista, yo amo este mundo horrible.
+
+Tenemos una nueva tecnología y, como especie, tenemos que averiguar cuál es la mejor manera de usarla. Su distribución también presenta retos muy serios[^note-25], tanto de alfabetización como de regulación. Personalmente creo que la idea de relentizar la investigación en hacer modelos más potentes para concentrar recursos en aprender a convivir con los que ya tenemos me parece razonable y bastante deseable. Claramente no todos estarán de acuerdo con esto, algunos con mejores o peores intenciones[^note-23]. Algunos incluso puede que crean que detener la investigación es una forma que tienen los laboratorios de frontera de asegurar su monopolio ante el riesgo de ser superados por los modelos chinos[^note-24]. Creo que es justo desconfiar de estas empresas, pero creo que los cuestionamientos que concluyen que la investigación debería de continuar siguen la línea argumentativa que cito arriba. Seguro hay líneas de argumentación serias sobre por qué no debería de para la investigación pero personalmente no las he visto. Skill issue, quizá.
+
+
 
 [^note-1]: Empezando por el propio Jakob Coxon, pero también [Sam Altman](https://x.com/sama/status/2093060670472241368), [Jackub Pachoki](https://x.com/merettm/status/2096630018495377464), [Dario Amodei](https://x.com/DarioAmodei/status/2098773920774074715) y un gran etcétera. 
 
@@ -111,3 +116,10 @@ Aunque toda la tecnología
 [^note-21]: Especialmente preocupante consideranto todos los problemas climáticos asociados al uso excesivo de esta tecnología: [Mayor demanda eléctrica y emisiones de CO₂](https://www.iea.org/reports/energy-and-ai/ai-and-climate-change), [Estrés hídrico y consumo de agua](https://www.sciencedirect.com/science/article/pii/S0043135426005488),[Residuos electrónicos y extracción de materias primas](https://www.unep.org/resources/report/artificial-intelligence-ai-end-end-environmental-impact-full-ai-lifecycle-needs-be), [Presión local sobre redes eléctricas y recursos hídricos](https://www.nature.com/articles/s41893-025-01681-y)
 
 [^note-22]: QuantumFracture tiene un [video](https://www.youtube.com/watch?v=hiNTexWNNGc) sobre esto que expone bien el estado de estos intentos.
+
+[^note-23]: Al respecto, este tweet](https://x.com/TrumpTruthOnX/status/2099498552590561415) de Donald Trump es poesía.
+
+
+[^note-24]: Hay muchos ejemplos pero me limito a mencionar este de [Axios](https://www.axios.com/2026/09/15/ai-trust-safety-anthropic-openai).
+
+[^note-25]: He leído la opinión de que empresas poseyendo la IA roban a la humanidad. Puede que esté de acuerdo con esto, pero con estas opiniones no he leído cómo se supone que esto funcionaría. Personalmente no lo tengo claro, lo que sí tengo claro es [cuánto cuesta](https://tpsreport.news/open-source/frontier) el hardware necesario para ejecutar modelos opensource de frontera. En todo caso deberíamos exigir a las empresas de microchips que entreguen también su tecnología, pero este otro reclamo no lo he visto una sola vez.
