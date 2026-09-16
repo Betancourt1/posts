@@ -53,7 +53,7 @@ test("treats legacy Markdown without front matter as body content", () => {
 test("renders taxonomy summaries", () => {
   assert.equal(
     renderMarkdownSummary('Quote "one" and escaped \\"two\\"... [note](/note/)'),
-    '<p>Quote “one” and escaped &quot;two&quot;… <a href="/note/">note</a>\n</p>\n',
+    '<p>Quote “one” and escaped &quot;two&quot;… <a href="/note/">note</a></p>\n',
   );
 
   const automatic = renderMarkdownSummary(
@@ -484,9 +484,9 @@ test("projects the complete repository with the migration count contract", async
   const documents = projections.flatMap((projection) => projection.documents);
   const routes = documents.flatMap((document) => document.routes);
 
-  assert.equal(files.length, 372);
-  assert.equal(documents.length, 470);
-  assert.equal(documents.filter((document) => document.searchable).length, 438);
-  assert.equal(routes.filter((route) => route.kind === "canonical").length, 470);
+  assert.equal(files.length, 379);
+  assert.equal(documents.length, 479);
+  assert.equal(documents.filter((document) => document.searchable).length, 446);
+  assert.equal(routes.filter((route) => route.kind === "canonical").length, 479);
   assert.equal(routes.filter((route) => route.kind === "alias").length, 122);
 });

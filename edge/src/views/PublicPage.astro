@@ -16,7 +16,7 @@ import TagList from "../components/TagList.astro";
 import Tags from "../components/Tags.astro";
 import { displayDate } from "../components/_utils.js";
 import SiteLayout from "../layouts/SiteLayout.astro";
-import { renderMarkdownSummary } from "../lib/content-projector.mjs";
+import { removeLegacyLinkSpacing, renderMarkdownSummary } from "../lib/content-projector.mjs";
 import { adminPathForPublicRoute } from "../lib/public-page.mjs";
 import type { Language, ShellPage } from "../components/types";
 
@@ -87,10 +87,6 @@ function taxonomyItem(document: any) {
       ? renderMarkdownSummary(document.summary)
       : renderMarkdownSummary(document.bodyMarkdown || "", { wordLimit: 70 }),
   };
-}
-
-function restoreLegacyLinkSpacing(html: string) {
-  return String(html || "").replace(/<\/a>(?=[.,;:!?])/g, "</a>\n");
 }
 
 function navigationItems(sections: any[]) {
@@ -212,7 +208,7 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
         </div>
         <p class="lead">{description}</p>
       </header>
-      {page.bodyHtml && <section class="post-body" set:html={restoreLegacyLinkSpacing(page.bodyHtml)}></section>}
+      {page.bodyHtml && <section class="post-body" set:html={removeLegacyLinkSpacing(page.bodyHtml)}></section>}
       <KnowledgeGraph data={shellPage.graphData || emptyGraph} lang={lang} variant="home" />
       {items.length > 0 && (
         <section class="home-section home-feed">
@@ -272,7 +268,7 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
       section={page.section}
       summary={page.summary}
       tags={tagsFor(page)}
-      bodyHtml={restoreLegacyLinkSpacing(page.bodyHtml || "")}
+      bodyHtml={removeLegacyLinkSpacing(page.bodyHtml || "")}
       bodyMarkdown={page.bodyMarkdown || ""}
       sourcePath={page.sourcePath}
       slug={frontMatter.slug}

@@ -12,10 +12,13 @@ function flushTasks() {
 function target(selectors = ["button"]) {
   return {
     selectors: new Set(selectors),
-    closest(selectorList) {
-      return this.matches(selectorList) ? this : null;
-    },
+    href: "mailto:test@example.test",
     hasAttribute() { return false; },
+    getAttribute() { return null; },
+    closest(selectorList) {
+      if (selectorList === "a[href]") return this.selectors.has("a[href]") ? this : null;
+      return selectorList.includes("button") || selectorList.includes("a[href]") ? this : null;
+    },
     matches(selectorList) {
       const accepted = selectorList.split(",").map((selector) => selector.trim());
       return accepted.some((selector) => this.selectors.has(selector));
@@ -23,19 +26,19 @@ function target(selectors = ["button"]) {
   };
 }
 
-function createHarness({ stored = false, withToggle = false, failFetch = false } = {}) {
+function createHarness({ stored = false, withToggle = false, failFetch = false, slowDecode = false } = {}) {
   const documentListeners = new Map();
   const toggleListeners = new Map();
   const windowListeners = new Map();
+  const navigations = [];
+  const pendingDecodes = [];
   const fetches = [];
   const decodes = [];
   const sources = [];
-  const navigations = [];
-  const timers = [];
-  let now = 0;
   const starts = [];
   let oscillatorCalls = 0;
   let storedValue = stored ? "true" : "false";
+  let now = 0;
 
   const toggle = withToggle ? {
     ...target(["button"]),
@@ -53,6 +56,8 @@ function createHarness({ stored = false, withToggle = false, failFetch = false }
       this.state = "running";
     }
 
+    get currentTime() { return now; }
+
     resume() {
       return Promise.resolve();
     }
@@ -64,15 +69,19 @@ function createHarness({ stored = false, withToggle = false, failFetch = false }
     decodeAudioData(data) {
       const id = new Uint8Array(data)[0];
       decodes.push(id);
-      return Promise.resolve({ id, duration: 0.11 });
+      if (slowDecode) return new Promise(resolve => pendingDecodes.push(() => resolve({ id, duration: 0.18 })));
+      return Promise.resolve({ id, duration: 0.18 });
     }
 
     createBufferSource() {
       const source = {
         buffer: null,
+        playbackRate: { value: 1 },
         connect() {},
-        start() {
-          starts.push(source.buffer.id);
+        disconnect() {},
+        stop() { source.stopped = true; },
+        start(time) {
+          starts.push({ id: source.buffer.id, time, rate: source.playbackRate.value });
         },
       };
       sources.push(source);
@@ -80,7 +89,7 @@ function createHarness({ stored = false, withToggle = false, failFetch = false }
     }
 
     createGain() {
-      return { gain: { value: 0 }, connect() {} };
+      return { gain: { value: 0 }, connect() {}, disconnect() {} };
     }
 
     createOscillator() {
@@ -90,6 +99,8 @@ function createHarness({ stored = false, withToggle = false, failFetch = false }
   }
 
   const document = {
+    querySelector() { return null; },
+    baseURI: "https://example.test/",
     currentScript: { src: "https://example.test/js/sound.js" },
     readyState: "complete",
     getElementById(id) {
@@ -107,7 +118,7 @@ function createHarness({ stored = false, withToggle = false, failFetch = false }
     fetch(url) {
       fetches.push(url);
       if (failFetch) return Promise.reject(new Error("offline"));
-      const id = url.includes("default") ? 1 : url.includes("navigation") ? 2 : url.includes("button-down") ? 4 : url.includes("button-up") ? 5 : 3;
+      const id = url.includes("button_up") ? 1 : 2;
       return Promise.resolve({
         ok: true,
         arrayBuffer: () => Promise.resolve(Uint8Array.of(id).buffer),
@@ -122,28 +133,27 @@ function createHarness({ stored = false, withToggle = false, failFetch = false }
       },
     },
     URL,
-    performance: { now: () => now },
-    setTimeout(handler, delay) { const timer = { handler, delay }; timers.push(timer); return timer; },
-    clearTimeout(timer) { const index = timers.indexOf(timer); if (index !== -1) timers.splice(index, 1); },
-    window: { location: { assign(url) { navigations.push(url); } }, AudioContext: FakeAudioContext, addEventListener(type, handler) { windowListeners.set(type, handler); } },
+    setTimeout,
+    clearTimeout,
+    location: { origin: "https://example.test", pathname: "/", search: "", assign(url) { navigations.push(url); } },
+    window: { AudioContext: FakeAudioContext, addEventListener(type, handler) { windowListeners.set(type, handler); } },
   };
 
   vm.runInNewContext(soundSource, sandbox);
 
   return {
     navigations,
-    timers,
-    advance(ms) { now += ms; },
-    runTimers() { timers.splice(0).forEach(timer => timer.handler()); },
+    finishDecode() { pendingDecodes.splice(0).forEach(resolve => resolve()); },
     decodes,
     fetches,
     sources,
     starts,
+    advance(seconds) { now += seconds; },
     oscillatorCalls: () => oscillatorCalls,
     dispatch(type, event) {
       for (const handler of documentListeners.get(type) || []) handler(event);
+      windowListeners.get(type)?.(event);
     },
-    blur() { windowListeners.get("blur")(); },
     clickToggle() {
       const event = { isTrusted: true, target: toggle };
       for (const handler of documentListeners.get("click") || []) handler(event);
@@ -165,41 +175,39 @@ test("muted pages do not fetch or play interaction samples", async () => {
   assert.equal(harness.oscillatorCalls(), 0);
 });
 
-test("stored opt-in caches samples and maps each action with strict precedence", async () => {
+test("every action uses the same press and release samples", async () => {
   const harness = createHarness({ stored: true });
   await flushTasks();
   await flushTasks();
 
   assert.deepEqual(harness.fetches.sort(), [
-    "https://example.test/sounds/button-down.m4a",
-    "https://example.test/sounds/button-up.m4a",
-    "https://example.test/sounds/interaction-default.wav",
-    "https://example.test/sounds/interaction-navigation.wav",
-    "https://example.test/sounds/interaction-subcontrol.wav",
+    "https://example.test/sounds/button_down.m4a",
+    "https://example.test/sounds/button_up.m4a",
   ]);
 
   harness.dispatch("pointerdown", { isTrusted: true });
   await flushTasks();
   await flushTasks();
-  assert.deepEqual(harness.decodes.sort(), [1, 2, 3, 4, 5]);
+  assert.deepEqual(harness.decodes.sort(), [1, 2]);
 
-  harness.dispatch("click", { isTrusted: true, target: target(["summary"]) });
-  harness.dispatch("click", { isTrusted: true, target: target(["summary"]) });
+  harness.dispatch("click", { isTrusted: true, target: target(["button"]) });
+  harness.dispatch("click", { isTrusted: true, target: target(["button"]) });
   harness.dispatch("click", { isTrusted: true, target: target(["a[href]"]) });
-  harness.dispatch("click", { isTrusted: true, target: target(["summary", ".author-more-actions > summary"]) });
+  harness.dispatch("click", { isTrusted: true, target: target(["button", ".settings button"]) });
   harness.dispatch("click", {
     isTrusted: true,
-    target: target(["summary", ".author-more-actions > summary", ".danger-button"]),
+    target: target(["button", ".settings button", ".danger-button"]),
   });
 
-  assert.deepEqual(harness.starts, [1, 1, 2, 3, 2]);
-  assert.equal(new Set(harness.sources).size, 5);
-  assert.equal(harness.fetches.length, 5);
-  assert.equal(harness.decodes.length, 5);
+  await flushTasks();
+  assert.deepEqual(harness.starts.map(start => start.id), [1, 2]);
+  assert.equal(new Set(harness.sources).size, 2);
+  assert.equal(harness.fetches.length, 2);
+  assert.equal(harness.decodes.length, 2);
   assert.equal(harness.oscillatorCalls(), 0);
 });
 
-test("the trusted toggle enables, loads, and plays the release sample", async () => {
+test("the trusted toggle enables and plays the pair", async () => {
   const harness = createHarness({ withToggle: true });
   assert.equal(harness.fetches.length, 0);
 
@@ -207,8 +215,8 @@ test("the trusted toggle enables, loads, and plays the release sample", async ()
   await flushTasks();
   await flushTasks();
 
-  assert.equal(harness.fetches.length, 5);
-  assert.deepEqual(harness.starts, [5]);
+  assert.equal(harness.fetches.length, 2);
+  assert.deepEqual(harness.starts, [{ id: 1, time: 0, rate: 1 }, { id: 2, time: 0.2, rate: 1.2 }]);
 });
 
 test("sample loading failures stay silent and are not retried per action", async () => {
@@ -221,187 +229,242 @@ test("sample loading failures stay silent and are not retried per action", async
   await flushTasks();
   await flushTasks();
 
-  assert.equal(harness.fetches.length, 5);
+  assert.equal(harness.fetches.length, 2);
   assert.deepEqual(harness.starts, []);
   assert.equal(harness.oscillatorCalls(), 0);
 });
 
-function pressEvent(overrides = {}) {
-  return { isTrusted: true, button: 0, pointerId: 1,
-    target: target(["button"]), ...overrides };
-}
-
-async function readyHarness(options = {}) {
-  const harness = createHarness({ stored: true, ...options });
-  harness.dispatch("pointerdown", { isTrusted: true });
-  await flushTasks();
-  await flushTasks();
-  return harness;
-}
-
-test("main buttons play down on press and up on outside release without a third click", async () => {
-  const harness = await readyHarness();
-  const event = pressEvent();
-  harness.dispatch("pointerdown", event);
-  assert.deepEqual(harness.starts, [4]);
-  harness.dispatch("pointerup", pressEvent({ pointerId: 2 }));
-  assert.deepEqual(harness.starts, [4]);
-  harness.dispatch("pointerup", pressEvent({ target: target([]) }));
-  harness.dispatch("click", event);
-  harness.runTimers();
-  assert.deepEqual(harness.starts, [4, 5]);
-});
-
-test("Enter and Space pair sounds once despite native clicks and key repeat", async () => {
-  for (const key of ["Enter", " "]) {
-    const harness = await readyHarness();
-    const event = pressEvent({ key });
-    harness.dispatch("keydown", event);
-    harness.dispatch("keydown", { ...event, repeat: true });
-    harness.dispatch("click", event);
-    assert.deepEqual(harness.starts, [4]);
-    harness.dispatch("keyup", { ...event, key: "Escape" });
-    harness.dispatch("keyup", event);
-    harness.dispatch("click", event);
-    harness.runTimers();
-    assert.deepEqual(harness.starts, [4, 5]);
-  }
-});
-
-test("cancel, blur, and muting discard pending release sounds", async () => {
-  for (const cancel of ["pointercancel", "blur", "mute"]) {
-    const harness = await readyHarness({ withToggle: true });
-    const event = pressEvent();
-    harness.dispatch("pointerdown", event);
-    if (cancel === "blur") harness.blur();
-    else if (cancel === "mute") harness.clickToggle();
-    else harness.dispatch(cancel, event);
-    harness.dispatch("pointerup", event);
-    assert.deepEqual(harness.starts, [4], cancel);
-  }
-});
-
-test("first fast press never plays late or reverses order while decoding", async () => {
+test("quick pointer release waits 200 ms from audible press, including cold loading", async () => {
   const harness = createHarness({ stored: true });
-  const event = pressEvent();
-  harness.dispatch("pointerdown", event);
-  harness.dispatch("pointerup", event);
+  const button = target();
+  harness.dispatch("pointerdown", { isTrusted: true, target: button, button: 0, pointerId: 1 });
+  harness.advance(0.03);
+  harness.dispatch("pointerup", { isTrusted: true, target: button, pointerId: 1 });
+  harness.dispatch("click", { isTrusted: true, target: button });
+  await flushTasks();
+  await flushTasks();
+  assert.deepEqual(harness.starts, [
+    { id: 1, time: 0.03, rate: 1 },
+    { id: 2, time: 0.23, rate: 1.2 },
+  ]);
+});
+
+test("a held pointer releases immediately after the minimum has elapsed", async () => {
+  const harness = createHarness({ stored: true });
+  const button = target();
+  harness.dispatch("pointerdown", { isTrusted: true, target: button, button: 0, pointerId: 1 });
+  await flushTasks();
+  await flushTasks();
+  harness.advance(0.7);
+  assert.equal(harness.starts.length, 1);
+  harness.dispatch("pointerup", { isTrusted: true, target: button, pointerId: 1 });
+  harness.dispatch("click", { isTrusted: true, target: button });
+  await flushTasks();
+  assert.equal(harness.starts.length, 2);
+  assert.equal(harness.starts[1].time, 0.7);
+});
+
+test("Enter and Space produce one pair without key repeat or click duplication", async () => {
+  for (const key of ["Enter", " "]) {
+    const harness = createHarness({ stored: true });
+    const button = target();
+    harness.dispatch("keydown", { isTrusted: true, target: button, key });
+    harness.dispatch("keydown", { isTrusted: true, target: button, key, repeat: true });
+    if (key === "Enter") harness.dispatch("click", { isTrusted: true, target: button });
+    harness.dispatch("keyup", { isTrusted: true, target: button, key });
+    if (key === " ") harness.dispatch("click", { isTrusted: true, target: button });
+    await flushTasks();
+    await flushTasks();
+    assert.deepEqual(harness.starts.map(start => start.id), [1, 2]);
+  }
+});
+
+test("disabled, right-click, untrusted and canceled presses do not produce a pair", async () => {
+  const harness = createHarness({ stored: true });
+  const button = target();
+  for (const event of [
+    { target: { ...button, disabled: true }, isTrusted: true, button: 0 },
+    { target: button, isTrusted: true, button: 2 },
+    { target: button, isTrusted: false, button: 0 },
+  ]) harness.dispatch("pointerdown", event);
+  await flushTasks();
+  assert.deepEqual(harness.starts, []);
+  harness.dispatch("pointerdown", { isTrusted: true, target: button, button: 0, pointerId: 1 });
+  harness.dispatch("pointercancel", { isTrusted: true, target: button, pointerId: 1 });
+  harness.dispatch("pointerup", { isTrusted: true, target: button, pointerId: 1 });
+  await flushTasks();
+  await flushTasks();
+  assert.deepEqual(harness.starts.map(start => start.id), [1]);
+  assert.equal(harness.sources[0].stopped, true);
+});
+
+test("muting cancels a held or still-loading release", async () => {
+  const harness = createHarness({ stored: true, withToggle: true });
+  const button = target();
+  harness.dispatch("pointerdown", { isTrusted: true, target: button, button: 0, pointerId: 1 });
+  harness.dispatch("pointerup", { isTrusted: true, target: button, pointerId: 1 });
+  harness.clickToggle();
   await flushTasks();
   await flushTasks();
   assert.deepEqual(harness.starts, []);
-  harness.dispatch("pointerdown", event);
-  harness.dispatch("pointerup", event);
-  harness.runTimers();
-  assert.deepEqual(harness.starts, [4, 5]);
 });
 
-test("disabled, secondary, untrusted, and muted presses remain silent", async () => {
-  const harness = await readyHarness();
-  const disabled = target(["button"]);
-  disabled.disabled = true;
-  for (const event of [pressEvent({ target: disabled }), pressEvent({ button: 2 }),
-    pressEvent({ isPrimary: false }), pressEvent({ isTrusted: false }),
-    pressEvent({ target: target(["button", '[aria-disabled="true"]']) })]) {
-    harness.dispatch("pointerdown", event);
-    harness.dispatch("pointerup", event);
-  }
+test("focus, search, navigation and keyboard form submission use the same pair", async () => {
+  const harness = createHarness({ stored: true });
+  harness.dispatch("keydown", { isTrusted: true, key: "Tab" });
+  await flushTasks();
+  await flushTasks();
+  harness.dispatch("focusin", { target: { ...target(), id: "site-search-input" } });
+  harness.dispatch("site-sound", { detail: { tone: "searchResults" } });
+  harness.dispatch("site-sound", { detail: { tone: "navigation" } });
+  harness.dispatch("submit", { isTrusted: true, target: target([".guestbook-form"]) });
+  await flushTasks();
+  assert.deepEqual(harness.starts.map(start => start.id), [1, 2]);
+});
+
+test("pointer focus does not add a second pair to a search field press", async () => {
+  const harness = createHarness({ stored: true });
+  const input = { ...target(), id: "site-search-input" };
+  harness.dispatch("pointerdown", { isTrusted: true, target: input, button: 0, pointerId: 1 });
+  harness.dispatch("focusin", { target: input });
+  harness.dispatch("pointerup", { isTrusted: true, target: input, pointerId: 1 });
+  harness.dispatch("click", { isTrusted: true, target: input });
+  await flushTasks();
+  await flushTasks();
+  assert.deepEqual(harness.starts.map(start => start.id), [1, 2]);
+});
+
+test("a delayed touch click does not replay the pair, but a later accessibility click does", async () => {
+  const harness = createHarness({ stored: true });
+  const button = target();
+  harness.dispatch("pointerdown", { isTrusted: true, target: button, button: 0, pointerId: 2 });
+  harness.dispatch("pointerup", { isTrusted: true, target: button, pointerId: 2 });
+  await new Promise(resolve => setTimeout(resolve, 10));
+  harness.dispatch("click", { isTrusted: true, target: button, detail: 1 });
+  await flushTasks();
+  assert.deepEqual(harness.starts.map(start => start.id), [1, 2]);
+  harness.advance(0.5);
+  harness.dispatch("click", { isTrusted: true, target: button, detail: 0 });
+  await flushTasks();
+  assert.deepEqual(harness.starts.map(start => start.id), [1, 2, 1, 2]);
+});
+
+test("touch stays silent until a completed click, including canceled scroll gestures", async () => {
+  const harness = createHarness({ stored: true });
+  const button = target();
+  const touch = { isTrusted: true, target: button, button: 0, pointerId: 2, pointerType: "touch" };
+  harness.dispatch("pointerdown", touch);
+  harness.dispatch("pointercancel", touch);
+  await flushTasks();
+  await flushTasks();
   assert.deepEqual(harness.starts, []);
-  const muted = createHarness();
-  muted.dispatch("pointerdown", pressEvent());
-  muted.dispatch("pointerup", pressEvent());
-  assert.deepEqual(muted.fetches, []);
-  assert.deepEqual(muted.starts, []);
+  harness.dispatch("pointerdown", touch);
+  harness.dispatch("pointerup", touch);
+  await flushTasks();
+  assert.deepEqual(harness.starts, []);
+  harness.dispatch("click", { ...touch, detail: 1 });
+  await flushTasks();
+  assert.deepEqual(harness.starts, [{ id: 1, time: 0, rate: 1 }, { id: 2, time: 0.2, rate: 1.2 }]);
 });
 
+function linkEvent(href = "https://example.test/about/", extra = {}) {
+  const link = { ...target(["a[href]"]), href, hasAttribute() { return false; } };
+  return { isTrusted: true, button: 0, target: link, defaultPrevented: false,
+    preventDefault() { this.defaultPrevented = true; }, ...extra };
+}
 
-test("all button types and language links get paired sounds", async () => {
-  for (const selectors of [["button"], ["[role='button']"], ["input[type='submit']"],
-    ["input[type='reset']"], ["input[type='button']"], ["a[href]", "a.button"], ["a[href]", "a.lang-toggle"]]) {
-    const harness = await readyHarness();
-    const event = pressEvent({ target: target(selectors) });
-    harness.dispatch("pointerdown", event);
-    harness.dispatch("pointerup", event);
-    harness.dispatch("click", { ...event, preventDefault() {} });
-    harness.runTimers();
-    assert.deepEqual(harness.starts, [4, 5]);
-  }
+test("same-tab navigation waits for release and Enter does not wait for keyup", async () => {
+  const harness = createHarness({ stored: true });
+  const event = linkEvent();
+  harness.dispatch("keydown", { isTrusted: true, target: event.target, key: "Enter" });
+  harness.dispatch("click", event);
+  assert.equal(event.defaultPrevented, true);
+  assert.deepEqual(harness.navigations, []);
+  await flushTasks();
+  assert.deepEqual(harness.starts.map(s => s.id), [1, 2]);
+  await new Promise(resolve => setTimeout(resolve, 390));
+  assert.deepEqual(harness.navigations, [event.target.href]);
 });
 
-test("language mouse click waits only for release audio; held Enter waits for keyup", async () => {
-  for (const keyboard of [false, true]) {
-    const harness = await readyHarness();
-    const link = { ...target(["a[href]", "a.lang-toggle"]), href: "/es/" };
-    const event = pressEvent({ target: link, key: keyboard ? "Enter" : undefined });
-    harness.dispatch(keyboard ? "keydown" : "pointerdown", event);
-    if (!keyboard) harness.dispatch("pointerup", event);
-    let prevented = false;
-    harness.dispatch("click", { ...event, preventDefault() { prevented = true; } });
-    assert.equal(prevented, true);
-    assert.deepEqual(harness.navigations, []);
-    if (keyboard) {
-      assert.equal(harness.timers.length, 0);
-      harness.dispatch("keyup", event);
-    }
-    assert.deepEqual(harness.timers.map(timer => timer.delay), [120, 230]);
-    harness.runTimers();
-    assert.deepEqual(harness.starts, [4, 5]);
-    assert.deepEqual(harness.navigations, ["/es/"]);
+test("modified, canceled, hash, download and new-tab links retain native navigation", async () => {
+  const harness = createHarness({ stored: true });
+  for (const extra of [{ctrlKey: true}, {metaKey: true}, {shiftKey: true}, {altKey: true}, {button: 1}, {defaultPrevented: true}]) {
+    const event = linkEvent(undefined, extra);
+    harness.dispatch("click", event);
+    assert.equal(event.defaultPrevented, !!extra.defaultPrevented);
   }
+  for (const kind of ["hash", "download", "blank", "mailto"]) {
+    const event = linkEvent(kind === "hash" ? "https://example.test/#notes" : kind === "mailto" ? "mailto:test@example.test" : undefined);
+    event.target.hasAttribute = name => kind === "download" && name === "download";
+    event.target.getAttribute = name => kind === "blank" && name === "target" ? "_blank" : null;
+    harness.dispatch("click", event);
+    assert.equal(event.defaultPrevented, false, kind);
+  }
+  await flushTasks();
+  assert.deepEqual(harness.navigations, []);
 });
 
-test("language modifiers, new tabs, downloads and cancellation preserve browser behavior", async () => {
-  for (const extra of [{ metaKey: true }, { ctrlKey: true }, { shiftKey: true }, { altKey: true }]) {
-    const harness = await readyHarness();
-    const event = pressEvent({ target: target(["a[href]", "a.lang-toggle"]), ...extra });
-    harness.dispatch("pointerdown", event);
-    harness.dispatch("pointerup", event);
-    harness.dispatch("click", { ...event, preventDefault() { assert.fail("modified click intercepted"); } });
-    harness.runTimers();
-    assert.deepEqual(harness.navigations, []);
+test("rapid pointer bursts preserve one pair and accept the next after it finishes", async () => {
+  const harness = createHarness({ stored: true });
+  const button = target();
+  for (let i = 0; i < 20; i++) {
+    harness.dispatch("pointerdown", { isTrusted: true, target: button, button: 0, pointerId: i });
+    harness.dispatch("pointerup", { isTrusted: true, target: button, pointerId: i });
+    harness.dispatch("click", { isTrusted: true, target: button, detail: 1 });
   }
-  for (const attributes of [{ target: "_blank" }, { hasAttribute() { return true; } }]) {
-    const harness = await readyHarness();
-    const event = pressEvent({ target: { ...target(["a[href]", "a.lang-toggle"]), ...attributes } });
-    harness.dispatch("pointerdown", event);
-    harness.dispatch("pointerup", event);
-    harness.dispatch("click", { ...event, preventDefault() { assert.fail("link behavior intercepted"); } });
-    harness.runTimers();
-    assert.deepEqual(harness.navigations, []);
-  }
-  const harness = await readyHarness();
-  const event = pressEvent({ target: target(["a[href]", "a.lang-toggle"]), key: "Enter" });
-  harness.dispatch("keydown", event);
-  harness.dispatch("click", { ...event, preventDefault() {} });
-  harness.blur();
-  harness.dispatch("keyup", event);
-  assert.equal(harness.timers.length, 0);
+  await flushTasks();
+  assert.deepEqual(harness.starts.map(s => s.id), [1, 2]);
+  harness.advance(0.5);
+  harness.dispatch("click", { isTrusted: true, target: button, detail: 0 });
+  await flushTasks();
+  assert.deepEqual(harness.starts.map(s => s.id), [1, 2, 1, 2]);
 });
 
-
-test("quick release has a 120ms minimum gap; a long hold releases immediately", async () => {
-  for (const held of [20, 75, 120, 300]) {
-    const harness = await readyHarness();
-    harness.dispatch("pointerdown", pressEvent());
-    harness.advance(held);
-    harness.dispatch("pointerup", pressEvent());
-    if (held < 120) {
-      assert.deepEqual(harness.starts, [4]);
-      assert.equal(harness.timers[0].delay, 120 - held);
-      harness.runTimers();
-    } else assert.equal(harness.timers.length, 0);
-    assert.deepEqual(harness.starts, [4, 5]);
-  }
+test("failed audio never strands a link", async () => {
+  const harness = createHarness({ stored: true, failFetch: true });
+  const event = linkEvent();
+  harness.dispatch("click", event);
+  await new Promise(resolve => setTimeout(resolve, 30));
+  assert.deepEqual(harness.navigations, [event.target.href]);
 });
 
-test("muting, blur, or a new press cancels the delayed release", async () => {
-  for (const action of ["mute", "blur", "press"]) {
-    const harness = await readyHarness({ withToggle: true });
-    harness.dispatch("pointerdown", pressEvent());
-    harness.dispatch("pointerup", pressEvent());
-    if (action === "mute") harness.clickToggle();
-    else if (action === "blur") harness.blur();
-    else harness.dispatch("pointerdown", pressEvent());
-    harness.runTimers();
-    assert.deepEqual(harness.starts, action === "press" ? [4, 4] : [4]);
-  }
+test("overlapping pointer and keyboard gestures and blur never lock audio", async () => {
+  const harness = createHarness({ stored: true });
+  const button = target();
+  harness.dispatch("pointerdown", {isTrusted: true, target: button, button: 0, pointerId: 1});
+  harness.dispatch("keydown", {isTrusted: true, target: button, key: "Enter"});
+  harness.dispatch("keyup", {isTrusted: true, target: button, key: "Enter"});
+  await flushTasks();
+  assert.deepEqual(harness.starts.map(s => s.id), [1, 2]);
+  harness.advance(0.5);
+  harness.dispatch("keydown", {isTrusted: true, target: button, key: " "});
+  harness.dispatch("blur", {});
+  await flushTasks();
+  assert.deepEqual(harness.starts.map(s => s.id), [1, 2, 1, 2]);
+  harness.advance(0.5);
+  harness.dispatch("click", {isTrusted: true, target: button, detail: 0});
+  await flushTasks();
+  assert.deepEqual(harness.starts.map(s => s.id), [1, 2, 1, 2, 1, 2]);
+});
+
+test("cold decoding times out, navigation proceeds and late buffers stay silent", async () => {
+  const harness = createHarness({ stored: true, slowDecode: true });
+  const event = linkEvent();
+  harness.dispatch("click", event);
+  await flushTasks();
+  await new Promise(resolve => setTimeout(resolve, 480));
+  assert.deepEqual(harness.navigations, [event.target.href]);
+  harness.finishDecode();
+  await flushTasks();
+  assert.deepEqual(harness.starts, []);
+  harness.dispatch("click", {isTrusted: true, target: target(), detail: 0});
+  await flushTasks();
+  assert.deepEqual(harness.starts.map(s => s.id), [1, 2]);
+});
+
+test("empty same-page fragments do not delay", async () => {
+  const harness = createHarness({stored: true});
+  const event = linkEvent("https://example.test/#");
+  harness.dispatch("click", event);
+  assert.equal(event.defaultPrevented, false);
 });

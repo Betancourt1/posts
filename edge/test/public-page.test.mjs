@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { removeLegacyLinkSpacing, renderMarkdown } from "../src/lib/content-projector.mjs";
 
 import {
   adminPathForPublicRoute,
@@ -26,6 +27,26 @@ const listPath = new URL("../src/components/List.astro", import.meta.url);
 const adminPagePath = new URL("../src/pages/admin/[...path].astro", import.meta.url);
 const publicPageLoaderPath = new URL("../src/lib/public-page.mjs", import.meta.url);
 const typesPath = new URL("../src/components/types.ts", import.meta.url);
+
+test("renders link punctuation without inserting spaces and preserves authored spacing", async () => {
+  const publicPage = await readFile(publicPagePath, "utf8");
+  assert.doesNotMatch(publicPage, /restoreLegacyLinkSpacing/);
+  assert.match(publicPage, /set:html=\{removeLegacyLinkSpacing\(page\.bodyHtml\)\}/);
+  assert.match(publicPage, /bodyHtml=\{removeLegacyLinkSpacing\(page\.bodyHtml \|\| ""\)\}/);
+
+  for (const punctuation of [",", ".", ";", ":", "!", "?"]) {
+    const { bodyHtml } = renderMarkdown(`[Kimi](https://example.com)${punctuation} [Meta](https://example.com) y texto.`);
+    assert.ok(bodyHtml.includes(`</a>${punctuation} `));
+    assert.ok(bodyHtml.includes("</a> y texto."));
+  }
+  const { bodyHtml } = renderMarkdown("Nota[^1].\n\n[^1]: Ver [OpenAI](https://example.com). Después [Platzi](https://example.com) o leer.");
+  assert.ok(bodyHtml.includes("</a>. Después "));
+  assert.ok(bodyHtml.includes("</a> o leer."));
+  const legacy = '<a href="/">Kimi</a>\n, <a href="/">Meta</a>\n. <a href="/">Platzi</a>\n o leer.';
+  assert.equal(removeLegacyLinkSpacing(legacy), '<a href="/">Kimi</a>, <a href="/">Meta</a>. <a href="/">Platzi</a>\n o leer.');
+  assert.equal(removeLegacyLinkSpacing('<a href="/">Autor</a> , texto'), '<a href="/">Autor</a> , texto');
+  assert.equal(removeLegacyLinkSpacing(bodyHtml), bodyHtml);
+});
 
 test("maps arbitrary admin content routes to their public D1 route", () => {
   assert.equal(publicPathForAdminRoute("/admin/"), "/");
@@ -236,26 +257,23 @@ test("keeps recorded interaction sounds opt-in and shared with admin", async () 
   assert.match(sound, /var enabled = false;/);
   assert.match(sound, /var gestureReady = false;/);
   assert.match(sound, /if \(!event\.isTrusted\) return;/);
-  assert.match(sound, /interaction-default\.wav/);
-  assert.match(sound, /interaction-navigation\.wav/);
-  assert.match(sound, /interaction-subcontrol\.wav/);
+  assert.match(sound, /button_up\.m4a/);
+  assert.match(sound, /button_down\.m4a/);
   assert.match(sound, /var interactionTargets = \[[\s\S]*?"button"[\s\S]*?"a\[href\]"[\s\S]*?"summary"/);
-  assert.match(sound, /var navigationTargets = \[[\s\S]*?"\.post-card a\[href\]"[\s\S]*?"\.writing-index-row a\[href\]"[\s\S]*?"\.book-shelf-row a\[href\]"[\s\S]*?"\.photo-card a\[href\]"[\s\S]*?"\.quote-index-entry a\[href\]"[\s\S]*?"\.tag\[href\]"[\s\S]*?"\.search-ui__result-link"/);
-  assert.match(sound, /var navigationTargets = \[[\s\S]*?"\.sidebar-column a\[href\]"[\s\S]*?"\.archive-list \.archive-item > a"/);
-  assert.match(sound, /var destructiveTargets = \[[\s\S]*?"\.author-action-button--danger"[\s\S]*?"\.danger-button"[\s\S]*?"#delete-page"/);
-  assert.match(sound, /var subcontrolTargets = \[[\s\S]*?"\.typo-dropdown button"[\s\S]*?"\.author-more-menu button"[\s\S]*?"\.settings button"[\s\S]*?"\.inspector button"/);
-  assert.match(sound, /function sampleForTarget\(target\)[\s\S]*?target\.matches\(destructiveTargets\) \|\| target\.matches\(navigationTargets\)[\s\S]*?return "navigation";[\s\S]*?target\.matches\(subcontrolTargets\)[\s\S]*?return "subcontrol";[\s\S]*?return "default";/);
-  assert.match(sound, /document\.addEventListener\("click",[\s\S]*?target === toggle[\s\S]*?play\(sampleForTarget\(target\)\)/);
-  assert.match(sound, /target\.id === "site-search-input" \|\| target\.matches\("\.guestbook-form input:not\(\.guestbook-honeypot\), \.guestbook-form textarea"\)[\s\S]*?play\("default"\)/);
-  assert.match(sound, /document\.addEventListener\("submit",[\s\S]*?!event\.isTrusted \|\| !event\.target\.matches\("\.guestbook-form"\)[\s\S]*?!event\.submitter[\s\S]*?play\("default"\)/);
+  assert.doesNotMatch(sound, /sampleForTarget|interaction-(default|navigation|subcontrol)\.wav/);
+  assert.match(sound, /document\.addEventListener\("pointerdown"/);
+  assert.match(sound, /document\.addEventListener\("pointerup"/);
+  assert.match(sound, /document\.addEventListener\("click",[\s\S]*?target === toggle[\s\S]*?playPair\(\)/);
+  assert.match(sound, /document\.addEventListener\("submit",[\s\S]*?!event\.isTrusted \|\| !event\.target\.matches\("\.guestbook-form"\)[\s\S]*?!event\.submitter[\s\S]*?playPair\(\)/);
   assert.match(sound, /localStorage\.getItem\(STORAGE_KEY\) === "true"/);
   assert.match(sound, /window\.AudioContext \|\| window\.webkitAudioContext/);
-  assert.match(sound, /var SAMPLE_GAIN = 1;/);
+  assert.match(sound, /var SAMPLE_GAIN = 0\.1;/);
   assert.match(sound, /fetch\(sample\.url, \{ cache: "force-cache" \}\)/);
   assert.match(sound, /context\.decodeAudioData\(data\.slice\(0\)\)/);
   assert.match(sound, /var source = context\.createBufferSource\(\)/);
   assert.match(sound, /gain\.gain\.value = SAMPLE_GAIN;/);
-  assert.match(sound, /source\.connect\(gain\);\s*gain\.connect\(context\.destination\);\s*source\.start\(\)/);
+  assert.match(sound, /source\.connect\(gain\);\s*gain\.connect\(context\.destination\)/);
+  assert.match(sound, /source\.start\(startedAt\)/);
   assert.doesNotMatch(sound, /createOscillator|exponentialRampToValueAtTime|new Audio\(/);
   assert.match(search, /CustomEvent\("site-sound", \{ detail: \{ tone: "searchResults" \} \}\)/);
   assert.match(graph, /CustomEvent\("site-sound", \{ detail: \{ tone: "navigation" \} \}\)[\s\S]*?window\.location\.assign\(node\.url\)/);

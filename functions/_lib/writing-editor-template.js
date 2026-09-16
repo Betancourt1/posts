@@ -884,7 +884,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       background: #ffffff;
       overflow-x: auto;
       overflow-y: hidden;
-      position: relative;
+      position: sticky;
+      top: var(--topbar-height);
+      z-index: 18;
     }
     .formatbar-inner {
       width: min(var(--writer-width), 100%);
@@ -2940,7 +2942,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         }
 
         var nextCursor = cursor + reference.length;
-        target.focus();
+        target.focus({ preventScroll: true });
         target.selectionStart = target.selectionEnd = nextCursor;
         setStatus("Ejemplo de nota al margen insertado");
       }
@@ -2962,7 +2964,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         var suffix = value.slice(end);
         var insert = (prefix && !prefix.endsWith("\\n") ? "\\n\\n" : "") + text;
         textarea.value = prefix + insert + suffix;
-        textarea.focus();
+        textarea.focus({ preventScroll: true });
         textarea.selectionStart = textarea.selectionEnd = (prefix + insert).length;
         resizeTextarea(textarea);
         if (textarea === els.markdownCanvas) {
@@ -3072,7 +3074,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function replaceTextRange(textarea, start, end, text, selectionStart, selectionEnd) {
         textarea.value = textarea.value.slice(0, start) + text + textarea.value.slice(end);
-        textarea.focus();
+        textarea.focus({ preventScroll: true });
         textarea.selectionStart = selectionStart;
         textarea.selectionEnd = selectionEnd;
       }
@@ -3109,7 +3111,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       function restoreBodySnapshot(snapshot) {
         restoringBodyHistory = true;
         els.body.value = snapshot.value;
-        els.body.focus();
+        els.body.focus({ preventScroll: true });
         els.body.selectionStart = snapshot.selectionStart;
         els.body.selectionEnd = snapshot.selectionEnd;
         restoringBodyHistory = false;
@@ -3196,6 +3198,17 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function applyViewMode(value, shouldFocus) {
+        if (shouldFocus) {
+          var previousTextarea = activeTextArea();
+          var scrollOwner = typingScrollOwner(previousTextarea);
+          var scrollPosition = readScrollPosition(scrollOwner);
+          var windowScrollX = window.scrollX;
+          var windowScrollY = window.scrollY;
+          var body = stripMatchingTitle(els.body.value, els.title.value).trimStart();
+          var bodyOffset = Math.max(0, previousTextarea.value.lastIndexOf(body));
+          var selectionStart = Math.max(0, previousTextarea.selectionStart - bodyOffset);
+          var selectionEnd = Math.max(0, previousTextarea.selectionEnd - bodyOffset);
+        }
         var viewMode = normalizeViewMode(value);
         if (activeViewMode === "markdown" && viewMode !== "markdown") {
           syncFieldsFromMarkdown();
@@ -3222,7 +3235,16 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           // localStorage can be unavailable in private or restricted contexts.
         }
         if (shouldFocus) {
-          focusEditorStart();
+          window.requestAnimationFrame(function () {
+            var textarea = activeTextArea();
+            var offset = Math.max(0, textarea.value.lastIndexOf(body));
+            textarea.focus({ preventScroll: true });
+            textarea.setSelectionRange(offset + selectionStart, offset + selectionEnd);
+            writeScrollPosition(scrollOwner, scrollPosition.left, scrollPosition.top);
+            if (!isDocumentScrollOwner(scrollOwner)) {
+              window.scrollTo({ left: windowScrollX, top: windowScrollY, behavior: "auto" });
+            }
+          });
         }
       }
 
@@ -3372,12 +3394,20 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         if (!topbar) {
           return;
         }
-        document.documentElement.style.setProperty("--topbar-height", topbar.offsetHeight + "px");
+        document.documentElement.style.setProperty("--topbar-height", topbar.getBoundingClientRect().height + "px");
       }
 
       function resizeTextarea(textarea) {
+        var scrollOwner = typingScrollOwner(textarea);
+        var scrollPosition = readScrollPosition(scrollOwner);
+        var windowScrollX = window.scrollX;
+        var windowScrollY = window.scrollY;
         textarea.style.height = "auto";
         textarea.style.height = textarea.scrollHeight + "px";
+        writeScrollPosition(scrollOwner, scrollPosition.left, scrollPosition.top);
+        if (!isDocumentScrollOwner(scrollOwner)) {
+          window.scrollTo({ left: windowScrollX, top: windowScrollY, behavior: "auto" });
+        }
       }
 
       function rememberTypingViewport(event) {
@@ -3496,6 +3526,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           top = Math.min(bottom, Math.max(top, topbarRect.bottom));
         }
         var formatbarRect = els.formatbar.getBoundingClientRect();
+        if (window.getComputedStyle(els.formatbar).position === "sticky" && formatbarRect.top <= top + 1) {
+          top = Math.min(bottom, Math.max(top, formatbarRect.bottom));
+        }
         if (window.getComputedStyle(els.formatbar).position === "fixed" && formatbarRect.bottom >= bottom - 1) {
           bottom = Math.max(top, Math.min(bottom, formatbarRect.top));
         }

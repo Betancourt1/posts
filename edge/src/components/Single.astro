@@ -153,6 +153,14 @@ const rawSource = [
   )}
 </article>
 
+<dialog class="image-viewer" aria-label={lang === "es" ? "Imagen ampliada" : "Expanded image"} data-image-viewer data-open-label={lang === "es" ? "Ampliar imagen" : "Expand image"}>
+  <button type="button" class="image-viewer-close" aria-label={lang === "es" ? "Cerrar imagen" : "Close image"} autofocus>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+  </button>
+  <img alt="" />
+</dialog>
+<script is:inline src="/js/image-viewer.js" defer></script>
+
 <script is:inline>
   document.addEventListener("DOMContentLoaded", function () {
     var button = document.getElementById("zen-toggle-btn");

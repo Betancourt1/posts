@@ -2364,6 +2364,78 @@ body.graph-maximized .ssh-terminal-overlay {
   text-decoration: none;
 }
 
+.image-expandable {
+  cursor: zoom-in;
+}
+
+.image-expandable:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+html.image-viewer-open {
+  overflow: hidden;
+}
+
+.image-viewer {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 72px 24px 24px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+}
+
+.image-viewer[open] {
+  display: grid;
+  place-items: center;
+}
+
+.image-viewer::backdrop {
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+}
+
+.image-viewer > img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(84vw, 960px);
+  max-height: 66dvh;
+  object-fit: contain;
+}
+
+.image-viewer-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg-soft);
+  color: var(--ink-dim);
+  cursor: pointer;
+}
+
+.image-viewer-close:hover,
+.image-viewer-close:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.image-viewer-close svg {
+  width: 20px;
+  height: 20px;
+}
+
 .article figure, .post-body figure {
   margin: 1.6rem 0;
 }
