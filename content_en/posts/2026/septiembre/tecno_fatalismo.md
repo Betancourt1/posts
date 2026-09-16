@@ -14,7 +14,7 @@ En los últimos días el internet —supongo que no solamente el internet pero w
 ## ¿Nos va a matar a todos?
 Seguramente no. Ni siquiera diría que serán conscientes y dudo que la gente que se dedique profesionalmente a desarrollar nuevos modelos lo crea con firmeza[^note-3]. El tema de la consciencia es muy elusivo como para ser tajantes al respecto y hay cuestiones interesantes como decidir si deberán existir consideraciones morales hacia estos modelos, pero todo esto debe de tomarse como altamente especulativo. 
 
-Siento que mucha de la discusión se ha orientado hacia este tema por culpa de la ciencia ficción y que hay una cierta remembranza a Skynet. Pero hay una cosa que quiero dejar clara antes de detenerme un poco en esto: nada de lo que voy a argumentar después necesita que los modelos sean conscientes. Podemos asumir, si quieren, que jamás lo serán, que nunca tendrán deseos propios y que nunca se van a despertar un martes con ganas de acabar con la humanidad. Da igual. Casi todos los problemas de los que voy a hablar seguirían existiendo.
+Siento que mucha de la discusión se ha orientado hacia este tema por culpa de la ciencia ficción y que hay una cierta remembranza a Skynet. Pero hay una cosa que quiero dejar clara antes de detenerme un poco en esto: nada de lo que voy a argumentar después necesita que los modelos sean conscientes. Podemos asumir, si quieren, que jamás lo serán, que nunca tendrán deseos propios y que nunca van a ganar consciencia con ganas de matarnos a todos. Da igual. Casi todos los problemas de los que voy a hablar seguirían ahí.
 
 ### Skynet
 Generalmente la línea argumentativa estos días ha sido:
