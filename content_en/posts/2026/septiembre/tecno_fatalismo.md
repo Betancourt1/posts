@@ -1,10 +1,8 @@
 ---
 title: "Tecno-Fatalismo"
 date: 2026-09-15
-draft: true
 tags: []
 summary: ""
-hidden: true
 ---
 
 ## Las noticias
@@ -69,7 +67,7 @@ Paremos aquí. Desde luego hay muchos riesgos que no he tocado, y desde luego de
 
 > No soy pesimista, yo amo este mundo horrible.
 
-Tenemos una nueva tecnología y, como especie, tenemos que averiguar cuál es la mejor manera de usarla. Su distribución también presenta retos muy serios[^note-25], tanto de alfabetización como de regulación. Personalmente creo que la idea de ralentizar la investigación en hacer modelos más potentes para concentrar recursos en aprender a convivir con los que ya tenemos me parece razonable y bastante deseable. Claramente no todos estarán de acuerdo con esto, algunos con mejores o peores intenciones[^note-23]. Algunos incluso puede que crean que detener la investigación es una forma que tienen los laboratorios de frontera de [asegurar su monopolio ante el riesgo de ser superados por los modelos chinos](https://www.axios.com/2026/09/15/ai-trust-safety-anthropic-openai). Creo que es justo desconfiar de estas empresas, pero creo que los cuestionamientos que concluyen que la investigación debería de continuar, como las posturas de [Andrew Ng](https://www.linkedin.com/posts/andrewyng_the-call-for-a-6-month-moratorium-on-making-share-7046909991882010624-Nbja) o [Bill Friend](https://aigeopolitics.substack.com/p/who-gets-to-decide), siguen la línea argumentativa que cito arriba.
+Tenemos una nueva tecnología y, como especie, tenemos que averiguar cuál es la mejor manera de usarla. Su distribución también presenta retos muy serios[^note-25], tanto de alfabetización como de regulación. Personalmente creo que la idea de ralentizar la investigación en hacer modelos más potentes para concentrar recursos en aprender a convivir con los que ya tenemos me parece razonable y bastante deseable. Claramente no todos estarán de acuerdo con esto, algunos con mejores o peores intenciones[^note-23]. Algunos incluso puede que crean que detener la investigación es una forma que tienen los laboratorios de frontera de [asegurar su monopolio ante el riesgo de ser superados por los modelos chinos](https://www.axios.com/2026/09/15/ai-trust-safety-anthropic-openai). Creo que es justo desconfiar de estas empresas, pero creo que los cuestionamientos que concluyen que la investigación debería de continuar, como las posturas de [Andrew Ng](https://www.linkedin.com/posts/andrewyng_the-call-for-a-6-month-moratorium-on-making-share-7046909991882010624-Nbja) o [Bill Friend](https://aigeopolitics.substack.com/p/who-gets-to-decide), siguen la línea argumentativa que cito arriba, asimismo, [Mark Zuckerberg](https://x.com/finkd/status/2099997096896274533) acaba de publicar una opinión similar. 
 
 
 
