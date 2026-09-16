@@ -17,7 +17,6 @@ Si estás aquí, sabes mi nombre. Se supone que debo escribir aquí algo de mí 
 
 - **Código**: Proyectos de software, sistemas de datos, código de investigación, decisiones técnicas y resultados.
 - **Escritos**: Textos libres, notas y reflexiones.
-- **Zettelkasten**: Notas de mi zettelkasten que considero que pueden ser leídas por otra gente.
 - **CV**: Resumen de experiencia, formación y habilidades.
 
 ---

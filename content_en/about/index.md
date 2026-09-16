@@ -17,7 +17,6 @@ If you're here, you know my name. I'm supposed to write something about myself h
 
 - **Code**: Software projects, data systems, research code, technical decisions, and results.
 - **Writings**: Freeform texts, notes, and reflections.
-- **Zettelkasten**: Notes from my zettelkasten that I believe are ready to be read by others.
 - **CV**: Summary of experience, education, and skills.
 
 ---
