@@ -4,6 +4,9 @@
   var STORAGE_KEY = "site_sound_enabled";
   var SAMPLE_GAIN = 0.1;
   var MIN_RELEASE_DELAY = 0.2;
+  var MAX_AUDIO_WAIT = 450;
+  var sequence = null;
+  var navigationTimer = null;
   var audioContext = null;
   var enabled = false;
   var gestureReady = false;
@@ -106,8 +109,8 @@
     return decodePromises[sampleName];
   }
 
-  function startSample(context, buffer, sampleName, when) {
-    if (!enabled || !buffer || context !== audioContext) return;
+  function startSample(context, buffer, sampleName, when, owner) {
+    if (!enabled || !buffer || context !== audioContext || (owner && (owner !== sequence || owner.cancelled))) return;
     var source = context.createBufferSource();
     var gain = context.createGain();
     source.buffer = buffer;
@@ -117,30 +120,107 @@
     gain.connect(context.destination);
     var startedAt = Math.max(context.currentTime, when || 0);
     source.start(startedAt);
-    return { context: context, startedAt: startedAt };
+    if (owner) owner.sources.push(source);
+    source.onended = function () { source.disconnect(); gain.disconnect(); };
+    return { context: context, startedAt: startedAt, endsAt: startedAt + buffer.duration / samples[sampleName].rate };
   }
 
-  function play(sampleName, when) {
+  function play(sampleName, when, owner) {
     var context = activateAudio();
     if (!context || !samples[sampleName]) return Promise.resolve(null);
     if (decodedBuffers[sampleName]) {
-      return Promise.resolve(startSample(context, decodedBuffers[sampleName], sampleName, when));
+      return Promise.resolve(startSample(context, decodedBuffers[sampleName], sampleName, when, owner));
     }
     return decodeSample(sampleName, context).then(function (buffer) {
-      return startSample(context, buffer, sampleName, when);
+      return startSample(context, buffer, sampleName, when, owner);
     });
   }
 
-  function releaseSound(press) {
-    press.then(function (first) {
-      if (first && enabled && first.context === audioContext) {
-        play("release", first.startedAt + MIN_RELEASE_DELAY);
-      }
+  // Drop repeated audio requests, never queue them behind an unfinished pair.
+  function newSequence() {
+    if (!enabled || !gestureReady) return null;
+    if (sequence && !sequence.cancelled) {
+      if (!sequence.endsAt || (audioContext && audioContext.currentTime < sequence.endsAt)) return null;
+    }
+    warmSamples();
+    var owner = { sources: [], cancelled: false, endsAt: null, release: null };
+    sequence = owner;
+    owner.loadTimer = setTimeout(function () {
+      if (!owner.started) cancelSequence(owner);
+    }, MAX_AUDIO_WAIT);
+    owner.press = play("press", 0, owner).then(function (first) {
+      owner.started = first;
+      clearTimeout(owner.loadTimer);
+      if (!first) cancelSequence(owner);
+      return first;
     });
+    return owner;
+  }
+
+  function cancelSequence(owner) {
+    if (!owner) return;
+    owner.cancelled = true;
+    clearTimeout(owner.loadTimer);
+    clearTimeout(owner.releaseTimer);
+    owner.sources.forEach(function (source) { try { source.stop(); } catch (error) {} });
+  }
+
+  function releaseSound(owner) {
+    if (!owner) return Promise.resolve(null);
+    if (owner.release) return owner.release;
+    owner.releaseTimer = setTimeout(function () { cancelSequence(owner); }, MAX_AUDIO_WAIT);
+    owner.release = owner.press.then(function (first) {
+      if (first && !owner.cancelled && owner === sequence) {
+        return play("release", first.startedAt + MIN_RELEASE_DELAY, owner);
+      }
+      return null;
+    }).then(function (last) {
+      clearTimeout(owner.releaseTimer);
+      if (last) owner.endsAt = last.endsAt;
+      else cancelSequence(owner);
+      return last;
+    });
+    return owner.release;
   }
 
   function playPair() {
-    releaseSound(play("press"));
+    releaseSound(newSequence());
+  }
+
+  // Run after control handlers so intercepted links keep their own behavior.
+  function finishBeforeNavigation(event) {
+    if (!event.isTrusted || !enabled || event.defaultPrevented || event.button > 0 ||
+        event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    var link = event.target && event.target.closest("a[href]");
+    if (!link || link.hasAttribute("download") || link.hasAttribute("ping") ||
+        link.hasAttribute("referrerpolicy") || /noreferrer/.test(link.rel || "") ||
+        link.getAttribute("aria-disabled") === "true") return;
+    var base = document.querySelector("base[target]");
+    var target = link.getAttribute("target") || (base && base.getAttribute("target"));
+    if (target && target.toLowerCase() !== "_self") return;
+    var url = new URL(link.href, document.baseURI);
+    if (!/^https?:$/.test(url.protocol) ||
+        (url.origin === location.origin && url.pathname === location.pathname && url.search === location.search && link.href.indexOf("#") !== -1)) return;
+    if (!sequence || sequence.cancelled) return;
+    event.preventDefault();
+    if (activePress) endPress(); // Enter can activate a link before keyup.
+    clearTimeout(navigationTimer);
+    var owner = sequence;
+    var deadline = Date.now() + MAX_AUDIO_WAIT;
+    var navigate = function () {
+      clearTimeout(navigationTimer);
+      navigationTimer = null;
+      cancelSequence(owner);
+      location.assign(url.href);
+    };
+    navigationTimer = setTimeout(navigate, MAX_AUDIO_WAIT);
+    var thisTimer = navigationTimer;
+    releaseSound(owner).then(function (last) {
+      if (navigationTimer !== thisTimer) return;
+      var remaining = last ? Math.max(0, (last.endsAt - last.context.currentTime) * 1000 + 20) : 0;
+      clearTimeout(navigationTimer);
+      navigationTimer = setTimeout(navigate, Math.min(remaining, Math.max(0, deadline - Date.now())));
+    });
   }
 
   function warmSamples() {
@@ -162,9 +242,10 @@
   }
 
   function beginPress(target, key, pointerId) {
+    if (activePress) endPress();
     clickTarget = target;
     clickFromKeyboard = key !== null;
-    activePress = { target: target, key: key, pointerId: pointerId, sound: play("press") };
+    activePress = { target: target, key: key, pointerId: pointerId, sound: newSequence() };
   }
 
   function endPress() {
@@ -180,6 +261,8 @@
   }
 
   function stopAudio() {
+    cancelSequence(sequence);
+    sequence = null;
     activePress = null;
     clickTarget = null;
     if (!audioContext) return;
@@ -222,6 +305,7 @@
 
     document.addEventListener("pointercancel", function (event) {
       if (activePress && activePress.pointerId === event.pointerId) {
+        cancelSequence(activePress.sound);
         activePress = null;
         clickTarget = null;
       }
@@ -273,6 +357,14 @@
       if (!event.isTrusted || !event.target.matches(".guestbook-form")) return;
       if (!event.submitter) playPair();
     }, true);
+
+    window.addEventListener("click", finishBeforeNavigation);
+    window.addEventListener("blur", endPress);
+    window.addEventListener("pagehide", function () {
+      clearTimeout(navigationTimer);
+      navigationTimer = null;
+      stopAudio();
+    });
 
     if (toggle) {
       toggle.addEventListener("click", function (event) {
