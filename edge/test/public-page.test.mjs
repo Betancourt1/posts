@@ -125,6 +125,22 @@ test("loads compact archive months except when the archive page already has its 
   assert.match(source, /archiveItems\(db, document\.lang, \{ \.\.\.options, tags: false \}\)/);
 });
 
+test("single pages put tags last and reserve summaries for listings", async () => {
+  const [single, list] = await Promise.all([
+    readFile(singlePath, "utf8"),
+    readFile(listPath, "utf8"),
+  ]);
+  const header = single.match(/<header class="post-header">([\s\S]*?)<\/header>/)?.[1];
+  assert.ok(header);
+  assert.doesNotMatch(header, /TagList|post-summary/);
+  assert.doesNotMatch(single, /<p[^>]*post-summary/);
+  assert.equal(single.match(/<TagList /g)?.length, 1);
+  assert.match(single, /tags\.length > 0 && \(\s*<footer class="post-footer">\s*<TagList tags=\{tags\} lang=\{lang\} \/>\s*<\/footer>\s*\)\}\s*<\/article>/);
+  assert.ok(single.indexOf('<footer class="post-footer">') > single.indexOf('class="backlinks-section"'));
+  assert.match(list, /item\.summary && <p class="writing-index-summary">\{item\.summary\}<\/p>/);
+  assert.match(list, /item\.summary && <p class="post-summary">\{item\.summary\}<\/p>/);
+});
+
 test("single pages avoid duplicating a Markdown H1", async () => {
   const [publicPage, single] = await Promise.all([
     readFile(publicPagePath, "utf8"),

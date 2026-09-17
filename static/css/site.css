@@ -2786,6 +2786,10 @@ html.image-viewer-open {
   letter-spacing: -0.02em;
 }
 
+.post-footer {
+  margin-top: 2rem;
+}
+
 .tag-list {
   margin: 8px 0 0;
   display: flex;

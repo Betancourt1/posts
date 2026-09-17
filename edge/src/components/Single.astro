@@ -107,8 +107,6 @@ const rawSource = [
     </div>
 
     {!titleInBody && <h1 class="post-title" style="margin-top: 0; margin-bottom: 12px;">{title}</h1>}
-    <TagList tags={tags} lang={lang} />
-    {section !== "lit" && summary && <p class="lead post-summary" style="margin-top: 8px;">{summary}</p>}
   </header>
 
   {images.length > 0 ? (
@@ -150,6 +148,11 @@ const rawSource = [
         ))}
       </ul>
     </section>
+  )}
+  {tags.length > 0 && (
+    <footer class="post-footer">
+      <TagList tags={tags} lang={lang} />
+    </footer>
   )}
 </article>
 
