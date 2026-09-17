@@ -13,6 +13,52 @@
     var graph = document.querySelector(".sidenote-sidebar-graph");
     var printMode = false;
     var frame = 0;
+    var noteDialog;
+    var noteTrigger;
+
+    function closeNote() {
+      if (noteDialog && noteDialog.open) noteDialog.close();
+    }
+
+    document.addEventListener("click", function (event) {
+      var reference = event.target.closest(".post-body .sidenote-reference a");
+      if (!reference || desktop.matches || printMode || event.defaultPrevented ||
+          event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      var note = document.getElementById(reference.hash.slice(1));
+      var copy = note && note.querySelector(".sidenote-copy");
+      if (!copy || typeof HTMLDialogElement === "undefined") return;
+
+      if (!noteDialog) {
+        var spanish = document.documentElement.lang.startsWith("es");
+        noteDialog = document.createElement("dialog");
+        noteDialog.className = "sidenote-dialog";
+        noteDialog.setAttribute("aria-labelledby", "sidenote-dialog-title");
+        noteDialog.innerHTML = '<div class="sidenote-dialog-header"><h2 id="sidenote-dialog-title"></h2>' +
+          '<button type="button" autofocus>' + (spanish ? "Cerrar" : "Close") + '</button></div>' +
+          '<div class="sidenote-dialog-copy"></div>';
+        document.body.append(noteDialog);
+        noteDialog.querySelector("button").addEventListener("click", closeNote);
+        noteDialog.addEventListener("click", function (click) {
+          if (click.target !== noteDialog) return;
+          var bounds = noteDialog.getBoundingClientRect();
+          if (click.clientX < bounds.left || click.clientX > bounds.right ||
+              click.clientY < bounds.top || click.clientY > bounds.bottom) closeNote();
+        });
+        noteDialog.addEventListener("close", function () {
+          if (noteTrigger) noteTrigger.focus({ preventScroll: true });
+        });
+      }
+
+      event.preventDefault();
+      noteTrigger = reference;
+      noteDialog.querySelector("h2").textContent =
+        (document.documentElement.lang.startsWith("es") ? "Nota " : "Note ") +
+        note.getAttribute("data-sidenote-number").padStart(2, "0");
+      var dialogCopy = noteDialog.querySelector(".sidenote-dialog-copy");
+      dialogCopy.replaceChildren(...copy.cloneNode(true).childNodes);
+      noteDialog.showModal();
+      dialogCopy.scrollTop = 0;
+    });
 
     function resetPositions() {
       endnotes.querySelectorAll(".sidenote-item").forEach(function (item) {
@@ -88,6 +134,7 @@
     }
 
     desktop.addEventListener("change", function () {
+      closeNote();
       var startsCollapsed = desktop.matches && document.body.classList.contains("zen-mode");
       if (graph) graph.classList.toggle("is-zen-collapsed", startsCollapsed);
       syncPlacement();
@@ -96,6 +143,7 @@
     window.addEventListener("resize", schedulePosition, { passive: true });
     window.addEventListener("load", schedulePosition, { once: true });
     window.addEventListener("beforeprint", function () {
+      closeNote();
       printMode = true;
       restoreEndnotes();
     });

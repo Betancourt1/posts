@@ -2282,6 +2282,91 @@ body.graph-maximized .ssh-terminal-overlay {
   display: none;
 }
 
+.sidenote-dialog {
+  position: fixed;
+  inset: auto 0 0;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  max-height: 55vh;
+  max-height: 55dvh;
+  margin: 0;
+  padding: 16px 24px max(24px, env(safe-area-inset-bottom));
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: 16px 16px 0 0;
+  background: var(--bg);
+  color: var(--article-ink, var(--ink));
+  overflow: hidden;
+}
+
+.sidenote-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: sidenote-reveal 160ms var(--ease-out);
+}
+
+.sidenote-dialog::backdrop {
+  background: rgb(0 0 0 / 0.35);
+}
+
+html:has(.sidenote-dialog[open]),
+body:has(.sidenote-dialog[open]) {
+  overflow: hidden;
+}
+
+.sidenote-dialog-header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.sidenote-dialog-header h2 {
+  margin: 0;
+  color: var(--accent);
+  font-family: "Doto", "JetBrains Mono", monospace;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.sidenote-dialog-header button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg-soft);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.sidenote-dialog-copy {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  overflow-wrap: anywhere;
+  font-family: var(--article-font-family, "JetBrains Mono", "IBM Plex Mono", monospace);
+  font-size: max(16px, 1rem);
+  line-height: 1.6;
+}
+
+@keyframes sidenote-reveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidenote-dialog[open] { animation: none; }
+}
+
+@media print {
+  .sidenote-dialog { display: none !important; }
+}
+
 .sidenote-sidebar {
   width: 100%;
 }
@@ -2339,6 +2424,20 @@ body.graph-maximized .ssh-terminal-overlay {
 @media (max-width: 1000px) {
   .sidebar-column--sidenotes {
     display: none;
+  }
+
+  .sidenote-reference a {
+    position: relative;
+  }
+
+  .sidenote-reference a::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 24px);
+    height: 32px;
+    transform: translate(-50%, -50%);
   }
 }
 

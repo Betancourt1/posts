@@ -45,7 +45,7 @@ test("reading rail places the graph above notes without a header trigger", async
   assert.match(client, /reference\.getBoundingClientRect\(\)\.top - railTop/);
   assert.match(client, /nextTop = top \+ item\.offsetHeight \+ 22/);
   assert.match(client, /article\.getBoundingClientRect\(\)\.bottom - railTop/);
-  assert.doesNotMatch(client, /graphDialog|showModal|sidenote-graph-open/);
+  assert.doesNotMatch(client, /graphDialog|sidenote-graph-open/);
   assert.doesNotMatch(sound, /post-context-button|sidenote-graph-dialog/);
 
   assert.match(css, /\.sidenote-endnotes\.is-in-rail[\s\S]*?border:\s*0;/);
