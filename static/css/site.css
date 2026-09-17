@@ -2264,11 +2264,13 @@ body.graph-maximized .ssh-terminal-overlay {
   line-height: 1.35;
 }
 
+.sidenote-dialog-copy strong,
 .sidenote-copy strong {
   color: var(--ink);
   font-weight: 900;
 }
 
+.sidenote-dialog-copy em,
 .sidenote-copy em {
   font-style: oblique 10deg;
   font-synthesis: style;
@@ -2294,7 +2296,7 @@ body.graph-maximized .ssh-terminal-overlay {
   padding: 16px 24px max(24px, env(safe-area-inset-bottom));
   border: 1px solid var(--line);
   border-bottom: 0;
-  border-radius: 16px 16px 0 0;
+  border-radius: 0;
   background: var(--bg);
   color: var(--article-ink, var(--ink));
   overflow: hidden;
@@ -2337,7 +2339,7 @@ body:has(.sidenote-dialog[open]) {
   min-height: 44px;
   padding: 8px;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 0;
   background: var(--bg-soft);
   color: var(--ink);
   font: inherit;
@@ -2349,8 +2351,11 @@ body:has(.sidenote-dialog[open]) {
   overflow-y: auto;
   overscroll-behavior: contain;
   overflow-wrap: anywhere;
-  font-family: var(--article-font-family, "JetBrains Mono", "IBM Plex Mono", monospace);
+  font-family: "Doto", "JetBrains Mono", monospace;
   font-size: max(16px, 1rem);
+  font-synthesis: none;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   line-height: 1.6;
 }
 
