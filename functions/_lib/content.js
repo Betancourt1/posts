@@ -409,6 +409,8 @@ export async function createPost(env, payload) {
     summary: String(payload.summary || ""),
   };
 
+  if (isWritingNotebook) frontMatter.essay = payload.essay === true;
+
   if (payload.hidden) {
     frontMatter.hidden = true;
   }

@@ -456,3 +456,37 @@ test("createPost, savePage, savePageFrontMatter, and deletePage automatically mi
   }
 });
 
+
+test("writing type survives creation and edits without changing paths", async () => {
+  const originalFetch = globalThis.fetch;
+  const files = new Map();
+  globalThis.fetch = async (url, options = {}) => {
+    const path = decodeURIComponent(new URL(url).pathname.split("/contents/")[1]);
+    if ((options.method || "GET") === "GET") {
+      if (path.endsWith("/_index.md")) return jsonResponse(200, { type: "file", sha: "index", content: encoded("---\ntitle: Notebook\n---\n") });
+      return files.has(path)
+        ? jsonResponse(200, { type: "file", sha: "old", content: encoded(files.get(path)) })
+        : jsonResponse(404, { message: "Not Found" });
+    }
+    files.set(path, Buffer.from(JSON.parse(options.body).content, "base64").toString("utf8"));
+    return jsonResponse(200, { commit: { sha: "new" } });
+  };
+  try {
+    for (const lang of ["en", "es"]) {
+      for (const essay of [true, false, undefined]) {
+        const created = await createPost(env, {
+          notebook: `content_${lang}/posts`, title: `Type ${essay}`, date: "2026-09-18", essay, body: "Body unchanged.",
+        });
+        assert.equal(splitMarkdown(files.get(created.path)).frontMatter.essay, essay === true);
+        const saved = await savePage(env, { path: created.path, frontMatter: { essay: essay !== true }, body: "Body unchanged." });
+        assert.equal(saved.path, created.path);
+        assert.equal(splitMarkdown(files.get(saved.path)).frontMatter.essay, essay !== true);
+        assert.equal(splitMarkdown(files.get(saved.path)).body.trim(), "Body unchanged.");
+      }
+    }
+    const other = await createPost(env, { notebook: "content_es/zettelkasten", title: "Other", date: "2026-09-18", essay: true });
+    assert.equal(other.frontMatter.essay, undefined);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

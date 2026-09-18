@@ -18,6 +18,7 @@ const fixtureImage = Buffer.from(
 );
 
 const notebooks = [
+  { path: "content_en/posts", indexPath: "content_en/posts/_index.md", title: "Blog", lang: "en" },
   {
     path: "content_es/fotografia",
     indexPath: "content_es/fotografia/_index.md",
@@ -207,6 +208,13 @@ async function startHarnessServer(savedRequests) {
 
     if (req.method === "GET" && url.pathname === "/api/arena-status") {
       json(res, 200, { state: "disabled", blocks: [], error: "" });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/create-post") {
+      const payload = await readJson(req);
+      savedRequests.push({ path: url.pathname, payload });
+      json(res, 200, { path: payload.notebook + "/new.md", url: "/posts/new/", frontMatter: { essay: payload.essay, draft: payload.draft, hidden: payload.hidden }, changed: true });
       return;
     }
 
@@ -795,10 +803,67 @@ async function runGrayscalePropertiesCase(browser, origin) {
   }
 }
 
+async function runWritingTypeCase(browser, origin, viewport, savedRequests) {
+  for (const lang of ["es", "en"]) {
+    const path = `content_${lang}/posts/type-test.md`;
+    pages[path] = { path, url: `/${lang === "es" ? "es/" : ""}posts/type-test/`, frontMatter: { title: "Type test", date: "2026-09-18", essay: true }, body: "Body." };
+    const context = await browser.newContext({ viewport });
+    const page = await context.newPage();
+    page.on("dialog", (dialog) => dialog.accept());
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    try {
+      for (const value of ["personal", "essay"]) {
+        await page.goto(`${origin}/post-editor?mode=edit&path=${encodeURIComponent(path)}`);
+        await waitForEditor(page);
+        await page.locator("#top-settings-button").click();
+        assert.equal(await page.locator("#writing-type").inputValue(), "essay");
+        await page.locator("#writing-type").selectOption(value);
+        if (value === "personal") {
+          assert.equal(await page.locator("#saved-pill").textContent(), "Sin guardar");
+          await page.waitForFunction(() => JSON.parse(localStorage.getItem("authorWritingDraftV1") || "null")?.essay === false);
+          await page.reload();
+          await waitForEditor(page);
+          await page.locator("#draft-restore-accept").click();
+          await page.locator("#top-settings-button").click();
+          assert.equal(await page.locator("#writing-type").inputValue(), "personal");
+          await page.screenshot({ path: `/tmp/posts-writing-editor-${lang}-${viewport.width}.png` });
+        }
+        await page.locator("#settings-close").click();
+        await Promise.all([page.waitForURL(/\/admin\/(es\/)?posts\/$/), page.locator("#save").click()]);
+        assert.equal(savedRequests.at(-1).payload.path, path);
+        assert.equal(savedRequests.at(-1).payload.frontMatter.essay, value === "essay");
+      }
+      for (const value of ["essay", "personal"]) {
+        await page.goto(`${origin}/post-editor?mode=new&notebook=content_${lang}/posts`);
+        await waitForEditor(page);
+        await page.locator("#title").fill("New writing");
+        await page.locator("#top-settings-button").click();
+        assert.equal(await page.locator("#writing-type").inputValue(), "personal");
+        await page.locator("#notebook").selectOption("content_es/fotografia");
+        assert.equal(await page.locator("#writing-type").isVisible(), false);
+        await page.locator("#notebook").selectOption(`content_${lang}/posts`);
+        await page.locator("#writing-type").selectOption(value);
+        await page.locator("#settings-close").click();
+        await Promise.all([page.waitForURL(/\/admin\/(es\/)?posts\/$/), page.locator("#save").click()]);
+        assert.equal(savedRequests.at(-1).payload.essay, value === "essay");
+      }
+      delete pages[path].frontMatter.essay;
+      await page.goto(`${origin}/post-editor?mode=edit&path=${encodeURIComponent(path)}`);
+      await waitForEditor(page);
+      assert.equal(await page.locator("#writing-type").inputValue(), "personal");
+      assert.deepEqual(errors, []);
+    } finally {
+      await context.close();
+      delete pages[path];
+    }
+  }
+}
+
 async function main() {
   const savedRequests = [];
   const { server, origin } = await startHarnessServer(savedRequests);
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({ headless: true, executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined });
   const fixtures = [
     {
       path: "content_es/_index.md",
@@ -828,6 +893,8 @@ async function main() {
   ];
 
   try {
+    for (const viewport of viewports) await runWritingTypeCase(browser, origin, viewport, savedRequests);
+    console.log("Tipo de escrito: crear, editar, restaurar y cambiar destino comprobados en ambos idiomas.");
     for (const fixture of fixtures) {
       for (const viewport of viewports) {
         await runCase(browser, origin, fixture, viewport, savedRequests);
