@@ -60,6 +60,7 @@ export interface ContentListItem {
   date?: string | Date | null;
   summary?: string | null;
   summaryHtml?: string | null;
+  essay?: boolean;
   tags?: TagItem[];
   section?: string;
   draft?: boolean;

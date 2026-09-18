@@ -109,3 +109,13 @@ npm run visual:qa -- \
 ```
 
 `--assert-responsive` falla si encuentra overflow horizontal o controles moviles menores a 44 px.
+
+### Clasificación de escritos
+
+Los índices `/posts/` y `/es/posts/` separan los textos mediante una flag booleana en el front matter:
+
+```yaml
+essay: true
+```
+
+`true` coloca el texto en **Ensayos**; `false` o la ausencia de la flag lo coloca en **Posts breves y personales**. Mantén el mismo valor en ambas traducciones. Cada grupo conserva el orden por fecha y los enlaces originales; no se mueven archivos ni se cambian URLs. Los metadatos se proyectan a D1 mediante el flujo de contenido habitual.

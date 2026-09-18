@@ -1,4 +1,5 @@
 ---
+essay: true
 title: "Los ricos no van a escapar"
 date: 2025-09-11
 tags:

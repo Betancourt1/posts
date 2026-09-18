@@ -1,4 +1,5 @@
 ---
+essay: true
 title: "El futuro probablemente es primitivo"
 date: 2025-09-01
 tags:

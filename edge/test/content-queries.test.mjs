@@ -145,6 +145,7 @@ Escritos en español.
     ],
     ["content_en/posts/ethical-data.md", `---
 title: Ethical Data
+essay: true
 date: 2026-07-10
 draft: false
 summary: A practical ethics note.
@@ -156,6 +157,7 @@ Ethical systems need care. [Target](/posts/target/)
 `],
     ["content_es/posts/datos-eticos.md", `---
 title: Datos éticos
+essay: true
 date: 2026-07-09
 draft: false
 summary: Una nota sobre datos.
@@ -166,6 +168,7 @@ La ética de datos necesita cuidado.
 `],
     ["content_es/posts/solo-espanol.md", `---
 title: Solo en español
+essay: false
 date: 2026-07-13
 draft: false
 tags: [solo-es]
@@ -430,6 +433,10 @@ test("reads the projected public site through the real D1 API", async (t) => {
       "/es/posts/datos-eticos/",
       "/posts/target/",
     ]);
+
+    for (const page of [publicEnglishWriting, publicSpanishWriting]) {
+      assert.deepEqual(page.items.map((document) => document.frontMatter.essay), [false, true, undefined]);
+    }
 
     const adminOptions = {
       includeDrafts: true,

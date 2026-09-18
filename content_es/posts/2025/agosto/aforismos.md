@@ -1,4 +1,5 @@
 ---
+essay: false
 title: "Aforismos que he escrito estos meses"
 date: 2025-08-26
 tags:

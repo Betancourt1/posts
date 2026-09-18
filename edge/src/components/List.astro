@@ -40,8 +40,13 @@ function editorialDate(value: ContentListItem["date"]) {
   };
 }
 
-const editorialGroups: { year: string | null; rows: { item: ContentListItem; day: string }[] }[] = [];
+type YearGroup = { year: string | null; rows: { item: ContentListItem; day: string }[] };
+const writingCategories = [
+  { id: "essays", title: lang === "es" ? "Ensayos" : "Essays", groups: [] as YearGroup[] },
+  { id: "personal-posts", title: lang === "es" ? "Posts breves y personales" : "Short and personal posts", groups: [] as YearGroup[] },
+];
 for (const item of displayItems) {
+  const editorialGroups = writingCategories[item.essay === true ? 0 : 1].groups;
   const date = editorialDate(item.date);
   const year = date?.year ?? null;
   let group = editorialGroups[editorialGroups.length - 1];
@@ -75,36 +80,42 @@ for (const item of displayItems) {
 
 {editorial ? (
   <section class="writing-index" data-writing-index>
-    {editorialGroups.map((group) => (
-      <div class="writing-index-year">
-        <h2 class="writing-index-year-mark">{group.year || undatedLabel}</h2>
-        <div class="writing-index-rows">
-          {group.rows.map(({ item, day }) => (
-            <article class="writing-index-row">
-              <span class="writing-index-date">{day}</span>
-              <div class="writing-index-main">
-                <h3 class="writing-index-title">
-                  <a href={item.href}>{item.title}</a>
-                  {authorMode && (item.draft || item.hidden) && (
-                    <span class="writing-index-status">{lang === "es" ? "Borrador" : "Draft"}</span>
+    {writingCategories.map((category) => (
+      <section class="writing-category" aria-labelledby={category.id}>
+        <h2 id={category.id} class="writing-category-title">{category.title}</h2>
+        {category.groups.length === 0 && <p class="writing-category-empty">{lang === "es" ? "Todavía no hay publicaciones." : "No posts yet."}</p>}
+        {category.groups.map((group) => (
+          <div class="writing-index-year">
+            <h3 class="writing-index-year-mark">{group.year || undatedLabel}</h3>
+            <div class="writing-index-rows">
+              {group.rows.map(({ item, day }) => (
+                <article class="writing-index-row">
+                  <span class="writing-index-date">{day}</span>
+                  <div class="writing-index-main">
+                    <h4 class="writing-index-title">
+                      <a href={item.href}>{item.title}</a>
+                      {authorMode && (item.draft || item.hidden) && (
+                        <span class="writing-index-status">{lang === "es" ? "Borrador" : "Draft"}</span>
+                      )}
+                    </h4>
+                    {item.summary && <p class="writing-index-summary">{item.summary}</p>}
+                  </div>
+                  {showTags && (item.tags?.length ?? 0) > 0 && (
+                    <p class="writing-index-tags">
+                      {(item.tags ?? []).slice(0, 2).map((tag, tagIndex) => (
+                        <>
+                          {tagIndex > 0 && <span aria-hidden="true"> · </span>}
+                          <a href={tag.href}>{tag.label}</a>
+                        </>
+                      ))}
+                    </p>
                   )}
-                </h3>
-                {item.summary && <p class="writing-index-summary">{item.summary}</p>}
-              </div>
-              {showTags && (item.tags?.length ?? 0) > 0 && (
-                <p class="writing-index-tags">
-                  {(item.tags ?? []).slice(0, 2).map((tag, tagIndex) => (
-                    <>
-                      {tagIndex > 0 && <span aria-hidden="true"> · </span>}
-                      <a href={tag.href}>{tag.label}</a>
-                    </>
-                  ))}
-                </p>
-              )}
-            </article>
-          ))}
-        </div>
-      </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
     ))}
   </section>
 ) : (

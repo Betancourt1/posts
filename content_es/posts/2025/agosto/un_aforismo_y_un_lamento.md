@@ -1,4 +1,5 @@
 ---
+essay: false
 title: "Un aforismo y un lamento"
 date: 2025-08-30
 tags:

@@ -1,4 +1,5 @@
 ---
+essay: false
 title: "El derecho de existir"
 date: 2025-08-21
 tags:

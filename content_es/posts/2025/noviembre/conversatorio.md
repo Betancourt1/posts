@@ -1,4 +1,5 @@
 ﻿---
+essay: true
 title: "Un conversatorio"
 date: 2025-11-19
 tags:

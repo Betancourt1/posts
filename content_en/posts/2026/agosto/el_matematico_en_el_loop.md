@@ -1,4 +1,5 @@
 ---
+essay: true
 title: "El matemático en el loop"
 date: 2026-08-29
 draft: true

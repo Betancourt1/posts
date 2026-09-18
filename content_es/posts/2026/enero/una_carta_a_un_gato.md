@@ -1,4 +1,5 @@
 ---
+essay: false
 title: "Una carta a un gato"
 date: 2026-01-10
 tags:

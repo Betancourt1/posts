@@ -1,4 +1,5 @@
 ---
+essay: true
 title: "Tecno-Fatalismo"
 date: 2026-09-15
 tags: ["essays", "artificial-intelligence", "technology", "politics", "ethics", "public-policy"]

@@ -1,4 +1,5 @@
 ﻿---
+essay: false
 title: "どうもありがとう"
 date: 2026-01-01
 tags:
