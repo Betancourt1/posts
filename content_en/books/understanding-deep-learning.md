@@ -11,7 +11,7 @@ book_progress: "10"
 book_status: "currently-reading"
 goodreads_id: "123239819"
 goodreads_url: "https://www.goodreads.com/book/show/123239819-understanding-deep-learning"
-image: "https://covers.openlibrary.org/b/isbn/9780262048644-L.jpg?default=false"
+image: "https://raw.githubusercontent.com/udlbook/udlbook/main/UDLCover.jpg"
 image_alt: "Understanding Deep Learning — Simon J.D. Prince"
 date_added: 2026-09-14
 bookshelves: ["currently-reading", "libro-técnico", "tecnología"]
