@@ -309,6 +309,9 @@
     var dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
     var width = 0;
     var height = 0;
+    var bleedX = 0;
+    var bleedY = 0;
+    var ambient = false;
     var theme = {};
     var hasPositioned = false;
 
@@ -389,10 +392,25 @@
       var rect = container.getBoundingClientRect();
       width = Math.max(260, rect.width);
       height = Math.max(240, rect.height);
-      canvas.width = Math.round(width * dpr);
-      canvas.height = Math.round(height * dpr);
-      canvas.style.width = width + "px";
-      canvas.style.height = height + "px";
+      ambient = !homeGraphSection.classList.contains("sidebar-graph") && !state.maximized;
+      container.classList.toggle("graph-ambient", ambient);
+      bleedX = ambient ? rect.left : 0;
+      bleedY = ambient ? Math.min(window.innerHeight * 0.6, rect.top + window.scrollY) : 0;
+      var canvasWidth = ambient ? document.documentElement.clientWidth : width;
+      var canvasHeight = height + bleedY * 2;
+      canvas.width = Math.round(canvasWidth * dpr);
+      canvas.height = Math.round(canvasHeight * dpr);
+      canvas.style.width = canvasWidth + "px";
+      canvas.style.height = canvasHeight + "px";
+      canvas.style.left = -bleedX + "px";
+      canvas.style.top = -bleedY + "px";
+      container.style.setProperty("--graph-canvas-width", canvasWidth + "px");
+      container.style.setProperty("--graph-canvas-height", canvasHeight + "px");
+      container.style.setProperty("--graph-left", bleedX + "px");
+      container.style.setProperty("--graph-right", (bleedX + width) + "px");
+      container.style.setProperty("--graph-top", bleedY + "px");
+      container.style.setProperty("--graph-bottom", (bleedY + height) + "px");
+      refreshTheme();
 
       if (!hasPositioned) {
         state.offsetX = width / 2;
@@ -429,7 +447,7 @@
     }
 
     function pointerXY(event) {
-      var rect = canvas.getBoundingClientRect();
+      var rect = container.getBoundingClientRect();
       return {
         x: event.clientX - rect.left,
         y: event.clientY - rect.top
@@ -639,9 +657,13 @@
     function draw() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.globalAlpha = 1;
-      ctx.fillStyle = theme.bg;
-      ctx.fillRect(0, 0, width, height);
-      ctx.translate(state.offsetX, state.offsetY);
+      if (ambient) {
+        ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+      } else {
+        ctx.fillStyle = theme.bg;
+        ctx.fillRect(0, 0, width, height);
+      }
+      ctx.translate(bleedX + state.offsetX, bleedY + state.offsetY);
       ctx.scale(state.zoom, state.zoom);
       var activeNode = state.draggingNode || state.hoverNode || state.searchNode;
       var hasActiveNode = !!activeNode;
@@ -850,7 +872,7 @@
       }
     }
 
-    canvas.addEventListener("pointerdown", function (event) {
+    container.addEventListener("pointerdown", function (event) {
       var pos = pointerXY(event);
       if (event.pointerType === "touch") {
         event.preventDefault();
@@ -859,7 +881,7 @@
         }
 
         state.touchPointers.set(event.pointerId, pos);
-        canvas.setPointerCapture(event.pointerId);
+        container.setPointerCapture(event.pointerId);
 
         if (state.touchPointers.size === 2) {
           var pinch = getPinchMetrics();
@@ -898,12 +920,12 @@
       }
 
       if (event.pointerType !== "touch") {
-        canvas.setPointerCapture(event.pointerId);
+        container.setPointerCapture(event.pointerId);
       }
       wakeSimulation();
     });
 
-    canvas.addEventListener("pointermove", function (event) {
+    container.addEventListener("pointermove", function (event) {
       var pos = pointerXY(event);
 
       if (event.pointerType === "touch" && state.touchPointers.has(event.pointerId)) {
@@ -968,8 +990,8 @@
         state.touchPointers.delete(event.pointerId);
       }
 
-      if (canvas.hasPointerCapture(event.pointerId)) {
-        canvas.releasePointerCapture(event.pointerId);
+      if (container.hasPointerCapture(event.pointerId)) {
+        container.releasePointerCapture(event.pointerId);
       }
 
       if (state.pinching) {
@@ -996,10 +1018,10 @@
       wakeSimulation();
     }
 
-    canvas.addEventListener("pointerup", onPointerUp);
-    canvas.addEventListener("pointercancel", onPointerUp);
+    container.addEventListener("pointerup", onPointerUp);
+    container.addEventListener("pointercancel", onPointerUp);
 
-    canvas.addEventListener("click", function (event) {
+    container.addEventListener("click", function (event) {
       if (state.moved) {
         return;
       }
@@ -1013,7 +1035,7 @@
       }
     });
 
-    canvas.addEventListener(
+    container.addEventListener(
       "wheel",
       function (event) {
         event.preventDefault();

@@ -62,9 +62,15 @@ test("the graph keeps its monochrome palette in both site themes", async () => {
     ["--graph-label-dim", "#d8d8d8"],
   ]) {
     const declaration = `${token}: ${value};`;
-    assert.equal(stylesheet.match(new RegExp(`${token}\\s*:`, "g"))?.length, 1);
+    assert.equal(stylesheet.match(new RegExp(`${token}\\s*:`, "g"))?.length, 2);
     assert.match(graphRule, new RegExp(declaration.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
+
+  const ambientLightRule = stylesheet.match(/:root\[data-theme="light"\] \.graph-ambient\s*\{([^}]*)\}/)?.[1] || "";
+  assert.match(ambientLightRule, /--graph-node: #495562;/);
+  assert.match(ambientLightRule, /--graph-link: #495562;/);
+  assert.match(ambientLightRule, /--graph-bg: var\(--bg\);/);
+  assert.doesNotMatch(ambientLightRule, /--accent/);
 
   assert.doesNotMatch(stylesheet, /:root(?:\[data-theme="light"\])?\s*\{[^}]*--graph-/s);
   assert.doesNotMatch(stylesheet, /\.sidebar-graph[^{]*\{[^}]*--graph-/s);
