@@ -2823,7 +2823,12 @@ html.image-viewer-open {
   border: 1px solid var(--line);
   font-size: 0.8rem;
   line-height: 1.4;
-  color: var(--accent);
+  color: var(--ink-muted);
+}
+
+.tag:hover,
+.tag:focus-visible {
+  color: var(--ink);
 }
 
 .tag-cloud {
