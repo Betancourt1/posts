@@ -1178,12 +1178,12 @@ a.guestbook-sender:hover {
 /* Writing index (Escritos editorial index) */
 .writing-index {
   display: grid;
-  gap: 2.4rem;
+  gap: 1.6rem;
 }
 
 .writing-category {
   display: grid;
-  gap: 1.6rem;
+  gap: 1rem;
   min-width: 0;
 }
 
@@ -1302,7 +1302,7 @@ a.guestbook-sender:hover {
 
 @media (max-width: 720px) {
   .writing-index {
-    gap: 1.8rem;
+    gap: 1.4rem;
   }
 
   .writing-index-row {
@@ -1605,7 +1605,9 @@ button.quotes-order-option:focus-visible {
 }
 
 .content-column--books .content-inner {
+  min-width: 0;
   max-width: none;
+  container-type: inline-size;
 }
 
 .content-column--photo-index .content-inner {
@@ -1624,6 +1626,7 @@ button.quotes-order-option:focus-visible {
 
 .book-shelf {
   position: relative;
+  min-width: 0;
 }
 
 .book-shelf-heading {
@@ -1646,7 +1649,7 @@ button.quotes-order-option:focus-visible {
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  white-space: nowrap;
+
 }
 
 .book-shelf-list {
@@ -1655,6 +1658,7 @@ button.quotes-order-option:focus-visible {
 
 .book-shelf-row {
   display: grid;
+  overflow-wrap: anywhere;
   grid-template-columns: minmax(14rem, 1.15fr) minmax(9rem, 0.72fr) minmax(17rem, 1.35fr);
   gap: 1.1rem;
   align-items: center;
@@ -1789,24 +1793,12 @@ button.quotes-order-option:focus-visible {
   outline-offset: 2px;
 }
 
-@media (max-width: 720px) {
-  .book-library {
-    gap: 2rem;
-    margin-top: 1.6rem;
-  }
-
-  .book-shelf-row {
+@container (max-width: 42.2rem) {
+  .book-shelf-row,
+  .book-shelf-row:not(.has-opinion) {
     grid-template-columns: minmax(0, 1fr) minmax(8rem, 0.7fr);
     gap: 0.8rem 1rem;
     padding: 1rem 0;
-  }
-
-  .book-shelf-row:not(.has-opinion) {
-    grid-template-columns: minmax(0, 1fr) minmax(8rem, 0.7fr);
-  }
-
-  .book-shelf-more-button {
-    min-height: 44px;
   }
 
   .book-opinion {
@@ -1816,13 +1808,35 @@ button.quotes-order-option:focus-visible {
   }
 }
 
+@container (max-width: 25rem) {
+  .book-shelf-row,
+  .book-shelf-row:not(.has-opinion) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .book-progress {
+    width: min(13rem, 100%);
+  }
+}
+
+@media (max-width: 720px) {
+  .book-library {
+    gap: 2rem;
+    margin-top: 1.6rem;
+  }
+
+  .book-shelf-more-button {
+    min-height: 44px;
+  }
+}
+
 @media (max-width: 480px) {
   .book-shelf-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .book-shelf-row:not(.has-opinion) {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .book-progress {
