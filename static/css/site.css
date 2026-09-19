@@ -833,11 +833,11 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(10rem, 15rem) minmax(0, 52.5rem) minmax(10rem, 15rem);
+  grid-template-columns: 220px minmax(0, 1fr) 260px;
   justify-content: center;
   gap: 28px;
   width: 100%;
-  max-width: 1440px;
+  max-width: none;
   margin: 0 auto;
   padding: 28px 32px 48px;
 }
@@ -3402,6 +3402,10 @@ body.zen-mode-returning .layout {
 }
 
 @media (min-width: 1001px) {
+  .content-column--writing-index .content-inner {
+    max-width: none;
+  }
+
   .nav-column {
     width: 220px;
     opacity: 1;
