@@ -62,7 +62,6 @@ const socialImageUrl = /^https?:\/\//.test(socialImage)
   : new URL(socialImage, origin).toString();
 const isCode = page.layout === "code";
 const isBooks = page.layout === "books";
-const isWritingIndex = page.kind === "section" && page.section === "posts";
 const bookCoverOrigins = [
   "https://covers.openlibrary.org",
   "https://is1-ssl.mzstatic.com",
@@ -222,7 +221,7 @@ const archivesPath = authorMode
           authorMode={authorMode}
         />
       </aside>
-      <main class:list={["column", "content-column", { "content-column--books": isBooks, "content-column--writing-index": isWritingIndex, "content-column--code-index": isCode, "content-column--photo-index": isPhotography, "content-column--quotes-index": isQuotes }]}>
+      <main class:list={["column", "content-column", { "content-column--books": isBooks, "content-column--code-index": isCode, "content-column--photo-index": isPhotography, "content-column--quotes-index": isQuotes }]}>
         <div class="content-inner"><slot /></div>
       </main>
       {showSidebar && (

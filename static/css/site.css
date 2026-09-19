@@ -833,7 +833,7 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 
 .layout {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr) 260px;
+  grid-template-columns: minmax(220px, 1fr) minmax(0, 840px) minmax(260px, 1fr);
   justify-content: center;
   gap: 28px;
   width: 100%;
@@ -3402,10 +3402,6 @@ body.zen-mode-returning .layout {
 }
 
 @media (min-width: 1001px) {
-  .content-column--writing-index .content-inner {
-    max-width: none;
-  }
-
   .nav-column {
     width: 220px;
     opacity: 1;
@@ -3416,6 +3412,7 @@ body.zen-mode-returning .layout {
   }
 
   .sidebar-column {
+    justify-self: end;
     width: 260px;
     opacity: 1;
     visibility: visible;
