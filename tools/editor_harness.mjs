@@ -214,7 +214,7 @@ async function startHarnessServer(savedRequests) {
     if (req.method === "POST" && url.pathname === "/api/create-post") {
       const payload = await readJson(req);
       savedRequests.push({ path: url.pathname, payload });
-      json(res, 200, { path: payload.notebook + "/new.md", url: "/posts/new/", frontMatter: { essay: payload.essay, draft: payload.draft, hidden: payload.hidden }, changed: true });
+      json(res, 200, { path: payload.notebook + "/new.md", url: "/posts/new/", frontMatter: { essay: payload.essay, technical: payload.technical, draft: payload.draft, hidden: payload.hidden }, changed: true });
       return;
     }
 
@@ -813,28 +813,33 @@ async function runWritingTypeCase(browser, origin, viewport, savedRequests) {
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     try {
-      for (const value of ["personal", "essay"]) {
-        await page.goto(`${origin}/post-editor?mode=edit&path=${encodeURIComponent(path)}`);
-        await waitForEditor(page);
-        await page.locator("#top-settings-button").click();
-        assert.equal(await page.locator("#writing-type").inputValue(), "essay");
-        await page.locator("#writing-type").selectOption(value);
-        if (value === "personal") {
-          assert.equal(await page.locator("#saved-pill").textContent(), "Sin guardar");
-          await page.waitForFunction(() => JSON.parse(localStorage.getItem("authorWritingDraftV1") || "null")?.essay === false);
-          await page.reload();
+      for (const originalType of ["essay", "technical"]) {
+        pages[path].frontMatter.essay = originalType === "essay";
+        pages[path].frontMatter.technical = originalType === "technical";
+        for (const value of ["personal", "essay", "technical"]) {
+          await page.goto(`${origin}/post-editor?mode=edit&path=${encodeURIComponent(path)}`);
           await waitForEditor(page);
-          await page.locator("#draft-restore-accept").click();
           await page.locator("#top-settings-button").click();
-          assert.equal(await page.locator("#writing-type").inputValue(), "personal");
-          await page.screenshot({ path: `/tmp/posts-writing-editor-${lang}-${viewport.width}.png` });
+          assert.equal(await page.locator("#writing-type").inputValue(), originalType);
+          await page.locator("#writing-type").selectOption(value);
+          if (value !== originalType) {
+            assert.equal(await page.locator("#saved-pill").textContent(), "Sin guardar");
+            await page.waitForFunction((technical) => JSON.parse(localStorage.getItem("authorWritingDraftV1") || "null")?.technical === technical, value === "technical");
+            await page.reload();
+            await waitForEditor(page);
+            await page.locator("#draft-restore-accept").click();
+            await page.locator("#top-settings-button").click();
+            assert.equal(await page.locator("#writing-type").inputValue(), value);
+            await page.screenshot({ path: `/tmp/posts-writing-editor-${lang}-${viewport.width}.png` });
+          }
+          await page.locator("#settings-close").click();
+          await Promise.all([page.waitForURL(/\/admin\/(es\/)?posts\/$/), page.locator("#save").click()]);
+          assert.equal(savedRequests.at(-1).payload.path, path);
+          assert.equal(savedRequests.at(-1).payload.frontMatter.essay, value === "essay");
+          assert.equal(savedRequests.at(-1).payload.frontMatter.technical, value === "technical");
         }
-        await page.locator("#settings-close").click();
-        await Promise.all([page.waitForURL(/\/admin\/(es\/)?posts\/$/), page.locator("#save").click()]);
-        assert.equal(savedRequests.at(-1).payload.path, path);
-        assert.equal(savedRequests.at(-1).payload.frontMatter.essay, value === "essay");
       }
-      for (const value of ["essay", "personal"]) {
+      for (const value of ["technical", "essay", "personal"]) {
         await page.goto(`${origin}/post-editor?mode=new&notebook=content_${lang}/posts`);
         await waitForEditor(page);
         await page.locator("#title").fill("New writing");
@@ -847,8 +852,10 @@ async function runWritingTypeCase(browser, origin, viewport, savedRequests) {
         await page.locator("#settings-close").click();
         await Promise.all([page.waitForURL(/\/admin\/(es\/)?posts\/$/), page.locator("#save").click()]);
         assert.equal(savedRequests.at(-1).payload.essay, value === "essay");
+        assert.equal(savedRequests.at(-1).payload.technical, value === "technical");
       }
       delete pages[path].frontMatter.essay;
+      delete pages[path].frontMatter.technical;
       await page.goto(`${origin}/post-editor?mode=edit&path=${encodeURIComponent(path)}`);
       await waitForEditor(page);
       assert.equal(await page.locator("#writing-type").inputValue(), "personal");

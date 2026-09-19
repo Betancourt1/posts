@@ -44,9 +44,10 @@ type YearGroup = { year: string | null; rows: { item: ContentListItem; day: stri
 const writingCategories = [
   { id: "essays", title: lang === "es" ? "Ensayos" : "Essays", groups: [] as YearGroup[] },
   { id: "personal-posts", title: lang === "es" ? "Posts breves y personales" : "Short and personal posts", groups: [] as YearGroup[] },
+  { id: "technical-writing", title: lang === "es" ? "Escritos técnicos" : "Technical writing", groups: [] as YearGroup[] },
 ];
 for (const item of displayItems) {
-  const editorialGroups = writingCategories[item.essay === true ? 0 : 1].groups;
+  const editorialGroups = writingCategories[item.technical === true ? 2 : item.essay === true ? 0 : 1].groups;
   const date = editorialDate(item.date);
   const year = date?.year ?? null;
   let group = editorialGroups[editorialGroups.length - 1];

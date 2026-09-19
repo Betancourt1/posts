@@ -1721,6 +1721,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         <select id="writing-type">
           <option value="personal">Post breve y personal</option>
           <option value="essay">Ensayo</option>
+          <option value="technical">Escrito técnico</option>
         </select>
       </label>
       <input id="draft" type="checkbox" hidden />
@@ -2618,7 +2619,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           syncRouteControls(true);
           els.date.value = frontMatter.date || today();
           els.tags.value = (frontMatter.tags || []).join(", ");
-          els.writingType.value = frontMatter.essay === true ? "essay" : "personal";
+          els.writingType.value = frontMatter.technical === true ? "technical" : frontMatter.essay === true ? "essay" : "personal";
           els.summary.value = frontMatter.summary || frontMatter.description || "";
           els.image.value = frontMatter.image || "";
           els.imageAlt.value = frontMatter.image_alt || "";
@@ -2747,7 +2748,10 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           }
         }
 
-        if (isWritingPost()) payload.essay = els.writingType.value === "essay";
+        if (isWritingPost()) {
+          payload.essay = els.writingType.value === "essay";
+          payload.technical = els.writingType.value === "technical";
+        }
         return postJson("/api/create-post", payload);
       }
 
@@ -2757,7 +2761,10 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           date: els.date.value,
         });
 
-        if (isWritingPost()) nextFrontMatter.essay = els.writingType.value === "essay";
+        if (isWritingPost()) {
+          nextFrontMatter.essay = els.writingType.value === "essay";
+          nextFrontMatter.technical = els.writingType.value === "technical";
+        }
 
         if (!els.hidden.checked) {
           nextFrontMatter.draft = true;
@@ -3658,6 +3665,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           date: els.date.value,
           tags: els.tags.value,
           essay: isWritingPost() ? els.writingType.value === "essay" : undefined,
+          technical: isWritingPost() ? els.writingType.value === "technical" : undefined,
           image: els.image.value,
           imageAlt: els.imageAlt.value,
           caption: els.caption.value,
@@ -3720,6 +3728,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           date: els.date.value,
           tags: els.tags.value,
           essay: isWritingPost() ? els.writingType.value === "essay" : undefined,
+          technical: isWritingPost() ? els.writingType.value === "technical" : undefined,
           image: els.image.value,
           imageAlt: els.imageAlt.value,
           caption: els.caption.value,
@@ -3774,6 +3783,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         var keys = ["title", "summary", "body", "date", "tags", "image", "imageAlt", "caption"];
         var differs = keys.some(function (key) { return String(stored[key] || "") !== String(current[key] || ""); }) || stored.visible !== current.visible;
         if (isWritingPost() && typeof stored.essay === "boolean" && stored.essay !== current.essay) differs = true;
+        if (isWritingPost() && (stored.technical === true) !== current.technical) differs = true;
         if (!differs) return;
         var minutes = Math.max(1, Math.round((Date.now() - stored.savedAt) / 60000));
         els.draftRestoreText.textContent = "Borrador sin guardar de hace " + minutes + " min. ¿Restaurarlo?";
@@ -3789,7 +3799,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.body.value = String(stored.body || "");
         if (stored.date) els.date.value = stored.date;
         els.tags.value = String(stored.tags || "");
-        if (typeof stored.essay === "boolean") els.writingType.value = stored.essay ? "essay" : "personal";
+        if (typeof stored.essay === "boolean" || typeof stored.technical === "boolean") {
+          els.writingType.value = stored.technical === true ? "technical" : stored.essay === true ? "essay" : "personal";
+        }
         els.image.value = String(stored.image || "");
         els.imageAlt.value = String(stored.imageAlt || "");
         els.caption.value = String(stored.caption || "");

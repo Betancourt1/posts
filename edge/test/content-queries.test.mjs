@@ -169,6 +169,7 @@ La ética de datos necesita cuidado.
     ["content_es/posts/solo-espanol.md", `---
 title: Solo en español
 essay: false
+technical: true
 date: 2026-07-13
 draft: false
 tags: [solo-es]
@@ -436,6 +437,7 @@ test("reads the projected public site through the real D1 API", async (t) => {
 
     for (const page of [publicEnglishWriting, publicSpanishWriting]) {
       assert.deepEqual(page.items.map((document) => document.frontMatter.essay), [false, true, undefined]);
+      assert.deepEqual(page.items.map((document) => document.frontMatter.technical), [true, undefined, undefined]);
     }
 
     const adminOptions = {

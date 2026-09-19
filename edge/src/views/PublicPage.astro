@@ -71,6 +71,7 @@ function listItem(document: any) {
     draft: document.draft,
     hidden: document.hidden,
     essay: document.frontMatter?.essay === true,
+    technical: document.frontMatter?.technical === true,
     image: document.frontMatter?.image || first?.src || null,
     thumbnail: document.frontMatter?.thumbnail || document.frontMatter?.thumb || first?.thumb || null,
     imageAlt: document.frontMatter?.image_alt || first?.alt || null,

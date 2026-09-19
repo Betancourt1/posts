@@ -484,8 +484,26 @@ test("writing type survives creation and edits without changing paths", async ()
         assert.equal(splitMarkdown(files.get(saved.path)).body.trim(), "Body unchanged.");
       }
     }
-    const other = await createPost(env, { notebook: "content_es/zettelkasten", title: "Other", date: "2026-09-18", essay: true });
+    for (const lang of ["en", "es"]) {
+      const created = await createPost(env, {
+        notebook: `content_${lang}/posts`, title: "Technical", date: "2026-09-18", essay: true, technical: true, body: "Technical body.",
+      });
+      assert.equal(created.frontMatter.technical, true);
+      assert.equal(created.frontMatter.essay, false);
+      for (const type of ["essay", "personal", "technical"]) {
+        const saved = await savePage(env, {
+          path: created.path, frontMatter: { essay: type === "essay", technical: type === "technical" }, body: "Technical body.",
+        });
+        const parsed = splitMarkdown(files.get(saved.path));
+        assert.equal(saved.path, created.path);
+        assert.equal(parsed.frontMatter.technical, type === "technical");
+        assert.equal(parsed.frontMatter.essay, type === "essay");
+        assert.equal(parsed.body.trim(), "Technical body.");
+      }
+    }
+    const other = await createPost(env, { notebook: "content_es/zettelkasten", title: "Other", date: "2026-09-18", essay: true, technical: true });
     assert.equal(other.frontMatter.essay, undefined);
+    assert.equal(other.frontMatter.technical, undefined);
   } finally {
     globalThis.fetch = originalFetch;
   }
