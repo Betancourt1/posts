@@ -272,12 +272,10 @@
     var container = document.getElementById("knowledge-graph");
     var dataEl = document.getElementById("knowledge-graph-data");
     var toolsEl = document.getElementById("knowledge-graph-tools");
-    var searchEl = document.getElementById("graph-search");
     var searchInput = document.getElementById("graph-node-search");
     var searchStatus = document.getElementById("graph-search-status");
     var spacingInput = document.getElementById("graph-spacing");
     var labelsButton = document.getElementById("graph-toggle-labels");
-    var maximizeButton = document.getElementById("graph-toggle-maximize");
     if (!container || !dataEl) {
       return;
     }
@@ -352,8 +350,6 @@
       pinchDistance: 0,
       pinchCenterX: 0,
       pinchCenterY: 0,
-      fallbackMaximized: false,
-      maximized: false,
       searchNode: null,
       searchMatches: [],
       searchMatchIndex: -1
@@ -406,7 +402,7 @@
       var rect = container.getBoundingClientRect();
       width = Math.max(260, rect.width);
       height = Math.max(240, rect.height);
-      ambient = !homeGraphSection.classList.contains("sidebar-graph") && !state.maximized;
+      ambient = !homeGraphSection.classList.contains("sidebar-graph");
       container.classList.toggle("graph-ambient", ambient);
       bleedX = ambient ? rect.left : 0;
       bleedY = ambient ? Math.min(window.innerHeight * 0.6, rect.top + window.scrollY) : 0;
@@ -596,65 +592,6 @@
       focusNode(selected);
       var hint = matches.length > 1 ? " Presiona Enter para siguiente." : "";
       updateSearchStatus("Coincidencia " + (index + 1) + " de " + matches.length + "." + hint);
-    }
-
-    function setFallbackMaximized(enabled) {
-      state.fallbackMaximized = enabled;
-      if (homeGraphSection) {
-        homeGraphSection.classList.toggle("is-maximized", enabled);
-      }
-      document.body.classList.toggle("graph-maximized", enabled);
-    }
-
-    function syncMaximizeButton() {
-      if (!maximizeButton) {
-        return;
-      }
-      var active = state.fallbackMaximized;
-      var wasActive = state.maximized;
-      state.maximized = active;
-      var label = active ? "Restaurar vista" : "Maximizar vista";
-      maximizeButton.setAttribute("aria-pressed", active ? "true" : "false");
-      maximizeButton.setAttribute("aria-label", label);
-      maximizeButton.setAttribute("title", label);
-      maximizeButton.classList.toggle("is-active", active);
-
-      if (searchEl) {
-        searchEl.classList.toggle("is-visible", active);
-      }
-
-      if (!active && wasActive && searchInput) {
-        searchInput.value = "";
-        clearSearchSelection();
-      }
-      if (active && !wasActive && searchInput) {
-        window.setTimeout(function () {
-          try {
-            searchInput.focus();
-          } catch (error) {
-            return;
-          }
-        }, 0);
-      }
-    }
-
-    function toggleMaximize() {
-      if (!homeGraphSection) {
-        return;
-      }
-
-      if (state.fallbackMaximized) {
-        setFallbackMaximized(false);
-        syncMaximizeButton();
-        setCanvasSize();
-        centerViewForCurrentFocus();
-        return;
-      }
-
-      setFallbackMaximized(true);
-      syncMaximizeButton();
-      setCanvasSize();
-      centerViewForCurrentFocus();
     }
 
     function pickNode(worldX, worldY) {
@@ -1126,22 +1063,10 @@
           drawIfIdle();
           return;
         }
-        if (action === "toggle-maximize") {
-          toggleMaximize();
-        }
       });
     }
 
     window.addEventListener("resize", setCanvasSize);
-    document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape" && state.fallbackMaximized) {
-        setFallbackMaximized(false);
-        syncMaximizeButton();
-        setCanvasSize();
-        centerViewForCurrentFocus();
-      }
-    });
-
     var themeObserver = new MutationObserver(function () {
       refreshTheme();
       drawIfIdle();
@@ -1174,7 +1099,6 @@
     refreshTheme();
     setCanvasSize();
     syncLabelsButton();
-    syncMaximizeButton();
     wakeSimulation();
   }
 

@@ -1918,37 +1918,6 @@ button.quotes-order-option:focus-visible {
   width: min(112px, 48%);
 }
 
-body.graph-maximized {
-  overflow: hidden;
-}
-
-body.graph-maximized .nav-column,
-body.graph-maximized .sidebar-column,
-body.graph-maximized .author-toast,
-body.graph-maximized .ssh-terminal-open-btn,
-body.graph-maximized .ssh-terminal-overlay {
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.home-graph.is-maximized {
-  display: flex;
-  flex-direction: column;
-  max-width: none;
-  margin: 0;
-  padding: 1rem;
-}
-
-.home-graph.is-maximized {
-  position: fixed;
-  inset: 10px;
-  z-index: 2300;
-  overflow: hidden;
-  border-radius: 12px;
-  background: var(--bg);
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.35);
-}
-
 .knowledge-graph-tools {
   display: flex;
   flex-wrap: wrap;
@@ -1998,18 +1967,6 @@ body.graph-maximized .ssh-terminal-overlay {
   stroke-linecap: round;
   stroke-linejoin: round;
   pointer-events: none;
-}
-
-#graph-toggle-maximize .graph-icon-restore {
-  display: none;
-}
-
-#graph-toggle-maximize.is-active .graph-icon-maximize {
-  display: none;
-}
-
-#graph-toggle-maximize.is-active .graph-icon-restore {
-  display: block;
 }
 
 .graph-tool.is-active {
@@ -2135,12 +2092,6 @@ body.graph-maximized .ssh-terminal-overlay {
 .sidebar-block--graph .knowledge-graph {
   height: clamp(250px, 34vh, 320px);
   margin-top: 0.6rem;
-}
-
-.home-graph.is-maximized .knowledge-graph {
-  flex: 1 1 0;
-  height: 100%;
-  min-height: 0;
 }
 
 .knowledge-graph canvas {
@@ -3284,15 +3235,6 @@ sup, sub { line-height: 0; }
     height: 320px;
   }
 
-  .home-graph.is-maximized {
-    inset: 6px;
-    padding: 0.75rem;
-  }
-
-  .home-graph.is-maximized .knowledge-graph {
-    min-height: 220px;
-  }
-
   .layout {
     grid-template-columns: 1fr;
     padding: 20px 16px 36px;
@@ -3631,11 +3573,6 @@ html.curved-scrollbar-active .curved-scrollbar.is-dragging {
 html.curved-scrollbar-active .curved-scrollbar:hover,
 html.curved-scrollbar-active .curved-scrollbar.is-dragging {
   cursor: grabbing;
-}
-
-body.graph-maximized .curved-scrollbar {
-  opacity: 0;
-  pointer-events: none;
 }
 
 /* 4. Estilos de Impresión */

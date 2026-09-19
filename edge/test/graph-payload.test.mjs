@@ -41,7 +41,7 @@ test("the edge build ships the mature graph client as its source of truth", asyn
   assert.match(graphClient, /filterGraphToRepeatedTags/);
   assert.match(graphClient, /node\.count > 1/);
   assert.match(graphClient, /url\.searchParams\.set\("format", "posts"\)/);
-  assert.match(graphClient, /toggleMaximize/);
+  assert.doesNotMatch(graphClient, /toggleMaximize|graph-maximized/);
   assert.match(graphClient, /return url === "\/" \? "\/admin\/" : "\/admin" \+ url/);
 });
 
