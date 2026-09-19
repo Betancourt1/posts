@@ -2174,8 +2174,8 @@ body:has(.graph-ambient) {
   position: absolute;
   z-index: -1;
   mask-image:
-    linear-gradient(to right, transparent, #0001 20px, #0001 calc(var(--graph-left) - 40px), #000 calc(var(--graph-left) + 40px), #000 calc(var(--graph-right) - 40px), #0001 calc(var(--graph-right) + 40px), transparent 100%),
-    linear-gradient(to bottom, transparent, #0001 40px, #0001 calc(var(--graph-top) - 40px), #000 calc(var(--graph-top) + 40px), #000 calc(var(--graph-bottom) - 40px), #0001 calc(var(--graph-bottom) + 40px), transparent 100%);
+    linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent),
+    linear-gradient(to bottom, transparent, #000 40px, #000 calc(100% - 40px), transparent);
   mask-composite: intersect;
 }
 
