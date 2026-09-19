@@ -2195,7 +2195,7 @@ body:has(.graph-ambient) {
 .graph-ambient .graph-rendering .graph-exterior {
   display: block !important;
   filter: blur(5px);
-  opacity: 0.8;
+  opacity: 0.56;
   mask-image:
     linear-gradient(#000, #000),
     linear-gradient(to right, transparent calc(var(--graph-left) - 40px), #000 calc(var(--graph-left) + 40px), #000 calc(var(--graph-right) - 40px), transparent calc(var(--graph-right) + 40px)),
