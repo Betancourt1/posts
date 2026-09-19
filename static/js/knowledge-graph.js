@@ -306,6 +306,20 @@
       return;
     }
 
+    var rendering = null;
+    var exteriorCanvas = null;
+    var exteriorCtx = null;
+    if (!homeGraphSection.classList.contains("sidebar-graph")) {
+      rendering = document.createElement("div");
+      rendering.className = "graph-rendering";
+      exteriorCanvas = document.createElement("canvas");
+      exteriorCanvas.className = "graph-exterior";
+      exteriorCanvas.setAttribute("aria-hidden", "true");
+      exteriorCtx = exteriorCanvas.getContext("2d");
+      container.appendChild(rendering);
+      rendering.append(canvas, exteriorCanvas);
+    }
+
     var dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
     var width = 0;
     var height = 0;
@@ -402,8 +416,15 @@
       canvas.height = Math.round(canvasHeight * dpr);
       canvas.style.width = canvasWidth + "px";
       canvas.style.height = canvasHeight + "px";
-      canvas.style.left = -bleedX + "px";
-      canvas.style.top = -bleedY + "px";
+      if (rendering) {
+        rendering.style.left = -bleedX + "px";
+        rendering.style.top = -bleedY + "px";
+        rendering.style.width = canvasWidth + "px";
+        rendering.style.height = canvasHeight + "px";
+        // The blurred copy only needs CSS-pixel resolution.
+        exteriorCanvas.width = ambient ? Math.round(canvasWidth) : 0;
+        exteriorCanvas.height = ambient ? Math.round(canvasHeight) : 0;
+      }
       container.style.setProperty("--graph-canvas-width", canvasWidth + "px");
       container.style.setProperty("--graph-canvas-height", canvasHeight + "px");
       container.style.setProperty("--graph-left", bleedX + "px");
@@ -767,6 +788,10 @@
         ctx.fillText(node.label, node.x, node.y - node.radius - 6);
       });
       ctx.globalAlpha = 1;
+      if (ambient && exteriorCtx) {
+        exteriorCtx.clearRect(0, 0, exteriorCanvas.width, exteriorCanvas.height);
+        exteriorCtx.drawImage(canvas, 0, 0, exteriorCanvas.width, exteriorCanvas.height);
+      }
     }
 
     function tick() {

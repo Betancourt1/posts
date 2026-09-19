@@ -2170,7 +2170,7 @@ body:has(.graph-ambient) {
   background: transparent;
 }
 
-.graph-ambient canvas {
+.graph-ambient .graph-rendering {
   position: absolute;
   z-index: -1;
   mask-image:
@@ -2179,16 +2179,23 @@ body:has(.graph-ambient) {
   mask-composite: intersect;
 }
 
-.graph-ambient::after {
-  content: "";
+.graph-exterior {
+  display: none !important;
+}
+
+.graph-ambient .graph-rendering canvas {
   position: absolute;
-  left: calc(-1 * var(--graph-left));
-  top: calc(-1 * var(--graph-top));
-  width: var(--graph-canvas-width);
-  height: var(--graph-canvas-height);
-  z-index: -1;
-  pointer-events: none;
-  backdrop-filter: blur(5px);
+  inset: 0;
+  mask-image:
+    linear-gradient(to right, transparent calc(var(--graph-left) - 40px), #000 calc(var(--graph-left) + 40px), #000 calc(var(--graph-right) - 40px), transparent calc(var(--graph-right) + 40px)),
+    linear-gradient(to bottom, transparent calc(var(--graph-top) - 40px), #000 calc(var(--graph-top) + 40px), #000 calc(var(--graph-bottom) - 40px), transparent calc(var(--graph-bottom) + 40px));
+  mask-composite: intersect;
+}
+
+.graph-ambient .graph-rendering .graph-exterior {
+  display: block !important;
+  filter: blur(5px);
+  opacity: 0.8;
   mask-image:
     linear-gradient(#000, #000),
     linear-gradient(to right, transparent calc(var(--graph-left) - 40px), #000 calc(var(--graph-left) + 40px), #000 calc(var(--graph-right) - 40px), transparent calc(var(--graph-right) + 40px)),
