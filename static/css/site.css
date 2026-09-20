@@ -2999,6 +2999,71 @@ pre code {
   word-break: normal;
 }
 
+.post-body .technical-code {
+  position: relative;
+  padding: 1.25rem;
+  line-height: 1.65;
+  tab-size: 2;
+}
+
+.post-body .technical-code[data-language]::before {
+  content: attr(data-language);
+  display: block;
+  margin-bottom: 0.75rem;
+  color: var(--ink-muted);
+  font: 0.75rem/1.4 system-ui, sans-serif;
+}
+
+.post-body .technical-code code {
+  padding: 0;
+  background: transparent;
+  color: var(--ink);
+}
+
+.post-body .hljs-comment, .post-body .hljs-quote { color: #9da9b5; font-style: italic; }
+.post-body .hljs-keyword, .post-body .hljs-selector-tag, .post-body .hljs-literal { color: #c4a7e7; }
+.post-body .hljs-string, .post-body .hljs-attr, .post-body .hljs-addition { color: #9ccfd8; }
+.post-body .hljs-number, .post-body .hljs-built_in, .post-body .hljs-type { color: #f6c177; }
+.post-body .hljs-title, .post-body .hljs-function, .post-body .hljs-section { color: #ebbcba; }
+:root[data-theme="light"] .post-body .hljs-comment, :root[data-theme="light"] .post-body .hljs-quote { color: #66717c; }
+:root[data-theme="light"] .post-body .hljs-keyword, :root[data-theme="light"] .post-body .hljs-selector-tag, :root[data-theme="light"] .post-body .hljs-literal { color: #74449b; }
+:root[data-theme="light"] .post-body .hljs-string, :root[data-theme="light"] .post-body .hljs-attr, :root[data-theme="light"] .post-body .hljs-addition { color: #176778; }
+:root[data-theme="light"] .post-body .hljs-number, :root[data-theme="light"] .post-body .hljs-built_in, :root[data-theme="light"] .post-body .hljs-type { color: #946000; }
+:root[data-theme="light"] .post-body .hljs-title, :root[data-theme="light"] .post-body .hljs-function, :root[data-theme="light"] .post-body .hljs-section { color: #a13655; }
+
+.katex-display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0;
+}
+
+.technical-video, .technical-interactive iframe {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.technical-video { margin: 1.4rem auto; }
+.post-body .technical-diagram, .post-body .technical-interactive { margin: 1.5rem 0; }
+.technical-diagram-image {
+  overflow-x: auto;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #f6f5f1;
+  color: #222;
+}
+.technical-diagram-image > svg { display: block; margin: auto; max-width: 100%; height: auto; }
+.post-body .technical-diagram-image p { color: inherit; margin: 0; font-family: inherit; }
+.technical-diagram details { margin-top: 0.65rem; }
+.technical-diagram summary { cursor: pointer; color: var(--ink-muted); font-size: 0.85rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .technical-diagram-image * { animation: none !important; transition: none !important; }
+}
+
 table {
   width: 100%;
   border-collapse: separate;

@@ -121,3 +121,6 @@ essay: true
 `true` coloca el texto en **Ensayos**; `false` o la ausencia de la flag lo coloca en **Posts breves y personales**, salvo que tenga `technical: true`. Mantén el mismo valor en ambas traducciones. Cada grupo conserva el orden por fecha y los enlaces originales; no se mueven archivos ni se cambian URLs. Los metadatos se proyectan a D1 mediante el flujo de contenido habitual.
 
 Los **Escritos técnicos** usan `technical: true` y `essay: false`. Esta categoría tiene prioridad sobre `essay` y aparece vacía hasta que se publique el primer texto técnico. El selector **Tipo de escrito** del editor permite elegir entre personal, ensayo y técnico; usa el mismo tipo en ambas traducciones.
+
+See [Technical posts](docs/technical-posts.md) for math, highlighted code, Mermaid,
+exported animations, and sandboxed interactive visuals, including asset publishing requirements.

@@ -1,5 +1,7 @@
 import YAML from "yaml";
-import { marked, Renderer, walkTokens } from "marked";
+import { Marked, Renderer, walkTokens } from "marked";
+import markedKatex from "marked-katex-extension";
+import { renderTechnicalCode } from "./technical-markdown.mjs";
 
 const CONTENT_ROOTS = {
   content_en: "en",
@@ -31,10 +33,15 @@ const BOOK_BODY_REPLACEMENTS_ES = [
   ["[View on Goodreads]", "[Ver en Goodreads]"],
 ];
 
-const MARKED_OPTIONS = {
+const marked = new Marked({
   breaks: true,
   gfm: true,
-};
+}, markedKatex({
+  throwOnError: false,
+  trust: false,
+  output: "htmlAndMathml",
+}));
+const MARKED_OPTIONS = marked.defaults;
 
 function escapeHtml(value) {
   return String(value || "")
@@ -58,7 +65,7 @@ const SIDENOTE_TONE = /\{\{(green|blue|amber)\|([^{}\n]+)\}\}/g;
 const SIDENOTE_TONE_OPEN = "\uE100";
 const SIDENOTE_TONE_CLOSE = "\uE101";
 
-function createSafeRenderer({ sidenotes = null, hideSidenoteReferences = false, allowSidenoteTones = false } = {}) {
+function createSafeRenderer({ sidenotes = null, hideSidenoteReferences = false, allowSidenoteTones = false, technical = false } = {}) {
   const renderer = new Renderer();
   const renderSafeLink = renderer.link.bind(renderer);
   const renderSafeImage = renderer.image.bind(renderer);
@@ -81,16 +88,22 @@ function createSafeRenderer({ sidenotes = null, hideSidenoteReferences = false, 
   renderer.image = function image(token) {
     const href = safeMarkdownUrl(token.href);
     if (!href) return escapeHtml(token.text);
+    if (technical && /\.(?:mp4|webm)(?:[?#]|$)/i.test(href)) {
+      return `<video class="technical-video" src="${escapeHtml(href)}" aria-label="${escapeHtml(token.text)}" controls playsinline preload="metadata"><a href="${escapeHtml(href)}">${escapeHtml(token.text || href)}</a></video>`;
+    }
     return renderSafeImage({ ...token, href });
   };
-  if (allowSidenoteTones) {
+  if (technical || allowSidenoteTones) {
     renderer.code = function code(token) {
-      return renderSafeCode({
+      const restored = {
         ...token,
         raw: restoreSidenoteTones(token.raw),
         text: restoreSidenoteTones(token.text),
-      });
+      };
+      return technical ? renderTechnicalCode(restored) : renderSafeCode(restored);
     };
+  }
+  if (allowSidenoteTones) {
     renderer.codespan = function codespan(token) {
       return renderSafeCodespan({
         ...token,
@@ -462,7 +475,7 @@ export function renderMarkdown(bodyMarkdown, canonicalPath = "/") {
   collectLinks(plainTokens, links, canonicalPath);
   const bodyHtml = marked.parser(renderedTokens, {
     ...MARKED_OPTIONS,
-    renderer: createSafeRenderer({ sidenotes, allowSidenoteTones: true }),
+    renderer: createSafeRenderer({ sidenotes, allowSidenoteTones: true, technical: true }),
   });
   const endnotesHtml = renderSidenoteEndnotes(sidenotes, links, canonicalPath);
   const noteText = sidenotes.ordered.map((note) => {

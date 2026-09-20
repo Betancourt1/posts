@@ -139,6 +139,7 @@ const archivesPath = authorMode
       </>
     ))}
     <link rel="stylesheet" href="/css/site.css" />
+    <link rel="stylesheet" href="/vendor/katex/katex.min.css" />
     <link rel="apple-touch-icon" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
@@ -325,6 +326,7 @@ const archivesPath = authorMode
     <script is:inline src="/js/typography.js" defer></script>
     <script is:inline src="/js/curved-scrollbar.js" defer></script>
     <script is:inline src="/js/sound.js" defer></script>
+    <script is:inline type="module" src="/js/technical-content.js"></script>
     {isCode && <script is:inline src="/js/code-portfolio.js" defer></script>}
     {isPhotography && <script is:inline src="/js/photography-grid.js" defer></script>}
     {isBooks && <script is:inline type="module" src="/js/books.js"></script>}

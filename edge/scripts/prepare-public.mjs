@@ -1,4 +1,4 @@
-import { copyFile, mkdir, readdir, rm } from "node:fs/promises";
+import { copyFile, cp, mkdir, readdir, rm } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -53,6 +53,26 @@ const clientFiles = (await readdir(clientRoot))
 
 for (const asset of clientFiles) {
   copied.push(await copy(clientRoot, asset, join("js", asset)));
+}
+
+// Keep vendor assets local; only Mermaid's browser modules are needed at runtime.
+await cp(join(edgeRoot, "node_modules/katex/dist"), join(outputRoot, "vendor/katex"), {
+  recursive: true,
+  filter: (path) => !/\.(?:js|mjs|map)$/.test(path),
+});
+await cp(join(edgeRoot, "node_modules/mermaid/dist"), join(outputRoot, "vendor/mermaid"), {
+  recursive: true,
+  filter: (path) => {
+    const asset = relative(join(edgeRoot, "node_modules/mermaid/dist"), path);
+    return ["", "chunks", "chunks/mermaid.esm.min", "mermaid.esm.min.mjs"].includes(asset)
+      || (asset.startsWith("chunks/mermaid.esm.min/") && asset.endsWith(".mjs"));
+  },
+});
+// Authors can commit self-contained diagrams, animations, and interactive documents.
+try {
+  await cp(join(staticRoot, "visuals"), join(outputRoot, "visuals"), { recursive: true });
+} catch (error) {
+  if (error.code !== "ENOENT") throw error;
 }
 
 console.log(`Prepared ${copied.length} public assets in ${relative(repositoryRoot, outputRoot)}:`);
