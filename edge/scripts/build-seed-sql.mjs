@@ -153,10 +153,10 @@ const stats = {
   aliasRoutes: documents.flatMap((document) => document.routes).filter((route) => route.kind === "alias").length,
 };
 const expected = {
-  sources: 381,
-  documents: 481,
-  searchable: 448,
-  canonicalRoutes: 481,
+  sources: 429,
+  documents: 529,
+  searchable: 495,
+  canonicalRoutes: 529,
   aliasRoutes: 122,
 };
 
