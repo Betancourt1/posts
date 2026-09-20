@@ -475,12 +475,14 @@ test("writing type survives creation and edits without changing paths", async ()
     for (const lang of ["en", "es"]) {
       for (const essay of [true, false, undefined]) {
         const created = await createPost(env, {
-          notebook: `content_${lang}/posts`, title: `Type ${essay}`, date: "2026-09-18", essay, body: "Body unchanged.",
+          notebook: `content_${lang}/posts`, title: `Type ${essay}`, date: "2026-09-18", essay, pinned: true, body: "Body unchanged.",
         });
         assert.equal(splitMarkdown(files.get(created.path)).frontMatter.essay, essay === true);
-        const saved = await savePage(env, { path: created.path, frontMatter: { essay: essay !== true }, body: "Body unchanged." });
+        assert.equal(splitMarkdown(files.get(created.path)).frontMatter.pinned, true);
+        const saved = await savePage(env, { path: created.path, frontMatter: { essay: essay !== true, pinned: false }, body: "Body unchanged." });
         assert.equal(saved.path, created.path);
         assert.equal(splitMarkdown(files.get(saved.path)).frontMatter.essay, essay !== true);
+        assert.equal(splitMarkdown(files.get(saved.path)).frontMatter.pinned, false);
         assert.equal(splitMarkdown(files.get(saved.path)).body.trim(), "Body unchanged.");
       }
     }

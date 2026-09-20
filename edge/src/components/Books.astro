@@ -63,6 +63,9 @@ const batchSize = 6;
   {description && <p class="lead">{description}</p>}
 </header>
 
+<nav class="book-jump-links" aria-label={lang === "es" ? "Ir a un estado de lectura" : "Jump to reading status"}>
+  {groups.map((group) => <a href={`#book-shelf-${group.status}`}>{group.label}</a>)}
+</nav>
 <div class="book-library" aria-label={lang === "es" ? "Libros por estado de lectura" : "Books by reading status"}>
   {groups.map((group) => {
     const groupBooks = visibleBooks

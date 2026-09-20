@@ -198,12 +198,11 @@ test("starts visible book covers promptly and contains mobile header controls", 
 
   const mobileCss = css.slice(css.lastIndexOf("@media (max-width: 1000px)"));
   const mobileActions = mobileCss.match(/\.site-header-actions\s*\{([^}]*)\}/)?.[1] || "";
-  assert.match(mobileCss, /\.site-header\s*\{\s*padding:\s*20px 16px 6px;/);
-  assert.match(mobileActions, /position:\s*static;/);
-  assert.match(mobileActions, /width:\s*fit-content;/);
-  assert.match(mobileActions, /margin:\s*8px auto 0;/);
+  assert.match(mobileCss, /grid-template-areas:\s*"title menu preferences" "search search search"/);
+  assert.match(mobileActions, /position:\s*relative;/);
+  assert.match(mobileActions, /width:\s*auto;/);
+  assert.match(mobileActions, /margin:\s*0;/);
   assert.match(mobileActions, /transform:\s*none;/);
-  assert.doesNotMatch(mobileActions, /(?:top|right|left):/);
 });
 
 test("uses a pipette for grayscale and keeps search inline", async () => {
@@ -227,8 +226,8 @@ test("uses a pipette for grayscale and keeps search inline", async () => {
   assert.doesNotMatch(css, /html\.grayscale-mode\s*\{[^}]*filter:/s);
   assert.match(css, /html\.grayscale-mode body > :not\(\.site-header\),[\s\S]*?\.site-header > :not\(\.site-header-actions\)\s*\{[\s\S]*?filter:\s*grayscale\(100%\)/);
   assert.match(css, /\.sidebar-column\s*\{\s*top:\s*78px;/);
-  const actionsStart = layout.indexOf('<div class="site-header-actions">');
-  const actionsEnd = layout.indexOf("\n      </div>", actionsStart);
+  const actionsStart = layout.indexOf('<details class="site-header-actions"');
+  const actionsEnd = layout.indexOf("</details>", actionsStart);
   const searchStart = layout.indexOf('<div class="site-header-search" id="search">');
   assert.ok(actionsStart >= 0 && actionsEnd > actionsStart && searchStart > actionsEnd);
   assert.match(layout, /<form class="search-ui__form" role="search">/);
@@ -363,13 +362,14 @@ test("renders every complete quote in the central mosaic", async () => {
   assert.match(css, /\.content-column--quotes-index \.content-inner\s*\{[^}]*max-width:\s*none/s);
 });
 
-test("renders the recent posts feed on the home page below the headerless knowledge graph", async () => {
+test("renders selected writing before the unchanged headerless knowledge graph", async () => {
   const source = await readFile(publicPagePath, "utf8");
   const knowledgeGraph = await readFile(new URL("../src/components/KnowledgeGraph.astro", import.meta.url), "utf8");
   const css = await readFile(new URL("../../static/css/site.css", import.meta.url), "utf8");
 
-  assert.match(source, /<KnowledgeGraph[\s\S]*?class="home-section home-feed"/);
-  assert.match(source, /\{lang === "es" \? "Reciente" : "Recent"\}/);
+  assert.match(source, /class="home-section home-feed"[\s\S]*?<KnowledgeGraph/);
+  assert.match(source, /"Último ensayo" : "Latest essay"/);
+  assert.match(source, /"Fijado" : "Pinned"/);
   assert.match(source, /archive-badge--\$\{item\.section\}/);
   assert.match(source, /item\.section === "fotografia" && Boolean\(item\.thumbnail \|\| item\.image\)/);
   assert.match(source, /class="post-card-image"/);

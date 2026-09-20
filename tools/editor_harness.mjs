@@ -236,7 +236,7 @@ export async function startHarnessServer(savedRequests) {
     if (req.method === "POST" && url.pathname === "/api/create-post") {
       const payload = await readJson(req);
       savedRequests.push({ path: url.pathname, payload });
-      json(res, 200, { path: payload.notebook + "/new.md", url: "/posts/new/", frontMatter: { essay: payload.essay, technical: payload.technical, draft: payload.draft, hidden: payload.hidden }, changed: true });
+      json(res, 200, { path: payload.notebook + "/new.md", url: "/posts/new/", frontMatter: { essay: payload.essay, technical: payload.technical, pinned: payload.pinned, draft: payload.draft, hidden: payload.hidden }, changed: true });
       return;
     }
 
@@ -855,6 +855,50 @@ async function runGrayscalePropertiesCase(browser, origin) {
   }
 }
 
+async function runPinCase(browser, origin, viewport, savedRequests) {
+  for (const lang of ["en", "es"]) {
+    const path = `content_${lang}/posts/pin-test.md`;
+    pages[path] = { path, url: "/posts/pin-test/", frontMatter: { title: "Pin test", date: "2026-09-20", pinned: true }, body: "Body unchanged." };
+    const context = await browser.newContext({ viewport });
+    const page = await context.newPage();
+    page.on("dialog", (dialog) => dialog.accept());
+    try {
+      await page.goto(`${origin}/post-editor?mode=edit&path=${encodeURIComponent(path)}`);
+      await waitForEditor(page);
+      await page.locator("#top-settings-button").click();
+      assert.equal(await page.locator("#pinned").isChecked(), true);
+      await page.locator("#pinned").uncheck();
+      assert.equal(await page.locator("#saved-pill").textContent(), "Sin guardar");
+      await page.waitForFunction(() => JSON.parse(localStorage.getItem("authorWritingDraftV1") || "null")?.pinned === false);
+      await page.reload();
+      await waitForEditor(page);
+      await page.locator("#draft-restore-accept").click();
+      await page.locator("#top-settings-button").click();
+      assert.equal(await page.locator("#pinned").isChecked(), false);
+      await page.screenshot({ path: `/tmp/posts-pin-editor-${lang}-${viewport.width}.png` });
+      await page.locator("#settings-close").click();
+      await Promise.all([page.waitForURL(/\/admin\/(es\/)?posts\/$/), page.locator("#save").click()]);
+      assert.equal(savedRequests.at(-1).payload.frontMatter.pinned, false);
+      assert.equal(savedRequests.at(-1).payload.body, "Body unchanged.");
+      await page.goto(`${origin}/post-editor?mode=new&notebook=content_${lang}/posts`);
+      await waitForEditor(page);
+      await page.locator("#title").fill("New pinned post");
+      await page.locator("#top-settings-button").click();
+      assert.equal(await page.locator("#pinned").isChecked(), false);
+      await page.locator("#pinned").check();
+      await page.locator("#notebook").selectOption("content_es/fotografia");
+      assert.equal(await page.locator("#pinned").isVisible(), false);
+      await page.locator("#notebook").selectOption(`content_${lang}/posts`);
+      await page.locator("#settings-close").click();
+      await Promise.all([page.waitForURL(/\/admin\/(es\/)?posts\/$/), page.locator("#save").click()]);
+      assert.equal(savedRequests.at(-1).payload.pinned, true);
+    } finally {
+      await context.close();
+      delete pages[path];
+    }
+  }
+}
+
 async function runWritingTypeCase(browser, origin, viewport, savedRequests) {
   for (const lang of ["es", "en"]) {
     const path = `content_${lang}/posts/type-test.md`;
@@ -952,6 +996,9 @@ async function main() {
   ];
 
   try {
+    for (const viewport of viewports) await runPinCase(browser, origin, viewport, savedRequests);
+    console.log("Homepage pins: create, edit, unpin and local recovery passed in both locales and viewports.");
+    if (process.argv.includes("--pins")) return;
     for (const viewport of viewports) await runWritingTypeCase(browser, origin, viewport, savedRequests);
     console.log("Tipo de escrito: crear, editar, restaurar y cambiar destino comprobados en ambos idiomas.");
     for (const fixture of fixtures) {

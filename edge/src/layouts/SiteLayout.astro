@@ -150,8 +150,11 @@ const archivesPath = authorMode
     {authorMode && <AuthorTools sourcePath={page.sourcePath} lang={lang} kind={page.kind} section={page.section} />}
     <header class="site-header">
       <p class="site-title"><a href={homePath}>{siteTitle}</a></p>
+      <button type="button" class="site-menu-toggle" id="site-menu-toggle" aria-controls="primary-navigation" aria-expanded="false" hidden>{lang === "es" ? "Menú" : "Menu"}</button>
       <p class="site-subtitle">{subtitle}</p>
-      <div class="site-header-actions">
+      <details class="site-header-actions" id="site-preferences" open>
+        <summary class="site-preferences-toggle">{lang === "es" ? "Ajustes" : "Settings"}</summary>
+        <div class="site-preferences-controls">
         {translationPath && <a class="lang-toggle" href={translationPath} title={languageTitle}>{otherLanguage}</a>}
         <div class="typo-container">
           <button class="typo-toggle" id="typo-toggle" type="button" aria-label={lang === "es" ? "Ajustes de texto" : "Text settings"} title={lang === "es" ? "Ajustes de texto" : "Text settings"}>Aa</button>
@@ -194,7 +197,8 @@ const archivesPath = authorMode
             <path class="sound-slash" d="m16 8 5 8"></path>
           </svg>
         </button>
-      </div>
+        </div>
+      </details>
       {showSearch && (
         <div class="site-header-search" id="search">
           <form class="search-ui__form" role="search">
@@ -211,6 +215,7 @@ const archivesPath = authorMode
         </div>
       )}
     </header>
+    <script is:inline src="/js/site-preferences.js" defer></script>
 
     <div class:list={["layout", { "layout--code-index": isCode, "layout--quotes-index": isQuotes }]}>
       <aside class="column nav-column">

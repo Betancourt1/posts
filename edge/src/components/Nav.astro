@@ -68,6 +68,7 @@ const newNotebook = lang === "es" ? "Nuevo notebook" : "New notebook";
     if (!nav) return;
 
     var toggle = nav.querySelector(".nav-toggle");
+    var headerToggle = document.getElementById("site-menu-toggle");
     var list = document.getElementById("primary-navigation");
     var mobileLayout = window.matchMedia("(max-width: 1000px)");
     var storageKey = "notebooks_navigation_expanded";
@@ -89,6 +90,7 @@ const newNotebook = lang === "es" ? "Nuevo notebook" : "New notebook";
 
     function setExpanded(expanded, remember) {
       toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+      if (headerToggle) headerToggle.setAttribute("aria-expanded", expanded ? "true" : "false");
       list.hidden = !expanded;
       toggle.textContent = expanded ? nav.dataset.hideLabel : nav.dataset.showLabel;
       if (remember) rememberExpanded(expanded);
@@ -96,17 +98,29 @@ const newNotebook = lang === "es" ? "Nuevo notebook" : "New notebook";
 
     function syncLayout() {
       if (mobileLayout.matches) {
-        toggle.hidden = false;
+        toggle.hidden = Boolean(headerToggle);
+        if (headerToggle) headerToggle.hidden = false;
         setExpanded(readExpanded(), false);
         return;
       }
       toggle.hidden = true;
+      if (headerToggle) headerToggle.hidden = true;
       toggle.setAttribute("aria-expanded", "false");
       list.hidden = false;
     }
 
     toggle.addEventListener("click", function () {
       setExpanded(toggle.getAttribute("aria-expanded") !== "true", true);
+    });
+    if (headerToggle) headerToggle.addEventListener("click", function () {
+      setExpanded(headerToggle.getAttribute("aria-expanded") !== "true", true);
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && mobileLayout.matches && !list.hidden
+        && (nav.contains(document.activeElement) || document.activeElement === headerToggle)) {
+        setExpanded(false, true);
+        (headerToggle || toggle).focus();
+      }
     });
     mobileLayout.addEventListener("change", syncLayout);
     syncLayout();

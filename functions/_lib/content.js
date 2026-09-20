@@ -412,6 +412,7 @@ export async function createPost(env, payload) {
   if (isWritingNotebook) {
     frontMatter.essay = payload.essay === true && payload.technical !== true;
     frontMatter.technical = payload.technical === true;
+    frontMatter.pinned = payload.pinned === true;
   }
 
   if (payload.hidden) {

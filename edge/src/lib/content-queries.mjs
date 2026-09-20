@@ -1,4 +1,5 @@
 import { renderMarkdown } from "./content-projector.mjs";
+import { contentExcerpt } from "./content-excerpt.mjs";
 
 const SUPPORTED_BODY_TONE = /\{\{(?:green|blue|amber)\|[^{}\n]+\}\}/;
 
@@ -415,6 +416,28 @@ export async function archiveMonthCounts(db, lang, options = {}) {
   }));
 }
 
+export async function homePosts(db, lang) {
+  const result = await db.prepare(`
+    WITH published AS (
+      SELECT ${documentColumns("d", { body: true })}, canonical.path AS path
+      FROM documents AS d
+      JOIN routes AS canonical ON canonical.document_id = d.id AND canonical.kind = 'canonical'
+      WHERE d.lang = ? AND d.kind = 'page' AND d.section = 'posts'
+        AND d.draft = 0 AND d.hidden = 0
+    ), latest AS (
+      SELECT id FROM published
+      WHERE json_extract(frontmatterJson, '$.essay') = 1
+        AND COALESCE(json_extract(frontmatterJson, '$.technical'), 0) <> 1
+      ORDER BY date DESC, path DESC LIMIT 1
+    )
+    SELECT published.*, id IN (SELECT id FROM latest) AS latestEssay
+    FROM published
+    WHERE id IN (SELECT id FROM latest) OR json_extract(frontmatterJson, '$.pinned') = 1
+    ORDER BY latestEssay DESC, date DESC, path DESC
+  `).bind(language(lang)).all();
+  return hydrateDocuments(result);
+}
+
 export async function recentPosts(db, lang, options = {}) {
   const { includeDrafts, includeHidden } = visibilityOptions(options);
   const limit = positiveLimit(options.limit, 10);
@@ -582,7 +605,12 @@ export async function searchDocuments(db, query, lang, limit = 20) {
     LIMIT ?
   `).bind(match, language(lang), positiveLimit(limit, 20, 100)).all();
 
-  return hydrateDocuments(result);
+  return hydrateDocuments(result).map((document) => ({
+    ...document,
+    excerpt: ["books", "libros"].includes(document.section)
+      ? contentExcerpt(document)
+      : document.excerpt,
+  }));
 }
 
 function tagPath(lang, slug) {

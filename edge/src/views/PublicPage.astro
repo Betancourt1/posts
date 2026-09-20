@@ -18,6 +18,7 @@ import { displayDate } from "../components/_utils.js";
 import SiteLayout from "../layouts/SiteLayout.astro";
 import { removeLegacyLinkSpacing, renderMarkdownSummary } from "../lib/content-projector.mjs";
 import { adminPathForPublicRoute } from "../lib/public-page.mjs";
+import { contentExcerpt } from "../lib/content-excerpt.mjs";
 import type { Language, ShellPage } from "../components/types";
 
 interface Props {
@@ -65,7 +66,9 @@ function listItem(document: any) {
     title: document.title,
     href: contentHref(document.path),
     date: document.date,
-    summary: document.summary || document.description || document.bodyText?.slice(0, 220),
+    summary: contentExcerpt(document),
+    contentLanguage: document.frontMatter?.content_language || document.lang,
+    latestEssay: Boolean(document.latestEssay),
     tags: tagsFor(document, itemLang),
     section: document.section,
     draft: document.draft,
@@ -134,19 +137,6 @@ function bookReview(markdown: string) {
   return match?.[1]?.trim() || null;
 }
 
-function badgeLabel(section: string, targetLang: Language) {
-  const labels: Record<string, string> = {
-    posts: targetLang === "es" ? "escrito" : "post",
-    "proyectos-profesionales": targetLang === "es" ? "código" : "code",
-    zettelkasten: "zettel",
-    lit: targetLang === "es" ? "cita" : "quote",
-    fotografia: targetLang === "es" ? "foto" : "photo",
-    books: targetLang === "es" ? "libro" : "book",
-    libros: targetLang === "es" ? "libro" : "book",
-  };
-  return labels[section] || section;
-}
-
 const layout = ["books", "photography", "code", "quotes", "guestbook", "not-found"].includes(model.layout)
   ? model.layout
   : "default";
@@ -211,14 +201,13 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
         <p class="lead">{description}</p>
       </header>
       {page.bodyHtml && <section class="post-body" set:html={removeLegacyLinkSpacing(page.bodyHtml)}></section>}
-      <KnowledgeGraph data={shellPage.graphData || emptyGraph} lang={lang} variant="home" />
       {items.length > 0 && (
         <section class="home-section home-feed">
           <div class="home-section-head">
-            <h2>{lang === "es" ? "Reciente" : "Recent"}</h2>
+            <h2>{lang === "es" ? "Para leer" : "Selected writing"}</h2>
             <span class="sidebar-more">
-              <a href={contentHref(lang === "es" ? "/es/archives/" : "/archives/")}>
-                {lang === "es" ? "Todos los archivos →" : "All archives →"}
+              <a href={contentHref(lang === "es" ? "/es/posts/" : "/posts/")}>
+                {lang === "es" ? "Todos los escritos →" : "All writing →"}
               </a>
             </span>
           </div>
@@ -232,7 +221,7 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
                     <div class="post-card-meta">{displayDate(item.date)}</div>
                     {item.section && (
                       <span class={`archive-badge archive-badge--${item.section}`}>
-                        {badgeLabel(item.section, lang)}
+                        {item.latestEssay ? (lang === "es" ? "Último ensayo" : "Latest essay") : (lang === "es" ? "Fijado" : "Pinned")}
                       </span>
                     )}
                   </div>
@@ -260,6 +249,7 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
           </div>
         </section>
       )}
+      <KnowledgeGraph data={shellPage.graphData || emptyGraph} lang={lang} variant="home" />
     </>
   )}
 

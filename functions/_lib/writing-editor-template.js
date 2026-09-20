@@ -386,7 +386,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       font-size: 0.76rem;
       font-weight: 700;
     }
-    .field[hidden] {
+    .field[hidden],
+    .check[hidden] {
       display: none !important;
     }
     .field input,
@@ -1710,6 +1711,10 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         </select>
       </label>
       <input id="draft" type="checkbox" hidden />
+      <label class="check" id="pinned-field" hidden>
+        <span class="check-label">Fijar en inicio</span>
+        <input id="pinned" type="checkbox" />
+      </label>
       <div class="photo-fields" id="photo-fields" hidden>
         <label class="field">
           <span>Imagen</span>
@@ -1910,6 +1915,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         tags: document.getElementById("tags"),
         writingTypeField: document.getElementById("writing-type-field"),
         writingType: document.getElementById("writing-type"),
+        pinnedField: document.getElementById("pinned-field"),
+        pinned: document.getElementById("pinned"),
         photoFields: document.getElementById("photo-fields"),
         image: document.getElementById("image"),
         deleteImage: document.getElementById("delete-image"),
@@ -2124,6 +2131,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         });
         els.deleteImage.addEventListener("click", deleteCurrentImage);
         els.deletePage.addEventListener("click", deleteCurrentPage);
+        els.pinned.addEventListener("change", markContentEdited);
         els.hidden.addEventListener("change", function () {
           els.draft.checked = els.hidden.checked;
           markContentEdited();
@@ -2559,6 +2567,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.body.value = isBookEditor() ? bookTemplateBody() : "";
         els.tags.value = isBookEditor() ? "book" : "";
         els.writingType.value = "personal";
+        els.pinned.checked = false;
         slugTouched = false;
         els.slug.value = "";
         syncGeneratedSlug();
@@ -2605,6 +2614,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           els.date.value = frontMatter.date || today();
           els.tags.value = (frontMatter.tags || []).join(", ");
           els.writingType.value = frontMatter.technical === true ? "technical" : frontMatter.essay === true ? "essay" : "personal";
+          els.pinned.checked = frontMatter.pinned === true;
           els.summary.value = frontMatter.summary || frontMatter.description || "";
           els.image.value = frontMatter.image || "";
           els.imageAlt.value = frontMatter.image_alt || "";
@@ -2736,6 +2746,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         if (isWritingPost()) {
           payload.essay = els.writingType.value === "essay";
           payload.technical = els.writingType.value === "technical";
+          payload.pinned = els.pinned.checked;
         }
         return postJson("/api/create-post", payload);
       }
@@ -2749,6 +2760,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         if (isWritingPost()) {
           nextFrontMatter.essay = els.writingType.value === "essay";
           nextFrontMatter.technical = els.writingType.value === "technical";
+          nextFrontMatter.pinned = els.pinned.checked;
         }
 
         if (!els.hidden.checked) {
@@ -3639,6 +3651,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           tags: els.tags.value,
           essay: isWritingPost() ? els.writingType.value === "essay" : undefined,
           technical: isWritingPost() ? els.writingType.value === "technical" : undefined,
+          pinned: isWritingPost() ? els.pinned.checked : undefined,
           image: els.image.value,
           imageAlt: els.imageAlt.value,
           caption: els.caption.value,
@@ -3715,6 +3728,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           tags: els.tags.value,
           essay: isWritingPost() ? els.writingType.value === "essay" : undefined,
           technical: isWritingPost() ? els.writingType.value === "technical" : undefined,
+          pinned: isWritingPost() ? els.pinned.checked : undefined,
           image: els.image.value,
           imageAlt: els.imageAlt.value,
           caption: els.caption.value,
@@ -3773,6 +3787,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         var differs = keys.some(function (key) { return String(stored[key] || "") !== String(current[key] || ""); }) || stored.visible !== current.visible;
         if (isWritingPost() && typeof stored.essay === "boolean" && stored.essay !== current.essay) differs = true;
         if (isWritingPost() && (stored.technical === true) !== current.technical) differs = true;
+        if (isWritingPost() && typeof stored.pinned === "boolean" && stored.pinned !== current.pinned) differs = true;
         if (!differs) return;
         var minutes = Math.max(1, Math.round((Date.now() - stored.savedAt) / 60000));
         els.draftRestoreText.textContent = "Borrador sin guardar de hace " + minutes + " min. ¿Restaurarlo?";
@@ -3788,6 +3803,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.body.value = String(stored.body || "");
         if (stored.date) els.date.value = stored.date;
         els.tags.value = String(stored.tags || "");
+        if (typeof stored.pinned === "boolean") els.pinned.checked = stored.pinned;
         if (typeof stored.essay === "boolean" || typeof stored.technical === "boolean") {
           els.writingType.value = stored.technical === true ? "technical" : stored.essay === true ? "essay" : "personal";
         }
@@ -3866,6 +3882,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function syncPhotoEditor() {
         els.writingTypeField.hidden = !isWritingPost();
+        els.pinnedField.hidden = !isWritingPost();
         var photo = isPhotoEditor();
         els.photoFields.hidden = !photo;
         els.imageAltField.hidden = !photo;

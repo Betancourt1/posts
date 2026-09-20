@@ -17,6 +17,9 @@ export const GET: APIRoute = async ({ url }) => {
     excerpt: document.excerpt || document.summary || document.description,
     date: document.date,
     section: document.section,
+    type: document.kind !== "page" ? "section"
+      : document.frontMatter?.technical === true ? "technical"
+      : document.frontMatter?.essay === true ? "essay" : document.section,
     tags: document.tags,
   }));
 

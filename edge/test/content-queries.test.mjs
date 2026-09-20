@@ -16,6 +16,7 @@ import {
   navSections,
   normalizeRoute,
   recentPosts,
+  homePosts,
   resolveDocument,
   searchDocuments,
   sectionItems,
@@ -260,6 +261,37 @@ test("normalizes request routes without changing file-like paths", () => {
   assert.equal(normalizeRoute("/posts/ethical-data/index.html"), "/posts/ethical-data/");
   assert.equal(normalizeRoute("/uploads/photo.jpg"), "/uploads/photo.jpg");
   assert.equal(normalizeRoute("/%C3%A9tica"), "/ética/");
+});
+
+test("home selects one published essay plus pins beyond the recent feed and survives reprojection", async (t) => {
+  const { db, miniflare } = await testDatabase();
+  t.after(() => miniflare.dispose());
+  await replaceProjectedSource(db, projectSource({ path: "content_es/_index.md", rawMarkdown: "---\ntitle: Inicio\n---\n", blobSha: "home-es", commitSha: "fixture", projectorVersion: "1" }), null);
+  async function put(lang, name, metadata) {
+    await replaceProjectedSource(db, projectSource({
+      path: `content_${lang}/posts/${name}.md`,
+      rawMarkdown: `---\ntitle: ${name}\ndraft: false\n${metadata}\n---\nUnchanged article body.`,
+      blobSha: "pin-fixture", commitSha: "fixture", projectorVersion: "1",
+    }), null);
+  }
+  for (const lang of ["en", "es"]) {
+    for (let index = 0; index < 12; index++) await put(lang, `recent-${index}`, "date: 2026-09-20");
+    await put(lang, "latest-essay", "date: 2026-09-19\nessay: true\npinned: true");
+    await put(lang, "older-pin", "date: 2020-01-01\npinned: true");
+    await put(lang, "tie-pin", "date: 2020-01-01\npinned: true");
+    await put(lang, "hidden-pin", "date: 2026-09-20\nessay: true\npinned: true\nhidden: true");
+    await put(lang, "draft-pin", "date: 2026-09-20\nessay: true\npinned: true");
+    await db.prepare("UPDATE documents SET draft = 1 WHERE lang = ? AND title = 'draft-pin'").bind(lang).run();
+    await put(lang, "technical", "date: 2026-09-20\nessay: true\ntechnical: true");
+    const selected = await homePosts(db, lang);
+    assert.deepEqual(selected.map((item) => item.title), ["latest-essay", "tie-pin", "older-pin"]);
+    assert.equal(selected[0].latestEssay, 1);
+    const home = await loadPublicPage(db, lang === "es" ? "/es/" : "/", { includeDrafts: true, includeHidden: true });
+    assert.deepEqual(home.items.map((item) => item.title), selected.map((item) => item.title));
+    await put(lang, "older-pin", "date: 2020-01-01\npinned: false");
+    assert.deepEqual((await homePosts(db, lang)).map((item) => item.title), ["latest-essay", "tie-pin"]);
+    assert.equal((await resolveDocument(db, `${lang === "es" ? "/es" : ""}/posts/older-pin/`)).bodyMarkdown.trim(), "Unchanged article body.");
+  }
 });
 
 test("reads the projected public site through the real D1 API", async (t) => {

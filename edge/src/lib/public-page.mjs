@@ -6,7 +6,7 @@ import {
   latestSyncTimestamp,
   navSections,
   normalizeRoute,
-  recentPosts,
+  homePosts,
   resolveDocument,
   sectionItems,
   tagIndex,
@@ -146,7 +146,7 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
     ? { ...options, includeHidden: true }
     : options;
   const itemsPromise = layout === "home"
-    ? recentPosts(db, document.lang, { ...options, limit: 10 })
+    ? homePosts(db, document.lang)
     : ["list", "books", "photography", "code", "quotes"].includes(layout)
       ? sectionItems(db, document.lang, document.section, {
           ...(layout === "list" ? listItemOptions : options),

@@ -95,6 +95,9 @@ for (const item of displayItems) {
                   <div class="writing-index-main">
                     <h4 class="writing-index-title">
                       <a href={item.href}>{item.title}</a>
+                      {item.contentLanguage && item.contentLanguage !== lang && ["en", "es"].includes(item.contentLanguage) && (
+                        <span class="writing-index-language">{item.contentLanguage === "es" ? "Español" : "English"}</span>
+                      )}
                       {authorMode && (item.draft || item.hidden) && (
                         <span class="writing-index-status">{lang === "es" ? "Borrador" : "Draft"}</span>
                       )}
