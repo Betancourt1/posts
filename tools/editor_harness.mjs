@@ -3,12 +3,14 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { createServer } from "node:http";
+import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 import { imageEditorHtml } from "../functions/_lib/image-editor-template.js";
 import { editorCoreClientScript } from "../functions/_lib/editor-core-client.js";
 import { notebookEditorHtml } from "../functions/_lib/notebook-editor-template.js";
 import { postEditorHtml } from "../functions/_lib/post-editor-template.js";
 import { resolveEditorPath } from "../functions/_lib/editor-routing.js";
+import { onRequestPost as previewWriting } from "../edge/src/lib/writing-preview.mjs";
 
 const soundClientScript = await readFile(new URL("../edge/client/sound.js", import.meta.url), "utf8");
 
@@ -146,7 +148,7 @@ function readJson(req) {
   });
 }
 
-async function startHarnessServer(savedRequests) {
+export async function startHarnessServer(savedRequests) {
   let origin = "";
   const server = createServer(async (req, res) => {
     const url = new URL(req.url || "/", origin || "http://127.0.0.1");
@@ -187,6 +189,26 @@ async function startHarnessServer(savedRequests) {
     if (req.method === "GET" && url.pathname === "/js/sound.js") {
       res.writeHead(200, { "Content-Type": "text/javascript; charset=utf-8" });
       res.end(soundClientScript);
+      return;
+    }
+
+    if (req.method === "GET" && (url.pathname === "/css/site.css" || url.pathname === "/js/technical-content.js" || url.pathname.startsWith("/vendor/"))) {
+      const file = url.pathname === "/css/site.css" ? new URL("../static/css/site.css", import.meta.url)
+        : url.pathname === "/js/technical-content.js" ? new URL("../edge/client/technical-content.js", import.meta.url)
+        : new URL("../edge/.generated/public" + url.pathname, import.meta.url);
+      try {
+        const content = await readFile(file);
+        const type = url.pathname.endsWith(".css") ? "text/css" : /\.(?:mjs|js)$/.test(url.pathname) ? "text/javascript" : "application/octet-stream";
+        res.writeHead(200, { "Content-Type": type });
+        res.end(content);
+      } catch { res.writeHead(404); res.end(); }
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/preview") {
+      const response = await previewWriting({ request: new Request(origin + "/admin/api/preview", { method: "POST", body: JSON.stringify(await readJson(req)) }) });
+      res.writeHead(response.status, Object.fromEntries(response.headers));
+      res.end(await response.text());
       return;
     }
 
@@ -925,7 +947,7 @@ async function main() {
   }
 }
 
-main().catch((error) => {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });

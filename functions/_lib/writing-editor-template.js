@@ -1,4 +1,5 @@
 import { postEditorController } from "./post-editor-controller.js";
+import { technicalEditorMarkup, technicalEditorScript, technicalEditorStyles } from "./technical-editor-tools.js";
 
 function iconSvg(paths) {
   return `<svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${paths}</svg>`;
@@ -1619,6 +1620,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         padding-left: 0.5rem;
       }
     }
+    ${technicalEditorStyles}
   </style>
 </head>
   <body class="reference-theme" data-theme="dark">
@@ -1663,6 +1665,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       </span>
       <span class="divider" id="insert-divider-before"></span>
       <span class="toolbar-group" id="insert-toolbar-group" aria-label="Insertar">
+        <button type="button" id="toolbar-technical" title="Contenido técnico y vista previa" aria-label="Contenido técnico y vista previa" aria-haspopup="dialog" aria-controls="technical-tools">∑</button>
         <button type="button" id="toolbar-image" title="Insertar imagen" aria-label="Insertar imagen">${ICONS.image}</button>
         <button type="button" id="toolbar-sidenote" title="Insertar nota al margen" aria-label="Insertar nota al margen"><span aria-hidden="true">[1]</span></button>
         <button type="button" class="sidenote-tone-button" data-sidenote-tone="green" aria-label="Texto verde" title="Texto verde"></button>
@@ -1827,6 +1830,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         <button type="button" class="arena-details-retry" id="arena-details-retry" hidden>Reintentar</button>
       </div>
   </aside>
+  ${technicalEditorMarkup}
   <script src="${siteAssetUrl("js/sound.js")}" defer></script>
   <script src="${EDITOR_CORE_URL}"></script>
   <script>
@@ -1985,6 +1989,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         path: document.getElementById("path"),
       };
 
+      ${technicalEditorScript}
       boot();
 
       function boot() {
@@ -2038,6 +2043,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function bind() {
+        bindTechnicalTools();
         els.back.addEventListener("click", function () {
           if (!confirmDiscardChanges()) return;
           allowExit = true;
@@ -3199,7 +3205,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function syncSheetLock() {
-        document.documentElement.classList.toggle("sheet-open", !els.settings.hidden || !els.arenaDetails.hidden);
+        document.documentElement.classList.toggle("sheet-open", !els.settings.hidden || !els.arenaDetails.hidden || technicalTools.open || technicalPreview.open);
       }
 
       function syncWritingState() {

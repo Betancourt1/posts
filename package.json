@@ -12,6 +12,7 @@
     "visual:qa": "node tools/visual_qa.mjs",
     "test": "node --test functions/_lib/*.test.mjs",
     "test:editors": "node tools/editor_harness.mjs",
+    "test:technical-editor": "npm --prefix edge run prepare:public && node tools/technical_editor_harness.mjs",
     "test:arena": "node --test functions/_lib/arena.test.mjs",
     "build": "npm --prefix edge run build",
     "preview": "npm --prefix edge run preview",

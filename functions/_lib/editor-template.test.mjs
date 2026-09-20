@@ -118,7 +118,9 @@ test("text editor inserts margin note samples and tones directly", () => {
   assert.match(html, /target\.selectionStart = target\.selectionEnd = nextCursor/);
   assert.match(html, /function insertSidenoteTone\(tone\)[\s\S]*?\["green", "blue", "amber"\]\.includes\(tone\)[\s\S]*?wrapSelection\("\{\{" \+ tone \+ "\|", "\}\}"\)/);
   assert.match(html, /function wrapSelection\(before, after\)[\s\S]*?var selected = textarea\.value\.slice\(start, end\) \|\| "text";[\s\S]*?syncFieldsFromMarkdown\(\)[\s\S]*?recordBodyHistory\(\)/);
-  assert.doesNotMatch(html, /showModal\(\)|innerHTML\s*=\s*sample|insertAdjacentHTML\([^)]*sample/);
+  assert.doesNotMatch(html, /innerHTML\s*=\s*sample|insertAdjacentHTML\([^)]*sample/);
+  const sidenoteInsertion = script.slice(script.indexOf("function insertSidenoteSample"), script.indexOf("function insertSidenoteTone"));
+  assert.doesNotMatch(sidenoteInsertion, /showModal\(/);
 });
 
 test("text editor reuses Markdown mode for book templates", () => {

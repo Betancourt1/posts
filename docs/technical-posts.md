@@ -2,8 +2,18 @@
 
 Use `technical: true` and `essay: false` in both translations. The public EN and ES
 articles share the same renderer. Write these examples in the editor's Markdown
-mode or directly in the repository. The editor is a source editor; check the
-rendered article in the built preview before publishing.
+mode or directly in the repository. The editor's **∑** toolbar button opens
+**Contenido técnico**: insert an inline formula, equation, code block, Mermaid
+diagram, SVG, video, or interactive visual at the cursor. Selected text becomes
+the formula, code, diagram definition, or media URL. Choose the code language in
+the menu before inserting a code block.
+
+Choose **Vista previa sin guardar** in the same menu to render the current title
+and body with the public article renderer. Close it to return to writing. Preview
+does not save or publish. Existing articles resolve relative media against their
+public route; new articles should use root-relative `/uploads/…`, `/visuals/…`, or
+HTTPS URLs until their final route exists. Placeholder media URLs must be replaced
+with real assets before they can appear in the preview.
 
 ## Math
 
