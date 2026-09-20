@@ -1892,7 +1892,6 @@ button.quotes-order-option:focus-visible {
 .home-feed {
   position: relative;
   z-index: 1;
-  background: var(--bg);
 }
 
 .home-graph {

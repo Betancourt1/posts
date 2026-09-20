@@ -68,7 +68,6 @@ function listItem(document: any) {
     date: document.date,
     summary: contentExcerpt(document),
     contentLanguage: document.frontMatter?.content_language || document.lang,
-    latestEssay: Boolean(document.latestEssay),
     tags: tagsFor(document, itemLang),
     section: document.section,
     draft: document.draft,
@@ -219,11 +218,6 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
                 <article class:list={["post-card", { "post-card--photo": isPhoto }]}>
                   <div class="post-card-top">
                     <div class="post-card-meta">{displayDate(item.date)}</div>
-                    {item.section && (
-                      <span class={`archive-badge archive-badge--${item.section}`}>
-                        {item.latestEssay ? (lang === "es" ? "Último ensayo" : "Latest essay") : (lang === "es" ? "Fijado" : "Pinned")}
-                      </span>
-                    )}
                   </div>
                   {isPhoto && (
                     <a class="post-card-image" href={item.href} aria-label={item.title}>

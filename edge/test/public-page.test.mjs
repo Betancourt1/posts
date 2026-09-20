@@ -368,9 +368,8 @@ test("renders selected writing before the unchanged headerless knowledge graph",
   const css = await readFile(new URL("../../static/css/site.css", import.meta.url), "utf8");
 
   assert.match(source, /class="home-section home-feed"[\s\S]*?<KnowledgeGraph/);
-  assert.match(source, /"Último ensayo" : "Latest essay"/);
-  assert.match(source, /"Fijado" : "Pinned"/);
-  assert.match(source, /archive-badge--\$\{item\.section\}/);
+  assert.doesNotMatch(source, /Latest essay|Último ensayo|"Pinned"|"Fijado"/);
+  assert.doesNotMatch(source, /archive-badge--\$\{item\.section\}/);
   assert.match(source, /item\.section === "fotografia" && Boolean\(item\.thumbnail \|\| item\.image\)/);
   assert.match(source, /class="post-card-image"/);
   assert.match(source, /class="photo-card-count"/);
