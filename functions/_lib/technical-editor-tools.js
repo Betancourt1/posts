@@ -19,7 +19,7 @@ export const technicalEditorStyles = `
     .technical-insert-grid button { padding: 0.75rem; text-align: left; }
     .technical-dialog summary { cursor: pointer; padding: 0.5rem 0; }
     .technical-dialog code { overflow-wrap: anywhere; }
-    .technical-preview-button { width: 100%; margin-top: 1rem; }
+    .technical-dialog h3 { margin: 1.25rem 0 0.75rem; font-size: 0.9rem; }
     .technical-dialog--preview { width: min(62rem, calc(100vw - 2rem)); }
     .technical-dialog iframe { display: block; width: 100%; height: 70dvh; border: 0; border-radius: 0.4rem; background: var(--bg); }
     .technical-dialog iframe[hidden] { display: none; }
@@ -27,7 +27,17 @@ export const technicalEditorStyles = `
 
 export const technicalEditorMarkup = `
   <dialog class="technical-dialog" id="technical-tools" aria-labelledby="technical-tools-title">
-    <header><h2 id="technical-tools-title">Contenido técnico</h2><button type="button" class="technical-close" data-close-technical="technical-tools" aria-label="Cerrar contenido técnico">&times;</button></header>
+    <header><h2 id="technical-tools-title">Insertar</h2><button type="button" class="technical-close" data-close-technical="technical-tools" aria-label="Cerrar menú Insertar">&times;</button></header>
+    <div class="technical-insert-grid">
+      <button type="button" id="toolbar-image">Subir imagen</button>
+      <button type="button" id="toolbar-sidenote">Nota al margen</button>
+    </div>
+    <details><summary>Color del texto</summary><div class="technical-insert-grid">
+      <button type="button" data-sidenote-tone="green">Texto verde</button>
+      <button type="button" data-sidenote-tone="blue">Texto azul</button>
+      <button type="button" data-sidenote-tone="amber">Texto ámbar</button>
+    </div></details>
+    <h3>Contenido técnico</h3>
     <p>Inserta un ejemplo en el cursor o usa el texto seleccionado. Después puedes editarlo en el documento.</p>
     <label class="field"><span>Lenguaje del bloque de código</span><select id="technical-code-language">
       <option value="python">Python</option><option value="javascript">JavaScript</option><option value="typescript">TypeScript</option><option value="sql">SQL</option><option value="bash">Bash</option><option value="json">JSON</option><option value="yaml">YAML</option><option value="rust">Rust</option><option value="go">Go</option><option value="plaintext">Texto</option>
@@ -48,7 +58,6 @@ export const technicalEditorMarkup = `
       <li>Video e interactivos: reemplaza la URL por tu archivo en <code>/visuals/</code> o en un host HTTPS. El botón de imagen solo sube imágenes.</li>
       <li>Interactivos: conserva un título descriptivo. El archivo HTML necesita sus propios controles de teclado y movimiento reducido.</li>
     </ul></details>
-    <button type="button" class="technical-preview-button" id="technical-preview-open">Vista previa sin guardar</button>
   </dialog>
   <dialog class="technical-dialog technical-dialog--preview" id="technical-preview" aria-labelledby="technical-preview-title">
     <header><h2 id="technical-preview-title">Vista previa sin guardar</h2><button type="button" class="technical-close" data-close-technical="technical-preview" aria-label="Cerrar vista previa">&times;</button></header>
@@ -125,6 +134,13 @@ export const technicalEditorScript = String.raw`
         else recordBodyHistory();
         resizeTextarea(target);
         markContentEdited();
+      }
+
+      function restoreInsertSelection() {
+        if (!technicalTools.open || !technicalSelection) return;
+        technicalTools.close();
+        technicalSelection.target.focus({ preventScroll: true });
+        technicalSelection.target.setSelectionRange(technicalSelection.start, technicalSelection.end);
       }
 
       function previewTechnicalContent() {

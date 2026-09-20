@@ -19,6 +19,14 @@ try {
       page.on('pageerror', error => errors.push(error.message));
       await page.goto(`${origin}/post-editor?notebook=content_${lang}/posts&theme=${mobile ? 'light' : 'dark'}`);
       await page.waitForFunction(() => !document.querySelector('#save').disabled);
+      assert.equal(await page.locator('#saved-pill').isVisible(), true);
+      assert.equal(await page.locator('#saved-pill').textContent(), 'Sin guardar', 'a new untouched document is not saved');
+      assert.equal(await page.locator('#publication-visibility').textContent(), 'Sin publicar');
+      assert.equal(await page.locator('#view-markdown').isVisible(), !mobile);
+      assert.equal(await page.locator('#mobile-view-markdown').isVisible(), mobile);
+      assert.equal(await page.locator('#technical-preview-open').isVisible(), true);
+      assert.equal(await page.locator('#toolbar-technical').textContent(), 'Insertar');
+      assert.equal(await page.locator('.formatbar').evaluate(el => el.scrollWidth <= el.clientWidth), true);
       await page.locator('#title').fill('Technical editor test');
       const body = page.locator('#body');
       const openTools = async () => {
@@ -55,12 +63,42 @@ try {
             assert.equal(await target.inputValue(), text, `${kind} body redo`);
           }
         }
+        for (const insertion of ['note', 'color', 'upload']) {
+          const prefix = markdown ? '# Technical editor test\n\n' : '';
+          const original = prefix + 'Before SELECTED after';
+          await target.fill(original);
+          await target.evaluate(el => { const at = el.value.indexOf('SELECTED'); el.focus(); el.setSelectionRange(at, at + 8); });
+          await openTools();
+          if (insertion === 'note') {
+            await page.locator('#toolbar-sidenote').click();
+            assert.ok((await target.inputValue()).startsWith(prefix + 'Before SELECTED[^note-1] after'));
+          } else if (insertion === 'color') {
+            if (!(await page.locator('[data-sidenote-tone="green"]').isVisible())) await page.getByText('Color del texto', { exact: true }).click();
+            await page.locator('[data-sidenote-tone="green"]').click();
+            assert.equal(await target.inputValue(), prefix + 'Before {{green|SELECTED}} after');
+          } else {
+            await page.route('**/api/upload-image', route => route.fulfill({
+              contentType: 'application/json', body: JSON.stringify({ url: '/fixture.png', markdown: '![Sample](/fixture.png)' }),
+            }));
+            const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.locator('#toolbar-image').click()]);
+            await chooser.setFiles({ name: 'sample.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', 'base64') });
+            await page.waitForFunction(() => (document.querySelector('#markdown-canvas').hidden ? document.querySelector('#body') : document.querySelector('#markdown-canvas')).value.includes('![Sample]'));
+            assert.equal(await target.inputValue(), prefix + 'Before \n\n![Sample](/fixture.png)\n after');
+            await page.unroute('**/api/upload-image');
+          }
+          assert.equal(await page.locator('#technical-tools').evaluate(el => el.open), false);
+          if (!markdown) {
+            await page.locator('[data-format="undo"]').click();
+            assert.equal(await target.inputValue(), original, `${insertion} body undo`);
+          }
+        }
       }
       // Generate a real unsaved preview from Markdown mode, without any save endpoint.
       const markdown = '# Technical editor test\n\nInline $x^2$.\n\n$$\n\\sum_{i=1}^n i\n$$\n\n```python\ndef square(x):\n    return x ** 2\n```\n\n```mermaid\nflowchart LR\nA[Input] --> B[Output]\n```';
       await page.locator('#markdown-canvas').fill(markdown);
       await openTools();
       await page.screenshot({ path: `${evidence}/${lang}-${mobile ? 'mobile' : 'desktop'}-menu.png` });
+      await page.keyboard.press('Escape');
       const before = savedRequests.length;
       await page.locator('#technical-preview-open').click();
       const frame = page.frameLocator('#technical-preview-frame');
@@ -81,7 +119,7 @@ try {
       await page.waitForFunction(() => !document.querySelector('#technical-tools').open);
       // Preview errors stay in the dialog, and the unsaved source remains intact.
       await page.route('**/api/preview', route => route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ error: 'Fixture unavailable' }) }));
-      await openTools();await page.locator('#technical-preview-open').click();
+      await page.locator('#technical-preview-open').click();
       await page.waitForFunction(() => document.querySelector('#technical-preview-status').textContent.includes('Fixture unavailable'));
       await page.locator('[data-close-technical="technical-preview"]').click();
       assert.equal(await page.locator('#markdown-canvas').inputValue(), markdown);
@@ -93,7 +131,7 @@ try {
       await page.locator('#draft-restore-accept').click();
       assert.equal(await page.locator('#markdown-canvas').inputValue(), markdown);
       assert.deepEqual(errors, []);
-      console.log(`PASS ${lang} ${mobile ? '390x844 light' : '1280x900 dark'}: seven insertions in both modes, selection, undo/redo, preview, errors, draft restore, no saves`);
+      console.log(`PASS ${lang} ${mobile ? '390x844 light' : '1280x900 dark'}: technical + note/color/upload insertions in both modes, selection, undo/redo, preview, errors, draft restore, no saves`);
     } finally { await context.close(); }
   }
   assert.equal(savedRequests.length, 0);

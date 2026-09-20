@@ -623,6 +623,8 @@ async function assertEditorContract(page, fixture) {
     assert.equal(await page.locator("#danger-zone").isVisible(), !fixture.home);
     assert.equal(await page.locator("#tags-field").isVisible(), false);
     assert.equal(await page.locator("#dropzone").count(), 0);
+    assert.equal(await page.locator("#technical-preview-open").isVisible(), false);
+    assert.equal(await page.locator("#toolbar-technical").isVisible(), false);
     return;
   }
 
@@ -720,9 +722,14 @@ async function runDraftRestoreCase(browser, origin) {
     await page.goto(`${origin}/editor?${query}`, { waitUntil: "domcontentloaded" });
     await waitForEditor(page);
     assert.equal(await page.locator("#save .save-label-desktop").textContent(), "Guardar");
+    await page.waitForFunction(() => !document.querySelector('#arena-channel').disabled);
+    assert.equal(await page.locator('#saved-pill').textContent(), 'Guardado');
+    assert.equal(await page.locator('#arena-blog-step').textContent(), 'Guardado', 'inactive channel initialization must not dirty the document');
 
     await page.locator("#body").fill("Contenido determinista para el arnés.\n\nTexto añadido para el autoguardado.");
     await page.waitForFunction(() => Boolean(localStorage.getItem("authorWritingDraftV1")));
+    assert.equal(await page.locator('#saved-pill').textContent(), 'Copia local · sin guardar');
+    assert.equal(await page.locator('#arena-blog-step').textContent(), 'Copia local · sin guardar');
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await waitForEditor(page);
@@ -742,6 +749,27 @@ async function runDraftRestoreCase(browser, origin) {
   } finally {
     await context.close();
   }
+}
+
+async function runUnavailableDraftStorageCase(browser, origin) {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  try {
+    await context.addInitScript(() => {
+      const setItem = Storage.prototype.setItem;
+      Storage.prototype.setItem = function (key, value) {
+        if (key === 'authorWritingDraftV1') throw new DOMException('Storage unavailable', 'QuotaExceededError');
+        return setItem.call(this, key, value);
+      };
+    });
+    const page = await context.newPage();
+    await page.goto(`${origin}/post-editor?notebook=content_es/posts`);
+    await waitForEditor(page);
+    await page.locator('#body').fill('This draft cannot be stored locally.');
+    await page.waitForTimeout(1000);
+    assert.equal(await page.locator('#saved-pill').textContent(), 'Sin guardar');
+    assert.equal(await page.locator('#saved-pill').isVisible(), true);
+    assert.equal(await page.evaluate(() => localStorage.getItem('authorWritingDraftV1')), null);
+  } finally { await context.close(); }
 }
 
 async function coordinateClick(page, selector) {
@@ -797,8 +825,10 @@ async function runGrayscalePropertiesCase(browser, origin) {
     await page.locator("#settings").waitFor({ state: "hidden" });
 
     await page.locator("#top-settings-button").click();
-    assert.equal(await page.evaluate(() => document.elementFromPoint(10, 90)?.id), "settings-backdrop");
-    await page.mouse.click(10, 90);
+    const backdropY = await page.evaluate(() =>
+      (document.querySelector('.topbar').getBoundingClientRect().bottom + document.querySelector('#settings').getBoundingClientRect().top) / 2);
+    assert.equal(await page.evaluate(y => document.elementFromPoint(10, y)?.id, backdropY), "settings-backdrop");
+    await page.mouse.click(10, backdropY);
     await page.locator("#settings").waitFor({ state: "hidden" });
 
     await page.locator("#top-settings-button").click();
@@ -930,6 +960,7 @@ async function main() {
       }
     }
     await runDraftRestoreCase(browser, origin);
+    await runUnavailableDraftStorageCase(browser, origin);
     await runGrayscalePropertiesCase(browser, origin);
     await runCaretViewportCase(browser, origin, { width: 1280, height: 800 });
     await runCaretViewportCase(browser, origin, { width: 390, height: 844 });

@@ -19,19 +19,18 @@ test("standalone editors inherit the shared opt-in sound player without adding a
   }
 });
 
-test("notebook editor clears stale private flags and exposes verified publication states", () => {
+test("notebook editor clears stale private flags and distinguishes saved visibility", () => {
   const html = notebookEditorHtml({ siteOrigin: "https://example.com/admin" });
   assert.match(html, /nextFrontMatter\.draft = null/);
   assert.match(html, /nextFrontMatter\.hidden = null/);
   assert.match(html, /Guardado en GitHub/);
-  assert.match(html, /Disponible en el blog/);
+  assert.match(html, /Estado guardado: /);
+  assert.doesNotMatch(html, />Desplegando</);
   assert.match(html, /Crear channel desde notebook/);
   assert.match(html, /assertPersistedState/);
   assert.match(html, /\/editor-core/);
   assert.doesNotMatch(html, /\/editor-core\.js/);
   assert.match(html, /window\.EditorCore\.create/);
-  assert.match(html, /grid-template-columns: 2\.75rem minmax\(0, 1fr\) auto;/);
-  assert.match(html, /\.top-actions \{\s+grid-column: 3;\s+grid-row: 1;/);
   assert.match(html, /class="editor-identity"/);
   assert.match(html, /@media \(max-width: 380px\)/);
   assert.match(html, /id="mobile-view-markdown"/);
@@ -60,7 +59,7 @@ test("text editor injects its API base and cannot save before content hydration"
   assert.doesNotMatch(html, /Promise\.all\(\[notebooksPromise, contentPromise\]\)/);
   assert.doesNotMatch(html, /content: ">";/);
   assert.match(html, /\.reference-theme \.saved-pill \{[\s\S]*?background: transparent !important;/);
-  assert.match(html, /\.saved-pill,[\s\S]*?\.reference-theme \.saved-pill \{\s+display: none;/);
+  assert.doesNotMatch(html, /\.saved-pill,[\s\S]*?\.reference-theme \.saved-pill \{\s+display: none;/);
   assert.match(html, /\.reference-theme \.top-actions button \{[\s\S]*?background: transparent !important;/);
   assert.match(html, /id="save" disabled>[\s\S]*?Publicar/);
   assert.doesNotMatch(html, /<span class="check-label">Publicado<\/span>/);

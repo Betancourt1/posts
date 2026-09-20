@@ -209,7 +209,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 2.35rem;
+      width: auto;
       min-width: 2.35rem;
       border: 0 !important;
       background: transparent !important;
@@ -871,7 +871,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
     .save-label-mobile {
       display: none;
     }
-    .mobile-markdown-toggle {
+    .formatbar .mobile-markdown-toggle,
+    .toolbar-break {
       display: none;
     }
     .formatbar {
@@ -928,6 +929,19 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       width: 1.12rem;
       height: 1.12rem;
       stroke-width: 2.05;
+    }
+    .formatbar #toolbar-technical,
+    .formatbar .mobile-markdown-toggle {
+      width: auto;
+      padding: 0 0.65rem;
+      font-size: 0.82rem;
+    }
+    .formatbar .mobile-markdown-toggle[aria-pressed="true"] {
+      color: var(--accent);
+      background: var(--panel-2);
+    }
+    .top-actions button[hidden] {
+      display: none !important;
     }
     .formatbar button:hover {
       background: #f5f5f5;
@@ -1204,37 +1218,6 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       letter-spacing: 0.05em;
       text-transform: uppercase;
     }
-    .publication-steps {
-      display: grid;
-      gap: 0.7rem;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      font-family: var(--editor-font);
-      font-size: 0.78rem;
-    }
-    .publication-step {
-      display: grid;
-      grid-template-columns: 0.7rem minmax(0, 1fr);
-      gap: 0.55rem;
-      align-items: center;
-      color: var(--muted);
-    }
-    .publication-step::before {
-      content: "";
-      width: 0.45rem;
-      height: 0.45rem;
-      border: 1px solid currentColor;
-      border-radius: 50%;
-    }
-    .publication-step.is-active,
-    .publication-step.is-complete {
-      color: var(--accent);
-    }
-    .publication-step.is-complete::before {
-      background: var(--accent);
-      border-color: var(--accent);
-    }
     .publication-message,
     .notebook-channel-status {
       margin: 0.75rem 0 0;
@@ -1303,15 +1286,16 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
       .reference-theme .writer {
         min-height: 100dvh;
-        padding: calc(var(--topbar-height) + 1rem) 1.5rem calc(5.85rem + env(safe-area-inset-bottom));
+        padding: calc(var(--topbar-height) + 1rem) 1.5rem calc(8rem + env(safe-area-inset-bottom));
       }
       .formatbar {
         position: fixed;
         inset: auto 0 0 0;
         z-index: 18;
-        height: calc(4.85rem + env(safe-area-inset-bottom));
+        height: auto;
         justify-content: center;
-        padding: 0 1rem env(safe-area-inset-bottom);
+        padding: 0.4rem 0.5rem calc(0.4rem + env(safe-area-inset-bottom));
+        overflow: visible;
         border-top: 1px solid var(--line);
         border-bottom: 0;
       }
@@ -1321,8 +1305,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       .formatbar-inner {
         width: 100%;
         max-width: none;
-        justify-content: flex-start;
-        gap: 0.4rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.15rem;
       }
       .toolbar-group {
         display: contents;
@@ -1332,17 +1317,23 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         min-width: 2.75rem;
         min-height: 2.75rem;
       }
-      .mobile-markdown-toggle {
+      .formatbar .mobile-markdown-toggle {
         display: inline-flex;
+      }
+      .formatbar .divider { display: none; }
+      .toolbar-break {
+        display: block;
+        flex-basis: 100%;
       }
       .topbar,
       .reference-theme .topbar {
         position: fixed;
         inset: 0 0 auto;
-        min-height: 4.25rem;
-        height: 4.25rem;
+        min-height: 6rem;
+        height: auto;
         display: grid;
-        grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+        grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem auto;
+        grid-template-rows: 2.75rem 2.25rem;
         align-items: center;
         gap: 0.35rem;
         padding: 0.45rem 0.65rem;
@@ -1360,15 +1351,11 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         color: var(--ink);
       }
       .editor-identity {
-        grid-column: 2;
-        grid-row: 1;
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        min-width: 0;
-        overflow: hidden;
+        display: contents;
       }
       .editor-brand {
+        grid-column: 2;
+        grid-row: 1;
         flex: 0 1 auto;
         min-width: 0;
         margin: 0;
@@ -1384,13 +1371,15 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
       .saved-pill,
       .reference-theme .saved-pill {
-        display: none;
+        grid-column: 1 / 3;
+        grid-row: 2;
+        display: inline-flex;
+        justify-self: start;
+        max-width: 100%;
+        font-size: 0.7rem;
       }
       .top-actions {
-        grid-column: 3;
-        grid-row: 1;
-        width: auto;
-        gap: 0.2rem;
+        display: contents;
       }
       .top-actions button,
       .reference-theme .top-actions button {
@@ -1419,11 +1408,14 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       .top-actions .primary,
       .reference-theme .top-actions .primary {
         min-height: 2.75rem;
-        border: 1px solid rgba(255, 255, 255, 0.68);
+        border: 1px solid var(--line);
         border-radius: 0.55rem;
         padding: 0 0.55rem;
+        color: var(--ink);
       }
       .mobile-settings-button {
+        grid-column: 3;
+        grid-row: 1;
         display: inline-flex;
         width: 2.75rem;
         min-width: 2.75rem !important;
@@ -1433,18 +1425,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         font-size: 1.25rem;
         letter-spacing: 0.06em;
       }
-      #toolbar-image .button-icon {
-        display: none;
-      }
-      #toolbar-image::before {
-        content: "+";
-        font-size: 1.75rem;
-        font-weight: 600;
-        line-height: 1;
-      }
-      .top-actions .load-retry { order: 1; }
-      .top-actions .mobile-settings-button { order: 2; }
-      .top-actions .primary { order: 3; }
+      .top-actions .load-retry { grid-column: 2; grid-row: 1; justify-self: end; }
+      .top-actions .primary { grid-column: 4; grid-row: 1; }
+      .top-actions .editor-preview { grid-column: 3 / 5; grid-row: 2; justify-self: end; }
       .arena-details-button {
         display: none !important;
       }
@@ -1636,8 +1619,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
     </div>
     <div class="top-actions">
       <button type="button" class="load-retry" id="retry-load" aria-label="Reintentar carga" title="Reintentar carga" hidden>${ICONS.redo}</button>
-      <button type="button" class="markdown-toggle" id="view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">${ICONS.code}</button>
+      <button type="button" class="markdown-toggle" id="view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">Markdown</button>
       <button type="button" class="arena-details-button" id="arena-details-button" data-state="disabled" aria-controls="arena-details">Are.na</button>
+      <button type="button" class="editor-preview" id="technical-preview-open" aria-haspopup="dialog" aria-controls="technical-preview">Vista previa</button>
       <button type="button" class="mobile-settings-button" id="top-settings-button" aria-controls="settings" aria-expanded="false" aria-label="Configuración">...</button>
       <button type="button" class="primary" id="save" disabled><span class="save-label-desktop">Publicar</span><span class="save-label-mobile">Publicar</span></button>
     </div>
@@ -1652,8 +1636,17 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       <span class="toolbar-group" aria-label="Formato en línea">
         <button type="button" data-format="bold" title="Negrita" aria-label="Negrita">${ICONS.bold}</button>
         <button type="button" data-format="italic" title="Cursiva" aria-label="Cursiva">${ICONS.italic}</button>
+      </span>
+      <span class="divider" id="insert-divider-before"></span>
+      <span class="toolbar-group" id="insert-toolbar-group" aria-label="Insertar">
+        <button type="button" id="toolbar-technical" aria-haspopup="dialog" aria-controls="technical-tools">Insertar</button>
+      </span>
+      <button type="button" class="mobile-markdown-toggle" id="mobile-view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">Markdown</button>
+      <span class="toolbar-break" aria-hidden="true"></span>
+      <span class="divider" id="insert-divider-after"></span>
+      <span class="toolbar-group" aria-label="Más formato">
         <button type="button" data-format="strike" title="Tachado" aria-label="Tachado">${ICONS.strike}</button>
-        <button type="button" data-format="code" title="Código" aria-label="Código">${ICONS.code}</button>
+        <button type="button" data-format="code" title="Código en línea" aria-label="Código en línea">${ICONS.code}</button>
         <button type="button" data-format="link" title="Enlace" aria-label="Enlace">${ICONS.link}</button>
       </span>
       <span class="divider"></span>
@@ -1663,17 +1656,6 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         <button type="button" data-format="ul" title="Lista con viñetas" aria-label="Lista con viñetas">${ICONS.list}</button>
         <button type="button" data-format="ol" title="Lista numerada" aria-label="Lista numerada">${ICONS.orderedList}</button>
       </span>
-      <span class="divider" id="insert-divider-before"></span>
-      <span class="toolbar-group" id="insert-toolbar-group" aria-label="Insertar">
-        <button type="button" id="toolbar-technical" title="Contenido técnico y vista previa" aria-label="Contenido técnico y vista previa" aria-haspopup="dialog" aria-controls="technical-tools">∑</button>
-        <button type="button" id="toolbar-image" title="Insertar imagen" aria-label="Insertar imagen">${ICONS.image}</button>
-        <button type="button" id="toolbar-sidenote" title="Insertar nota al margen" aria-label="Insertar nota al margen"><span aria-hidden="true">[1]</span></button>
-        <button type="button" class="sidenote-tone-button" data-sidenote-tone="green" aria-label="Texto verde" title="Texto verde"></button>
-        <button type="button" class="sidenote-tone-button" data-sidenote-tone="blue" aria-label="Texto azul" title="Texto azul"></button>
-        <button type="button" class="sidenote-tone-button" data-sidenote-tone="amber" aria-label="Texto ámbar" title="Texto ámbar"></button>
-      </span>
-      <button type="button" class="mobile-markdown-toggle" id="mobile-view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">${ICONS.code}</button>
-      <span class="divider" id="insert-divider-after"></span>
     </div>
   </nav>
   <button type="button" class="settings-backdrop" id="settings-backdrop" aria-label="Cerrar configuración" hidden></button>
@@ -1790,12 +1772,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       </section>
       <section class="publication-section" id="publication-section">
         <h3>Estado de publicación</h3>
-        <ol class="publication-steps">
-          <li class="publication-step" id="publication-saved-step">Guardado en GitHub</li>
-          <li class="publication-step" id="publication-deploy-step">Desplegando</li>
-          <li class="publication-step" id="publication-public-step">Disponible en el blog</li>
-        </ol>
-        <p class="publication-message" id="publication-message">Publica para iniciar el proceso.</p>
+        <p class="publication-message" id="publication-visibility">Sin publicar</p>
+        <p class="publication-message" id="publication-message" role="status">Guarda cuando quieras conservar los cambios.</p>
         <a class="publication-link" id="publication-link" href="#" target="_blank" rel="noopener" hidden>Abrir publicación ↗</a>
       </section>
       <div class="danger-zone" id="danger-zone" hidden>
@@ -1862,6 +1840,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       var draftStorageKey = "authorWritingDraftV1";
       var draftMaxAgeMs = 24 * 60 * 60 * 1000;
       var draftSaveTimer = 0;
+      var localDraftSnapshot = null;
       var noticeTimer = 0;
       var allowExit = false;
       var lastSaveLabel = "";
@@ -1946,9 +1925,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         summary: document.getElementById("summary"),
         draft: document.getElementById("draft"),
         hidden: document.getElementById("hidden"),
-        publicationSavedStep: document.getElementById("publication-saved-step"),
-        publicationDeployStep: document.getElementById("publication-deploy-step"),
-        publicationPublicStep: document.getElementById("publication-public-step"),
+        publicationVisibility: document.getElementById("publication-visibility"),
         publicationMessage: document.getElementById("publication-message"),
         publicationLink: document.getElementById("publication-link"),
         notebookChannelSection: document.getElementById("notebook-channel-section"),
@@ -2007,6 +1984,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function loadEditor() {
         savedSnapshot = null;
+        localDraftSnapshot = null;
         saveInProgress = false;
         saveFailed = false;
         els.save.disabled = true;
@@ -2168,6 +2146,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.settingsClose.addEventListener("click", closeSettings);
         els.settingsBackdrop.addEventListener("click", closeSettings);
         els.toolbarImage.addEventListener("click", function () {
+          restoreInsertSelection();
           els.imageFile.click();
         });
         els.toolbarSidenote.addEventListener("click", insertSidenoteSample);
@@ -2274,7 +2253,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           els.arenaChannel.disabled = false;
           els.arenaEnabled.disabled = false;
           els.arenaChannel.value = preferredId || String(arenaChannels[0].id);
-          syncArenaUi();
+          syncSavedState();
           return payload;
         });
       }
@@ -2423,7 +2402,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         var photo = isPhotoEditor();
         var hasMappedBlock = hasArenaMapping();
         var imageLabel = preview.imageCount === 1 ? "1 imagen" : preview.imageCount + " imágenes";
-        var blogSaved = Boolean(savedSnapshot && currentSaveSnapshot() === savedSnapshot && !saveInProgress && !saveFailed);
+        var blogSaved = Boolean(sourcePath && savedSnapshot && currentSaveSnapshot() === savedSnapshot && !saveInProgress && !saveFailed);
         var state = arenaState.state || "disabled";
         var labels = {
           disabled: "Copia desactivada",
@@ -2460,7 +2439,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.arenaContentMeta.textContent = photo
           ? imageLabel + " · pie · alt"
           : "Bloque de texto · " + preview.characters.toLocaleString("es-MX") + " caracteres";
-        els.arenaBlogStep.textContent = blogSaved ? "Blog actualizado" : "Blog sin guardar";
+        els.arenaBlogStep.textContent = els.savedPill.textContent;
         els.arenaBlogStep.className = "arena-step " + (blogSaved ? "is-complete" : "is-pending");
         els.arenaCopyStep.textContent = labels[state] || labels.disabled;
         els.arenaCopyStep.className = "arena-step";
@@ -2604,7 +2583,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         saveInProgress = false;
         saveFailed = false;
         setStatus(isBookEditor() ? "New book" : "New post");
-        setPublicationState("idle", "Publica para iniciar el proceso.");
+        setPublicationState("idle", "Guarda cuando quieras conservar los cambios.");
         resetBodyHistory();
         syncSavedState();
         syncPhotoEditor();
@@ -2672,7 +2651,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           syncDeleteControls();
           setPublicationState(frontMatter.draft === true ? "draft" : "saved", frontMatter.draft === true
             ? "Este contenido sigue como borrador."
-            : "Guardado; verifica para confirmar la ruta pública.");
+            : "Los cambios coinciden con la versión guardada.");
           resizeEditorFields();
           syncMarkdownFromFields();
           offerDraftRestore();
@@ -2872,28 +2851,13 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function setPublicationState(state, message) {
-        [els.publicationSavedStep, els.publicationDeployStep, els.publicationPublicStep].forEach(function (step) {
-          step.classList.remove("is-active", "is-complete");
-        });
-
-        if (["saved", "deploying", "pending", "public", "admin", "draft"].indexOf(state) !== -1) {
-          els.publicationSavedStep.classList.add("is-complete");
-        }
-        if (state === "saving") els.publicationSavedStep.classList.add("is-active");
-        if (state === "deploying" || state === "pending") els.publicationDeployStep.classList.add("is-active");
-        if (state === "public") {
-          els.publicationDeployStep.classList.add("is-complete");
-          els.publicationPublicStep.classList.add("is-complete");
-        }
-        if (state === "admin") els.publicationDeployStep.classList.add("is-complete");
-        if (state === "error") els.publicationSavedStep.classList.add("is-active");
+        els.publicationMessage.dataset.state = state;
         els.publicationMessage.textContent = message || "";
       }
 
       function verifyDeletedPublication(result) {
         if (!result || !result.deletedUrl) return Promise.resolve(result);
         var publicUrl = editorCore.publicContentUrl(result.deletedUrl);
-        els.publicationPublicStep.textContent = "Retirado del blog";
         setPublicationState("deploying", "Eliminado en GitHub. Esperando el 404 de la URL exacta.");
         return waitForPublicState(publicUrl, { exists: false }).then(function () {
           setPublicationState("public", "La URL exacta ya responde 404 en el dominio principal.");
@@ -2950,6 +2914,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function insertSidenoteSample() {
+        restoreInsertSelection();
         var target = activeTextArea();
         var cursor = Math.max(0, Math.min(target.selectionEnd || 0, target.value.length));
         var id = nextSidenoteId(target.value);
@@ -2977,6 +2942,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function insertSidenoteTone(tone) {
         if (!["green", "blue", "amber"].includes(tone)) return;
+        restoreInsertSelection();
         wrapSelection("{{" + tone + "|", "}}");
         setStatus("Color de nota insertado");
       }
@@ -3654,6 +3620,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function markContentEdited() {
         saveFailed = false;
+        setPublicationState("idle", "Los cambios se aplicarán al guardar.");
         if (els.arenaEnabled.checked && arenaState.state !== "unavailable" && arenaState.state !== "syncing") {
           arenaState = Object.assign({}, arenaState, { state: "pending", error: "" });
         }
@@ -3664,7 +3631,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       function currentSaveSnapshot() {
         return JSON.stringify({
           sourcePath: sourcePath,
-          notebook: els.notebook.value,
+          notebook: mode === "edit" ? "" : els.notebook.value,
           title: els.title.value,
           summary: els.summary.value,
           slug: els.slug.value,
@@ -3678,13 +3645,21 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           draft: !els.hidden.checked,
           hidden: !els.hidden.checked,
           arenaEnabled: els.arenaEnabled.checked,
-          arenaChannelId: els.arenaChannel.value,
+          arenaChannelId: els.arenaEnabled.checked ? (els.arenaChannel.value || String(frontMatter.arena_channel_id || "")) : "",
           body: els.body.value,
         });
       }
 
       function syncSavedState() {
         syncSaveButtonLabel();
+        els.publicationVisibility.textContent = !savedSnapshot ? "Cargando estado…" : sourcePath
+          ? "Estado guardado: " + (frontMatter.draft === true || frontMatter.hidden === true ? "borrador" : "público")
+          : "Sin publicar";
+        if (!savedSnapshot && !saveFailed) {
+          setSavePill("loading", "Cargando");
+          syncArenaUi();
+          return;
+        }
         if (saveInProgress) {
           setSavePill("saving", "Guardando");
           syncArenaUi();
@@ -3696,11 +3671,16 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           return;
         }
         if (savedSnapshot && currentSaveSnapshot() === savedSnapshot) {
-          setSavePill("saved", "Sincronizado");
+          setSavePill(sourcePath ? "saved" : "unsaved", sourcePath ? "Guardado" : "Sin guardar");
+          if (!saveFailed && els.publicationMessage.dataset.state === "idle") {
+            els.publicationMessage.textContent = sourcePath
+              ? "Los cambios coinciden con la versión guardada."
+              : "Guarda cuando quieras conservar los cambios.";
+          }
           syncArenaUi();
           return;
         }
-        setSavePill("unsaved", "Sin guardar");
+        setSavePill("unsaved", currentSaveSnapshot() === localDraftSnapshot ? "Copia local · sin guardar" : "Sin guardar");
         syncArenaUi();
       }
 
@@ -3750,6 +3730,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           if (!savedSnapshot || currentSaveSnapshot() === savedSnapshot) return;
           try {
             window.localStorage.setItem(draftStorageKey, JSON.stringify(Object.assign(collectDraftState(), { savedAt: Date.now() })));
+            localDraftSnapshot = currentSaveSnapshot();
+            syncSavedState();
           } catch (error) {
             // localStorage can be unavailable in private or restricted contexts.
           }
@@ -3758,6 +3740,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function clearStoredDraft() {
         window.clearTimeout(draftSaveTimer);
+        localDraftSnapshot = null;
         try {
           window.localStorage.removeItem(draftStorageKey);
         } catch (error) {
@@ -3918,6 +3901,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.captionField.hidden = true;
         els.insertDividerBefore.hidden = notebook;
         els.insertToolbarGroup.hidden = notebook;
+        document.getElementById("technical-preview-open").hidden = notebook;
         els.insertDividerAfter.hidden = notebook;
         els.toolbarImage.hidden = notebook;
         els.toolbarImage.disabled = notebook;
