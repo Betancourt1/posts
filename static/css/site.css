@@ -2129,15 +2129,32 @@ body:has(.graph-ambient) {
 }
 
 .knowledge-graph.graph-ambient {
+  --graph-sharp-inset: 40px;
   border: 0;
   border-radius: 0;
   overflow: visible;
   background: transparent;
+  pointer-events: none;
+  touch-action: auto;
+  cursor: auto;
+}
+
+.graph-ambient .graph-interaction {
+  position: absolute;
+  inset: var(--graph-sharp-inset);
+  pointer-events: auto;
+  touch-action: none;
+  cursor: grab;
+}
+
+.graph-ambient.is-grabbing .graph-interaction {
+  cursor: grabbing;
 }
 
 .graph-ambient .graph-rendering {
   position: absolute;
   z-index: -1;
+  pointer-events: none;
   mask-image:
     linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent),
     linear-gradient(to bottom, transparent, #000 40px, #000 calc(100% - 40px), transparent);
@@ -2152,8 +2169,8 @@ body:has(.graph-ambient) {
   position: absolute;
   inset: 0;
   mask-image:
-    linear-gradient(to right, transparent calc(var(--graph-left) - 40px), #000 calc(var(--graph-left) + 40px), #000 calc(var(--graph-right) - 40px), transparent calc(var(--graph-right) + 40px)),
-    linear-gradient(to bottom, transparent calc(var(--graph-top) - 40px), #000 calc(var(--graph-top) + 40px), #000 calc(var(--graph-bottom) - 40px), transparent calc(var(--graph-bottom) + 40px));
+    linear-gradient(to right, transparent calc(var(--graph-left) - var(--graph-sharp-inset)), #000 calc(var(--graph-left) + var(--graph-sharp-inset)), #000 calc(var(--graph-right) - var(--graph-sharp-inset)), transparent calc(var(--graph-right) + var(--graph-sharp-inset))),
+    linear-gradient(to bottom, transparent calc(var(--graph-top) - var(--graph-sharp-inset)), #000 calc(var(--graph-top) + var(--graph-sharp-inset)), #000 calc(var(--graph-bottom) - var(--graph-sharp-inset)), transparent calc(var(--graph-bottom) + var(--graph-sharp-inset)));
   mask-composite: intersect;
 }
 
@@ -2163,8 +2180,8 @@ body:has(.graph-ambient) {
   opacity: 0.896;
   mask-image:
     linear-gradient(#000, #000),
-    linear-gradient(to right, transparent calc(var(--graph-left) - 40px), #000 calc(var(--graph-left) + 40px), #000 calc(var(--graph-right) - 40px), transparent calc(var(--graph-right) + 40px)),
-    linear-gradient(to bottom, transparent calc(var(--graph-top) - 40px), #000 calc(var(--graph-top) + 40px), #000 calc(var(--graph-bottom) - 40px), transparent calc(var(--graph-bottom) + 40px));
+    linear-gradient(to right, transparent calc(var(--graph-left) - var(--graph-sharp-inset)), #000 calc(var(--graph-left) + var(--graph-sharp-inset)), #000 calc(var(--graph-right) - var(--graph-sharp-inset)), transparent calc(var(--graph-right) + var(--graph-sharp-inset))),
+    linear-gradient(to bottom, transparent calc(var(--graph-top) - var(--graph-sharp-inset)), #000 calc(var(--graph-top) + var(--graph-sharp-inset)), #000 calc(var(--graph-bottom) - var(--graph-sharp-inset)), transparent calc(var(--graph-bottom) + var(--graph-sharp-inset)));
   mask-composite: subtract, intersect;
 }
 

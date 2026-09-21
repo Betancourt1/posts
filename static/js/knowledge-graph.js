@@ -307,6 +307,7 @@
     var rendering = null;
     var exteriorCanvas = null;
     var exteriorCtx = null;
+    var interactionSurface = container;
     if (!homeGraphSection.classList.contains("sidebar-graph")) {
       rendering = document.createElement("div");
       rendering.className = "graph-rendering";
@@ -316,6 +317,9 @@
       exteriorCtx = exteriorCanvas.getContext("2d");
       container.appendChild(rendering);
       rendering.append(canvas, exteriorCanvas);
+      interactionSurface = document.createElement("div");
+      interactionSurface.className = "graph-interaction";
+      container.appendChild(interactionSurface);
     }
 
     var dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
@@ -469,6 +473,34 @@
         x: event.clientX - rect.left,
         y: event.clientY - rect.top
       };
+    }
+
+    function isInsideInteraction(event) {
+      var rect = interactionSurface.getBoundingClientRect();
+      return event.clientX >= rect.left && event.clientX <= rect.right &&
+        event.clientY >= rect.top && event.clientY <= rect.bottom;
+    }
+
+    function cancelInteraction() {
+      var wasInteracting = state.pointerId !== null || state.touchPointers.size > 0;
+      var pointerIds = Array.from(state.touchPointers.keys());
+      if (state.pointerId !== null) pointerIds.push(state.pointerId);
+      pointerIds.forEach(function (pointerId) {
+        if (interactionSurface.hasPointerCapture(pointerId)) {
+          interactionSurface.releasePointerCapture(pointerId);
+        }
+      });
+      state.touchPointers.clear();
+      state.pointerId = null;
+      state.draggingNode = null;
+      state.hoverNode = null;
+      state.panning = false;
+      state.pinching = false;
+      state.pinchDistance = 0;
+      state.moved = true;
+      container.classList.toggle("is-grabbing", false);
+      if (wasInteracting) wakeSimulation();
+      else drawIfIdle();
     }
 
     function clamp(value, min, max) {
@@ -834,7 +866,8 @@
       }
     }
 
-    container.addEventListener("pointerdown", function (event) {
+    interactionSurface.addEventListener("pointerdown", function (event) {
+      if (ambient && !isInsideInteraction(event)) return;
       var pos = pointerXY(event);
       if (event.pointerType === "touch") {
         event.preventDefault();
@@ -843,7 +876,7 @@
         }
 
         state.touchPointers.set(event.pointerId, pos);
-        container.setPointerCapture(event.pointerId);
+        interactionSurface.setPointerCapture(event.pointerId);
 
         if (state.touchPointers.size === 2) {
           var pinch = getPinchMetrics();
@@ -882,12 +915,17 @@
       }
 
       if (event.pointerType !== "touch") {
-        container.setPointerCapture(event.pointerId);
+        interactionSurface.setPointerCapture(event.pointerId);
       }
       wakeSimulation();
     });
 
-    container.addEventListener("pointermove", function (event) {
+    interactionSurface.addEventListener("pointermove", function (event) {
+      // Captured pointers keep arriving after they leave the sharp window.
+      if (ambient && !isInsideInteraction(event)) {
+        cancelInteraction();
+        return;
+      }
       var pos = pointerXY(event);
 
       if (event.pointerType === "touch" && state.touchPointers.has(event.pointerId)) {
@@ -948,12 +986,16 @@
     });
 
     function onPointerUp(event) {
+      if (ambient && !isInsideInteraction(event)) {
+        cancelInteraction();
+        return;
+      }
       if (event.pointerType === "touch") {
         state.touchPointers.delete(event.pointerId);
       }
 
-      if (container.hasPointerCapture(event.pointerId)) {
-        container.releasePointerCapture(event.pointerId);
+      if (interactionSurface.hasPointerCapture(event.pointerId)) {
+        interactionSurface.releasePointerCapture(event.pointerId);
       }
 
       if (state.pinching) {
@@ -980,11 +1022,24 @@
       wakeSimulation();
     }
 
-    container.addEventListener("pointerup", onPointerUp);
-    container.addEventListener("pointercancel", onPointerUp);
+    interactionSurface.addEventListener("pointerup", onPointerUp);
+    interactionSurface.addEventListener("pointercancel", function (event) {
+      if (ambient) cancelInteraction();
+      else onPointerUp(event);
+    });
+    interactionSurface.addEventListener("pointerleave", function (event) {
+      if (!ambient) return;
+      if (!isInsideInteraction(event)) {
+        cancelInteraction();
+        return;
+      }
+      // Touch taps also emit pointerleave when the finger lifts inside the window.
+      state.hoverNode = null;
+      drawIfIdle();
+    });
 
-    container.addEventListener("click", function (event) {
-      if (state.moved) {
+    interactionSurface.addEventListener("click", function (event) {
+      if (state.moved || (ambient && !isInsideInteraction(event))) {
         return;
       }
 
@@ -997,9 +1052,10 @@
       }
     });
 
-    container.addEventListener(
+    interactionSurface.addEventListener(
       "wheel",
       function (event) {
+        if (ambient && !isInsideInteraction(event)) return;
         event.preventDefault();
         var pos = pointerXY(event);
         var zoomDelta = Math.exp(-event.deltaY * 0.0012);
