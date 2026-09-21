@@ -279,8 +279,8 @@ test("home selects one published essay plus pins beyond the recent feed and surv
     await put(lang, "latest-essay", "date: 2026-09-19\nessay: true\npinned: true");
     await put(lang, "older-pin", "date: 2020-01-01\npinned: true");
     await put(lang, "tie-pin", "date: 2020-01-01\npinned: true");
-    await put(lang, "hidden-pin", "date: 2026-09-20\nessay: true\npinned: true\nhidden: true");
-    await put(lang, "draft-pin", "date: 2026-09-20\nessay: true\npinned: true");
+    await put(lang, "hidden-pin", "date: 2026-09-21\nessay: true\npinned: true\nhidden: true");
+    await put(lang, "draft-pin", "date: 2026-09-21\nessay: true\npinned: true");
     await db.prepare("UPDATE documents SET draft = 1 WHERE lang = ? AND title = 'draft-pin'").bind(lang).run();
     await put(lang, "technical", "date: 2026-09-20\nessay: true\ntechnical: true");
     const selected = await homePosts(db, lang);
@@ -288,6 +288,13 @@ test("home selects one published essay plus pins beyond the recent feed and surv
     assert.equal(selected[0].latestEssay, 1);
     const home = await loadPublicPage(db, lang === "es" ? "/es/" : "/", { includeDrafts: true, includeHidden: true });
     assert.deepEqual(home.items.map((item) => item.title), selected.map((item) => item.title));
+    const publicHome = await loadPublicPage(db, lang === "es" ? "/es/" : "/");
+    const recent = await recentPosts(db, lang, { limit: 10 });
+    assert.equal(publicHome.recentItems.length, 10);
+    assert.deepEqual(publicHome.recentItems.map((item) => item.id), recent.map((item) => item.id));
+    assert.ok(publicHome.recentItems.every((item) => !item.draft && !item.hidden));
+    assert.ok(home.recentItems.some((item) => item.draft || item.hidden));
+    assert.deepEqual(publicHome.items.map((item) => item.title), selected.map((item) => item.title));
     await put(lang, "older-pin", "date: 2020-01-01\npinned: false");
     assert.deepEqual((await homePosts(db, lang)).map((item) => item.title), ["latest-essay", "tie-pin"]);
     assert.equal((await resolveDocument(db, `${lang === "es" ? "/es" : ""}/posts/older-pin/`)).bodyMarkdown.trim(), "Unchanged article body.");

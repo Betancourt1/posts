@@ -362,14 +362,18 @@ test("renders every complete quote in the central mosaic", async () => {
   assert.match(css, /\.content-column--quotes-index \.content-inner\s*\{[^}]*max-width:\s*none/s);
 });
 
-test("renders selected writing before the unchanged headerless knowledge graph", async () => {
+test("renders selected writing before the graph and restores Recent below it", async () => {
   const source = await readFile(publicPagePath, "utf8");
   const knowledgeGraph = await readFile(new URL("../src/components/KnowledgeGraph.astro", import.meta.url), "utf8");
   const css = await readFile(new URL("../../static/css/site.css", import.meta.url), "utf8");
 
   assert.match(source, /class="home-section home-feed"[\s\S]*?<KnowledgeGraph/);
   assert.doesNotMatch(source, /Latest essay|Último ensayo|"Pinned"|"Fijado"/);
-  assert.doesNotMatch(source, /archive-badge--\$\{item\.section\}/);
+  const selected = source.slice(source.indexOf('{items.length > 0 && ('), source.indexOf('<KnowledgeGraph'));
+  assert.doesNotMatch(selected, /archive-badge--\$\{item\.section\}/);
+  assert.match(source, /<KnowledgeGraph[\s\S]*?recentItems\.length > 0[\s\S]*?"Reciente" : "Recent"/);
+  assert.match(source, /"\/es\/archives\/" : "\/archives\/"/);
+  assert.match(source, /recentItems\.map[\s\S]*?archive-badge--\$\{item\.section\}/);
   assert.match(source, /item\.section === "fotografia" && Boolean\(item\.thumbnail \|\| item\.image\)/);
   assert.match(source, /class="post-card-image"/);
   assert.match(source, /class="photo-card-count"/);

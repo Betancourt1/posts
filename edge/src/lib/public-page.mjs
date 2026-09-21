@@ -7,6 +7,7 @@ import {
   navSections,
   normalizeRoute,
   homePosts,
+  recentPosts,
   resolveDocument,
   sectionItems,
   tagIndex,
@@ -154,6 +155,9 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
           includeLanguageFallback: (layout === "list" && document.section === "posts") || layout === "photography",
         })
       : Promise.resolve([]);
+  const recentItemsPromise = layout === "home"
+    ? recentPosts(db, document.lang, { ...options, limit: 10 })
+    : Promise.resolve([]);
   const backlinksPromise = layout === "single" && ["posts", "zettelkasten"].includes(document.section)
     ? backlinks(db, document.id, options)
     : Promise.resolve([]);
@@ -161,11 +165,12 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
     ? db.prepare("SELECT id, name, site, message, created_at FROM guestbook_entries ORDER BY created_at DESC LIMIT 200").all()
     : Promise.resolve({ results: [] });
 
-  const [tags, translation, archives, items, linkedFrom, guestbook] = await Promise.all([
+  const [tags, translation, archives, items, recentItems, linkedFrom, guestbook] = await Promise.all([
     tagsPromise,
     translationPromise,
     archivePromise,
     itemsPromise,
+    recentItemsPromise,
     backlinksPromise,
     guestbookPromise,
   ]);
@@ -182,6 +187,7 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
     page: { ...document, tags, layout },
     translationPath: translation?.canonicalPath || translation?.path || null,
     items: archives || items,
+    recentItems,
     backlinks: linkedFrom,
     entries: guestbook.results || [],
   };
