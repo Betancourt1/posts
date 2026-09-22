@@ -921,9 +921,10 @@
     });
 
     interactionSurface.addEventListener("pointermove", function (event) {
-      // Captured pointers keep arriving after they leave the sharp window.
-      if (ambient && !isInsideInteraction(event)) {
-        cancelInteraction();
+      // Only gestures that started inside may continue outside the sharp window.
+      if (ambient && !interactionSurface.hasPointerCapture(event.pointerId) && !isInsideInteraction(event)) {
+        state.hoverNode = null;
+        drawIfIdle();
         return;
       }
       var pos = pointerXY(event);
@@ -986,10 +987,6 @@
     });
 
     function onPointerUp(event) {
-      if (ambient && !isInsideInteraction(event)) {
-        cancelInteraction();
-        return;
-      }
       if (event.pointerType === "touch") {
         state.touchPointers.delete(event.pointerId);
       }
@@ -1027,12 +1024,8 @@
       if (ambient) cancelInteraction();
       else onPointerUp(event);
     });
-    interactionSurface.addEventListener("pointerleave", function (event) {
+    interactionSurface.addEventListener("pointerleave", function () {
       if (!ambient) return;
-      if (!isInsideInteraction(event)) {
-        cancelInteraction();
-        return;
-      }
       // Touch taps also emit pointerleave when the finger lifts inside the window.
       state.hoverNode = null;
       drawIfIdle();
