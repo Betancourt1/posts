@@ -47,53 +47,63 @@ try {
         assert.equal(await page.locator('#technical-tools button:not(:has(svg))').count(), 0);
         assert.equal(await page.locator('#technical-tools button:not([aria-label])').count(), 0);
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-        assert.equal(await page.locator('#insert-more').isVisible(), mobile);
-        assert.equal(await page.locator('#technical-tools .technical-insert-actions button:visible').count(), mobile ? 5 : 12);
-        assert.equal(await page.locator('#technical-tools .technical-insert-actions').evaluate((el, mobile) =>
+        assert.equal(await page.locator('#insert-more').isVisible(), true);
+        assert.equal(await page.locator('#technical-tools .technical-insert-actions button:visible').count(), 5);
+        assert.equal(await page.locator('#technical-tools .technical-insert-actions').evaluate(el =>
           Array.from(el.querySelectorAll('button')).filter(button => button.getClientRects().length).every(button => {
-            const label = button.querySelector(mobile ? '.insert-mobile-label' : '.insert-label');
+            const label = button.querySelector('.insert-label');
             return label && label.getClientRects().length && label.scrollWidth <= label.clientWidth;
-          }), mobile), true, 'visible insert actions have readable labels');
-        if (mobile) {
+          })), true, 'visible insert actions have readable labels');
+        {
           assert.equal(await page.locator('#insert-more').getAttribute('aria-expanded'), 'false');
           assert.equal(await page.locator('#technical-tools').evaluate(el => {
-            const hiddenAction = el.querySelector('[data-mobile-extra]');
+            const hiddenAction = el.querySelector('#insert-extra button');
             hiddenAction.focus();
-            return getComputedStyle(hiddenAction).display === 'none' && document.activeElement !== hiddenAction;
+            return hiddenAction.getClientRects().length === 0 && document.activeElement !== hiddenAction;
           }), true, 'collapsed actions are absent from keyboard focus');
         }
         if (mobile && !checkedNarrowLayouts) {
           for (const width of [320, 390, 768]) {
-            await page.setViewportSize({ width, height: 844 });
+            await page.setViewportSize({ width, height: width === 320 ? 480 : 844 });
             const inspectGeometry = () => page.locator('#technical-tools').evaluate(el => {
               const visibleButtons = Array.from(el.querySelectorAll('button')).filter(button => button.getClientRects().length);
               const options = [el.querySelector('#insert-more'), el.querySelector('select'), el.querySelector('summary')].map(item => item.getBoundingClientRect());
               return {
                 toolbarHeight: el.closest('.formatbar').getBoundingClientRect().height,
+                chooserHeight: el.getBoundingClientRect().height,
+                availableHeight: innerHeight - document.querySelector('.topbar').getBoundingClientRect().height,
+                viewportHeight: innerHeight,
                 minButtonSize: Math.min(...visibleButtons.map(button => Math.min(button.getBoundingClientRect().width, button.getBoundingClientRect().height))),
                 optionsFit: options.every(rect => rect.left >= 0 && rect.right <= innerWidth && rect.height >= 44),
                 labelsFit: visibleButtons.filter(button => button.closest('.technical-insert-actions')).every(button => {
-                  const label = button.querySelector('.insert-mobile-label');
+                  const label = button.querySelector('.insert-label');
                   return label && label.getClientRects().length && label.scrollWidth <= label.clientWidth;
                 }),
-                fitsViewport: document.documentElement.scrollWidth <= innerWidth,
+                fitsViewport: document.documentElement.scrollWidth <= innerWidth && el.scrollWidth <= el.clientWidth,
               };
             });
             const geometry = await inspectGeometry();
             if (width === 320) await page.screenshot({ path: `${evidence}/${lang}-320-buttons.png` });
-            assert.ok(geometry.toolbarHeight < 320, `${width}px insert buttons leave room for the editor: ${JSON.stringify(geometry)}`);
+            assert.ok(geometry.toolbarHeight < geometry.availableHeight - 64 && geometry.chooserHeight <= geometry.viewportHeight * 0.45 + 1, `${width}px insert buttons leave room for the editor: ${JSON.stringify(geometry)}`);
             assert.ok(geometry.minButtonSize >= 44, `${width}px insert buttons have 44px touch targets`);
             assert.equal(geometry.optionsFit, true, `${width}px More, language, and guide controls fit`);
             assert.equal(geometry.labelsFit, true, `${width}px insert labels fit`);
             assert.equal(geometry.fitsViewport, true, `${width}px layout has no horizontal overflow`);
+            const documentScroll = await page.evaluate(() => scrollY);
             await page.locator('#insert-more').click();
             assert.equal(await page.locator('#insert-more').getAttribute('aria-expanded'), 'true');
-            assert.equal(await page.locator('#technical-tools [data-mobile-extra]:visible').count(), 7);
+            assert.equal(await page.locator('#insert-extra button:visible').count(), 7);
             const expanded = await inspectGeometry();
-            assert.ok(expanded.toolbarHeight < 320 && expanded.minButtonSize >= 44 && expanded.optionsFit && expanded.labelsFit && expanded.fitsViewport, `${width}px expanded buttons fit: ${JSON.stringify(expanded)}`);
+            assert.equal(await page.evaluate(() => scrollY), documentScroll, 'expanding choices only scrolls the chooser');
+            assert.equal(await page.locator('#insert-color-title').evaluate(el => {
+              const rect = el.getBoundingClientRect();
+              const panel = document.querySelector('#technical-tools').getBoundingClientRect();
+              return rect.top >= panel.top && rect.bottom <= panel.bottom;
+            }), true, 'expanding options brings the first labeled group into view');
+            assert.ok(expanded.toolbarHeight < expanded.availableHeight - 64 && expanded.chooserHeight <= expanded.viewportHeight * 0.45 + 1 && expanded.minButtonSize >= 44 && expanded.optionsFit && expanded.labelsFit && expanded.fitsViewport, `${width}px expanded buttons fit: ${JSON.stringify(expanded)}`);
             if (width === 320) await page.screenshot({ path: `${evidence}/${lang}-320-all-buttons.png` });
             await page.locator('#insert-more').click();
-            assert.equal(await page.locator('#technical-tools [data-mobile-extra]:visible').count(), 0);
+            assert.equal(await page.locator('#insert-extra button:visible').count(), 0);
           }
           await page.setViewportSize({ width: 390, height: 844 });
           checkedNarrowLayouts = true;
@@ -101,7 +111,8 @@ try {
       };
       await openTools();
       await page.locator('#technical-tools summary').click();
-      const guideBounds = await page.locator('#technical-tools ul').boundingBox();
+      await page.locator('#technical-tools ul li').last().scrollIntoViewIfNeeded();
+      const guideBounds = await page.locator('#technical-tools').boundingBox();
       assert.ok(guideBounds && guideBounds.x >= 0 && guideBounds.y >= 0 && guideBounds.x + guideBounds.width <= (mobile ? 390 : 1280), 'quick guide fits the viewport');
       await page.keyboard.press('Escape');
       assert.equal(await page.locator('#technical-tools').isVisible(), false);
@@ -119,7 +130,7 @@ try {
           await target.evaluate(el => { const at = el.value.indexOf('SELECTED'); el.focus(); el.setSelectionRange(at, at + 8); });
           await openTools();
           if (kind === 'code') await page.locator('#technical-code-language').selectOption('sql');
-          if (mobile && !(await page.locator(`[data-technical-insert="${kind}"]`).isVisible())) await page.locator('#insert-more').click();
+          if (!(await page.locator(`[data-technical-insert="${kind}"]`).isVisible())) await page.locator('#insert-more').click();
           await page.locator(`[data-technical-insert="${kind}"]`).click();
           assert.equal(await page.locator('#technical-tools').isVisible(), false);
           assert.equal(await page.locator('#toolbar-technical').getAttribute('aria-expanded'), 'false');
@@ -149,7 +160,7 @@ try {
             await page.locator('#toolbar-sidenote').click();
             assert.ok((await target.inputValue()).startsWith(prefix + 'Before SELECTED[^note-1] after'));
           } else if (insertion === 'color') {
-            if (mobile) await page.locator('#insert-more').click();
+            await page.locator('#insert-more').click();
             await page.locator('[data-sidenote-tone="green"]').click();
             assert.equal(await target.inputValue(), prefix + 'Before {{green|SELECTED}} after');
           } else {
@@ -174,10 +185,8 @@ try {
       await page.locator('#markdown-canvas').fill(markdown);
       await openTools();
       await page.screenshot({ path: `${evidence}/${lang}-${mobile ? 'mobile' : 'desktop'}-buttons.png` });
-      if (mobile) {
-        await page.locator('#insert-more').click();
-        await page.screenshot({ path: `${evidence}/${lang}-mobile-all-buttons.png` });
-      }
+      await page.locator('#insert-more').click();
+      await page.screenshot({ path: `${evidence}/${lang}-${mobile ? 'mobile' : 'desktop'}-all-buttons.png` });
       await page.keyboard.press('Escape');
       const before = savedRequests.length;
       await page.locator('#technical-preview-open').click();
@@ -201,9 +210,14 @@ try {
       await page.route('**/api/preview', route => route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ error: 'Fixture unavailable' }) }));
       await page.locator('#technical-preview-open').click();
       await page.waitForFunction(() => document.querySelector('#technical-preview-status').textContent.includes('Fixture unavailable'));
+      assert.equal(await page.locator('#technical-preview-retry').isVisible(), true);
+      await page.unroute('**/api/preview');
+      await page.locator('#technical-preview-retry').click();
+      await frame.locator('h1').waitFor();
+      assert.equal(await page.locator('#technical-preview-retry').isVisible(), false);
+      assert.equal(await frame.locator('h1').textContent(), 'Technical editor test');
       await page.locator('[data-close-technical="technical-preview"]').click();
       assert.equal(await page.locator('#markdown-canvas').inputValue(), markdown);
-      await page.unroute('**/api/preview');
       // A reload offers the unsaved technical draft and restores it exactly.
       await page.waitForFunction(() => Object.keys(localStorage).some(k => k.startsWith('authorWritingDraftV1')));
       await page.waitForTimeout(400);

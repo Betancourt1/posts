@@ -21,6 +21,7 @@ const ICONS = Object.freeze({
   image: iconSvg(`<rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />`),
   insert: iconSvg(`<rect x="3" y="3" width="18" height="18" rx="2" /><path d="M12 7v10M7 12h10" />`),
   markdown: iconSvg(`<path d="M3 17V7l4 5 4-5v10M15 11v6m-3-3 3 3 3-3" />`),
+  more: iconSvg(`<circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" />`),
   settings: iconSvg(`<path d="M9.7 4.1a2.3 2.3 0 0 1 4.6 0 2.3 2.3 0 0 0 3.3 1.9 2.3 2.3 0 0 1 2.3 4 2.3 2.3 0 0 0 0 3.8 2.3 2.3 0 0 1-2.3 4 2.3 2.3 0 0 0-3.3 1.9 2.3 2.3 0 0 1-4.6 0 2.3 2.3 0 0 0-3.3-1.9 2.3 2.3 0 0 1-2.3-4 2.3 2.3 0 0 0 0-3.8 2.3 2.3 0 0 1 2.3-4 2.3 2.3 0 0 0 3.3-1.9" /><circle cx="12" cy="12" r="3" />`),
   trash: iconSvg(`<path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" />`),
   copy: iconSvg(`<rect width="14" height="14" x="8" y="8" rx="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />`),
@@ -171,7 +172,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       color: var(--accent);
     }
     button:active {
-      transform: scale(0.97);
+      transform: scale(0.96);
     }
     .button-icon {
       width: 1.15rem;
@@ -875,8 +876,14 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       display: none;
     }
     .formatbar .mobile-markdown-toggle,
-    .toolbar-break {
+    .formatbar #format-more,
+    .format-label {
       display: none;
+    }
+    .secondary-format { display: contents; }
+    .formatbar :is(button, select, summary):focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
     .formatbar {
       max-width: 100vw;
@@ -917,13 +924,13 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 2.15rem;
-      min-width: 2.15rem;
+      width: 2.5rem;
+      min-width: 2.5rem;
       border: 0;
       border-radius: 0.35rem;
       background: transparent;
       color: #444444;
-      min-height: 2.15rem;
+      min-height: 2.5rem;
       padding: 0;
       font-size: 1rem;
       font-weight: 700;
@@ -1340,10 +1347,21 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         display: inline-flex;
       }
       .formatbar .divider { display: none; }
-      .toolbar-break {
-        display: block;
-        flex-basis: 100%;
+      .formatbar #format-more { display: inline-flex; flex-direction: column; gap: 0.1rem; }
+      .format-more-label { font-size: 0.75rem; line-height: 1; }
+      .secondary-format { display: none; }
+      .format-tools-open .secondary-format {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.25rem;
+        width: 100%;
+        margin-top: 0.4rem;
+        padding-top: 0.4rem;
+        border-top: 1px solid var(--line);
       }
+      .secondary-format button { width: 100%; flex-direction: column; gap: 0.2rem; padding: 0.3rem 0; }
+      .secondary-format .format-label { display: block; font-size: 0.75rem; line-height: 1.2; }
+      .reference-theme.format-tools-open .writer { padding-bottom: calc(12rem + env(safe-area-inset-bottom)); }
       .topbar,
       .reference-theme .topbar {
         position: fixed;
@@ -1419,19 +1437,17 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       .reference-theme .top-actions .markdown-toggle[aria-pressed="true"] {
         color: var(--accent);
       }
-      .reference-theme[data-theme="dark"] .top-actions .primary {
-        border-color: rgba(255, 255, 255, 0.68);
-        background: transparent;
-        color: var(--ink);
-      }
+
       .top-actions .primary,
       .reference-theme .top-actions .primary {
         min-height: 2.75rem;
         border: 1px solid var(--line);
         border-radius: 0.55rem;
         padding: 0 0.55rem;
-        color: var(--ink);
+        background: var(--ink) !important;
+        color: var(--bg);
       }
+      .reference-theme[data-theme="dark"] .top-actions .primary { color: var(--bg); }
       .mobile-settings-button {
         grid-column: 3;
         grid-row: 1;
@@ -1661,20 +1677,22 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         <button type="button" id="toolbar-technical" aria-controls="technical-tools" aria-expanded="false" aria-label="Insertar contenido" title="Insertar contenido">${ICONS.insert}<span class="insert-label">Insertar</span></button>
       </span>
       <button type="button" class="mobile-markdown-toggle" id="mobile-view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">${ICONS.markdown}<span class="markdown-label">Markdown</span></button>
-      <span class="toolbar-break" aria-hidden="true"></span>
+      <button type="button" id="format-more" aria-controls="secondary-format" aria-expanded="false" aria-label="Mostrar más formato" title="Mostrar más formato">${ICONS.more}<span class="format-more-label">Más</span></button>
+      <div class="secondary-format" id="secondary-format">
       <span class="divider" id="insert-divider-after"></span>
       <span class="toolbar-group" aria-label="Más formato">
-        <button type="button" data-format="strike" title="Tachado" aria-label="Tachado">${ICONS.strike}</button>
-        <button type="button" data-format="code" title="Código en línea" aria-label="Código en línea">${ICONS.code}</button>
-        <button type="button" data-format="link" title="Enlace" aria-label="Enlace">${ICONS.link}</button>
+        <button type="button" data-format="strike" title="Tachado" aria-label="Tachado">${ICONS.strike}<span class="format-label">Tachado</span></button>
+        <button type="button" data-format="code" title="Código en línea" aria-label="Código en línea">${ICONS.code}<span class="format-label">Código</span></button>
+        <button type="button" data-format="link" title="Enlace" aria-label="Enlace">${ICONS.link}<span class="format-label">Enlace</span></button>
       </span>
       <span class="divider"></span>
       <span class="toolbar-group" aria-label="Bloques">
-        <button type="button" data-format="heading" title="Encabezado" aria-label="Encabezado">${ICONS.heading}</button>
-        <button type="button" data-format="quote" title="Cita" aria-label="Cita">${ICONS.quote}</button>
-        <button type="button" data-format="ul" title="Lista con viñetas" aria-label="Lista con viñetas">${ICONS.list}</button>
-        <button type="button" data-format="ol" title="Lista numerada" aria-label="Lista numerada">${ICONS.orderedList}</button>
+        <button type="button" data-format="heading" title="Encabezado" aria-label="Encabezado">${ICONS.heading}<span class="format-label">Encabezado</span></button>
+        <button type="button" data-format="quote" title="Cita" aria-label="Cita">${ICONS.quote}<span class="format-label">Cita</span></button>
+        <button type="button" data-format="ul" title="Lista con viñetas" aria-label="Lista con viñetas">${ICONS.list}<span class="format-label">Viñetas</span></button>
+        <button type="button" data-format="ol" title="Lista numerada" aria-label="Lista numerada">${ICONS.orderedList}<span class="format-label">Numerada</span></button>
       </span>
+      </div>
     </div>
     ${technicalInsertMarkup}
   </nav>
@@ -1897,6 +1915,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       var restoringBodyHistory = false;
       var publicationRedirectNotebook = "";
       var typingViewportStates = new WeakMap();
+      var formatSelection = null;
       var caretMirror = null;
       var caretMarker = null;
       var els = {
@@ -2048,6 +2067,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function bind() {
         bindTechnicalTools();
+        bindFormatTools();
         els.back.addEventListener("click", function () {
           if (!confirmDiscardChanges()) return;
           allowExit = true;
@@ -2097,9 +2117,12 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           applyEditorSize(els.editorFontSize.value);
         });
         els.viewMarkdown.addEventListener("click", function () {
+          restoreInsertSelection();
           applyViewMode(activeViewMode === "markdown" ? "render" : "markdown", true);
         });
         els.mobileViewMarkdown.addEventListener("click", function () {
+          restoreInsertSelection();
+          closeFormatTools();
           applyViewMode(activeViewMode === "markdown" ? "render" : "markdown", true);
         });
         els.arenaDetailsButton.addEventListener("click", openArenaDetails);
@@ -2185,8 +2208,53 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.imageFile.addEventListener("change", uploadImage);
         Array.from(document.querySelectorAll("[data-format]")).forEach(function (button) {
           button.addEventListener("click", function () {
+            restoreInsertSelection();
+            if (formatSelection) {
+              var selection = formatSelection;
+              closeFormatTools();
+              selection.target.setSelectionRange(selection.start, selection.end);
+            }
             applyFormat(button.dataset.format);
           });
+        });
+      }
+
+      function closeFormatTools() {
+        document.body.classList.remove("format-tools-open");
+        var more = document.getElementById("format-more");
+        more.setAttribute("aria-expanded", "false");
+        more.setAttribute("aria-label", "Mostrar más formato");
+        more.title = "Mostrar más formato";
+        more.querySelector(".format-more-label").textContent = "Más";
+        formatSelection = null;
+      }
+
+      function bindFormatTools() {
+        var more = document.getElementById("format-more");
+        more.addEventListener("click", function () {
+          if (document.body.classList.contains("format-tools-open")) {
+            closeFormatTools();
+            return;
+          }
+          closeTechnicalTools();
+          var target = activeTextArea();
+          formatSelection = { target: target, start: target.selectionStart, end: target.selectionEnd };
+          document.body.classList.add("format-tools-open");
+          more.setAttribute("aria-expanded", "true");
+          more.setAttribute("aria-label", "Mostrar menos formato");
+          more.title = "Mostrar menos formato";
+          more.querySelector(".format-more-label").textContent = "Menos";
+        });
+        ["pointerdown", "focusin"].forEach(function (type) {
+          document.addEventListener(type, function (event) {
+            if (!els.formatbar.contains(event.target)) closeFormatTools();
+          });
+        });
+        document.addEventListener("keydown", function (event) {
+          if (event.key === "Escape" && document.body.classList.contains("format-tools-open")) {
+            closeFormatTools();
+            more.focus({ preventScroll: true });
+          }
         });
       }
 

@@ -290,6 +290,78 @@ async function waitForEditor(page) {
   });
 }
 
+async function runFormatDisclosureCase(browser, origin) {
+  for (const fixture of [
+    { route: 'post-editor?notebook=content_en/posts&theme=light', kind: 'post', width: 320 },
+    { route: 'post-editor?notebook=content_es/posts&theme=dark', kind: 'post', width: 390 },
+    { route: 'notebook-editor?mode=edit&path=content_es/_index.md&theme=dark', kind: 'notebook', width: 320 },
+  ]) {
+    const context = await browser.newContext({ viewport: { width: fixture.width, height: 480 } });
+    try {
+      const page = await context.newPage();
+      const errors = [];
+      page.on('pageerror', error => errors.push(error.message));
+      await page.goto(`${origin}/${fixture.route}`);
+      await waitForEditor(page);
+      assert.equal(await page.locator('#toolbar-technical').isVisible(), fixture.kind === 'post');
+      assert.equal(await page.locator('#technical-preview-open').isVisible(), fixture.kind === 'post');
+      assert.equal(await page.locator('#secondary-format').isVisible(), false);
+      assert.ok(await page.locator('.formatbar').evaluate(el => el.getBoundingClientRect().height < 64), 'collapsed mobile toolbar fits one row');
+      assert.equal(await page.locator('#secondary-format button').first().evaluate(el => {
+        el.focus();
+        return document.activeElement !== el;
+      }), true, 'hidden formatting is outside keyboard navigation');
+      await page.screenshot({ path: `/tmp/posts-${fixture.kind}-${fixture.width}-compact.png` });
+      for (const markdown of [false, true]) {
+        if (markdown) {
+          await page.locator('#mobile-view-markdown').click();
+          await page.waitForFunction(() => document.activeElement === document.querySelector('#markdown-canvas'));
+        }
+        const target = page.locator(markdown ? '#markdown-canvas' : '#body');
+        const prefix = markdown ? '# Test title\n\n' : '';
+        const original = prefix + 'Before SELECTED after';
+        for (const [format, expected] of [
+          ['strike', 'Before ~~SELECTED~~ after'], ['code', 'Before `SELECTED` after'],
+          ['link', 'Before [SELECTED](https://) after'], ['heading', '## Before SELECTED after'],
+          ['quote', '> Before SELECTED after'], ['ul', '- Before SELECTED after'], ['ol', '1. Before SELECTED after'],
+        ]) {
+          await target.fill(original);
+          await target.evaluate(el => { const start = el.value.indexOf('SELECTED'); el.focus(); el.setSelectionRange(start, start + 8); });
+          await page.locator('#format-more').click();
+          assert.equal(await page.locator('#format-more').getAttribute('aria-expanded'), 'true');
+          assert.equal(await page.locator('#secondary-format button:visible').count(), 7);
+          assert.equal(await page.locator('.formatbar').evaluate(el => {
+            const buttons = [...el.querySelectorAll('button')].filter(button => button.getClientRects().length);
+            return buttons.every(button => { const rect = button.getBoundingClientRect(); return rect.width >= 44 && rect.height >= 44; }) && document.documentElement.scrollWidth <= innerWidth;
+          }), true, 'expanded formatting has touch-sized controls and no overflow');
+          if (format === 'strike' && !markdown) await page.screenshot({ path: `/tmp/posts-${fixture.kind}-${fixture.width}-format.png` });
+          await page.locator(`[data-format="${format}"]`).click();
+          assert.equal(await target.inputValue(), prefix + expected, `${fixture.kind} ${format} preserves the selection`);
+          assert.equal(await target.evaluate(el => document.activeElement === el), true);
+          assert.equal(await page.locator('#secondary-format').isVisible(), false);
+        }
+      }
+      await page.locator('#format-more').click();
+      await page.keyboard.press('Escape');
+      assert.equal(await page.locator('#format-more').getAttribute('aria-expanded'), 'false');
+      assert.equal(await page.locator('#format-more').evaluate(el => document.activeElement === el), true);
+      if (fixture.kind === 'post') {
+        await page.locator('#format-more').click();
+        await page.locator('#toolbar-technical').click();
+        assert.equal(await page.locator('#secondary-format').isVisible(), false);
+        assert.equal(await page.locator('#technical-tools').isVisible(), true);
+        await page.locator('#format-more').click();
+        assert.equal(await page.locator('#technical-tools').isVisible(), false);
+        assert.equal(await page.locator('#secondary-format').isVisible(), true);
+      } else await page.locator('#format-more').click();
+      await page.locator('#markdown-canvas').click();
+      assert.equal(await page.locator('#secondary-format').isVisible(), false);
+      assert.deepEqual(errors, []);
+    } finally { await context.close(); }
+  }
+  console.log('Mobile Post/Notebook formatting: one row, all 7 secondary actions, body/Markdown selection, focus, Escape and outside dismissal passed.');
+}
+
 async function runToolbarScrollCase(browser, origin, viewport) {
   const context = await browser.newContext({ viewport });
   const page = await context.newPage();
@@ -301,6 +373,7 @@ async function runToolbarScrollCase(browser, origin, viewport) {
     for (const mode of ["render", "markdown"]) {
       if (mode === "markdown") {
         await page.locator(viewport.width <= 900 ? "#mobile-view-markdown" : "#view-markdown").click();
+        await page.waitForFunction(() => document.activeElement === document.querySelector('#markdown-canvas'));
       }
       const textarea = page.locator(mode === "markdown" ? "#markdown-canvas" : "#body");
       await textarea.evaluate((element) => {
@@ -323,6 +396,7 @@ async function runToolbarScrollCase(browser, origin, viewport) {
       assert.equal(await textarea.evaluate(element => element.value.slice(element.selectionStart, element.selectionEnd)), "Linea040");
       for (const format of ["italic", "heading", ...(mode === "render" ? ["undo", "redo"] : [])]) {
         const scroll = await page.evaluate(() => scrollY);
+        if (!(await page.locator(`[data-format="${format}"]`).isVisible())) await page.locator('#format-more').click();
         await page.locator(`[data-format="${format}"]`).click();
         await page.waitForTimeout(50);
         assert.ok(Math.abs((await page.evaluate(() => scrollY)) - scroll) <= 1, `${format} must preserve the viewport`);
@@ -499,6 +573,7 @@ async function runCaretViewportCase(browser, origin, viewport) {
     await page.locator(viewport.width < 600 ? "#mobile-view-markdown" : "#view-markdown").click();
     const markdown = page.locator("#markdown-canvas");
     await markdown.waitFor({ state: "visible" });
+    await page.waitForFunction(() => document.activeElement === document.querySelector('#markdown-canvas'));
     const markdownValue = await markdown.inputValue();
     const markdownPosition = Math.floor(markdownValue.length * 0.75);
     await placeCaret(page, "#markdown-canvas", markdownPosition, centeredViewport.center);
@@ -1012,6 +1087,10 @@ async function main() {
   ];
 
   try {
+    await runFormatDisclosureCase(browser, origin);
+    for (const viewport of viewports) await runToolbarScrollCase(browser, origin, viewport);
+    console.log("Formatting preserves selection and scroll in body and Markdown modes.");
+    if (process.argv.includes("--toolbar")) return;
     for (const viewport of viewports) await runPinCase(browser, origin, viewport, savedRequests);
     console.log("Homepage pins: create, edit, unpin and local recovery passed in both locales and viewports.");
     if (process.argv.includes("--pins")) return;
@@ -1028,7 +1107,6 @@ async function main() {
     await runCaretViewportCase(browser, origin, { width: 1280, height: 800 });
     await runCaretViewportCase(browser, origin, { width: 390, height: 844 });
     await runExactEssayCaretCase(browser, origin);
-    for (const viewport of viewports) await runToolbarScrollCase(browser, origin, viewport);
     console.log(`Editor harness: ${fixtures.length * viewports.length} escenarios correctos.`);
     console.log("Autoguardado local: restauración y descarte comprobados.");
     console.log("Propiedades móviles en escala de grises: controles y cierres comprobados.");
