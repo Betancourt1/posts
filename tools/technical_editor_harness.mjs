@@ -5,7 +5,7 @@ import { chromium } from 'playwright';
 import { startHarnessServer } from './editor_harness.mjs';
 
 const savedRequests = [];
-const { server, origin } = await startHarnessServer(savedRequests);
+const { server, origin } = await startHarnessServer(savedRequests, { blockEditor: false });
 let browser;
 const evidence = process.env.TECHNICAL_EDITOR_EVIDENCE || '/tmp/posts-technical-editor';
 await mkdir(evidence, { recursive: true });

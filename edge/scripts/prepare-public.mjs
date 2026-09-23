@@ -1,6 +1,7 @@
 import { copyFile, cp, mkdir, readdir, rm } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { build } from "esbuild";
 
 const edgeRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const repositoryRoot = join(edgeRoot, "..");
@@ -54,6 +55,18 @@ const clientFiles = (await readdir(clientRoot))
 for (const asset of clientFiles) {
   copied.push(await copy(clientRoot, asset, join("js", asset)));
 }
+
+// The writing editor is the only client with package imports. Ship one local bundle.
+await build({
+  entryPoints: [join(clientRoot, "block-editor/index.js")],
+  outfile: join(outputRoot, "js/block-editor.js"),
+  bundle: true, minify: true, format: "iife", target: "es2022",
+  loader: { ".svg": "text" },
+  legalComments: "linked",
+});
+copied.push("js/block-editor.js");
+copied.push(await copy(clientRoot, "block-editor/styles.css", "css/block-editor.css"));
+copied.push(await copy(join(edgeRoot, "node_modules/@tabler/icons"), "LICENSE", "vendor/tabler/LICENSE.txt"));
 
 // Keep vendor assets local; only Mermaid's browser modules are needed at runtime.
 await cp(join(edgeRoot, "node_modules/katex/dist"), join(outputRoot, "vendor/katex"), {

@@ -201,6 +201,7 @@ export const technicalEditorScript = String.raw`
       var technicalRetry = document.getElementById("technical-preview-retry");
       var technicalSelection = null;
       var technicalPreviewRequest = 0;
+      var technicalPreviewSource = null;
 
       function bindTechnicalTools() {
         var trigger = document.getElementById("toolbar-technical");
@@ -320,7 +321,10 @@ export const technicalEditorScript = String.raw`
         technicalSelection.target.setSelectionRange(technicalSelection.start, technicalSelection.end);
       }
 
-      function previewTechnicalContent() {
+      function previewTechnicalContent(blockSource) {
+        if (!blockSource || blockSource.currentTarget !== technicalRetry) {
+          technicalPreviewSource = typeof blockSource === "string" ? blockSource : null;
+        }
         if (activeViewMode === "markdown") syncFieldsFromMarkdown();
         closeTechnicalTools();
         closeFormatTools();
@@ -337,7 +341,7 @@ export const technicalEditorScript = String.raw`
           return;
         }
         postJson("/api/preview", {
-          body: els.body.value,
+          body: technicalPreviewSource === null ? editorBodyValue() : technicalPreviewSource,
           title: els.title.value,
           sourcePath: sourcePath,
           frontMatter: frontMatter,

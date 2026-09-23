@@ -148,10 +148,14 @@ function readJson(req) {
   });
 }
 
-export async function startHarnessServer(savedRequests) {
+export async function startHarnessServer(savedRequests, { blockEditor = true, fixtures = {} } = {}) {
   let origin = "";
   const server = createServer(async (req, res) => {
     const url = new URL(req.url || "/", origin || "http://127.0.0.1");
+    if (!blockEditor && url.pathname === "/js/block-editor.js") {
+      // Keep the existing textarea fallback regression suite while testing CM6 separately.
+      res.writeHead(200, { "Content-Type": "text/javascript" }); res.end(""); return;
+    }
 
     if (req.method === "GET" && url.pathname === "/editor") {
       res.writeHead(302, { Location: `${resolveEditorPath(url.searchParams)}${url.search}` });
@@ -192,7 +196,7 @@ export async function startHarnessServer(savedRequests) {
       return;
     }
 
-    if (req.method === "GET" && (url.pathname === "/css/site.css" || url.pathname === "/js/technical-content.js" || url.pathname.startsWith("/vendor/"))) {
+    if (req.method === "GET" && (url.pathname === "/css/site.css" || url.pathname === "/js/technical-content.js" || url.pathname === "/js/block-editor.js" || url.pathname === "/css/block-editor.css" || url.pathname.startsWith("/vendor/"))) {
       const file = url.pathname === "/css/site.css" ? new URL("../static/css/site.css", import.meta.url)
         : url.pathname === "/js/technical-content.js" ? new URL("../edge/client/technical-content.js", import.meta.url)
         : new URL("../edge/.generated/public" + url.pathname, import.meta.url);
@@ -218,7 +222,7 @@ export async function startHarnessServer(savedRequests) {
     }
 
     if (req.method === "GET" && url.pathname === "/api/page") {
-      const page = pages[url.searchParams.get("path") || ""];
+      const page = fixtures[url.searchParams.get("path")] || pages[url.searchParams.get("path") || ""];
       json(res, page ? 200 : 404, page || { error: "Fixture desconocido." });
       return;
     }
@@ -243,7 +247,7 @@ export async function startHarnessServer(savedRequests) {
     if (req.method === "POST" && url.pathname === "/api/save-page") {
       const payload = await readJson(req);
       savedRequests.push({ path: url.pathname, payload });
-      const fixture = pages[payload.path];
+      const fixture = fixtures[payload.path] || pages[payload.path];
       json(res, 200, {
         path: payload.path,
         url: fixture?.url || "",
@@ -1056,7 +1060,7 @@ async function runWritingTypeCase(browser, origin, viewport, savedRequests) {
 
 async function main() {
   const savedRequests = [];
-  const { server, origin } = await startHarnessServer(savedRequests);
+  const { server, origin } = await startHarnessServer(savedRequests, { blockEditor: false });
   const browser = await chromium.launch({ headless: true, executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined });
   const fixtures = [
     {
@@ -1119,7 +1123,7 @@ async function main() {
   }
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) main().catch((error) => {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });

@@ -1853,6 +1853,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
   ${technicalEditorMarkup}
   <script src="${siteAssetUrl("js/sound.js")}" defer></script>
   <script src="${EDITOR_CORE_URL}"></script>
+  <link rel="stylesheet" href="${siteAssetUrl("css/block-editor.css")}" />
+  <script src="${siteAssetUrl("js/block-editor.js")}"></script>
   <script>
     (function () {
       var params = new URLSearchParams(window.location.search);
@@ -1896,6 +1898,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         "New book": true,
       };
       var activeViewMode = "render";
+      var blockEditor = null;
+      var loadedBodySource = null;
       var savedSnapshot = null;
       var saveInProgress = false;
       var saveFailed = false;
@@ -2047,6 +2051,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         }
 
         contentPromise.then(function () {
+          mountBlockEditor();
+          savedSnapshot = currentSaveSnapshot();
+          syncSavedState();
           els.save.disabled = false;
           if (!editorController.arenaEligible) return null;
           return loadArenaChannels().then(function () {
@@ -2063,6 +2070,32 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           els.retryLoad.hidden = false;
           setStatus(error.message, true);
         });
+      }
+
+      function mountBlockEditor() {
+        if (blockEditor || isPhotoEditor() || !window.BlockMarkdownEditor) return;
+        blockEditor = window.BlockMarkdownEditor.create({
+          parent: els.paper,
+          value: loadedBodySource === null ? els.body.value : loadedBodySource,
+          raw: activeViewMode === "markdown",
+          language: function () { return (sourcePath || els.notebook.value).indexOf("content_es/") === 0 ? "es" : "en"; },
+          onChange: function (value) { els.body.value = value; markContentEdited(); },
+          onUpload: function () { els.imageFile.click(); },
+          onPreview: function (value) { closeSettings(); previewTechnicalContent(value); },
+          onToggleRaw: function () { closeSettings(); applyViewMode(activeViewMode === "markdown" ? "render" : "markdown", true); },
+          onCloseSettings: closeSettings,
+        });
+        document.body.classList.add("block-editor-ready");
+        loadedBodySource = null;
+        lastSaveLabel = "";
+        applyViewMode(activeViewMode);
+        resizeEditorFields();
+        window.addEventListener("pagehide", function (event) { if (!event.persisted && blockEditor) blockEditor.destroy(); });
+        els.imageFile.addEventListener("cancel", function () { blockEditor.cancelUpload(); });
+      }
+
+      function editorBodyValue() {
+        return blockEditor ? blockEditor.value() : els.body.value;
       }
 
       function bind() {
@@ -2735,7 +2768,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
             lastSyncedAt: "",
             error: "",
           });
-          els.body.value = isBookEditor() ? bookBodyWithProgressSyntax(payload.body || "") : payload.body || "";
+          loadedBodySource = isBookEditor() ? bookBodyWithProgressSyntax(payload.body || "") : payload.body || "";
+          els.body.value = loadedBodySource;
           els.path.textContent = payload.path || "";
           savedSnapshot = currentSaveSnapshot();
           saveInProgress = false;
@@ -2820,7 +2854,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           hidden: !els.hidden.checked,
           arenaEnabled: isArenaEligible() && els.arenaEnabled.checked,
           arenaChannelId: isArenaEligible() && els.arenaEnabled.checked ? els.arenaChannel.value : "",
-          body: isPhotoEditor() && els.image.value ? els.body.value : (els.body.value || "# " + els.title.value + "\\n"),
+          body: isPhotoEditor() && els.image.value ? editorBodyValue() : (editorBodyValue() || "# " + els.title.value + "\\n"),
         };
 
         if (isPhotoEditor()) {
@@ -2904,7 +2938,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         return postJson("/api/save-page", {
           path: sourcePath,
           frontMatter: nextFrontMatter,
-          body: els.body.value,
+          body: editorBodyValue(),
         }).then(function (result) {
           frontMatter = result.frontMatter || nextFrontMatter;
           return result;
@@ -2973,6 +3007,11 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         var file = els.imageFile.files && els.imageFile.files[0];
         if (!file) return;
         var reader = new FileReader();
+        reader.onerror = function () {
+          if (blockEditor) blockEditor.cancelUpload();
+          els.imageFile.value = "";
+          setStatus("No se pudo leer la imagen. Inténtalo de nuevo.", true);
+        };
         reader.onload = function () {
           var alt = els.imageAlt.value || els.title.value || file.name.replace(/\\.[^.]+$/, "");
           postJson("/api/upload-image", {
@@ -2998,6 +3037,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
               insertAtCursor(activeTextArea(), result.markdown + "\\n");
               setStatus("Imagen añadida " + result.url);
           }).catch(function (error) {
+            if (blockEditor) blockEditor.cancelUpload();
             setStatus(error.message, true);
           }).finally(function () {
             els.imageFile.value = "";
@@ -3047,6 +3087,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function insertAtCursor(textarea, text) {
+        if (blockEditor) { blockEditor.insertMarkdown(text); return; }
         if (textarea === els.body) {
           recordBodyHistory();
         }
@@ -3073,6 +3114,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function applyFormat(format) {
+        if (blockEditor) { blockEditor.format(format); return; }
         if (format === "undo") {
           if (activeViewMode === "markdown") {
             document.execCommand("undo");
@@ -3291,6 +3333,22 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function applyViewMode(value, shouldFocus) {
+        if (blockEditor) {
+          activeViewMode = normalizeViewMode(value);
+          blockEditor.setRaw(activeViewMode === "markdown");
+          els.paper.classList.remove("markdown-mode");
+          els.title.hidden = false;
+          els.summary.hidden = false;
+          els.body.hidden = true;
+          els.markdownCanvas.hidden = true;
+          [els.viewMarkdown, els.mobileViewMarkdown].forEach(function (button) {
+            button.setAttribute("aria-pressed", String(activeViewMode === "markdown"));
+            button.setAttribute("aria-label", activeViewMode === "markdown" ? "Desactivar Markdown" : "Activar Markdown");
+          });
+          try { window.localStorage.setItem(viewModeStorageKey, activeViewMode); } catch (error) {}
+          if (shouldFocus) blockEditor.focus();
+          return;
+        }
         if (shouldFocus) {
           var previousTextarea = activeTextArea();
           var scrollOwner = typingScrollOwner(previousTextarea);
@@ -3343,6 +3401,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function focusEditorStart() {
         window.setTimeout(function () {
+          if (blockEditor) { if (els.title.value.trim()) blockEditor.focus(); else els.title.focus(); return; }
           if (activeViewMode === "markdown") {
             els.markdownCanvas.focus();
             if (isBookEditor() && mode === "new" && !els.title.value.trim() && els.markdownCanvas.value.indexOf("# ") === 0) {
@@ -3359,6 +3418,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function syncMarkdownFromFields() {
+        if (blockEditor) { blockEditor.setDocument(loadedBodySource === null ? els.body.value : loadedBodySource); loadedBodySource = null; return; }
         if (activeViewMode !== "markdown") {
           return;
         }
@@ -3406,6 +3466,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function syncFieldsFromMarkdown() {
+        if (blockEditor) return;
         var parsed = parseMarkdownCanvas(els.markdownCanvas.value);
         els.title.value = parsed.title;
         els.summary.value = parsed.summary;
@@ -3746,7 +3807,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           hidden: !els.hidden.checked,
           arenaEnabled: els.arenaEnabled.checked,
           arenaChannelId: els.arenaEnabled.checked ? (els.arenaChannel.value || String(frontMatter.arena_channel_id || "")) : "",
-          body: els.body.value,
+          body: editorBodyValue(),
         });
       }
 
@@ -3794,7 +3855,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         if (label === lastSaveLabel) return;
         lastSaveLabel = label;
         els.save.querySelector(".save-label-desktop").textContent = label;
-        els.save.querySelector(".save-label-mobile").textContent = label;
+        els.save.querySelector(".save-label-mobile").textContent = blockEditor && label === "Guardar borrador" ? "Guardar" : label;
+        els.save.setAttribute("aria-label", label);
       }
 
       function confirmDiscardChanges() {
@@ -3810,7 +3872,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           notebook: els.notebook.value,
           title: els.title.value,
           summary: els.summary.value,
-          body: els.body.value,
+          body: editorBodyValue(),
           date: els.date.value,
           tags: els.tags.value,
           essay: isWritingPost() ? els.writingType.value === "essay" : undefined,
@@ -3887,7 +3949,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         if (!stored || !draftMatchesEditor(stored)) return;
         els.title.value = String(stored.title || "");
         els.summary.value = String(stored.summary || "");
-        els.body.value = String(stored.body || "");
+        loadedBodySource = String(stored.body || "");
+        els.body.value = loadedBodySource;
         if (stored.date) els.date.value = stored.date;
         els.tags.value = String(stored.tags || "");
         if (typeof stored.pinned === "boolean") els.pinned.checked = stored.pinned;

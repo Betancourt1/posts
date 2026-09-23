@@ -682,3 +682,90 @@ final result: passed
 - No horizontal overflow or visible non-search regression was found.
 
 final result: passed
+
+---
+
+# Contextual editor design QA
+
+**Source visual:** `/Users/betancourt/.codex/generated_images/01a0ccad-84cd-75b3-8867-b66b4e5009c8/exec-da5c86e8-c600-4695-8b6c-8208f28829a1.png`
+
+Reference 04 is a 1536 × 1024 concept board. Its app regions are approximately
+1060 × 878 desktop and 372 × 878 mobile. The implementation is a responsive
+adaptation to the existing editor shell, with the deliberate differences recorded
+in `docs/block-editor.md`; this is not a claim of pixel-identical recreation.
+
+## Evidence and comparison
+
+- Full-view, selected-text state: `/tmp/posts-block-editor/concept-1280.png`
+  (1280 × 900) and `concept-390.png` (390 × 900).
+- App-region viewport comparisons: `concept-reference-desktop.png` (1060 × 878)
+  and `concept-reference-mobile.png` (372 × 878), in the same directory.
+- Focused mobile control review: `es-320-insert.png`, `es-390-insert.png`,
+  `es-768-insert.png`, all at 480px height.
+- Dark theme: `en-1280-selection.png`. Technical preview:
+  `es-1280-preview.png` and `es-390-preview.png`.
+- Source board and implementation screenshots were opened together for visual
+  comparison. Runtime captures use CSS pixels at device scale 1. Board padding and
+  simulated window borders are excluded when comparing app proportions.
+- The in-app browser also exercised the real `el_matematico_en_el_loop.md` essay
+  and its insert sheet at 1280 × 900 and 390 × 844. No relevant console errors.
+
+The built `/admin/post-editor` and `/admin/notebook-editor` HTML and assets were
+tested through the local Worker. API requests used isolated fixtures; no production
+authentication, save, Are.na, or upload service was exercised.
+
+## Required visual surfaces
+
+| Surface | Review |
+| --- | --- |
+| Typography | Monospace writing retained on desktop and mobile. Lighter title weight and a smaller mobile title keep a long title to two lines at 390px. Font-size settings remain available. |
+| Spacing/layout | Persistent formatting and insert panels are absent. Desktop selection tools float above selection; mobile uses a collapsible bottom row and a bounded insert sheet. Title/summary remain separate metadata fields. |
+| Colors/tokens | White writing canvas in light mode; existing dark-theme text/accent tokens retained. Menu surfaces, selection, focus, and disabled states are distinct. |
+| Assets | Buttons use local Tabler SVGs with uniform sizing and stroke. Existing brand preserved. No generated raster assets are required in the editor. |
+| Copy/content | Existing save labels and metadata semantics preserved. New contextual menus use EN/ES labels. Synthetic concept text exists only in a browser test fixture. No writing files changed. |
+
+## Findings and fixes
+
+1. **P1: exact source was normalized by hidden textarea hydration.** Fixed by
+   loading the original source directly into CodeMirror and reading save/draft
+   payloads from it. A CRLF/blank-line/fence/duplicate-title fixture now round-trips.
+2. **P2: 320px status was truncated by the draft-save label.** Mobile shows
+   “Guardar” and retains the complete accessible name. Final 320px screenshot
+   displays the brand and “Sin guardar” status legibly.
+3. **P2: a body action could remain visible while the title had focus.** The dock
+   now follows writing focus. Pointer controls retain the body selection.
+4. **P2: mobile title occupied too much vertical space.** Reduced its size while
+   retaining the user's font-size setting. Final mobile concept capture is legible
+   and gives more space to the body.
+5. **P1: a queued close event could clear a newly opened slash-menu range.** Menu
+   cleanup is synchronous and ignores stale close events when another menu is open.
+   Repeated EN/ES insertion checks confirm the slash is replaced.
+
+No actionable P0/P1/P2 findings remain in the checked layouts.
+
+## Interaction checks
+
+The browser suite covers exact Post/Notebook no-op saves; a new CodeMirror Post's
+create → selected Are.na sync → Notebook redirect; shared undo across raw mode;
+conversion, moving, duplication and deletion; slash search; technical insertion;
+code language; image metadata and upload; Chromium IME composition; local recovery;
+KaTeX/Mermaid/code preview; Enter at a visible caret; 320/390/768px menus and short
+330/480px viewports. Existing textarea fallback suites remain intact.
+
+## Remaining limits
+
+- Real iOS/Android soft keyboards and native text-selection menus still require a
+  device check. Short viewports and `visualViewport` logic are supporting checks.
+- Production has not been changed or authenticated in this implementation step.
+- The full edge suite has one pre-existing bilingual inventory failure for the
+  absent English counterpart of `2025/noviembre/conversatorio.md`.
+
+## Implementation checklist
+
+- [x] Source and selected interaction compared at desktop/mobile sizes.
+- [x] Mobile control sizes, status, overflow, focus and disclosure checked.
+- [x] CodeMirror and legacy fallback contracts exercised.
+- [x] Build and source-preservation tests passed.
+- [x] Independent audit required before the local commit.
+
+**final result: passed**
