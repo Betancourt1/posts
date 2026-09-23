@@ -1,5 +1,5 @@
 import { postEditorController } from "./post-editor-controller.js";
-import { technicalEditorMarkup, technicalEditorScript, technicalEditorStyles } from "./technical-editor-tools.js";
+import { technicalEditorMarkup, technicalEditorScript, technicalEditorStyles, technicalInsertMarkup } from "./technical-editor-tools.js";
 
 function iconSvg(paths) {
   return `<svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${paths}</svg>`;
@@ -19,6 +19,8 @@ const ICONS = Object.freeze({
   list: iconSvg(`<path d="M8 6h13" /><path d="M8 12h13" /><path d="M8 18h13" /><path d="M3 6h.01" /><path d="M3 12h.01" /><path d="M3 18h.01" />`),
   orderedList: iconSvg(`<path d="M10 6h11" /><path d="M10 12h11" /><path d="M10 18h11" /><path d="M4 6h1v4" /><path d="M4 10h2" /><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" />`),
   image: iconSvg(`<rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />`),
+  insert: iconSvg(`<rect x="3" y="3" width="18" height="18" rx="2" /><path d="M12 7v10M7 12h10" />`),
+  markdown: iconSvg(`<path d="M3 17V7l4 5 4-5v10M15 11v6m-3-3 3 3 3-3" />`),
   settings: iconSvg(`<path d="M9.7 4.1a2.3 2.3 0 0 1 4.6 0 2.3 2.3 0 0 0 3.3 1.9 2.3 2.3 0 0 1 2.3 4 2.3 2.3 0 0 0 0 3.8 2.3 2.3 0 0 1-2.3 4 2.3 2.3 0 0 0-3.3 1.9 2.3 2.3 0 0 1-4.6 0 2.3 2.3 0 0 0-3.3-1.9 2.3 2.3 0 0 1-2.3-4 2.3 2.3 0 0 0 0-3.8 2.3 2.3 0 0 1 2.3-4 2.3 2.3 0 0 0 3.3-1.9" /><circle cx="12" cy="12" r="3" />`),
   trash: iconSvg(`<path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" />`),
   copy: iconSvg(`<rect width="14" height="14" x="8" y="8" rx="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />`),
@@ -1640,9 +1642,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       </span>
       <span class="divider" id="insert-divider-before"></span>
       <span class="toolbar-group" id="insert-toolbar-group" aria-label="Insertar">
-        <button type="button" id="toolbar-technical" aria-haspopup="dialog" aria-controls="technical-tools">Insertar</button>
+        <button type="button" id="toolbar-technical" aria-controls="technical-tools" aria-expanded="false" aria-label="Insertar contenido" title="Insertar contenido">${ICONS.insert}<span class="insert-label">Insertar</span></button>
       </span>
-      <button type="button" class="mobile-markdown-toggle" id="mobile-view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">Markdown</button>
+      <button type="button" class="mobile-markdown-toggle" id="mobile-view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">${ICONS.markdown}<span class="markdown-label">Markdown</span></button>
       <span class="toolbar-break" aria-hidden="true"></span>
       <span class="divider" id="insert-divider-after"></span>
       <span class="toolbar-group" aria-label="Más formato">
@@ -1658,6 +1660,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         <button type="button" data-format="ol" title="Lista numerada" aria-label="Lista numerada">${ICONS.orderedList}</button>
       </span>
     </div>
+    ${technicalInsertMarkup}
   </nav>
   <button type="button" class="settings-backdrop" id="settings-backdrop" aria-label="Cerrar configuración" hidden></button>
   <button type="button" class="arena-details-backdrop" id="arena-details-backdrop" aria-label="Cerrar detalle de Are.na" hidden></button>
@@ -3183,7 +3186,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function syncSheetLock() {
-        document.documentElement.classList.toggle("sheet-open", !els.settings.hidden || !els.arenaDetails.hidden || technicalTools.open || technicalPreview.open);
+        document.documentElement.classList.toggle("sheet-open", !els.settings.hidden || !els.arenaDetails.hidden || technicalPreview.open);
       }
 
       function syncWritingState() {

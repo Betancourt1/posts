@@ -26,13 +26,42 @@ try {
       assert.equal(await page.locator('#mobile-view-markdown').isVisible(), mobile);
       assert.equal(await page.locator('#technical-preview-open').isVisible(), true);
       assert.equal(await page.locator('#toolbar-technical').textContent(), 'Insertar');
+      assert.equal(await page.locator('#toolbar-technical svg').count(), 1);
       assert.equal(await page.locator('.formatbar').evaluate(el => el.scrollWidth <= el.clientWidth), true);
       await page.locator('#title').fill('Technical editor test');
       const body = page.locator('#body');
+      let checkedNarrowLayouts = false;
       const openTools = async () => {
         await page.locator('#toolbar-technical').click();
-        assert.equal(await page.locator('#technical-tools').evaluate(e => e.open), true);
+        assert.equal(await page.locator('#technical-tools').isVisible(), true);
+        assert.equal(await page.locator('#toolbar-technical').getAttribute('aria-expanded'), 'true');
+        assert.equal(await page.locator('#technical-tools button').count(), 12);
+        assert.equal(await page.locator('#technical-tools button:not(:has(svg))').count(), 0);
+        assert.equal(await page.locator('#technical-tools button:not([aria-label])').count(), 0);
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+        if (mobile && !checkedNarrowLayouts) {
+          for (const width of [320, 390, 768]) {
+            await page.setViewportSize({ width, height: 844 });
+            const geometry = await page.locator('#technical-tools').evaluate(el => ({
+              toolbarHeight: el.closest('.formatbar').getBoundingClientRect().height,
+              minButtonSize: Math.min(...Array.from(el.querySelectorAll('button')).map(button => Math.min(button.getBoundingClientRect().width, button.getBoundingClientRect().height))),
+              fitsViewport: document.documentElement.scrollWidth <= innerWidth,
+            }));
+            if (width === 320) await page.screenshot({ path: `${evidence}/${lang}-320-buttons.png` });
+            assert.ok(geometry.toolbarHeight < 320, `${width}px insert buttons leave room for the editor: ${JSON.stringify(geometry)}`);
+            assert.ok(geometry.minButtonSize >= 44, `${width}px insert buttons have 44px touch targets`);
+            assert.equal(geometry.fitsViewport, true, `${width}px layout has no horizontal overflow`);
+          }
+          await page.setViewportSize({ width: 390, height: 844 });
+          checkedNarrowLayouts = true;
+        }
       };
+      await openTools();
+      await page.locator('#technical-tools summary').click();
+      const guideBounds = await page.locator('#technical-tools ul').boundingBox();
+      assert.ok(guideBounds && guideBounds.x >= 0 && guideBounds.y >= 0 && guideBounds.x + guideBounds.width <= (mobile ? 390 : 1280), 'quick guide fits the viewport');
+      await page.keyboard.press('Escape');
+      assert.equal(await page.locator('#technical-tools').isVisible(), false);
       const kinds = ['inline-math', 'display-math', 'code', 'mermaid', 'image', 'video', 'interactive'];
       for (const markdown of [false, true]) {
         if (markdown) {
@@ -48,6 +77,9 @@ try {
           await openTools();
           if (kind === 'code') await page.locator('#technical-code-language').selectOption('sql');
           await page.locator(`[data-technical-insert="${kind}"]`).click();
+          assert.equal(await page.locator('#technical-tools').isVisible(), false);
+          assert.equal(await page.locator('#toolbar-technical').getAttribute('aria-expanded'), 'false');
+          assert.equal(await target.evaluate(el => document.activeElement === el), true);
           const text = await target.inputValue();
           assert.ok(text.startsWith(prefix + 'Before '), `${kind} preserves prefix`);
           assert.ok(text.endsWith(' after'), `${kind} preserves suffix: ${JSON.stringify(text)}`);
@@ -73,7 +105,6 @@ try {
             await page.locator('#toolbar-sidenote').click();
             assert.ok((await target.inputValue()).startsWith(prefix + 'Before SELECTED[^note-1] after'));
           } else if (insertion === 'color') {
-            if (!(await page.locator('[data-sidenote-tone="green"]').isVisible())) await page.getByText('Color del texto', { exact: true }).click();
             await page.locator('[data-sidenote-tone="green"]').click();
             assert.equal(await target.inputValue(), prefix + 'Before {{green|SELECTED}} after');
           } else {
@@ -86,7 +117,7 @@ try {
             assert.equal(await target.inputValue(), prefix + 'Before \n\n![Sample](/fixture.png)\n after');
             await page.unroute('**/api/upload-image');
           }
-          assert.equal(await page.locator('#technical-tools').evaluate(el => el.open), false);
+          assert.equal(await page.locator('#technical-tools').isVisible(), false);
           if (!markdown) {
             await page.locator('[data-format="undo"]').click();
             assert.equal(await target.inputValue(), original, `${insertion} body undo`);
@@ -97,7 +128,7 @@ try {
       const markdown = '# Technical editor test\n\nInline $x^2$.\n\n$$\n\\sum_{i=1}^n i\n$$\n\n```python\ndef square(x):\n    return x ** 2\n```\n\n```mermaid\nflowchart LR\nA[Input] --> B[Output]\n```';
       await page.locator('#markdown-canvas').fill(markdown);
       await openTools();
-      await page.screenshot({ path: `${evidence}/${lang}-${mobile ? 'mobile' : 'desktop'}-menu.png` });
+      await page.screenshot({ path: `${evidence}/${lang}-${mobile ? 'mobile' : 'desktop'}-buttons.png` });
       await page.keyboard.press('Escape');
       const before = savedRequests.length;
       await page.locator('#technical-preview-open').click();
@@ -116,7 +147,7 @@ try {
       await page.waitForFunction(() => !document.documentElement.classList.contains('sheet-open'));
       await openTools();
       await page.keyboard.press('Escape');
-      await page.waitForFunction(() => !document.querySelector('#technical-tools').open);
+      await page.waitForFunction(() => document.querySelector('#technical-tools').hidden);
       // Preview errors stay in the dialog, and the unsaved source remains intact.
       await page.route('**/api/preview', route => route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ error: 'Fixture unavailable' }) }));
       await page.locator('#technical-preview-open').click();
