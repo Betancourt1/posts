@@ -1259,6 +1259,22 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       color: #7b7f88;
     }
     @media (max-width: 900px) {
+      .draft-restore {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.4rem;
+      }
+      .draft-restore #draft-restore-text {
+        grid-column: 1 / -1;
+        line-height: 1.4;
+      }
+      .draft-restore-accept,
+      .draft-restore-discard {
+        min-height: 2.75rem;
+        border: 1px solid var(--line);
+        border-radius: 0.4rem;
+        background: var(--panel);
+      }
       .reference-theme {
         --editor-font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }

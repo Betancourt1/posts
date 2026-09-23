@@ -28,6 +28,14 @@ try {
       assert.equal(await page.locator('#toolbar-technical').textContent(), 'Insertar');
       assert.equal(await page.locator('#toolbar-technical svg').count(), 1);
       assert.equal(await page.locator('.formatbar').evaluate(el => el.scrollWidth <= el.clientWidth), true);
+      let blankPreviewRequests = 0;
+      await page.route('**/api/preview', route => { blankPreviewRequests++; return route.continue(); });
+      await page.locator('#technical-preview-open').click();
+      assert.equal(await page.locator('#technical-preview-status').textContent(), 'Escribe un título o contenido para ver la vista previa.');
+      assert.equal(await page.locator('#technical-preview-frame').isVisible(), false);
+      assert.equal(blankPreviewRequests, 0, 'blank preview does not make a request');
+      await page.locator('[data-close-technical="technical-preview"]').click();
+      await page.unroute('**/api/preview');
       await page.locator('#title').fill('Technical editor test');
       const body = page.locator('#body');
       let checkedNarrowLayouts = false;
@@ -41,6 +49,11 @@ try {
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
         assert.equal(await page.locator('#insert-more').isVisible(), mobile);
         assert.equal(await page.locator('#technical-tools .technical-insert-actions button:visible').count(), mobile ? 5 : 12);
+        assert.equal(await page.locator('#technical-tools .technical-insert-actions').evaluate((el, mobile) =>
+          Array.from(el.querySelectorAll('button')).filter(button => button.getClientRects().length).every(button => {
+            const label = button.querySelector(mobile ? '.insert-mobile-label' : '.insert-label');
+            return label && label.getClientRects().length && label.scrollWidth <= label.clientWidth;
+          }), mobile), true, 'visible insert actions have readable labels');
         if (mobile) {
           assert.equal(await page.locator('#insert-more').getAttribute('aria-expanded'), 'false');
           assert.equal(await page.locator('#technical-tools').evaluate(el => {
@@ -59,6 +72,10 @@ try {
                 toolbarHeight: el.closest('.formatbar').getBoundingClientRect().height,
                 minButtonSize: Math.min(...visibleButtons.map(button => Math.min(button.getBoundingClientRect().width, button.getBoundingClientRect().height))),
                 optionsFit: options.every(rect => rect.left >= 0 && rect.right <= innerWidth && rect.height >= 44),
+                labelsFit: visibleButtons.filter(button => button.closest('.technical-insert-actions')).every(button => {
+                  const label = button.querySelector('.insert-mobile-label');
+                  return label && label.getClientRects().length && label.scrollWidth <= label.clientWidth;
+                }),
                 fitsViewport: document.documentElement.scrollWidth <= innerWidth,
               };
             });
@@ -67,12 +84,13 @@ try {
             assert.ok(geometry.toolbarHeight < 320, `${width}px insert buttons leave room for the editor: ${JSON.stringify(geometry)}`);
             assert.ok(geometry.minButtonSize >= 44, `${width}px insert buttons have 44px touch targets`);
             assert.equal(geometry.optionsFit, true, `${width}px More, language, and guide controls fit`);
+            assert.equal(geometry.labelsFit, true, `${width}px insert labels fit`);
             assert.equal(geometry.fitsViewport, true, `${width}px layout has no horizontal overflow`);
             await page.locator('#insert-more').click();
             assert.equal(await page.locator('#insert-more').getAttribute('aria-expanded'), 'true');
             assert.equal(await page.locator('#technical-tools [data-mobile-extra]:visible').count(), 7);
             const expanded = await inspectGeometry();
-            assert.ok(expanded.toolbarHeight < 320 && expanded.minButtonSize >= 44 && expanded.optionsFit && expanded.fitsViewport, `${width}px expanded buttons fit: ${JSON.stringify(expanded)}`);
+            assert.ok(expanded.toolbarHeight < 320 && expanded.minButtonSize >= 44 && expanded.optionsFit && expanded.labelsFit && expanded.fitsViewport, `${width}px expanded buttons fit: ${JSON.stringify(expanded)}`);
             if (width === 320) await page.screenshot({ path: `${evidence}/${lang}-320-all-buttons.png` });
             await page.locator('#insert-more').click();
             assert.equal(await page.locator('#technical-tools [data-mobile-extra]:visible').count(), 0);

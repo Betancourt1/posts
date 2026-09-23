@@ -734,6 +734,22 @@ async function runDraftRestoreCase(browser, origin) {
     await page.reload({ waitUntil: "domcontentloaded" });
     await waitForEditor(page);
     await page.locator("#draft-restore").waitFor({ state: "visible" });
+    for (const width of [320, 390]) {
+      await page.setViewportSize({ width, height: 844 });
+      const layout = await page.locator("#draft-restore").evaluate((el) => {
+        const message = el.querySelector("#draft-restore-text").getBoundingClientRect();
+        const actions = [el.querySelector("#draft-restore-accept"), el.querySelector("#draft-restore-discard")]
+          .map(button => button.getBoundingClientRect());
+        return {
+          messageAboveActions: actions.every(rect => rect.top >= message.bottom),
+          actionsTouchSized: actions.every(rect => rect.height >= 44 && rect.width >= 44),
+          fitsViewport: document.documentElement.scrollWidth <= innerWidth,
+        };
+      });
+      assert.deepEqual(layout, { messageAboveActions: true, actionsTouchSized: true, fitsViewport: true });
+      if (width === 320) await page.screenshot({ path: "/tmp/posts-draft-restore-320.png" });
+    }
+    await page.setViewportSize({ width: 1280, height: 800 });
     await page.locator("#draft-restore-accept").click();
     assert.match(await page.locator("#body").inputValue(), /Texto añadido para el autoguardado/);
     assert.equal(await page.locator("#saved-pill").textContent(), "Sin guardar");

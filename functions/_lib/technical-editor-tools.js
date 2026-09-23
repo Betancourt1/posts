@@ -16,8 +16,8 @@ const INSERT_ICONS = Object.freeze({
   more: insertIcon('<path d="M4 12h1m6.5 0h1m6.5 0h1" />'),
 });
 
-function insertButton(attributes, label, icon) {
-  return `<button type="button" ${attributes} title="${label}" aria-label="${label}">${icon}<span class="insert-label">${label}</span></button>`;
+function insertButton(attributes, label, mobileLabel, icon) {
+  return `<button type="button" ${attributes} title="${label}" aria-label="${label}">${icon}<span class="insert-label">${label}</span><span class="insert-mobile-label" aria-hidden="true">${mobileLabel}</span></button>`;
 }
 
 export const technicalEditorStyles = `
@@ -51,6 +51,7 @@ export const technicalEditorStyles = `
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+    .technical-insert-actions .insert-mobile-label { display: none; }
     .technical-insert-actions [data-sidenote-tone="green"] { --tone: #4ecca3; }
     .technical-insert-actions [data-sidenote-tone="blue"] { --tone: #8fb8ff; }
     .technical-insert-actions [data-sidenote-tone="amber"] { --tone: #f0c36e; }
@@ -97,8 +98,17 @@ export const technicalEditorStyles = `
       .formatbar #toolbar-technical .insert-label { display: none; }
       .formatbar .technical-insert-bar { width: 100%; padding: 0.4rem 0 0.2rem; }
       .technical-insert-actions { gap: 0.2rem; }
-      .formatbar .technical-insert-actions button { min-height: 2.75rem; padding: 0; }
+      .formatbar .technical-insert-actions button { min-height: 2.75rem; flex-direction: column; gap: 0.1rem; padding: 0; }
       .technical-insert-actions .insert-label { display: none; }
+      .technical-insert-actions .insert-mobile-label {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.65rem;
+        line-height: 1;
+      }
       .technical-insert-options { margin-top: 0.35rem; gap: 0.35rem; }
       .technical-insert-options label { min-width: 0; }
       .technical-insert-options label span { display: none; }
@@ -152,18 +162,18 @@ export const technicalEditorStyles = `
 export const technicalInsertMarkup = `
   <div class="technical-insert-bar" id="technical-tools" role="group" aria-label="Insertar contenido" hidden>
     <div class="technical-insert-actions">
-      ${insertButton('id="toolbar-image"', 'Subir imagen', INSERT_ICONS.image)}
-      ${insertButton('id="toolbar-sidenote"', 'Nota al margen', INSERT_ICONS.sidenote)}
-      ${insertButton('data-sidenote-tone="green" data-mobile-extra', 'Texto verde', INSERT_ICONS.color)}
-      ${insertButton('data-sidenote-tone="blue" data-mobile-extra', 'Texto azul', INSERT_ICONS.color)}
-      ${insertButton('data-sidenote-tone="amber" data-mobile-extra', 'Texto ámbar', INSERT_ICONS.color)}
-      ${insertButton('data-technical-insert="inline-math"', 'Fórmula en línea', INSERT_ICONS.inlineMath)}
-      ${insertButton('data-technical-insert="display-math" data-mobile-extra', 'Ecuación', INSERT_ICONS.displayMath)}
-      ${insertButton('data-technical-insert="code"', 'Bloque de código', INSERT_ICONS.codeBlock)}
-      ${insertButton('data-technical-insert="mermaid"', 'Diagrama Mermaid', INSERT_ICONS.mermaid)}
-      ${insertButton('data-technical-insert="image" data-mobile-extra', 'Diagrama SVG', INSERT_ICONS.svg)}
-      ${insertButton('data-technical-insert="video" data-mobile-extra', 'Animación / video', INSERT_ICONS.video)}
-      ${insertButton('data-technical-insert="interactive" data-mobile-extra', 'Visual interactivo', INSERT_ICONS.interactive)}
+      ${insertButton('id="toolbar-image"', 'Subir imagen', 'Imagen', INSERT_ICONS.image)}
+      ${insertButton('id="toolbar-sidenote"', 'Nota al margen', 'Nota', INSERT_ICONS.sidenote)}
+      ${insertButton('data-sidenote-tone="green" data-mobile-extra', 'Texto verde', 'Verde', INSERT_ICONS.color)}
+      ${insertButton('data-sidenote-tone="blue" data-mobile-extra', 'Texto azul', 'Azul', INSERT_ICONS.color)}
+      ${insertButton('data-sidenote-tone="amber" data-mobile-extra', 'Texto ámbar', 'Ámbar', INSERT_ICONS.color)}
+      ${insertButton('data-technical-insert="inline-math"', 'Fórmula en línea', 'Fórmula', INSERT_ICONS.inlineMath)}
+      ${insertButton('data-technical-insert="display-math" data-mobile-extra', 'Ecuación', 'Ecuación', INSERT_ICONS.displayMath)}
+      ${insertButton('data-technical-insert="code"', 'Bloque de código', 'Código', INSERT_ICONS.codeBlock)}
+      ${insertButton('data-technical-insert="mermaid"', 'Diagrama Mermaid', 'Mermaid', INSERT_ICONS.mermaid)}
+      ${insertButton('data-technical-insert="image" data-mobile-extra', 'Diagrama SVG', 'SVG', INSERT_ICONS.svg)}
+      ${insertButton('data-technical-insert="video" data-mobile-extra', 'Animación / video', 'Video', INSERT_ICONS.video)}
+      ${insertButton('data-technical-insert="interactive" data-mobile-extra', 'Visual interactivo', 'Visual', INSERT_ICONS.interactive)}
     </div>
     <div class="technical-insert-options">
       <button type="button" id="insert-more" aria-expanded="false" aria-label="Mostrar más opciones" title="Mostrar más opciones">${INSERT_ICONS.more}<span class="insert-label">Más</span></button>
@@ -311,6 +321,10 @@ export const technicalEditorScript = String.raw`
         technicalPreview.showModal();
         syncSheetLock();
         var requestId = ++technicalPreviewRequest;
+        if (!els.title.value.trim() && !els.body.value.trim()) {
+          technicalStatus.textContent = "Escribe un título o contenido para ver la vista previa.";
+          return;
+        }
         postJson("/api/preview", {
           body: els.body.value,
           title: els.title.value,
