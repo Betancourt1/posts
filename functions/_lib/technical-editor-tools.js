@@ -17,7 +17,7 @@ const INSERT_ICONS = Object.freeze({
 });
 
 function insertButton(attributes, label, icon) {
-  return `<button type="button" ${attributes} title="${label}" aria-label="${label}">${icon}<span class="insert-label">${label}</span></button>`;
+  return `<button type="button" ${attributes} title="${label}" aria-label="${label}">${icon}</button>`;
 }
 
 export const technicalEditorStyles = `
@@ -25,7 +25,7 @@ export const technicalEditorStyles = `
     .formatbar #toolbar-technical { gap: 0.35rem; }
     .formatbar .mobile-markdown-toggle .button-icon { display: none; }
     .technical-insert-bar {
-      width: min(62rem, 100%);
+      width: min(34rem, 100%);
       max-height: min(28rem, calc(100dvh - var(--topbar-height) - 5rem));
       padding: 0.5rem 0.25rem;
       border-top: 1px solid var(--line);
@@ -46,21 +46,19 @@ export const technicalEditorStyles = `
       background: var(--bg);
     }
     .technical-insert-header p { margin: 0; color: var(--muted); font-size: 0.8125rem; line-height: 1.4; }
-    .insert-primary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(15rem, 1.8fr); gap: 0.4rem; }
+    .insert-primary { display: flex; flex-wrap: wrap; gap: 0.4rem; }
     .formatbar .technical-insert-actions button {
-      width: 100%;
-      min-width: 0;
+      width: 2.75rem;
+      min-width: 2.75rem;
+      height: 2.75rem;
       min-height: 2.75rem;
-      gap: 0.4rem;
-      padding: 0.4rem 0.5rem;
+      flex: 0 0 2.75rem;
+      padding: 0;
       border: 1px solid var(--line);
       background: var(--panel);
-      font-size: 0.8125rem;
-      font-weight: 600;
     }
-    .technical-insert-actions .insert-label { line-height: 1.25; white-space: normal; }
     .insert-code { display: flex; border: 1px solid var(--line); border-radius: 0.4rem; background: var(--panel); }
-    .formatbar .insert-code button { flex: 1; border: 0; border-radius: 0.35rem 0 0 0.35rem; }
+    .formatbar .insert-code button { border: 0; border-radius: 0.35rem 0 0 0.35rem; }
     .insert-code select {
       width: 7rem;
       min-width: 0;
@@ -74,10 +72,9 @@ export const technicalEditorStyles = `
       font: inherit;
       font-size: 0.8125rem;
     }
-    #insert-extra { display: grid; grid-template-columns: 1fr 0.55fr 1.25fr; gap: 1rem; margin-top: 0.85rem; }
+    #insert-extra { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.85rem; }
     .insert-category h3 { margin: 0 0 0.4rem; font-size: 0.8125rem; font-weight: 600; color: var(--muted); }
     .insert-category-actions { display: flex; gap: 0.4rem; }
-    .insert-category-actions > button { flex: 1; }
     .technical-insert-actions [data-sidenote-tone="green"] { --tone: #4ecca3; }
     .technical-insert-actions [data-sidenote-tone="blue"] { --tone: #8fb8ff; }
     .technical-insert-actions [data-sidenote-tone="amber"] { --tone: #f0c36e; }
@@ -105,11 +102,8 @@ export const technicalEditorStyles = `
       .formatbar .technical-insert-bar { width: 100%; max-height: 45dvh; padding: 0.5rem 0.25rem 0; }
       .technical-insert-header { align-items: start; }
       .technical-insert-header p { font-size: 0.75rem; }
-      .insert-primary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .insert-code { grid-column: 1 / -1; }
-      .insert-code select { width: 50%; font-size: 1rem; }
-      #insert-extra { grid-template-columns: minmax(0, 1fr); gap: 0.75rem; }
-      .insert-category-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .insert-code select { font-size: 1rem; }
+      #insert-extra { gap: 0.75rem; }
       .reference-theme.insert-tools-open .writer { padding-bottom: calc(45dvh + 5rem + env(safe-area-inset-bottom)); }
     }
     @media (max-width: 380px) {

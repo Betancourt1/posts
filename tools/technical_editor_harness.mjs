@@ -50,10 +50,9 @@ try {
         assert.equal(await page.locator('#insert-more').isVisible(), true);
         assert.equal(await page.locator('#technical-tools .technical-insert-actions button:visible').count(), 5);
         assert.equal(await page.locator('#technical-tools .technical-insert-actions').evaluate(el =>
-          Array.from(el.querySelectorAll('button')).filter(button => button.getClientRects().length).every(button => {
-            const label = button.querySelector('.insert-label');
-            return label && label.getClientRects().length && label.scrollWidth <= label.clientWidth;
-          })), true, 'visible insert actions have readable labels');
+          Array.from(el.querySelectorAll('button')).every(button =>
+            button.textContent.trim() === '' && button.title && button.title === button.getAttribute('aria-label')
+          )), true, 'icon-only insert actions retain tooltips and accessible names');
         {
           assert.equal(await page.locator('#insert-more').getAttribute('aria-expanded'), 'false');
           assert.equal(await page.locator('#technical-tools').evaluate(el => {
@@ -75,10 +74,9 @@ try {
                 viewportHeight: innerHeight,
                 minButtonSize: Math.min(...visibleButtons.map(button => Math.min(button.getBoundingClientRect().width, button.getBoundingClientRect().height))),
                 optionsFit: options.every(rect => rect.left >= 0 && rect.right <= innerWidth && rect.height >= 44),
-                labelsFit: visibleButtons.filter(button => button.closest('.technical-insert-actions')).every(button => {
-                  const label = button.querySelector('.insert-label');
-                  return label && label.getClientRects().length && label.scrollWidth <= label.clientWidth;
-                }),
+                iconsFit: visibleButtons.filter(button => button.closest('.technical-insert-actions')).every(button =>
+                  button.getBoundingClientRect().width === 44 && button.scrollWidth <= button.clientWidth
+                ),
                 fitsViewport: document.documentElement.scrollWidth <= innerWidth && el.scrollWidth <= el.clientWidth,
               };
             });
@@ -87,7 +85,7 @@ try {
             assert.ok(geometry.toolbarHeight < geometry.availableHeight - 64 && geometry.chooserHeight <= geometry.viewportHeight * 0.45 + 1, `${width}px insert buttons leave room for the editor: ${JSON.stringify(geometry)}`);
             assert.ok(geometry.minButtonSize >= 44, `${width}px insert buttons have 44px touch targets`);
             assert.equal(geometry.optionsFit, true, `${width}px More, language, and guide controls fit`);
-            assert.equal(geometry.labelsFit, true, `${width}px insert labels fit`);
+            assert.equal(geometry.iconsFit, true, `${width}px insert actions are compact without clipping`);
             assert.equal(geometry.fitsViewport, true, `${width}px layout has no horizontal overflow`);
             const documentScroll = await page.evaluate(() => scrollY);
             await page.locator('#insert-more').click();
@@ -100,7 +98,7 @@ try {
               const panel = document.querySelector('#technical-tools').getBoundingClientRect();
               return rect.top >= panel.top && rect.bottom <= panel.bottom;
             }), true, 'expanding options brings the first labeled group into view');
-            assert.ok(expanded.toolbarHeight < expanded.availableHeight - 64 && expanded.chooserHeight <= expanded.viewportHeight * 0.45 + 1 && expanded.minButtonSize >= 44 && expanded.optionsFit && expanded.labelsFit && expanded.fitsViewport, `${width}px expanded buttons fit: ${JSON.stringify(expanded)}`);
+            assert.ok(expanded.toolbarHeight < expanded.availableHeight - 64 && expanded.chooserHeight <= expanded.viewportHeight * 0.45 + 1 && expanded.minButtonSize >= 44 && expanded.optionsFit && expanded.iconsFit && expanded.fitsViewport, `${width}px expanded buttons fit: ${JSON.stringify(expanded)}`);
             if (width === 320) await page.screenshot({ path: `${evidence}/${lang}-320-all-buttons.png` });
             await page.locator('#insert-more').click();
             assert.equal(await page.locator('#insert-extra button:visible').count(), 0);
