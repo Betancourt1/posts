@@ -769,3 +769,42 @@ KaTeX/Mermaid/code preview; Enter at a visible caret; 320/390/768px menus and sh
 - [x] Independent audit required before the local commit.
 
 **final result: passed**
+
+# Editor view switcher and redundancy pass design QA
+
+Scope: `/admin/post-editor` and `/admin/notebook-editor`, ES/EN, 1280, 390 and
+320px, light and dark, using isolated API fixtures and the built Worker preview.
+The contract and rationale live in `docs/block-editor.md`.
+
+## Findings and fixes
+
+1. **P2: the desktop popover didn't take focus.** It was opened with
+   `visibility: hidden` during placement, so focus stayed on `body` and Escape
+   did nothing. Placement now uses `opacity: 0`, and a document-level Escape
+   handler closes the popover.
+2. **P2: the idle status text repeated the saved pill** ("Los cambios coinciden…").
+   Idle, saved, draft and saving messages are now hidden; errors and deletion
+   states stay visible.
+3. **P3: `/ma` listed media items through substring matches.** The filter now
+   prefers word-prefix matches, so only margin note and math items appear.
+4. **P3: the 320px topbar needed room for the view and visibility controls.** The
+   brand is hidden there and the status moves to a legible second row.
+
+## Interaction checks
+
+- View switching keeps the source byte-exact, and undo is shared across views.
+- Inline preview and the HTML view: the HTML is escaped, it recovers from errors,
+  and returning to the editor restores the caret.
+- Split preview refreshes about 700ms after typing.
+- Saving from Preview persists the editor document, then runs Are.na, then redirects.
+- Popover and sheet menus: persistent Move and Alt+↑/↓, the convert row, inline
+  colors, and slash filtering with Enter, Tab and Escape.
+- The Borrador/Público visibility menu, the Are.na chip, and the grouped Properties
+  with Avanzado collapsed.
+
+These pass: `npm test` (root), `npm run test:block-editor` (fixtures and built
+Worker), `node tools/editor_harness.mjs`, `node tools/technical_editor_harness.mjs`
+and the edge build. The edge suite still has the pre-existing bilingual inventory
+failure for `2025/noviembre/conversatorio.md`.
+
+**final result: passed, pending independent diff audit**

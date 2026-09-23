@@ -34,18 +34,28 @@ async function fill(page, text) {
   await page.locator(".cm-content").fill(text);
   await page.waitForFunction(value => document.querySelector("#body").value === value, text);
 }
-async function toggleRaw(page, width) {
+async function selectView(page, width, view) {
   if (width <= 900) {
-    await page.locator("#top-settings-button").click();
-    await page.locator("#block-raw-toggle").click();
-  } else await page.locator("#view-markdown").click();
+    await page.locator("#view-menu-button").click();
+    await page.locator(`#view-menu [data-view="${view}"]`).click();
+  } else await page.locator(`#view-${view}`).click();
+}
+async function toggleRaw(page, width) {
+  const raw = await page.locator("#block-editor").evaluate(node => node.classList.contains("block-raw"));
+  await selectView(page, width, raw ? "render" : "markdown");
 }
 async function openBlock(page, width) {
   await page.locator(width <= 900 ? ".block-mobile-actions" : ".block-gutter").click();
   await page.locator(".block-menu[open]").waitFor();
 }
+async function openInsertMenu(page) {
+  // Desktop inserts through the gutter plus on an empty line; mobile uses the dock.
+  if (await page.locator(".block-add").isVisible()) await page.locator(".block-add").click();
+  else await page.keyboard.press("ControlOrMeta+Shift+Enter");
+  await page.locator(".block-search").waitFor();
+}
 async function insert(page, label) {
-  await page.locator(".block-add").click();
+  await openInsertMenu(page);
   await page.locator(".block-search").fill(label);
   await page.locator(".block-command-list button:visible").first().click();
 }
@@ -113,17 +123,33 @@ try {
       await select(page, beforeToggle.anchor, beforeToggle.head);
       await toggleRaw(page, width);
       await page.screenshot({ path: `${evidence}/${lang}-${width}-selection.png` });
-      if (width < 500) {
-        await page.locator(".block-selection-toolbar > button").click();
-        assert.equal(await page.locator(".block-selection-actions").isVisible(), false);
-        await page.locator(".block-selection-toolbar > button").click();
-      }
+      // Colors are inline in the selection toolbar; no modal and no collapse control.
+      assert.equal(await page.locator(".block-selection-toolbar .block-tone").count(), 3);
+      assert.equal(await page.locator(`.block-selection-toolbar [aria-label="${lang === "es" ? "Ocultar formato" : "Hide formatting"}"]`).count(), 0);
+      await page.locator('.block-selection-toolbar .block-tone[data-tone="blue"]').click();
+      assert.equal(await page.locator(".block-menu[open]").count(), 0, "color applies without opening a menu");
+      assert.ok((await inspect(page)).doc.startsWith("Before **{{blue|SELECTED}}** after"));
+      await page.keyboard.press("ControlOrMeta+z");
+      assert.equal((await inspect(page)).doc, beforeToggle.doc);
       await select(page, (await inspect(page)).doc.indexOf("Second"));
       await openBlock(page, width);
+      if (width > 900) {
+        assert.equal(await page.locator(".block-menu").evaluate(node => node.classList.contains("is-popover") && !node.matches(":modal")), true, "desktop block menu is an anchored popover");
+      } else assert.equal(await page.locator(".block-menu").evaluate(node => node.matches(":modal")), true, "mobile block menu stays a sheet");
       await page.getByRole("button", { name: lang === "es" ? "Mover arriba" : "Move up", exact: true }).click();
       assert.ok((await inspect(page)).doc.startsWith("Second paragraph.\n\nBefore"));
+      assert.equal(await page.locator(".block-menu[open]").count(), 1, "moving keeps the block menu open");
+      assert.equal(await page.getByRole("button", { name: lang === "es" ? "Mover arriba" : "Move up", exact: true }).isDisabled(), true);
+      await page.keyboard.press("Escape");
+      assert.equal(await page.locator(".block-menu[open]").count(), 0);
       await page.keyboard.press("ControlOrMeta+z");
       assert.equal((await inspect(page)).doc, beforeToggle.doc, "moving a block is one undoable transaction");
+      await select(page, (await inspect(page)).doc.indexOf("Second") + 3);
+      await page.keyboard.press("Alt+ArrowUp");
+      assert.ok((await inspect(page)).doc.startsWith("Second paragraph.\n\nBefore"), "Alt+Up moves the current block");
+      assert.equal((await inspect(page)).head, 3, "the caret travels with the moved block");
+      await page.keyboard.press("Alt+ArrowDown");
+      assert.equal((await inspect(page)).doc, beforeToggle.doc, "Alt+Down moves it back");
       for (const action of [lang === "es" ? "Duplicar" : "Duplicate", lang === "es" ? "Eliminar bloque" : "Delete block"]) {
         await select(page, (await inspect(page)).doc.indexOf("Second"));
         await openBlock(page, width);
@@ -135,16 +161,36 @@ try {
       }
       await select(page, 0);
       await openBlock(page, width);
-      await page.locator(".block-menu select").selectOption("quote");
+      assert.equal(await page.locator('.block-convert [data-convert="paragraph"]').getAttribute("aria-pressed"), "true");
+      await page.locator('.block-convert [data-convert="quote"]').click();
       assert.ok((await inspect(page)).doc.startsWith("> Before"));
       await page.keyboard.press("ControlOrMeta+z");
       await fill(page, "");
       await page.locator(".cm-content").press("/");
-      await page.locator(".block-search").waitFor();
-      await page.locator(".block-search").fill("code");
+      await page.locator(".block-slash").waitFor();
+      assert.equal(await page.evaluate(() => document.activeElement.classList.contains("cm-content")), true, "slash list keeps focus in the editor");
+      assert.equal(await page.locator(".block-slash .block-group-title").count(), 3, "slash items are grouped");
+      await page.keyboard.type("code");
+      assert.equal((await page.locator('.block-slash-option[aria-selected="true"]').textContent()).trim(), lang === "es" ? "Bloque de código" : "Code block");
       await page.keyboard.press("Enter");
+      assert.equal(await page.locator(".block-slash").isVisible(), false);
       assert.ok((await inspect(page)).doc.startsWith("```python"), "slash trigger is replaced: " + JSON.stringify(await inspect(page)));
       assert.ok(!(await inspect(page)).doc.startsWith("/"));
+      assert.ok(await page.locator(".block-flash").count(), "inserted block is briefly highlighted");
+      await page.keyboard.press("ControlOrMeta+z");
+      await page.keyboard.press("ControlOrMeta+z");
+      await fill(page, "");
+      await page.locator(".cm-content").press("/");
+      await page.keyboard.type("zzz");
+      assert.ok(await page.locator(".block-slash .block-no-results").isVisible());
+      await page.keyboard.press("Escape");
+      assert.equal(await page.locator(".block-slash").isVisible(), false);
+      assert.equal((await inspect(page)).doc, "/zzz", "Escape closes the slash list without changing text");
+      await fill(page, "");
+      await page.locator(".cm-content").press("/");
+      await page.keyboard.type("cod");
+      await page.keyboard.press("Tab");
+      assert.ok((await inspect(page)).doc.startsWith("```python"), "Tab applies the highlighted slash item");
       await select(page, 12);
       await openBlock(page, width);
       await page.locator(".block-menu select").selectOption("sql");
@@ -189,16 +235,42 @@ try {
       await page.locator(".cm-content").waitFor();
       await page.locator("#draft-restore-accept").click();
       assert.equal((await inspect(page)).doc, technicalSource, "draft restoration hydrates CodeMirror");
-      if (width <= 900) {
-        await page.locator("#top-settings-button").click();
-        await page.locator(".block-settings-tools button").nth(1).click();
-      } else await page.locator("#technical-preview-open").click();
-      const preview = page.frameLocator("#technical-preview-frame");
+      await page.locator("#top-settings-button").click();
+      assert.equal(await page.locator("#settings .block-settings-tools").count(), 0, "properties no longer duplicate view and history tools");
+      await page.locator("#settings-close").click();
+      await select(page, 10);
+      await selectView(page, width, "preview");
+      assert.equal(await page.locator("#technical-preview").evaluate(node => node.open), false, "document preview is inline");
+      assert.equal(await page.locator(".paper").isVisible(), false);
+      const preview = page.frameLocator("#preview-frame");
       await preview.locator(".katex-display").waitFor();
       await preview.locator(".technical-diagram-image svg").waitFor();
       assert.ok(await preview.locator(".hljs-keyword").count());
       await page.screenshot({ path: `${evidence}/${lang}-${width}-preview.png` });
-      await page.locator('[data-close-technical="technical-preview"]').click();
+      await page.locator("#preview-html").click();
+      assert.match(await page.locator("#preview-html-source").textContent(), /class="katex/);
+      assert.equal(await page.locator("#preview-html-source script").count(), 0, "HTML view is escaped text");
+      await page.locator("#preview-rendered").click();
+      await selectView(page, width, "render");
+      assert.equal(await page.locator("#preview-pane").isVisible(), false);
+      assert.equal(await page.evaluate(() => document.activeElement.classList.contains("cm-content")), true, "returning from preview refocuses the editor");
+      assert.equal((await inspect(page)).head, 10, "returning from preview keeps the caret");
+      assert.equal((await inspect(page)).doc, technicalSource);
+      if (width >= 1280) {
+        await selectView(page, width, "preview");
+        await preview.locator(".katex-display").waitFor();
+        await page.locator("#preview-split").click();
+        assert.equal(await page.locator(".paper").isVisible(), true, "split view shows editor and preview");
+        assert.equal(await page.locator("#view-render").getAttribute("aria-pressed"), "true");
+        await select(page, 0);
+        await page.keyboard.type("Split refresh marker. ");
+        await preview.locator("text=Split refresh marker.").waitFor({ timeout: 5000 });
+        await page.screenshot({ path: `${evidence}/${lang}-${width}-split.png` });
+        await page.locator("#preview-split").click();
+        await selectView(page, width, "render");
+        await fill(page, technicalSource);
+      }
+      await page.evaluate(() => localStorage.removeItem("authorEditorPreviewSplit"));
       if (lang === "es") {
         const concept = "Amo los datos.\n\nLos datos públicos son una forma de confianza colectiva. Cuando la información circula, las personas pueden entender mejor su entorno, cuestionar, proponer y participar. Los datos públicos nos recuerdan que lo común también puede ser una fuente de posibilidades.\n\nEste manifiesto es una invitación a valorar, usar y mejorar los datos públicos. Se trata de una cultura de apertura, colaboración y responsabilidad compartida.\n\nUn futuro más justo y creativo es posible cuando más información está al alcance de las personas.\n\nEscribamos, construyamos y cuidemos juntos un ecosistema de datos públicos para una sociedad más abierta.";
         await fill(page, concept);
@@ -228,7 +300,7 @@ try {
       if (width < 500) {
         for (const narrow of [320, 390, 768]) {
           await page.setViewportSize({ width: narrow, height: 480 });
-          await select(page, 0); await page.locator(".block-add").click();
+          await select(page, 0); await openInsertMenu(page);
           assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
           assert.equal(await page.locator(".block-menu").evaluate(node => {
             const rect = node.getBoundingClientRect(); return rect.left >= 0 && rect.right <= innerWidth && rect.top >= 0 && rect.bottom <= innerHeight;
@@ -242,9 +314,14 @@ try {
       await fill(page, "A new block document.\n\nSource stays intact.");
       await page.locator("#title").fill("New block writing");
       await page.locator("#top-settings-button").click();
+      await page.locator("#settings-advanced > summary").click();
       await page.locator("#arena-enabled").check();
       await page.locator("#arena-channel").selectOption("1");
+      assert.equal(await page.locator("#advanced-arena-badge").isVisible(), true);
       await page.locator("#settings-close").click();
+      // Saving while the inline preview is open still persists the editor document.
+      await selectView(page, width, "preview");
+      await page.locator("#preview-pane").waitFor();
       const createStart = saved.length;
       await page.locator("#save").click();
       await page.waitForURL(/\/admin\/(es\/)?posts\/$/);

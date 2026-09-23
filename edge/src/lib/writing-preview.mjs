@@ -26,7 +26,8 @@ export async function onRequestPost({ request }) {
 <style>body{padding:24px;margin:0}main{max-width:68ch;margin:auto}.post-body{max-width:100%}</style>
 </head><body><main><h1>${title}</h1><div class="post-body">${bodyHtml}</div></main>
 <script type="module" src="${origin}/js/technical-content.js"></script></body></html>`;
-    return jsonResponse({ html });
+    // bodyHtml feeds the editor's read-only HTML view; it is shown as text, never injected.
+    return jsonResponse({ html, bodyHtml });
   } catch (error) {
     return errorResponse(error);
   }

@@ -25,7 +25,15 @@ const ICONS = Object.freeze({
   settings: iconSvg(`<path d="M9.7 4.1a2.3 2.3 0 0 1 4.6 0 2.3 2.3 0 0 0 3.3 1.9 2.3 2.3 0 0 1 2.3 4 2.3 2.3 0 0 0 0 3.8 2.3 2.3 0 0 1-2.3 4 2.3 2.3 0 0 0-3.3 1.9 2.3 2.3 0 0 1-4.6 0 2.3 2.3 0 0 0-3.3-1.9 2.3 2.3 0 0 1-2.3-4 2.3 2.3 0 0 0 0-3.8 2.3 2.3 0 0 1 2.3-4 2.3 2.3 0 0 0 3.3-1.9" /><circle cx="12" cy="12" r="3" />`),
   trash: iconSvg(`<path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" />`),
   copy: iconSvg(`<rect width="14" height="14" x="8" y="8" rx="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />`),
+  pencil: iconSvg(`<path d="M4 20h4L18.5 9.5a2.8 2.8 0 0 0-4-4L4 16v4" /><path d="m13.5 6.5 4 4" />`),
+  eye: iconSvg(`<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12" /><circle cx="12" cy="12" r="3" />`),
+  eyeOff: iconSvg(`<path d="M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-2.2 3.1M6.6 6.6C3.9 8.4 2 12 2 12s3.6 7 10 7a9.8 9.8 0 0 0 5.4-1.6" /><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" /><path d="m3 3 18 18" />`),
+  chevron: iconSvg(`<path d="m6 9 6 6 6-6" />`),
+  columns: iconSvg(`<rect x="3" y="4" width="18" height="16" rx="2" /><path d="M12 4v16" />`),
+  retry: iconSvg(`<path d="M20 11a8 8 0 1 0-2.3 5.7" /><path d="M20 5v6h-6" />`),
 });
+
+const VIEW_ICONS = Object.freeze({ render: ICONS.pencil, markdown: ICONS.markdown, preview: ICONS.eye });
 
 export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "/api", editorController = postEditorController } = {}) {
   const SITE_ORIGIN = String(siteOrigin || "https://fbetancourt.work").replace(/\/+$/, "");
@@ -206,79 +214,6 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
     }
     .paper {
       width: min(var(--writer-width), 100%);
-    }
-    .markdown-toggle {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: auto;
-      min-width: 2.35rem;
-      border: 0 !important;
-      background: transparent !important;
-      color: var(--muted);
-      padding: 0 !important;
-      transform: translateZ(0);
-      transition: color 0.16s ease, transform 0.16s ease;
-    }
-    .markdown-toggle::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      bottom: 0.22rem;
-      width: 0.28rem;
-      height: 0.28rem;
-      border-radius: 999px;
-      background: currentColor;
-      opacity: 0;
-      transform: translateX(-50%) scale(0.45);
-      transition: opacity 0.16s ease, transform 0.16s ease;
-    }
-    .markdown-toggle:hover,
-    .markdown-toggle[aria-pressed="true"] {
-      color: var(--accent);
-    }
-    .markdown-toggle[aria-pressed="true"] {
-      animation: markdown-toggle-pop 0.18s ease;
-    }
-    .markdown-toggle[aria-pressed="true"]::after {
-      opacity: 1;
-      transform: translateX(-50%) scale(1);
-    }
-    .arena-details-button {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.42rem;
-      min-height: 2.35rem;
-      padding: 0 0.78rem;
-      color: var(--muted);
-      font-size: 0.82rem;
-      font-weight: 700;
-    }
-    .arena-details-button::before {
-      content: "";
-      width: 0.42rem;
-      height: 0.42rem;
-      border-radius: 999px;
-      background: #59606a;
-    }
-    .arena-details-button[data-state="pending"]::before,
-    .arena-details-button[data-state="syncing"]::before {
-      background: #f2c94c;
-    }
-    .arena-details-button[data-state="synced"]::before {
-      background: var(--accent);
-    }
-    .arena-details-button[data-state="error"]::before {
-      background: var(--danger);
-    }
-    .arena-details-button[hidden] {
-      display: none !important;
-    }
-    @keyframes markdown-toggle-pop {
-      0% { transform: scale(0.94) rotate(-6deg); }
-      55% { transform: scale(1.08) rotate(4deg); }
-      100% { transform: scale(1) rotate(0deg); }
     }
     .markdown-input {
       display: none;
@@ -513,50 +448,49 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       font-size: 0.74rem;
       line-height: 1.55;
     }
-    .arena-progress {
-      display: grid;
-      grid-template-columns: auto minmax(1rem, 1fr) auto;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .arena-progress-line {
-      height: 1px;
-      background: var(--line);
-    }
-    .arena-step {
+    .arena-status-chip,
+    .advanced-arena-badge {
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      color: var(--muted);
-      font-size: 0.73rem;
+      min-height: 2.2rem;
+      padding: 0 0.7rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--ink);
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
       white-space: nowrap;
     }
-    .arena-step::before {
+    .advanced-arena-badge {
+      min-height: 1.6rem;
+      padding: 0 0.55rem;
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+    .advanced-arena-badge[hidden] {
+      display: none !important;
+    }
+    .arena-status-chip::before,
+    .advanced-arena-badge::before {
       content: "";
-      width: 0.48rem;
-      height: 0.48rem;
+      width: 0.45rem;
+      height: 0.45rem;
       border-radius: 999px;
       background: #59606a;
     }
-    .arena-step.is-complete {
-      color: var(--accent);
-    }
-    .arena-step.is-complete::before {
-      background: var(--accent);
-    }
-    .arena-step.is-pending {
-      color: #f2c94c;
-    }
-    .arena-step.is-pending::before {
+    :is(.arena-status-chip, .advanced-arena-badge):is([data-state="pending"], [data-state="syncing"], [data-state="checking"])::before {
       background: #f2c94c;
     }
-    .arena-step.is-error {
-      color: var(--danger);
+    :is(.arena-status-chip, .advanced-arena-badge)[data-state="synced"]::before {
+      background: var(--accent);
     }
-    .arena-step.is-error::before {
+    :is(.arena-status-chip, .advanced-arena-badge):is([data-state="error"], [data-state="unavailable"])::before {
       background: var(--danger);
     }
-    .arena-inline-details,
     .arena-retry,
     .arena-details-retry {
       min-height: 2.2rem;
@@ -566,9 +500,6 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       padding: 0;
       font-size: 0.76rem;
       font-weight: 700;
-    }
-    .arena-inline-details {
-      display: none;
     }
     .arena-retry[hidden],
     .arena-details-retry[hidden] {
@@ -875,7 +806,6 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
     .save-label-mobile {
       display: none;
     }
-    .formatbar .mobile-markdown-toggle,
     .formatbar #format-more,
     .format-label {
       display: none;
@@ -940,15 +870,10 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       height: 1.12rem;
       stroke-width: 2.05;
     }
-    .formatbar #toolbar-technical,
-    .formatbar .mobile-markdown-toggle {
+    .formatbar #toolbar-technical {
       width: auto;
       padding: 0 0.65rem;
       font-size: 0.82rem;
-    }
-    .formatbar .mobile-markdown-toggle[aria-pressed="true"] {
-      color: var(--accent);
-      background: var(--panel-2);
     }
     .top-actions button[hidden] {
       display: none !important;
@@ -1062,15 +987,6 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       background: #f0f0f0;
       color: #3d3d3d;
       font-weight: 700;
-    }
-    .reference-theme .top-actions .markdown-toggle {
-      border: 0 !important;
-      background: transparent !important;
-      color: var(--muted);
-      padding: 0 !important;
-    }
-    .reference-theme .top-actions .markdown-toggle[aria-pressed="true"] {
-      color: var(--accent);
     }
     .reference-theme .top-actions .primary {
       background: #1f7a5a;
@@ -1186,14 +1102,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       background: #4ecca3;
       color: #001b14;
     }
-    .reference-theme[data-theme="dark"] .top-actions .markdown-toggle {
-      border: 0 !important;
-      background: transparent !important;
-      color: var(--muted);
-    }
-    .reference-theme[data-theme="dark"] .top-actions .markdown-toggle[aria-pressed="true"] {
-      color: var(--accent);
-    }
+
     .reference-theme[data-theme="dark"] .title-input {
       color: #f2f2f2;
     }
@@ -1343,9 +1252,6 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         min-width: 2.75rem;
         min-height: 2.75rem;
       }
-      .formatbar .mobile-markdown-toggle {
-        display: inline-flex;
-      }
       .formatbar .divider { display: none; }
       .formatbar #format-more { display: inline-flex; flex-direction: column; gap: 0.1rem; }
       .format-more-label { font-size: 0.75rem; line-height: 1; }
@@ -1369,7 +1275,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         min-height: 6rem;
         height: auto;
         display: grid;
-        grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem auto;
+        grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem 2.75rem auto;
         grid-template-rows: 2.75rem 2.25rem;
         align-items: center;
         gap: 0.35rem;
@@ -1429,14 +1335,6 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         padding: 0;
         color: var(--ink);
       }
-      .top-actions .markdown-toggle,
-      .reference-theme .top-actions .markdown-toggle {
-        display: none;
-      }
-      .top-actions .markdown-toggle[aria-pressed="true"],
-      .reference-theme .top-actions .markdown-toggle[aria-pressed="true"] {
-        color: var(--accent);
-      }
 
       .top-actions .primary,
       .reference-theme .top-actions .primary {
@@ -1449,7 +1347,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
       .reference-theme[data-theme="dark"] .top-actions .primary { color: var(--bg); }
       .mobile-settings-button {
-        grid-column: 3;
+        grid-column: 4;
         grid-row: 1;
         display: inline-flex;
         width: 2.75rem;
@@ -1460,12 +1358,10 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         font-size: 1.25rem;
         letter-spacing: 0.06em;
       }
-      .top-actions .load-retry { grid-column: 2; grid-row: 1; justify-self: end; }
-      .top-actions .primary { grid-column: 4; grid-row: 1; }
-      .top-actions .editor-preview { grid-column: 3 / 5; grid-row: 2; justify-self: end; }
-      .arena-details-button {
-        display: none !important;
-      }
+      .top-actions .load-retry,
+      .top-actions .save-retry { grid-column: 2; grid-row: 1; justify-self: end; }
+      .view-menu-wrap { grid-column: 3; grid-row: 1; }
+      .save-group { grid-column: 5; grid-row: 1; }
       .top-actions button[hidden] {
         display: none !important;
       }
@@ -1479,9 +1375,6 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         border-radius: 1.1rem 1.1rem 0 0;
         padding: 0.85rem 1.1rem calc(1.35rem + env(safe-area-inset-bottom));
         box-shadow: 0 -1rem 3rem rgba(0, 0, 0, 0.24);
-      }
-      .arena-inline-details {
-        display: inline-flex;
       }
       .arena-details {
         inset: auto 0 0 0;
@@ -1638,6 +1531,366 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         padding-left: 0.5rem;
       }
     }
+    /* One view switcher, one visibility control and one save action. */
+    .view-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.15rem;
+      padding: 0.2rem;
+      border: 1px solid var(--line);
+      border-radius: 0.6rem;
+      background: var(--panel);
+    }
+    .reference-theme .top-actions .view-switch button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      min-height: 2.2rem;
+      padding: 0 0.7rem;
+      border: 0;
+      border-radius: 0.42rem;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .reference-theme .top-actions .view-switch button:hover {
+      color: var(--ink);
+    }
+    .reference-theme .top-actions .view-switch button[aria-pressed="true"] {
+      background: var(--panel-2);
+      color: var(--ink);
+      box-shadow: 0 1px 2px rgb(0 0 0 / 0.1);
+    }
+    .reference-theme[data-theme="dark"] .top-actions .view-switch button[aria-pressed="true"] {
+      background: #1b1e24;
+    }
+    .view-switch .button-icon,
+    .topbar-menu .button-icon,
+    .save-visibility .button-icon {
+      width: 1rem;
+      height: 1rem;
+    }
+    .view-switch button[hidden],
+    .topbar-menu button[hidden],
+    .save-retry[hidden] {
+      display: none !important;
+    }
+    .topbar-menu-wrap {
+      position: relative;
+    }
+    .view-menu-wrap {
+      display: none;
+    }
+    .save-group {
+      display: inline-flex;
+      align-items: stretch;
+    }
+    .reference-theme .top-actions .save-group .primary {
+      border-radius: 0.45rem 0 0 0.45rem;
+    }
+    .reference-theme .top-actions .save-visibility {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0 0.6rem;
+      border: 1px solid var(--line);
+      border-left: 0;
+      border-radius: 0 0.45rem 0.45rem 0;
+      background: var(--panel);
+      color: var(--ink);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .save-visibility-icon {
+      display: inline-flex;
+    }
+    .save-visibility[data-visibility="public"] .save-visibility-icon {
+      color: var(--accent);
+    }
+    .reference-theme .top-actions .save-retry {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      padding: 0;
+      background: transparent;
+      color: var(--danger);
+    }
+    .topbar-menu {
+      position: absolute;
+      top: calc(100% + 0.4rem);
+      right: 0;
+      z-index: 45;
+      display: grid;
+      min-width: 14rem;
+      padding: 0.35rem;
+      border: 1px solid var(--line);
+      border-radius: 0.7rem;
+      background: var(--bg);
+      box-shadow: 0 0.8rem 2.2rem rgb(0 0 0 / 0.18);
+    }
+    .topbar-menu[hidden] {
+      display: none !important;
+    }
+    .reference-theme .top-actions .topbar-menu button {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      width: 100%;
+      min-height: 2.75rem;
+      padding: 0.45rem 0.65rem;
+      border: 0;
+      border-radius: 0.45rem;
+      background: transparent;
+      color: var(--ink);
+      font-size: 0.86rem;
+      font-weight: 500;
+      text-align: left;
+    }
+    .reference-theme .top-actions .topbar-menu button:hover,
+    .reference-theme .top-actions .topbar-menu button:focus-visible {
+      background: var(--panel-2) !important;
+      outline: none;
+    }
+    .reference-theme .top-actions .topbar-menu button[aria-checked="true"] {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .topbar-menu button > span {
+      display: grid;
+      gap: 0.1rem;
+    }
+    .topbar-menu small {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 400;
+    }
+    .topbar-menu-separator {
+      height: 1px;
+      margin: 0.3rem 0.4rem;
+      background: var(--line);
+    }
+    /* Inline preview replaces the modal for the whole document. */
+    .preview-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      width: min(60rem, 100%);
+      margin: 0 auto;
+    }
+    .preview-pane[hidden],
+    .preview-frame[hidden],
+    .preview-html-source[hidden],
+    .preview-retry[hidden] {
+      display: none !important;
+    }
+    .preview-toolbar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      min-height: 2.75rem;
+    }
+    .preview-format {
+      display: inline-flex;
+      padding: 0.15rem;
+      border: 1px solid var(--line);
+      border-radius: 0.55rem;
+    }
+    .preview-toolbar button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      min-height: 2.25rem;
+      padding: 0 0.7rem;
+      border: 0;
+      border-radius: 0.4rem;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .preview-toolbar button[aria-pressed="true"] {
+      background: var(--panel-2);
+      color: var(--ink);
+    }
+    .preview-toolbar .preview-retry {
+      color: var(--accent);
+    }
+    .preview-status {
+      flex: 1 1 8rem;
+      min-width: 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+    .preview-status.error {
+      color: var(--danger);
+    }
+    .preview-split {
+      margin-left: auto;
+    }
+    .preview-frame,
+    .preview-html-source {
+      display: block;
+      width: 100%;
+      height: calc(100dvh - var(--topbar-height) - 8rem);
+      min-height: 22rem;
+      border: 1px solid var(--line);
+      border-radius: 0.6rem;
+      background: var(--bg);
+    }
+    .preview-html-source {
+      margin: 0;
+      padding: 1rem;
+      overflow: auto;
+      background: var(--panel);
+      color: var(--ink);
+      font: 0.8rem/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    body.view-preview:not(.preview-split-active) .paper,
+    body.view-preview:not(.preview-split-active) .formatbar,
+    body.view-preview:not(.preview-split-active) :is(.block-dock, .block-gutter, .block-selection-toolbar, .block-slash) {
+      display: none !important;
+    }
+    @keyframes editor-view-enter {
+      from { opacity: 0; transform: translateY(6px); }
+    }
+    .preview-pane.is-entering,
+    .paper.is-entering {
+      animation: editor-view-enter 0.18s ease-out;
+    }
+    @media (max-width: 1279px) {
+      .preview-split {
+        display: none !important;
+      }
+    }
+    @media (min-width: 1280px) {
+      body.preview-split-active .writer {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        align-items: start;
+        gap: 2.5rem;
+        overflow: visible;
+      }
+      body.preview-split-active .paper {
+        width: 100%;
+        max-width: var(--writer-width);
+        justify-self: end;
+        margin: 0;
+      }
+      body.preview-split-active .preview-pane {
+        position: sticky;
+        top: calc(var(--topbar-height) + 1rem);
+        width: 100%;
+        margin: 0;
+      }
+      body.preview-split-active :is(.preview-frame, .preview-html-source) {
+        height: calc(100dvh - var(--topbar-height) - 5.5rem);
+      }
+    }
+    /* Properties: grouped, with rarely used settings collapsed. */
+    .settings-group {
+      margin: 0 0 1.25rem;
+    }
+    .settings-group[hidden] {
+      display: none !important;
+    }
+    .settings-group-title {
+      margin: 0 0 0.35rem;
+      color: var(--muted);
+      font-family: var(--editor-font);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .settings-advanced > summary {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      min-height: 2.75rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--line);
+      cursor: pointer;
+      list-style: none;
+    }
+    .settings-advanced > summary::-webkit-details-marker {
+      display: none;
+    }
+    .settings-advanced > summary > span:first-child {
+      margin-right: auto;
+    }
+    .settings-advanced > summary::after {
+      content: "";
+      width: 0.45rem;
+      height: 0.45rem;
+      margin: 0 0.35rem 0.2rem 0;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(45deg);
+      transition: transform 0.16s ease;
+    }
+    .settings-advanced[open] > summary::after {
+      margin-bottom: -0.2rem;
+      transform: rotate(-135deg);
+    }
+    .settings-advanced > summary:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    /* The saved pill already reports these states; keep only actionable publication messages. */
+    .publication-message:is([data-state="idle"], [data-state="saved"], [data-state="draft"], [data-state="saving"]) {
+      display: none;
+    }
+    @media (max-width: 900px) {
+      .view-switch {
+        display: none;
+      }
+      .view-menu-wrap {
+        display: block;
+      }
+      .reference-theme .top-actions .view-menu-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.75rem;
+        color: var(--ink);
+      }
+      .reference-theme .top-actions .save-visibility {
+        min-width: 2.4rem !important;
+        padding: 0 0.35rem !important;
+        border: 1px solid var(--line) !important;
+        border-left: 0 !important;
+        border-radius: 0 0.55rem 0.55rem 0 !important;
+      }
+      .save-visibility-label {
+        display: none;
+      }
+      .reference-theme .top-actions .save-group .primary {
+        border-radius: 0.55rem 0 0 0.55rem;
+      }
+      .topbar-menu {
+        position: fixed;
+        top: calc(var(--topbar-height) + 0.35rem);
+        right: 0.65rem;
+        left: auto;
+        max-width: calc(100vw - 1.3rem);
+      }
+      .preview-frame,
+      .preview-html-source {
+        height: calc(100dvh - var(--topbar-height) - 6.5rem);
+        min-height: 18rem;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .preview-pane.is-entering,
+      .paper.is-entering {
+        animation: none;
+      }
+    }
     ${technicalEditorStyles}
   </style>
 </head>
@@ -1654,11 +1907,32 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
     </div>
     <div class="top-actions">
       <button type="button" class="load-retry" id="retry-load" aria-label="Reintentar carga" title="Reintentar carga" hidden>${ICONS.redo}</button>
-      <button type="button" class="markdown-toggle" id="view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">Markdown</button>
-      <button type="button" class="arena-details-button" id="arena-details-button" data-state="disabled" aria-controls="arena-details">Are.na</button>
-      <button type="button" class="editor-preview" id="technical-preview-open" aria-haspopup="dialog" aria-controls="technical-preview">Vista previa</button>
+      <button type="button" class="save-retry" id="save-retry" aria-label="Reintentar guardado" title="Reintentar guardado" hidden>${ICONS.retry}</button>
+      <div class="view-switch" id="view-switch" role="group" aria-label="Vista">
+        <button type="button" id="view-render" data-view="render" aria-pressed="true" title="Escribir (Ctrl+Alt+P cambia de vista)">${VIEW_ICONS.render}<span>Escribir</span></button>
+        <button type="button" id="view-markdown" data-view="markdown" aria-pressed="false" title="Markdown sin formato">${VIEW_ICONS.markdown}<span>Markdown</span></button>
+        <button type="button" id="view-preview" data-view="preview" aria-pressed="false" aria-controls="preview-pane" title="Vista previa">${VIEW_ICONS.preview}<span>Vista previa</span></button>
+      </div>
+      <div class="topbar-menu-wrap view-menu-wrap">
+        <button type="button" class="view-menu-button" id="view-menu-button" aria-haspopup="menu" aria-expanded="false" aria-controls="view-menu" aria-label="Vista: Escribir" title="Vista y edición">${VIEW_ICONS.render}</button>
+        <div class="topbar-menu view-menu" id="view-menu" role="menu" aria-label="Vista y edición" hidden>
+          <button type="button" role="menuitemradio" data-view="render" aria-checked="true">${VIEW_ICONS.render}<span>Escribir</span></button>
+          <button type="button" role="menuitemradio" data-view="markdown" aria-checked="false">${VIEW_ICONS.markdown}<span>Markdown</span></button>
+          <button type="button" role="menuitemradio" data-view="preview" aria-checked="false">${VIEW_ICONS.preview}<span>Vista previa</span></button>
+          <span class="topbar-menu-separator" role="separator"></span>
+          <button type="button" role="menuitem" data-view-action="undo">${ICONS.undo}<span>Deshacer</span></button>
+          <button type="button" role="menuitem" data-view-action="redo">${ICONS.redo}<span>Rehacer</span></button>
+        </div>
+      </div>
       <button type="button" class="mobile-settings-button" id="top-settings-button" aria-controls="settings" aria-expanded="false" aria-label="Configuración">...</button>
-      <button type="button" class="primary" id="save" disabled><span class="save-label-desktop">Publicar</span><span class="save-label-mobile">Publicar</span></button>
+      <div class="topbar-menu-wrap save-group">
+        <button type="button" class="primary" id="save" disabled><span class="save-label-desktop">Guardar</span><span class="save-label-mobile">Guardar</span></button>
+        <button type="button" class="save-visibility" id="save-visibility" data-visibility="draft" aria-haspopup="menu" aria-expanded="false" aria-controls="visibility-menu" aria-label="Visibilidad: Borrador" title="Visibilidad al guardar"><span class="save-visibility-icon">${ICONS.eyeOff}</span><span class="save-visibility-label" id="save-visibility-label">Borrador</span>${ICONS.chevron}</button>
+        <div class="topbar-menu visibility-menu" id="visibility-menu" role="menu" aria-label="Visibilidad al guardar" hidden>
+          <button type="button" role="menuitemradio" data-visibility="draft" aria-checked="true">${ICONS.eyeOff}<span><strong>Borrador</strong><small>Solo visible en el editor</small></span></button>
+          <button type="button" role="menuitemradio" data-visibility="public" aria-checked="false">${ICONS.eye}<span><strong>Público</strong><small>Aparece en el sitio al guardar</small></span></button>
+        </div>
+      </div>
     </div>
   </header>
   <nav class="formatbar" aria-label="Formato">
@@ -1676,7 +1950,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       <span class="toolbar-group" id="insert-toolbar-group" aria-label="Insertar">
         <button type="button" id="toolbar-technical" aria-controls="technical-tools" aria-expanded="false" aria-label="Insertar contenido" title="Insertar contenido">${ICONS.insert}<span class="insert-label">Insertar</span></button>
       </span>
-      <button type="button" class="mobile-markdown-toggle" id="mobile-view-markdown" aria-pressed="false" aria-label="Activar Markdown" title="Markdown">${ICONS.markdown}<span class="markdown-label">Markdown</span></button>
+
       <button type="button" id="format-more" aria-controls="secondary-format" aria-expanded="false" aria-label="Mostrar más formato" title="Mostrar más formato">${ICONS.more}<span class="format-more-label">Más</span></button>
       <div class="secondary-format" id="secondary-format">
       <span class="divider" id="insert-divider-after"></span>
@@ -1711,6 +1985,19 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         <textarea class="body-input" id="body" placeholder="Comienza a escribir un artículo…"></textarea>
         <textarea class="markdown-input" id="markdown-canvas" aria-label="Markdown del documento" spellcheck="false" hidden></textarea>
       </article>
+      <section class="preview-pane" id="preview-pane" aria-label="Vista previa" hidden>
+        <div class="preview-toolbar">
+          <div class="preview-format" role="group" aria-label="Formato de la vista previa">
+            <button type="button" id="preview-rendered" data-preview-format="rendered" aria-pressed="true">Renderizado</button>
+            <button type="button" id="preview-html" data-preview-format="html" aria-pressed="false">HTML</button>
+          </div>
+          <span class="preview-status" id="preview-status" role="status" aria-live="polite"></span>
+          <button type="button" class="preview-retry" id="preview-retry" hidden>Reintentar</button>
+          <button type="button" class="preview-split" id="preview-split" aria-pressed="false" title="Editar y ver la vista previa lado a lado">${ICONS.columns}<span>Lado a lado</span></button>
+        </div>
+        <iframe class="preview-frame" id="preview-frame" title="Vista previa del artículo" sandbox="allow-scripts allow-same-origin"></iframe>
+        <pre class="preview-html-source" id="preview-html-source" aria-label="HTML renderizado" tabindex="0" hidden><code></code></pre>
+      </section>
     </section>
   </main>
   <aside class="settings" id="settings" hidden>
@@ -1720,6 +2007,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           <button type="button" class="settings-close" id="settings-close" aria-label="Cerrar configuración">&times;</button>
         </div>
       </div>
+      <section class="settings-group" id="settings-group-publication" aria-labelledby="settings-group-publication-title">
+      <h3 class="settings-group-title" id="settings-group-publication-title">Publicación</h3>
       <label class="field" id="notebook-field">
         <span>Destino</span>
         <select id="notebook"></select>
@@ -1735,6 +2024,15 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         <span>Fecha</span>
         <input id="date" type="date" />
       </label>
+      <section class="publication-section" id="publication-section">
+        <h3>Estado</h3>
+        <p class="publication-message" id="publication-visibility">Sin publicar</p>
+        <p class="publication-message" id="publication-message" role="status">Guarda cuando quieras conservar los cambios.</p>
+        <a class="publication-link" id="publication-link" href="#" target="_blank" rel="noopener" hidden>Abrir publicación ↗</a>
+      </section>
+      </section>
+      <section class="settings-group" id="settings-group-metadata" aria-labelledby="settings-group-metadata-title">
+      <h3 class="settings-group-title" id="settings-group-metadata-title">Metadatos</h3>
       <label class="field" id="tags-field">
         <span>Etiquetas</span>
         <input id="tags" type="text" placeholder="essays, politics" />
@@ -1747,7 +2045,6 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           <option value="technical">Escrito técnico</option>
         </select>
       </label>
-      <input id="draft" type="checkbox" hidden />
       <label class="check" id="pinned-field" hidden>
         <span class="check-label">Fijar en inicio</span>
         <input id="pinned" type="checkbox" />
@@ -1768,18 +2065,18 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         <span>Pie</span>
         <input id="caption" type="text" placeholder="Pie opcional" />
       </label>
+      </section>
+      <details class="settings-group settings-advanced" id="settings-advanced">
+      <summary class="settings-group-title"><span>Avanzado</span><span class="advanced-arena-badge" id="advanced-arena-badge" data-state="disabled" hidden>Are.na</span></summary>
       <label class="field">
-        <span>Texto</span>
+        <span>Tamaño del texto</span>
         <select id="editor-font-size">
           <option value="small">Pequeño</option>
           <option value="medium">Mediano</option>
           <option value="large">Grande</option>
         </select>
       </label>
-      <label class="check">
-        <span class="check-label">Visible</span>
-        <input id="hidden" type="checkbox" />
-      </label>
+
       <section class="notebook-channel-section" id="notebook-channel-section" hidden>
         <h3>Are.na</h3>
         <button type="button" class="notebook-channel-action" id="create-notebook-channel">Crear channel desde notebook</button>
@@ -1789,7 +2086,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       <section class="arena-section" id="arena-section">
         <div class="arena-section-header">
           <h3>Are.na</h3>
-          <button type="button" class="arena-inline-details" id="arena-inline-details">Ver detalle</button>
+          <button type="button" class="arena-status-chip" id="arena-status-chip" data-state="disabled" aria-haspopup="dialog" aria-controls="arena-details" title="Ver detalle de la copia en Are.na"><span id="arena-status-label">Copia desactivada</span></button>
         </div>
         <label class="check arena-toggle">
           <span class="check-label">Copiar a Are.na</span>
@@ -1803,20 +2100,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         </label>
         <p class="arena-helper" id="arena-helper">Al publicar, se copiarán el título y el cuerpo Markdown completo.</p>
         <p class="arena-content-meta" id="arena-content-meta">Bloque de texto</p>
-        <div class="arena-progress" aria-label="Estado de la copia en Are.na">
-          <span class="arena-step is-complete" id="arena-blog-step">Blog actualizado</span>
-          <span class="arena-progress-line"></span>
-          <span class="arena-step" id="arena-copy-step">Copia desactivada</span>
-        </div>
         <p class="arena-state-message" id="arena-state-message" aria-live="polite">Activa la copia para mantener este texto en Are.na.</p>
         <p class="arena-last-synced" id="arena-last-synced"></p>
         <button type="button" class="arena-retry" id="arena-retry" hidden>Reintentar</button>
-      </section>
-      <section class="publication-section" id="publication-section">
-        <h3>Estado de publicación</h3>
-        <p class="publication-message" id="publication-visibility">Sin publicar</p>
-        <p class="publication-message" id="publication-message" role="status">Guarda cuando quieras conservar los cambios.</p>
-        <a class="publication-link" id="publication-link" href="#" target="_blank" rel="noopener" hidden>Abrir publicación ↗</a>
       </section>
       <div class="danger-zone" id="danger-zone" hidden>
         <h3>Peligro</h3>
@@ -1826,7 +2112,10 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         </label>
         <button type="button" class="danger-button" id="delete-page">${ICONS.trash}<span>Eliminar</span></button>
       </div>
+      </details>
       <div class="utility">
+        <input id="draft" type="checkbox" hidden />
+        <input id="hidden" type="checkbox" aria-label="Visible" hidden />
         <input id="image-file" type="file" accept="image/*" hidden />
         <div class="path" id="path"></div>
       </div>
@@ -1968,9 +2257,17 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         caption: document.getElementById("caption"),
         photoPreview: document.getElementById("photo-preview"),
         editorFontSize: document.getElementById("editor-font-size"),
+        viewRender: document.getElementById("view-render"),
         viewMarkdown: document.getElementById("view-markdown"),
-        mobileViewMarkdown: document.getElementById("mobile-view-markdown"),
-        arenaDetailsButton: document.getElementById("arena-details-button"),
+        viewPreview: document.getElementById("view-preview"),
+        viewMenuButton: document.getElementById("view-menu-button"),
+        viewMenu: document.getElementById("view-menu"),
+        saveVisibility: document.getElementById("save-visibility"),
+        saveVisibilityLabel: document.getElementById("save-visibility-label"),
+        visibilityMenu: document.getElementById("visibility-menu"),
+        saveRetry: document.getElementById("save-retry"),
+        settingsAdvanced: document.getElementById("settings-advanced"),
+        advancedArenaBadge: document.getElementById("advanced-arena-badge"),
         summary: document.getElementById("summary"),
         draft: document.getElementById("draft"),
         hidden: document.getElementById("hidden"),
@@ -1985,11 +2282,11 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         arenaEnabled: document.getElementById("arena-enabled"),
         arenaChannel: document.getElementById("arena-channel"),
         arenaChannelField: document.getElementById("arena-channel-field"),
-        arenaInlineDetails: document.getElementById("arena-inline-details"),
+        arenaStatusChip: document.getElementById("arena-status-chip"),
+        arenaStatusLabel: document.getElementById("arena-status-label"),
         arenaContentMeta: document.getElementById("arena-content-meta"),
         arenaHelper: document.getElementById("arena-helper"),
-        arenaBlogStep: document.getElementById("arena-blog-step"),
-        arenaCopyStep: document.getElementById("arena-copy-step"),
+
         arenaStateMessage: document.getElementById("arena-state-message"),
         arenaLastSynced: document.getElementById("arena-last-synced"),
         arenaRetry: document.getElementById("arena-retry"),
@@ -2082,8 +2379,6 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           onChange: function (value) { els.body.value = value; markContentEdited(); },
           onUpload: function () { els.imageFile.click(); },
           onPreview: function (value) { closeSettings(); previewTechnicalContent(value); },
-          onToggleRaw: function () { closeSettings(); applyViewMode(activeViewMode === "markdown" ? "render" : "markdown", true); },
-          onCloseSettings: closeSettings,
         });
         document.body.classList.add("block-editor-ready");
         loadedBodySource = null;
@@ -2149,17 +2444,12 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.editorFontSize.addEventListener("change", function () {
           applyEditorSize(els.editorFontSize.value);
         });
-        els.viewMarkdown.addEventListener("click", function () {
-          restoreInsertSelection();
-          applyViewMode(activeViewMode === "markdown" ? "render" : "markdown", true);
+        bindViewControls();
+        bindVisibilityControl();
+        els.saveRetry.addEventListener("click", function () {
+          if (!els.save.disabled) save();
         });
-        els.mobileViewMarkdown.addEventListener("click", function () {
-          restoreInsertSelection();
-          closeFormatTools();
-          applyViewMode(activeViewMode === "markdown" ? "render" : "markdown", true);
-        });
-        els.arenaDetailsButton.addEventListener("click", openArenaDetails);
-        els.arenaInlineDetails.addEventListener("click", openArenaDetails);
+        els.arenaStatusChip.addEventListener("click", openArenaDetails);
         els.arenaDetailsClose.addEventListener("click", closeArenaDetails);
         els.arenaDetailsBackdrop.addEventListener("click", closeArenaDetails);
         els.arenaRetry.addEventListener("click", retryArenaSync);
@@ -2567,21 +2857,18 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.arenaContentMeta.textContent = photo
           ? imageLabel + " · pie · alt"
           : "Bloque de texto · " + preview.characters.toLocaleString("es-MX") + " caracteres";
-        els.arenaBlogStep.textContent = els.savedPill.textContent;
-        els.arenaBlogStep.className = "arena-step " + (blogSaved ? "is-complete" : "is-pending");
-        els.arenaCopyStep.textContent = labels[state] || labels.disabled;
-        els.arenaCopyStep.className = "arena-step";
-        if (state === "synced") els.arenaCopyStep.classList.add("is-complete");
-        if (["pending", "syncing", "checking"].indexOf(state) !== -1) els.arenaCopyStep.classList.add("is-pending");
-        if (state === "error" || state === "unavailable") els.arenaCopyStep.classList.add("is-error");
+        els.arenaStatusChip.dataset.state = state;
+        els.arenaStatusLabel.textContent = labels[state] || labels.disabled;
+        els.advancedArenaBadge.dataset.state = state;
+        els.advancedArenaBadge.textContent = "Are.na · " + (labels[state] || labels.disabled).toLowerCase();
+        els.advancedArenaBadge.hidden = !isArenaEligible() || !(els.arenaEnabled.checked || hasMappedBlock || state === "error");
         els.arenaStateMessage.textContent = messages[state] || messages.disabled;
         els.arenaLastSynced.textContent = arenaState.lastSyncedAt
           ? "Última copia: " + formatArenaDate(arenaState.lastSyncedAt)
           : "";
         els.arenaRetry.hidden = state !== "error";
         els.arenaDetailsRetry.hidden = state !== "error";
-        els.arenaDetailsButton.dataset.state = state;
-        els.arenaDetailsButton.title = labels[state] || labels.disabled;
+
         els.arenaPreviewTitle.textContent = els.title.value.trim() || "Sin título";
         els.arenaPreviewType.textContent = photo ? "Bloque de imagen · archivo completo" : "Bloque de texto · Markdown completo";
         els.arenaPreviewExcerpt.textContent = preview.excerpt || (photo ? "El texto alt y el pie aparecerán aquí." : "El texto guardado aparecerá aquí.");
@@ -3341,10 +3628,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           els.summary.hidden = false;
           els.body.hidden = true;
           els.markdownCanvas.hidden = true;
-          [els.viewMarkdown, els.mobileViewMarkdown].forEach(function (button) {
-            button.setAttribute("aria-pressed", String(activeViewMode === "markdown"));
-            button.setAttribute("aria-label", activeViewMode === "markdown" ? "Desactivar Markdown" : "Activar Markdown");
-          });
+          syncViewControls();
           try { window.localStorage.setItem(viewModeStorageKey, activeViewMode); } catch (error) {}
           if (shouldFocus) blockEditor.focus();
           return;
@@ -3370,10 +3654,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.summary.hidden = viewMode === "markdown";
         els.body.hidden = viewMode === "markdown";
         els.markdownCanvas.hidden = viewMode !== "markdown";
-        [els.viewMarkdown, els.mobileViewMarkdown].forEach(function (button) {
-          button.setAttribute("aria-pressed", String(viewMode === "markdown"));
-          button.setAttribute("aria-label", viewMode === "markdown" ? "Desactivar Markdown" : "Activar Markdown");
-        });
+        syncViewControls();
         if (viewMode === "markdown") {
           syncMarkdownFromFields();
           resizeTextarea(els.markdownCanvas);
@@ -3397,6 +3678,94 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
             }
           });
         }
+      }
+
+      function syncViewControls() {
+        var previewOpen = inlinePreview.open;
+        var splitActive = previewOpen && isPreviewSplitActive();
+        var current = previewOpen ? "preview" : activeViewMode;
+        var names = { render: "Escribir", markdown: "Markdown", preview: "Vista previa" };
+        var icons = { render: '${VIEW_ICONS.render}', markdown: '${VIEW_ICONS.markdown}', preview: '${VIEW_ICONS.preview}' };
+        document.body.classList.toggle("view-preview", previewOpen);
+        document.body.classList.toggle("preview-split-active", splitActive);
+        document.body.dataset.editorView = current;
+        [els.viewRender, els.viewMarkdown, els.viewPreview].forEach(function (button) {
+          var view = button.dataset.view;
+          var pressed = view === "preview" ? previewOpen : view === activeViewMode && (!previewOpen || splitActive);
+          button.setAttribute("aria-pressed", String(pressed));
+        });
+        Array.from(els.viewMenu.querySelectorAll("[data-view]")).forEach(function (item) {
+          item.setAttribute("aria-checked", String(item.dataset.view === current));
+        });
+        if (els.viewMenuButton.dataset.view !== current) {
+          els.viewMenuButton.dataset.view = current;
+          els.viewMenuButton.innerHTML = icons[current];
+        }
+        els.viewMenuButton.setAttribute("aria-label", "Vista: " + names[current]);
+        syncPreviewPane();
+      }
+
+      function selectView(view, shouldFocus) {
+        closeTopbarMenus();
+        restoreInsertSelection();
+        closeFormatTools();
+        if (view === "preview") {
+          if (editorController.notebook) return;
+          if (inlinePreview.open && isPreviewSplitActive()) {
+            closeInlinePreview(true);
+            return;
+          }
+          openInlinePreview();
+          return;
+        }
+        var keepPreview = inlinePreview.open && isPreviewSplitActive();
+        var restoreTop = null;
+        if (inlinePreview.open && !keepPreview) restoreTop = closeInlinePreview(false);
+        applyViewMode(view, shouldFocus !== false);
+        if (restoreTop !== null) {
+          window.requestAnimationFrame(function () { window.scrollTo(0, restoreTop); });
+        }
+        if (keepPreview) schedulePreviewRefresh(true);
+      }
+
+      function cycleView() {
+        var order = editorController.notebook ? ["render", "markdown"] : ["render", "markdown", "preview"];
+        var current = inlinePreview.open ? "preview" : activeViewMode;
+        var next = order[(order.indexOf(current) + 1) % order.length];
+        if (current === "preview") {
+          var top = closeInlinePreview(false);
+          applyViewMode(next, true);
+          if (top !== null) window.requestAnimationFrame(function () { window.scrollTo(0, top); });
+          return;
+        }
+        selectView(next);
+      }
+
+      function bindViewControls() {
+        [els.viewRender, els.viewMarkdown, els.viewPreview].forEach(function (button) {
+          button.addEventListener("click", function () { selectView(button.dataset.view); });
+        });
+        bindTopbarMenu(els.viewMenuButton, els.viewMenu);
+        Array.from(els.viewMenu.querySelectorAll("[data-view]")).forEach(function (item) {
+          item.addEventListener("click", function () { selectView(item.dataset.view); });
+        });
+        Array.from(els.viewMenu.querySelectorAll("[data-view-action]")).forEach(function (item) {
+          item.addEventListener("click", function () {
+            closeTopbarMenus();
+            applyFormat(item.dataset.viewAction);
+            if (blockEditor && !inlinePreview.open) blockEditor.focus();
+          });
+        });
+        document.addEventListener("pointerdown", function (event) {
+          if (!event.target.closest || !event.target.closest(".topbar-menu-wrap")) closeTopbarMenus();
+        });
+        window.addEventListener("keydown", function (event) {
+          if ((event.metaKey || event.ctrlKey) && event.altKey && event.code === "KeyP") {
+            event.preventDefault();
+            cycleView();
+          }
+        });
+        bindInlinePreview();
       }
 
       function focusEditorStart() {
@@ -3786,6 +4155,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         }
         scheduleDraftSave();
         syncSavedState();
+        schedulePreviewRefresh();
       }
 
       function currentSaveSnapshot() {
@@ -3813,6 +4183,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function syncSavedState() {
         syncSaveButtonLabel();
+        els.saveRetry.hidden = !(saveFailed && savedSnapshot && !saveInProgress);
         els.publicationVisibility.textContent = !savedSnapshot ? "Cargando estado…" : sourcePath
           ? "Estado guardado: " + (frontMatter.draft === true || frontMatter.hidden === true ? "borrador" : "público")
           : "Sin publicar";
@@ -3851,12 +4222,83 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function syncSaveButtonLabel() {
-        var label = mode === "edit" ? "Guardar" : (els.hidden.checked ? "Publicar" : "Guardar borrador");
+        // The action label stays stable; visibility is chosen in the adjacent control.
+        var visibility = els.hidden.checked ? "Público" : "Borrador";
+        var label = "Guardar · " + visibility;
+        syncVisibilityControl();
         if (label === lastSaveLabel) return;
         lastSaveLabel = label;
-        els.save.querySelector(".save-label-desktop").textContent = label;
-        els.save.querySelector(".save-label-mobile").textContent = blockEditor && label === "Guardar borrador" ? "Guardar" : label;
+        els.save.querySelector(".save-label-desktop").textContent = "Guardar";
+        els.save.querySelector(".save-label-mobile").textContent = "Guardar";
         els.save.setAttribute("aria-label", label);
+      }
+
+      function syncVisibilityControl() {
+        var visible = els.hidden.checked;
+        els.saveVisibility.dataset.visibility = visible ? "public" : "draft";
+        els.saveVisibilityLabel.textContent = visible ? "Público" : "Borrador";
+        els.saveVisibility.setAttribute("aria-label", "Visibilidad: " + (visible ? "Público" : "Borrador"));
+        els.saveVisibility.querySelector(".save-visibility-icon").innerHTML = visible ? '${ICONS.eye}' : '${ICONS.eyeOff}';
+        Array.from(els.visibilityMenu.querySelectorAll("[data-visibility]")).forEach(function (item) {
+          item.setAttribute("aria-checked", String(item.dataset.visibility === (visible ? "public" : "draft")));
+        });
+      }
+
+      function bindVisibilityControl() {
+        bindTopbarMenu(els.saveVisibility, els.visibilityMenu);
+        Array.from(els.visibilityMenu.querySelectorAll("[data-visibility]")).forEach(function (item) {
+          item.addEventListener("click", function () {
+            var visible = item.dataset.visibility === "public";
+            closeTopbarMenus(els.saveVisibility);
+            if (els.hidden.checked === visible) return;
+            els.hidden.checked = visible;
+            els.hidden.dispatchEvent(new Event("change", { bubbles: true }));
+          });
+        });
+      }
+
+      function bindTopbarMenu(trigger, menu) {
+        trigger.addEventListener("click", function () {
+          var open = menu.hidden;
+          closeTopbarMenus();
+          if (!open) return;
+          menu.hidden = false;
+          trigger.setAttribute("aria-expanded", "true");
+          var current = menu.querySelector('[aria-checked="true"]:not([hidden])') || menu.querySelector("button:not([hidden])");
+          if (current) current.focus({ preventScroll: true });
+        });
+        menu.addEventListener("keydown", function (event) {
+          var items = Array.from(menu.querySelectorAll("button:not([hidden]):not(:disabled)"));
+          var index = items.indexOf(document.activeElement);
+          if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+            event.preventDefault();
+            var next = items[(index + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length];
+            if (next) next.focus();
+          } else if (event.key === "Escape") {
+            event.preventDefault();
+            event.stopPropagation();
+            closeTopbarMenus(trigger);
+          } else if (event.key === "Tab") {
+            closeTopbarMenus();
+          }
+        });
+      }
+
+      function closeTopbarMenus(focusTrigger) {
+        [[els.viewMenuButton, els.viewMenu], [els.saveVisibility, els.visibilityMenu]].forEach(function (pair) {
+          pair[1].hidden = true;
+          pair[0].setAttribute("aria-expanded", "false");
+        });
+        if (focusTrigger) focusTrigger.focus({ preventScroll: true });
+      }
+
+      function syncSettingsGroups() {
+        ["settings-group-publication", "settings-group-metadata"].forEach(function (id) {
+          var group = document.getElementById(id);
+          group.hidden = !Array.from(group.children).some(function (child) {
+            return child.tagName !== "H3" && !child.hidden;
+          });
+        });
       }
 
       function confirmDiscardChanges() {
@@ -4048,7 +4490,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       function syncArenaSurfaceVisibility() {
         var hidden = !isArenaEligible();
         els.arenaSection.hidden = hidden;
-        els.arenaDetailsButton.hidden = hidden;
+        els.advancedArenaBadge.hidden = hidden || els.advancedArenaBadge.hidden;
         if (hidden) {
           closeArenaDetails();
           if (mode === "new" && els.arenaEnabled.checked) {
@@ -4056,6 +4498,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
             setArenaState({ state: "disabled", blockId: "", connectionId: "", blockUrl: "", blocks: [], error: "" });
           }
         }
+        syncSettingsGroups();
       }
 
       function syncEditorKind() {
@@ -4068,7 +4511,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.captionField.hidden = true;
         els.insertDividerBefore.hidden = notebook;
         els.insertToolbarGroup.hidden = notebook;
-        document.getElementById("technical-preview-open").hidden = notebook;
+        els.viewPreview.hidden = notebook;
+        els.viewMenu.querySelector('[data-view="preview"]').hidden = notebook;
         els.insertDividerAfter.hidden = notebook;
         els.toolbarImage.hidden = notebook;
         els.toolbarImage.disabled = notebook;

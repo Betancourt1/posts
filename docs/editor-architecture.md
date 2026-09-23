@@ -19,6 +19,7 @@ La autoria tiene tres entradas independientes: Notebook, Post e Imagen. Ninguna 
 - `writing-editor-template.js`: lienzo compartido por Notebook y Post; no clasifica contenido.
 - `image-editor-template.js`: experiencia image-first.
 - `editor-core-client.js`: infraestructura cliente sin decisiones de producto, servida únicamente bajo `/admin` en producción.
+- `insert-templates.js`: plantillas de inserción compartidas por el editor de bloques y el editor de respaldo con textarea.
 - `tools/editor_harness.mjs`: navegador y API aislados para regresiones.
 
 ## Invariantes

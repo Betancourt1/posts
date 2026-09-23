@@ -294,6 +294,28 @@ async function waitForEditor(page) {
   });
 }
 
+// Views are selected (not toggled): the segmented #view-switch above 900px, the #view-menu radios below.
+export async function selectEditorView(page, view) {
+  if ((page.viewportSize()?.width ?? 1280) <= 900) {
+    assert.equal(await page.locator("#view-switch").isVisible(), false);
+    await page.locator("#view-menu-button").click();
+    assert.equal(await page.locator("#view-menu").isVisible(), true);
+    await page.locator(`#view-menu [role=menuitemradio][data-view="${view}"]`).click();
+    assert.equal(await page.locator("#view-menu").isVisible(), false);
+    assert.equal(await page.locator(`#view-menu [data-view="${view}"]`).getAttribute("aria-checked"), "true");
+    return;
+  }
+  await page.locator(`#view-${view}`).click();
+  assert.equal(await page.locator(`#view-${view}`).getAttribute("aria-pressed"), "true");
+}
+
+async function openAdvancedSettings(page) {
+  const advanced = page.locator("#settings-advanced");
+  if (await advanced.isVisible() && !(await advanced.evaluate(el => el.open))) {
+    await advanced.locator("summary").click();
+  }
+}
+
 async function runFormatDisclosureCase(browser, origin) {
   for (const fixture of [
     { route: 'post-editor?notebook=content_en/posts&theme=light', kind: 'post', width: 320 },
@@ -308,7 +330,16 @@ async function runFormatDisclosureCase(browser, origin) {
       await page.goto(`${origin}/${fixture.route}`);
       await waitForEditor(page);
       assert.equal(await page.locator('#toolbar-technical').isVisible(), fixture.kind === 'post');
-      assert.equal(await page.locator('#technical-preview-open').isVisible(), fixture.kind === 'post');
+      assert.equal(await page.locator('#technical-preview-open').count(), 0);
+      assert.equal(await page.locator('#mobile-view-markdown').count(), 0, 'the formatbar no longer carries the view toggle');
+      assert.equal(await page.locator('#view-switch').isVisible(), false);
+      await page.locator('#view-menu-button').click();
+      assert.equal(await page.locator('#view-menu [data-view="preview"]').isVisible(), fixture.kind === 'post', 'preview is offered only for posts');
+      assert.equal(await page.locator('#view-menu [data-view="markdown"]').isVisible(), true);
+      assert.equal(await page.locator('#view-menu').evaluate(el => el.getBoundingClientRect().right <= innerWidth && el.getBoundingClientRect().left >= 0), true, 'view menu fits the viewport');
+      await page.keyboard.press('Escape');
+      assert.equal(await page.locator('#view-menu').isVisible(), false);
+      assert.equal(await page.locator('#view-menu-button').evaluate(el => document.activeElement === el), true);
       assert.equal(await page.locator('#secondary-format').isVisible(), false);
       assert.ok(await page.locator('.formatbar').evaluate(el => el.getBoundingClientRect().height < 64), 'collapsed mobile toolbar fits one row');
       assert.equal(await page.locator('#secondary-format button').first().evaluate(el => {
@@ -318,7 +349,7 @@ async function runFormatDisclosureCase(browser, origin) {
       await page.screenshot({ path: `/tmp/posts-${fixture.kind}-${fixture.width}-compact.png` });
       for (const markdown of [false, true]) {
         if (markdown) {
-          await page.locator('#mobile-view-markdown').click();
+          await selectEditorView(page, 'markdown');
           await page.waitForFunction(() => document.activeElement === document.querySelector('#markdown-canvas'));
         }
         const target = page.locator(markdown ? '#markdown-canvas' : '#body');
@@ -376,7 +407,7 @@ async function runToolbarScrollCase(browser, origin, viewport) {
     await page.locator("#body").fill(content);
     for (const mode of ["render", "markdown"]) {
       if (mode === "markdown") {
-        await page.locator(viewport.width <= 900 ? "#mobile-view-markdown" : "#view-markdown").click();
+        await selectEditorView(page, "markdown");
         await page.waitForFunction(() => document.activeElement === document.querySelector('#markdown-canvas'));
       }
       const textarea = page.locator(mode === "markdown" ? "#markdown-canvas" : "#body");
@@ -407,13 +438,12 @@ async function runToolbarScrollCase(browser, origin, viewport) {
       }
       const scroll = await page.evaluate(() => scrollY);
       const selected = await textarea.evaluate(element => element.value.slice(element.selectionStart, element.selectionEnd));
-      const toggle = page.locator(viewport.width <= 900 ? "#mobile-view-markdown" : "#view-markdown");
-      await toggle.click();
+      await selectEditorView(page, mode === "markdown" ? "render" : "markdown");
       await page.waitForTimeout(50);
       assert.ok(Math.abs((await page.evaluate(() => scrollY)) - scroll) <= 1, "switching Markdown mode must preserve the viewport");
       const otherTextarea = page.locator(mode === "markdown" ? "#body" : "#markdown-canvas");
       assert.equal(await otherTextarea.evaluate(element => element.value.slice(element.selectionStart, element.selectionEnd)), selected);
-      await toggle.click();
+      await selectEditorView(page, mode);
       await page.waitForTimeout(50);
     }
   } catch (error) {
@@ -574,7 +604,7 @@ async function runCaretViewportCase(browser, origin, viewport) {
     }));
     assert.ok(Math.abs(bottomScroll.actual - bottomScroll.maximum) <= 1, "centering must clamp at the bottom of the document");
 
-    await page.locator(viewport.width < 600 ? "#mobile-view-markdown" : "#view-markdown").click();
+    await selectEditorView(page, "markdown");
     const markdown = page.locator("#markdown-canvas");
     await markdown.waitFor({ state: "visible" });
     await page.waitForFunction(() => document.activeElement === document.querySelector('#markdown-canvas'));
@@ -611,7 +641,7 @@ async function runExactEssayCaretCase(browser, origin) {
     await waitForEditor(page);
     if (await page.locator("#settings").isVisible()) await page.locator("#settings-close").click();
     assert.equal(await page.locator("#body").inputValue(), essayCaretFixture);
-    await page.locator("#view-markdown").click();
+    await selectEditorView(page, "markdown");
 
     const markdown = page.locator("#markdown-canvas");
     await markdown.waitFor({ state: "visible" });
@@ -698,11 +728,14 @@ async function assertEditorContract(page, fixture) {
   if (expectedKind === "notebook") {
     await assert.doesNotReject(() => page.locator("#settings-title").waitFor({ state: "visible" }));
     assert.equal(await page.locator("#settings-title").textContent(), fixture.home ? "Página de inicio" : "Notebook");
+    assert.equal(await page.locator("#settings-group-metadata").isVisible(), false, "empty metadata group is hidden for notebooks");
+    await openAdvancedSettings(page);
     assert.equal(await page.locator("#notebook-channel-section").isVisible(), !fixture.home);
     assert.equal(await page.locator("#danger-zone").isVisible(), !fixture.home);
     assert.equal(await page.locator("#tags-field").isVisible(), false);
     assert.equal(await page.locator("#dropzone").count(), 0);
-    assert.equal(await page.locator("#technical-preview-open").isVisible(), false);
+    assert.equal(await page.locator("#view-preview").isHidden(), true, "notebooks have no preview view");
+    assert.equal(await page.locator('#view-menu [data-view="preview"]').evaluate(el => el.hidden), true);
     assert.equal(await page.locator("#toolbar-technical").isVisible(), false);
     return;
   }
@@ -710,6 +743,13 @@ async function assertEditorContract(page, fixture) {
   if (expectedKind === "post") {
     assert.equal(await page.locator("#settings-title").textContent(), "Propiedades");
     assert.equal(await page.locator("#body").isVisible(), true);
+    assert.equal(await page.locator("#settings-group-publication").isVisible(), true);
+    assert.equal(await page.locator("#settings-group-metadata").isVisible(), true);
+    assert.equal(await page.locator("#tags-field").isVisible(), true);
+    assert.equal(await page.locator("#settings-advanced").evaluate(el => el.open), false, "advanced settings start collapsed");
+    assert.equal(await page.locator("#danger-zone").isVisible(), false);
+    await openAdvancedSettings(page);
+    assert.equal(await page.locator("#arena-section").isVisible(), true);
     assert.equal(await page.locator("#notebook-channel-section").isVisible(), false);
     assert.equal(await page.locator("#dropzone").count(), 0);
     return;
@@ -765,6 +805,11 @@ async function runCase(browser, origin, fixture, viewport, savedRequests) {
       const before = savedRequests.length;
       const publish = page.locator(fixture.expectedKind === "image" ? "#mobile-publish" : "#save");
       await publish.waitFor({ state: "visible" });
+      if (fixture.expectedKind !== "image") {
+        assert.equal(await page.locator("#save .save-label-mobile").textContent(), "Guardar");
+        assert.match(await publish.getAttribute("aria-label"), /^Guardar · (Borrador|Público)$/);
+        assert.equal(await page.locator("#save-visibility").isVisible(), true);
+      }
       await Promise.all([
         page.waitForURL(fixture.home ? /\/admin\/es\/$/ : /\/admin\/es\/(fotografia|posts)\/$/, { timeout: 10000 }),
         publish.click(),
@@ -801,14 +846,18 @@ async function runDraftRestoreCase(browser, origin) {
     await page.goto(`${origin}/editor?${query}`, { waitUntil: "domcontentloaded" });
     await waitForEditor(page);
     assert.equal(await page.locator("#save .save-label-desktop").textContent(), "Guardar");
+    assert.equal(await page.locator("#save .save-label-mobile").textContent(), "Guardar");
+    // The fixture is public (hidden: false → #hidden checked), so the save label states it.
+    assert.equal(await page.locator("#save").getAttribute("aria-label"), "Guardar · Público");
+    assert.equal(await page.locator("#save-retry").isVisible(), false);
     await page.waitForFunction(() => !document.querySelector('#arena-channel').disabled);
-    assert.equal(await page.locator('#saved-pill').textContent(), 'Guardado');
-    assert.equal(await page.locator('#arena-blog-step').textContent(), 'Guardado', 'inactive channel initialization must not dirty the document');
+    // The saved pill is the single save status; the Are.na progress row is gone.
+    assert.equal(await page.locator('#arena-blog-step, #arena-copy-step').count(), 0);
+    assert.equal(await page.locator('#saved-pill').textContent(), 'Guardado', 'inactive channel initialization must not dirty the document');
 
     await page.locator("#body").fill("Contenido determinista para el arnés.\n\nTexto añadido para el autoguardado.");
     await page.waitForFunction(() => Boolean(localStorage.getItem("authorWritingDraftV1")));
     assert.equal(await page.locator('#saved-pill').textContent(), 'Copia local · sin guardar');
-    assert.equal(await page.locator('#arena-blog-step').textContent(), 'Copia local · sin guardar');
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await waitForEditor(page);
@@ -905,15 +954,32 @@ async function runGrayscalePropertiesCase(browser, origin) {
     assert.match(await page.locator("#tags").inputValue(), /interaction/);
     assert.equal(await page.locator("#settings").isVisible(), true);
 
+    assert.equal(await page.locator("#settings-advanced").evaluate(el => el.open), false);
+    await page.locator("#settings-advanced > summary").scrollIntoViewIfNeeded();
+    assert.equal(await coordinateClick(page, "#settings-advanced > summary"), "settings-advanced");
+    assert.equal(await page.locator("#settings-advanced").evaluate(el => el.open), true);
+    assert.equal(await page.locator("#settings").isVisible(), true);
+    assert.equal(await page.locator("label.field:has(#editor-font-size) > span").textContent(), "Tamaño del texto");
+    await page.locator("#editor-font-size").scrollIntoViewIfNeeded();
     const previousSize = await page.locator("#editor-font-size").inputValue();
     assert.equal(await coordinateClick(page, "#editor-font-size"), "editor-font-size");
     await page.locator("#editor-font-size").selectOption(previousSize === "small" ? "medium" : "small");
     assert.notEqual(await page.locator("#editor-font-size").inputValue(), previousSize);
     assert.equal(await page.locator("#settings").isVisible(), true);
 
+    // Visibility is chosen from the menu next to Save; #hidden still drives the payload.
     const previousVisibility = await page.locator("#hidden").isChecked();
-    assert.equal(await coordinateClick(page, "#hidden"), "hidden");
+    assert.equal(await page.locator("#hidden").isVisible(), false, "the legacy checkbox is not an interactive control");
+    assert.equal(await coordinateClick(page, "#save-visibility"), "save-visibility");
+    await page.locator("#visibility-menu").waitFor({ state: "visible" });
+    assert.equal(await page.locator(`#visibility-menu [data-visibility="${previousVisibility ? "public" : "draft"}"]`).getAttribute("aria-checked"), "true");
+    const nextVisibility = previousVisibility ? "draft" : "public";
+    assert.equal(await coordinateClick(page, `#visibility-menu [data-visibility="${nextVisibility}"]`), "visibility-menu");
+    await page.locator("#visibility-menu").waitFor({ state: "hidden" });
     assert.equal(await page.locator("#hidden").isChecked(), !previousVisibility);
+    assert.equal(await page.locator(`#visibility-menu [data-visibility="${nextVisibility}"]`).getAttribute("aria-checked"), "true");
+    assert.equal(await page.locator("#save").getAttribute("aria-label"), `Guardar · ${previousVisibility ? "Borrador" : "Público"}`);
+    assert.equal(await page.locator("#save .save-label-mobile").textContent(), "Guardar");
     assert.equal(await page.locator("#settings").isVisible(), true);
 
     assert.equal(await coordinateClick(page, "#settings-close"), "settings-close");
@@ -926,9 +992,12 @@ async function runGrayscalePropertiesCase(browser, origin) {
     await page.mouse.click(10, backdropY);
     await page.locator("#settings").waitFor({ state: "hidden" });
 
+    assert.equal(await page.locator("#arena-details-button, #arena-inline-details").count(), 0);
     await page.locator("#top-settings-button").click();
-    await page.locator("#arena-inline-details").scrollIntoViewIfNeeded();
-    assert.equal(await coordinateClick(page, "#arena-inline-details"), "arena-inline-details");
+    await openAdvancedSettings(page);
+    assert.equal(await page.locator("#arena-status-label").textContent(), "Copia desactivada");
+    await page.locator("#arena-status-chip").scrollIntoViewIfNeeded();
+    assert.equal(await coordinateClick(page, "#arena-status-chip"), "arena-status-label");
     await page.locator("#settings").waitFor({ state: "hidden" });
     await page.locator("#arena-details").waitFor({ state: "visible" });
     assert.equal(await page.evaluate(() => document.elementFromPoint(80, 30)?.id), "arena-details-backdrop");
@@ -936,8 +1005,9 @@ async function runGrayscalePropertiesCase(browser, origin) {
     await page.locator("#arena-details").waitFor({ state: "hidden" });
 
     await page.locator("#top-settings-button").click();
-    await page.locator("#arena-inline-details").scrollIntoViewIfNeeded();
-    await coordinateClick(page, "#arena-inline-details");
+    await openAdvancedSettings(page);
+    await page.locator("#arena-status-chip").scrollIntoViewIfNeeded();
+    await coordinateClick(page, "#arena-status-chip");
     assert.equal(await page.evaluate(() => document.elementFromPoint(80, 30)?.id), "arena-details-backdrop");
     await page.mouse.click(80, 30);
     await page.locator("#arena-details").waitFor({ state: "hidden" });

@@ -33,8 +33,10 @@ test("notebook editor clears stale private flags and distinguishes saved visibil
   assert.match(html, /window\.EditorCore\.create/);
   assert.match(html, /class="editor-identity"/);
   assert.match(html, /@media \(max-width: 380px\)/);
-  assert.match(html, /id="mobile-view-markdown"/);
-  assert.match(html, /\[els\.viewMarkdown, els\.mobileViewMarkdown\]/);
+  assert.doesNotMatch(html, /id="mobile-view-markdown"/);
+  assert.match(html, /id="view-switch" role="group" aria-label="Vista"/);
+  assert.match(html, /id="view-menu-button"/);
+  assert.match(html, /els\.viewPreview\.hidden = notebook;/);
   assert.match(html, /function isHomeEditor\(\)/);
   assert.match(html, /els\.notebookChannelSection\.hidden = !notebook \|\| home/);
   assert.match(html, /Boolean\(sourcePath\) && !isHomeEditor\(\)/);
@@ -61,7 +63,8 @@ test("text editor injects its API base and cannot save before content hydration"
   assert.match(html, /\.reference-theme \.saved-pill \{[\s\S]*?background: transparent !important;/);
   assert.doesNotMatch(html, /\.saved-pill,[\s\S]*?\.reference-theme \.saved-pill \{\s+display: none;/);
   assert.match(html, /\.reference-theme \.top-actions button \{[\s\S]*?background: transparent !important;/);
-  assert.match(html, /id="save" disabled>[\s\S]*?Publicar/);
+  assert.match(html, /id="save" disabled><span class="save-label-desktop">Guardar<\/span>/);
+  assert.doesNotMatch(html, /"Guardar borrador"|label = mode === "edit"/);
   assert.doesNotMatch(html, /<span class="check-label">Publicado<\/span>/);
   assert.doesNotMatch(html, /<span class="check-label">Publicar<\/span>/);
   assert.match(html, /<span class="check-label">Copiar a Are\.na<\/span>[\s\S]*?id="arena-enabled"/);
@@ -88,6 +91,55 @@ test("text editor injects its API base and cannot save before content hydration"
   assert.doesNotMatch(html, /function verifySavedPublication|exists: true/);
   assert.match(html, /waitForPublicState\(publicUrl, \{ exists: false \}\)/);
   assert.match(html, /result\.deletedUrl/);
+});
+
+test("writing editor offers one view switcher with an inline, transient preview", () => {
+  const html = postEditorHtml();
+  const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  assert.doesNotThrow(() => new Function(script));
+  for (const view of ["render", "markdown", "preview"]) {
+    assert.match(html, new RegExp(`id="view-${view}" data-view="${view}" aria-pressed=`));
+    assert.match(html, new RegExp(`role="menuitemradio" data-view="${view}"`));
+  }
+  assert.doesNotMatch(html, /id="technical-preview-open"|id="arena-details-button"|id="arena-inline-details"|block-settings-tools/);
+  assert.match(html, /id="preview-pane" aria-label="Vista previa" hidden/);
+  assert.match(html, /data-preview-format="html"/);
+  assert.match(html, /id="preview-split"/);
+  assert.match(html, /data-view-action="undo"/);
+  assert.match(html, /event\.altKey && event\.code === "KeyP"/);
+  // Preview is a separate overlay flag; only Escribir/Markdown are persisted.
+  assert.match(html, /return value === "markdown" \? "markdown" : "render";/);
+  assert.doesNotMatch(html, /activeViewMode = "preview"/);
+  assert.match(html, /previewSource\.firstElementChild\.textContent = formatPreviewHtml/);
+  assert.doesNotMatch(html, /previewSource[^;]*innerHTML/);
+  assert.match(html, /schedulePreviewRefresh\(\);/);
+});
+
+test("visibility is chosen next to a stable save action and properties are grouped", () => {
+  const html = postEditorHtml();
+  assert.match(html, /id="save-visibility"[^>]*aria-haspopup="menu"/);
+  assert.match(html, /data-visibility="draft"/);
+  assert.match(html, /data-visibility="public"/);
+  assert.match(html, /<input id="hidden" type="checkbox" aria-label="Visible" hidden \/>/);
+  assert.match(html, /els\.hidden\.dispatchEvent\(new Event\("change"/);
+  assert.match(html, /id="save-retry"[^>]*hidden/);
+  assert.match(html, /id="settings-group-publication"/);
+  assert.match(html, /id="settings-group-metadata"/);
+  assert.match(html, /<details class="settings-group settings-advanced" id="settings-advanced">/);
+  assert.match(html, /id="arena-status-chip"[^>]*aria-controls="arena-details"/);
+  assert.match(html, /\.publication-message:is\(\[data-state="idle"\], \[data-state="saved"\], \[data-state="draft"\], \[data-state="saving"\]\) \{\s+display: none;/);
+});
+
+test("fallback insert tools share the block editor's insert templates", async () => {
+  const { INSERT_TEMPLATES, insertTemplateText } = await import("./insert-templates.js");
+  const html = postEditorHtml();
+  assert.ok(html.includes("var INSERT_TEMPLATES = " + JSON.stringify(INSERT_TEMPLATES) + ";"));
+  assert.match(html, /var text = insertTemplateText\(kind, \{ selected: selected/);
+  assert.equal(insertTemplateText("code", { lang: "es" }), "```python\ndef square(x):\n    return x ** 2\n```");
+  assert.equal(insertTemplateText("code", { lang: "es", language: "sql" }), "```sql\nTu código aquí\n```");
+  assert.equal(insertTemplateText("inline-math", { selected: "a+b" }), "$a+b$");
+  assert.equal(insertTemplateText("image", { lang: "en", selected: "/x$&.svg" }), "![Describe the diagram](/x$&.svg)");
+  assert.deepEqual(JSON.parse(insertTemplateText("interactive", { lang: "en", selected: 'a"b' }).split("\n")[1]), { src: 'a"b', title: "Explore the model", height: 480 });
 });
 
 test("new text posts start hidden until visibility is explicitly enabled", () => {

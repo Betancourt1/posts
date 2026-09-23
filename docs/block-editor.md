@@ -33,27 +33,77 @@ deployment, production data change, or content-file edit is included.
 
 ## Deliberate product choices
 
-The title and summary remain metadata fields above the body. The Markdown toggle
+The title and summary remain metadata fields above the body. Markdown view
 changes the body's presentation; it no longer constructs a second document from
 title, summary, and body. This preserves exact source and one undo history.
 
-Code language and image URL/alt/caption controls are in the active block's menu.
-Block previews reuse the existing safe preview dialog and renderer on request.
-Technical output is not rendered on every keystroke. Reordering uses Move up/down,
-which works on touch and keyboard. No drag interaction is required.
+### One view switcher
 
-Formatting buttons have SVG icons, tooltips and accessible names. Insert and block
-menus use text labels for recognition on touch devices. Save status and the site's
-existing Are.na integration stay in the shell. At small widths, preview, Markdown,
-undo and redo are available in the properties menu. The save button retains its
-complete accessible name while “Guardar borrador” is shortened visually on mobile.
+The topbar has one segmented control, `Escribir | Markdown | Vista previa`
+(`#view-render`, `#view-markdown`, `#view-preview`). At 900px and below it becomes
+one view button (`#view-menu-button`) whose menu also contains Deshacer/Rehacer.
+`Ctrl/Cmd+Alt+P` cycles views (matched by `event.code`, so macOS Option+P works).
+
+- Escribir/Markdown is the persisted `authorEditorViewMode`. Preview is a separate,
+  transient overlay flag: it is never stored and never becomes `activeViewMode`,
+  so saving from Preview uses the same document path as before.
+- Preview renders inline (`#preview-pane`) through `/api/preview`, restores the
+  proportional scroll position, and returns focus and caret to the editor.
+- `Renderizado | HTML` switches between the rendered iframe and the article's
+  rendered HTML. The HTML is assigned with `textContent`, so it is never injected.
+- At 1280px and above, “Lado a lado” shows editor and preview together and
+  refreshes 700ms after typing stops (`authorEditorPreviewSplit`).
+- Notebooks keep their previous rule: no preview. The book template still forces
+  Markdown. Per-block “Vista previa del bloque” keeps the modal preview dialog.
+
+### Fewer duplicate controls and less status noise
+
+- The Properties panel no longer repeats Markdown/Preview/Undo/Redo.
+- Desktop inserts use the gutter plus/grip and `/`. The floating dock is
+  mobile-only.
+- The textarea fallback and the block editor share `functions/_lib/insert-templates.js`,
+  so both insert the same locale-aware samples.
+- Are.na has one status chip in its section, which opens the details dialog. The
+  topbar Are.na button and “Ver detalle” were removed.
+- The saved pill is the only persistent save status. A retry icon appears next to
+  it after a failed save. Idle/saved publication text is visually hidden; errors and
+  deletion states remain visible. Toasts still go through `#editor-notice`.
+- The save action is always “Guardar”. Visibility (Borrador/Público) is an adjacent
+  menu that drives the existing hidden `#hidden` checkbox, so payload semantics
+  are unchanged.
+- Properties are grouped into Publicación, Metadatos, and a collapsed Avanzado
+  (font size, Are.na, notebook channel, danger zone). Avanzado shows an Are.na badge
+  when copying is enabled.
+- The writing hint shows during the first three editor loads (a localStorage counter
+  `authorEditorHintSessions`) and afterwards only while the body is empty.
+
+### Contextual interactions
+
+On desktop the block and insert menus are anchored, non-modal popovers that close
+on Escape or an outside click; on mobile they remain bottom sheets. “Convertir en”
+is an icon row with the current type pressed. Move up/down keeps the menu open, and
+`Alt+↑/↓` moves the current block directly (this replaces CodeMirror's line move).
+The selection toolbar shows three inline color dots, and its collapse button was
+removed (Escape dismisses it).
+
+Typing `/` on an empty line opens an inline list while focus stays in the editor.
+Type to filter (word-prefix matches first), use ↑/↓, apply with Enter or Tab, and
+close with Escape or a space. Tab applies an item only while the list is open. Items
+are grouped Texto / Medios / Técnico, as in the Plus menu. Inserted, converted,
+duplicated and moved blocks flash briefly, and switching views fades subtly. Both
+effects are disabled under `prefers-reduced-motion`.
+
+Code language and image URL/alt/caption controls are in the active block's menu.
+Technical output is not rendered on every keystroke except in the opt-in split
+view. Reordering works on touch and keyboard. No drag interaction is required.
 
 ## Use and verification
 
 - Select text for the format bar; Escape dismisses it.
 - Use the gutter handle or mobile block button for conversion, duplication,
   deletion, code language, image editing and block preview.
-- Type `/` on an empty line or use Plus for searchable insertion.
+- Type `/` on an empty line for inline insertion, or use Plus for the searchable menu.
+- `Alt+↑/↓` moves the current block. `Ctrl/Cmd+Alt+P` cycles views.
 - `Cmd/Ctrl+Shift+Enter` opens insertion while preserving a selection.
 - `Cmd/Ctrl+Shift+.` opens block actions. Standard bold, italic, link and undo keys
   work. Tab moves out of the writing surface normally.

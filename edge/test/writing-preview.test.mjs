@@ -17,8 +17,12 @@ test("unsaved preview shares math, code, diagram and media rendering without sto
   }) });
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("cache-control"), "no-store");
-  const { html } = await response.json();
+  const { html, bodyHtml } = await response.json();
   assert.match(html, /lang="es" data-theme="light"/);
+  assert.equal(typeof bodyHtml, "string");
+  assert.ok(html.includes(bodyHtml), "the HTML view shows exactly the rendered article body");
+  assert.match(bodyHtml, /class="katex"/);
+  assert.doesNotMatch(bodyHtml, /<html|<head|site\.css/);
   assert.match(html, /<base href="https:\/\/example.com\/es\/posts\/2026\/septiembre\/example\/">/);
   assert.match(html, /class="katex"/);
   assert.match(html, /hljs-built_in/);

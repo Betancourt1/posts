@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { chromium } from 'playwright';
-import { startHarnessServer } from './editor_harness.mjs';
+import { selectEditorView as selectView, startHarnessServer } from './editor_harness.mjs';
 
 const savedRequests = [];
 const { server, origin } = await startHarnessServer(savedRequests, { blockEditor: false });
@@ -22,19 +22,27 @@ try {
       assert.equal(await page.locator('#saved-pill').isVisible(), true);
       assert.equal(await page.locator('#saved-pill').textContent(), 'Sin guardar', 'a new untouched document is not saved');
       assert.equal(await page.locator('#publication-visibility').textContent(), 'Sin publicar');
+      assert.equal(await page.locator('#view-switch').isVisible(), !mobile);
       assert.equal(await page.locator('#view-markdown').isVisible(), !mobile);
-      assert.equal(await page.locator('#mobile-view-markdown').isVisible(), mobile);
-      assert.equal(await page.locator('#technical-preview-open').isVisible(), true);
+      assert.equal(await page.locator('#view-preview').isVisible(), !mobile);
+      assert.equal(await page.locator('#view-menu-button').isVisible(), mobile);
+      assert.equal(await page.locator('#mobile-view-markdown').count(), 0, 'the formatbar no longer duplicates the view toggle');
+      assert.equal(await page.locator('#technical-preview-open').count(), 0, 'preview is selected through the view control');
       assert.equal(await page.locator('#toolbar-technical').textContent(), 'Insertar');
       assert.equal(await page.locator('#toolbar-technical svg').count(), 1);
       assert.equal(await page.locator('.formatbar').evaluate(el => el.scrollWidth <= el.clientWidth), true);
       let blankPreviewRequests = 0;
       await page.route('**/api/preview', route => { blankPreviewRequests++; return route.continue(); });
-      await page.locator('#technical-preview-open').click();
-      assert.equal(await page.locator('#technical-preview-status').textContent(), 'Escribe un título o contenido para ver la vista previa.');
-      assert.equal(await page.locator('#technical-preview-frame').isVisible(), false);
+      await selectView(page, 'preview');
+      assert.equal(await page.locator('#preview-pane').isVisible(), true);
+      assert.equal(await page.locator('#preview-status').textContent(), 'Escribe un título o contenido para ver la vista previa.');
+      assert.equal(await page.locator('#preview-frame').isVisible(), false);
+      assert.equal(await page.locator('.paper').isVisible(), false, 'full preview hides the editor paper');
+      assert.equal(await page.locator('.formatbar').isVisible(), false, 'full preview hides the formatbar');
       assert.equal(blankPreviewRequests, 0, 'blank preview does not make a request');
-      await page.locator('[data-close-technical="technical-preview"]').click();
+      await selectView(page, 'render');
+      assert.equal(await page.locator('#preview-pane').isVisible(), false);
+      assert.equal(await page.locator('.paper').isVisible(), true);
       await page.unroute('**/api/preview');
       await page.locator('#title').fill('Technical editor test');
       const body = page.locator('#body');
@@ -117,7 +125,7 @@ try {
       const kinds = ['inline-math', 'display-math', 'code', 'mermaid', 'image', 'video', 'interactive'];
       for (const markdown of [false, true]) {
         if (markdown) {
-          await page.locator(mobile ? '#mobile-view-markdown' : '#view-markdown').click();
+          await selectView(page, 'markdown');
           await page.waitForFunction(() => document.activeElement === document.querySelector('#markdown-canvas'));
         }
         const target = page.locator(markdown ? '#markdown-canvas' : '#body');
@@ -147,6 +155,22 @@ try {
             await page.locator('[data-format="redo"]').click();
             assert.equal(await target.inputValue(), text, `${kind} body redo`);
           }
+        }
+        // Without a selection, samples come from the shared locale-aware insert templates.
+        for (const [kind, expected] of [
+          ['image', lang === 'en' ? '![Describe the diagram](/visuals/diagram.svg)' : '![Describe el diagrama](/visuals/diagram.svg)'],
+          ['code', '```python\ndef square(x):\n    return x ** 2\n```'],
+          ['code-js', lang === 'en' ? '```javascript\nYour code here\n```' : '```javascript\nTu código aquí\n```'],
+        ]) {
+          const prefix = markdown ? '# Technical editor test\n\n' : '';
+          await target.fill(prefix + 'Before');
+          await target.evaluate(el => { el.focus(); el.setSelectionRange(el.value.length, el.value.length); });
+          await openTools();
+          if (kind.startsWith('code')) await page.locator('#technical-code-language').selectOption(kind === 'code' ? 'python' : 'javascript');
+          const button = page.locator(`[data-technical-insert="${kind.startsWith('code') ? 'code' : kind}"]`);
+          if (!(await button.isVisible())) await page.locator('#insert-more').click();
+          await button.click();
+          assert.equal(await target.inputValue(), `${prefix}Before\n\n${expected}\n\n`, `${kind} ${lang} sample template`);
         }
         for (const insertion of ['note', 'color', 'upload']) {
           const prefix = markdown ? '# Technical editor test\n\n' : '';
@@ -187,8 +211,8 @@ try {
       await page.screenshot({ path: `${evidence}/${lang}-${mobile ? 'mobile' : 'desktop'}-all-buttons.png` });
       await page.keyboard.press('Escape');
       const before = savedRequests.length;
-      await page.locator('#technical-preview-open').click();
-      const frame = page.frameLocator('#technical-preview-frame');
+      await selectView(page, 'preview');
+      const frame = page.frameLocator('#preview-frame');
       await frame.locator('.katex-display').waitFor();
       await frame.locator('.technical-diagram-image > svg').waitFor();
       assert.equal(await frame.locator('html').getAttribute('lang'), lang);
@@ -197,25 +221,50 @@ try {
       assert.equal(await frame.locator('h1').textContent(), 'Technical editor test');
       assert.equal(savedRequests.length, before, 'preview does not save or synchronize');
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+      assert.equal(await page.locator('#technical-preview').isVisible(), false, 'document preview is inline, not the block modal');
       await page.screenshot({ path: `${evidence}/${lang}-${mobile ? 'mobile' : 'desktop'}-preview.png` });
-      await page.locator('[data-close-technical="technical-preview"]').click();
+      // The HTML tab shows the rendered body as inert text.
+      await page.locator('#preview-html').click();
+      assert.equal(await page.locator('#preview-html').getAttribute('aria-pressed'), 'true');
+      assert.equal(await page.locator('#preview-html-source').isVisible(), true);
+      assert.equal(await page.locator('#preview-frame').isVisible(), false);
+      const htmlSource = await page.locator('#preview-html-source code').textContent();
+      assert.ok(htmlSource.includes('katex'), 'HTML source contains rendered math markup');
+      assert.ok(!htmlSource.includes('<h1'), 'HTML source is the post body, not the whole page');
+      assert.equal(await page.locator('#preview-html-source code *').count(), 0, 'rendered HTML is displayed as text only');
+      await page.locator('#preview-rendered').click();
+      assert.equal(await page.locator('#preview-frame').isVisible(), true);
+      assert.equal(await page.locator('#preview-html-source').isVisible(), false);
+      await selectView(page, 'markdown');
+      assert.equal(await page.locator('#preview-pane').isVisible(), false);
       assert.equal(await page.locator('#markdown-canvas').inputValue(), markdown);
-      await page.waitForFunction(() => !document.documentElement.classList.contains('sheet-open'));
       await openTools();
       await page.keyboard.press('Escape');
       await page.waitForFunction(() => document.querySelector('#technical-tools').hidden);
       // Preview errors stay in the dialog, and the unsaved source remains intact.
       await page.route('**/api/preview', route => route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ error: 'Fixture unavailable' }) }));
-      await page.locator('#technical-preview-open').click();
-      await page.waitForFunction(() => document.querySelector('#technical-preview-status').textContent.includes('Fixture unavailable'));
-      assert.equal(await page.locator('#technical-preview-retry').isVisible(), true);
+      await selectView(page, 'preview');
+      await page.waitForFunction(() => document.querySelector('#preview-status').textContent.includes('Fixture unavailable'));
+      assert.equal(await page.locator('#preview-retry').isVisible(), true);
       await page.unroute('**/api/preview');
-      await page.locator('#technical-preview-retry').click();
+      await page.locator('#preview-retry').click();
       await frame.locator('h1').waitFor();
-      assert.equal(await page.locator('#technical-preview-retry').isVisible(), false);
+      assert.equal(await page.locator('#preview-retry').isVisible(), false);
       assert.equal(await frame.locator('h1').textContent(), 'Technical editor test');
-      await page.locator('[data-close-technical="technical-preview"]').click();
+      // Ctrl/Cmd+Alt+P cycles preview -> render; select Markdown to verify the source.
+      await page.keyboard.press('Control+Alt+KeyP');
+      await page.waitForFunction(() => document.querySelector('#preview-pane').hidden);
+      assert.equal(await page.locator('.paper').isVisible(), true);
+      await selectView(page, 'markdown');
       assert.equal(await page.locator('#markdown-canvas').inputValue(), markdown);
+      if (!mobile) {
+        await page.keyboard.press('Control+Alt+KeyP');
+        await page.waitForFunction(() => !document.querySelector('#preview-pane').hidden);
+        assert.equal(await page.locator('#view-preview').getAttribute('aria-pressed'), 'true');
+        await frame.locator('h1').waitFor();
+        await selectView(page, 'markdown');
+        assert.equal(await page.locator('#markdown-canvas').inputValue(), markdown);
+      }
       // A reload offers the unsaved technical draft and restores it exactly.
       await page.waitForFunction(() => Object.keys(localStorage).some(k => k.startsWith('authorWritingDraftV1')));
       await page.waitForTimeout(400);
@@ -223,7 +272,7 @@ try {
       await page.locator('#draft-restore-accept').click();
       assert.equal(await page.locator('#markdown-canvas').inputValue(), markdown);
       assert.deepEqual(errors, []);
-      console.log(`PASS ${lang} ${mobile ? '390x844 light' : '1280x900 dark'}: technical + note/color/upload insertions in both modes, selection, undo/redo, preview, errors, draft restore, no saves`);
+      console.log(`PASS ${lang} ${mobile ? '390x844 light' : '1280x900 dark'}: technical + note/color/upload insertions in both modes, selection, undo/redo, inline preview + HTML source, errors, view shortcut, draft restore, no saves`);
     } finally { await context.close(); }
   }
   assert.equal(savedRequests.length, 0);

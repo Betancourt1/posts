@@ -1,3 +1,5 @@
+import { INSERT_TEMPLATES } from "./insert-templates.js";
+
 function insertIcon(paths) {
   return `<svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${paths}</svg>`;
 }
@@ -23,7 +25,7 @@ function insertButton(attributes, label, icon) {
 export const technicalEditorStyles = `
     .insert-tools-open .formatbar { height: auto; min-height: 4.75rem; flex-direction: column; overflow: visible; }
     .formatbar #toolbar-technical { gap: 0.35rem; }
-    .formatbar .mobile-markdown-toggle .button-icon { display: none; }
+
     .technical-insert-bar {
       width: min(34rem, 100%);
       max-height: min(28rem, calc(100dvh - var(--topbar-height) - 5rem));
@@ -96,9 +98,7 @@ export const technicalEditorStyles = `
     @media (max-width: 900px) {
       .formatbar #toolbar-technical { width: 2.75rem; min-width: 2.75rem; padding: 0; flex-direction: column; gap: 0.1rem; }
       .formatbar #toolbar-technical .insert-label { display: block; font-size: 0.75rem; line-height: 1; }
-      .formatbar .mobile-markdown-toggle { width: 2.75rem; min-width: 2.75rem; padding: 0; }
-      .formatbar .mobile-markdown-toggle .button-icon { display: block; }
-      .formatbar .mobile-markdown-toggle .markdown-label { display: none; }
+
       .formatbar .technical-insert-bar { width: 100%; max-height: 45dvh; padding: 0.5rem 0.25rem 0; }
       .technical-insert-header { align-items: start; }
       .technical-insert-header p { font-size: 0.75rem; }
@@ -202,6 +202,15 @@ export const technicalEditorScript = String.raw`
       var technicalSelection = null;
       var technicalPreviewRequest = 0;
       var technicalPreviewSource = null;
+      var INSERT_TEMPLATES = ${JSON.stringify(INSERT_TEMPLATES)};
+      var previewSplitStorageKey = "authorEditorPreviewSplit";
+      var previewPane = document.getElementById("preview-pane");
+      var previewFrame = document.getElementById("preview-frame");
+      var previewSource = document.getElementById("preview-html-source");
+      var previewStatus = document.getElementById("preview-status");
+      var previewRetry = document.getElementById("preview-retry");
+      var previewSplitButton = document.getElementById("preview-split");
+      var inlinePreview = { open: false, ready: false, split: false, format: "rendered", request: 0, timer: 0, scrollRatio: 0, windowTop: 0, pendingScroll: null };
 
       function bindTechnicalTools() {
         var trigger = document.getElementById("toolbar-technical");
@@ -257,7 +266,6 @@ export const technicalEditorScript = String.raw`
         Array.from(document.querySelectorAll("[data-technical-insert]")).forEach(function (button) {
           button.addEventListener("click", function () { insertTechnicalContent(button.dataset.technicalInsert); });
         });
-        document.getElementById("technical-preview-open").addEventListener("click", previewTechnicalContent);
         technicalRetry.addEventListener("click", previewTechnicalContent);
       }
 
@@ -282,16 +290,8 @@ export const technicalEditorScript = String.raw`
         var end = technicalSelection.end;
         var selected = target.value.slice(start, end);
         var english = (sourcePath || els.notebook.value).indexOf("content_en/") === 0;
-        var fence = String.fromCharCode(96).repeat(3);
         var language = document.getElementById("technical-code-language").value;
-        var text;
-        if (kind === "inline-math") text = "$" + (selected || "x^2 + y^2 = z^2") + "$";
-        if (kind === "display-math") text = "$$\n" + (selected || "\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}") + "\n$$";
-        if (kind === "code") text = fence + language + "\n" + (selected || (language === "python" ? "def square(x):\n    return x ** 2" : english ? "Your code here" : "Tu código aquí")) + "\n" + fence;
-        if (kind === "mermaid") text = fence + "mermaid\n" + (selected || (english ? "flowchart LR\n  accTitle: Data flow\n  A[Input] --> B[Model] --> C[Output]" : "flowchart LR\n  accTitle: Flujo de datos\n  A[Entrada] --> B[Modelo] --> C[Salida]")) + "\n" + fence;
-        if (kind === "image") text = "![" + (english ? "Describe the diagram" : "Describe el diagrama") + "](" + (selected || "/visuals/diagram.svg") + ")";
-        if (kind === "video") text = "![" + (english ? "Describe the animation" : "Describe la animación") + "](" + (selected || "/visuals/animation.webm") + ")";
-        if (kind === "interactive") text = fence + "interactive\n" + JSON.stringify({ src: selected || "/visuals/model.html", title: english ? "Explore the model" : "Explora el modelo", height: 480 }) + "\n" + fence;
+        var text = insertTemplateText(kind, { selected: selected, lang: english ? "en" : "es", language: language });
         if (!text) return;
         if (kind === "inline-math") {
           if (start && !/\s$/.test(target.value.slice(0, start))) text = " " + text;
@@ -321,6 +321,193 @@ export const technicalEditorScript = String.raw`
         technicalSelection.target.setSelectionRange(technicalSelection.start, technicalSelection.end);
       }
 
+      // Mirrors insertTemplateText() in insert-templates.js for the ES5 fallback.
+      function insertTemplateText(kind, options) {
+        var template = INSERT_TEMPLATES[kind];
+        if (!template) return "";
+        var lang = options.lang === "es" ? "es" : "en";
+        var language = options.language || "python";
+        var pattern = typeof template.pattern === "string" ? template.pattern : template.pattern[lang];
+        var content = options.selected || (template.languageSamples && template.languageSamples[language]) || template.sample[lang];
+        if (template.json) content = JSON.stringify(content).slice(1, -1);
+        return pattern.replace("%l", function () { return language; }).replace("%s", function () { return content; });
+      }
+
+      function previewPayload(body) {
+        return {
+          body: body,
+          title: els.title.value,
+          sourcePath: sourcePath,
+          frontMatter: frontMatter,
+          lang: (sourcePath || els.notebook.value).indexOf("content_es/") === 0 ? "es" : "en",
+          theme: theme,
+        };
+      }
+
+      function isPreviewSplitActive() {
+        return inlinePreview.split && window.matchMedia("(min-width: 1280px)").matches;
+      }
+
+      function readPreviewSplit() {
+        try { return window.localStorage.getItem(previewSplitStorageKey) === "true"; } catch (error) { return false; }
+      }
+
+      function bindInlinePreview() {
+        inlinePreview.split = readPreviewSplit();
+        previewRetry.addEventListener("click", function () { refreshInlinePreview(false); });
+        previewSplitButton.addEventListener("click", function () {
+          inlinePreview.split = !inlinePreview.split;
+          try { window.localStorage.setItem(previewSplitStorageKey, String(inlinePreview.split)); } catch (error) {}
+          syncViewControls();
+        });
+        Array.from(document.querySelectorAll("[data-preview-format]")).forEach(function (button) {
+          button.addEventListener("click", function () {
+            inlinePreview.format = button.dataset.previewFormat;
+            syncPreviewPane();
+          });
+        });
+        previewFrame.addEventListener("load", applyPendingPreviewScroll);
+        window.matchMedia("(min-width: 1280px)").addEventListener("change", function () {
+          if (inlinePreview.open) syncViewControls();
+        });
+      }
+
+      function syncPreviewPane() {
+        var split = inlinePreview.open && isPreviewSplitActive();
+        previewPane.hidden = !inlinePreview.open;
+        previewSplitButton.setAttribute("aria-pressed", String(split));
+        Array.from(document.querySelectorAll("[data-preview-format]")).forEach(function (button) {
+          button.setAttribute("aria-pressed", String(button.dataset.previewFormat === inlinePreview.format));
+        });
+        var ready = inlinePreview.ready;
+        previewFrame.hidden = !ready || inlinePreview.format !== "rendered";
+        previewSource.hidden = !ready || inlinePreview.format !== "html";
+      }
+
+      function setInlinePreviewStatus(message, error) {
+        previewStatus.textContent = message || "";
+        previewStatus.classList.toggle("error", Boolean(error));
+      }
+
+      function openInlinePreview() {
+        if (editorController.notebook) return;
+        closeTechnicalTools();
+        closeFormatTools();
+        closeSettings();
+        if (blockEditor) blockEditor.dismiss();
+        if (!inlinePreview.open) {
+          var max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+          inlinePreview.windowTop = window.scrollY;
+          inlinePreview.scrollRatio = Math.min(1, Math.max(0, window.scrollY / max));
+          inlinePreview.ready = false;
+        }
+        inlinePreview.open = true;
+        syncViewControls();
+        previewPane.classList.remove("is-entering");
+        void previewPane.offsetWidth;
+        previewPane.classList.add("is-entering");
+        refreshInlinePreview(false);
+      }
+
+      // Returns the window scroll to restore, or null when the editor stayed visible.
+      function closeInlinePreview(shouldFocus) {
+        if (!inlinePreview.open) return null;
+        var wasSplit = isPreviewSplitActive();
+        inlinePreview.open = false;
+        inlinePreview.ready = false;
+        inlinePreview.request += 1;
+        window.clearTimeout(inlinePreview.timer);
+        previewFrame.srcdoc = "";
+        setInlinePreviewStatus("");
+        syncViewControls();
+        var top = wasSplit ? null : inlinePreview.windowTop || 0;
+        if (top !== null) {
+          els.paper.classList.remove("is-entering");
+          void els.paper.offsetWidth;
+          els.paper.classList.add("is-entering");
+          window.scrollTo(0, top);
+        }
+        if (shouldFocus) {
+          if (blockEditor) blockEditor.focus();
+          else activeTextArea().focus({ preventScroll: true });
+          if (top !== null) window.requestAnimationFrame(function () { window.scrollTo(0, top); });
+        }
+        return top;
+      }
+
+      function schedulePreviewRefresh(immediate) {
+        if (!inlinePreview.open || !isPreviewSplitActive()) return;
+        window.clearTimeout(inlinePreview.timer);
+        inlinePreview.timer = window.setTimeout(function () { refreshInlinePreview(true); }, immediate ? 0 : 700);
+      }
+
+      function readPreviewFrameScroll() {
+        try { return previewFrame.contentWindow.scrollY; } catch (error) { return null; }
+      }
+
+      function applyPendingPreviewScroll() {
+        var target = inlinePreview.pendingScroll;
+        inlinePreview.pendingScroll = null;
+        if (!target) return;
+        function apply() {
+          try {
+            var win = previewFrame.contentWindow;
+            var root = previewFrame.contentDocument.documentElement;
+            var top = typeof target.top === "number" ? target.top : target.ratio * Math.max(0, root.scrollHeight - win.innerHeight);
+            win.scrollTo(0, top);
+          } catch (error) {}
+        }
+        apply();
+        // Mermaid and KaTeX can change the document height after load.
+        window.setTimeout(apply, 350);
+      }
+
+      function previewBodyFromHtml(html) {
+        try {
+          var parsed = new DOMParser().parseFromString(String(html || ""), "text/html");
+          var body = parsed.querySelector(".post-body") || parsed.body;
+          return body ? body.innerHTML : "";
+        } catch (error) {
+          return "";
+        }
+      }
+
+      function formatPreviewHtml(value) {
+        return String(value || "").replace(/(<\/(?:p|h[1-6]|li|ul|ol|blockquote|pre|figure|div|table|thead|tbody|tr|section|aside|details)>)(?!\n)/g, "$1\n").trim();
+      }
+
+      function refreshInlinePreview(keepScroll) {
+        if (!inlinePreview.open) return;
+        window.clearTimeout(inlinePreview.timer);
+        if (activeViewMode === "markdown") syncFieldsFromMarkdown();
+        var requestId = ++inlinePreview.request;
+        var body = editorBodyValue();
+        previewRetry.hidden = true;
+        if (!els.title.value.trim() && !body.trim()) {
+          inlinePreview.ready = false;
+          syncPreviewPane();
+          setInlinePreviewStatus("Escribe un título o contenido para ver la vista previa.");
+          return;
+        }
+        var frameTop = keepScroll && inlinePreview.ready ? readPreviewFrameScroll() : null;
+        setInlinePreviewStatus(keepScroll ? "Actualizando…" : "Preparando vista previa…");
+        postJson("/api/preview", previewPayload(body)).then(function (result) {
+          if (requestId !== inlinePreview.request || !inlinePreview.open) return;
+          var bodyHtml = typeof result.bodyHtml === "string" ? result.bodyHtml : previewBodyFromHtml(result.html);
+          // Rendered HTML is displayed as text only; it never enters the editor DOM.
+          previewSource.firstElementChild.textContent = formatPreviewHtml(bodyHtml);
+          inlinePreview.pendingScroll = typeof frameTop === "number" ? { top: frameTop } : { ratio: inlinePreview.scrollRatio };
+          previewFrame.srcdoc = result.html;
+          inlinePreview.ready = true;
+          syncPreviewPane();
+          setInlinePreviewStatus("");
+        }).catch(function (error) {
+          if (requestId !== inlinePreview.request || !inlinePreview.open) return;
+          setInlinePreviewStatus("No se pudo preparar la vista previa: " + error.message, true);
+          previewRetry.hidden = false;
+        });
+      }
+
       function previewTechnicalContent(blockSource) {
         if (!blockSource || blockSource.currentTarget !== technicalRetry) {
           technicalPreviewSource = typeof blockSource === "string" ? blockSource : null;
@@ -340,14 +527,7 @@ export const technicalEditorScript = String.raw`
           technicalStatus.textContent = "Escribe un título o contenido para ver la vista previa.";
           return;
         }
-        postJson("/api/preview", {
-          body: technicalPreviewSource === null ? editorBodyValue() : technicalPreviewSource,
-          title: els.title.value,
-          sourcePath: sourcePath,
-          frontMatter: frontMatter,
-          lang: (sourcePath || els.notebook.value).indexOf("content_es/") === 0 ? "es" : "en",
-          theme: theme,
-        }).then(function (result) {
+        postJson("/api/preview", previewPayload(technicalPreviewSource === null ? editorBodyValue() : technicalPreviewSource)).then(function (result) {
           if (requestId !== technicalPreviewRequest || !technicalPreview.open) return;
           technicalFrame.srcdoc = result.html;
           technicalFrame.hidden = false;
