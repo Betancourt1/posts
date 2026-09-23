@@ -35,22 +35,47 @@ try {
         await page.locator('#toolbar-technical').click();
         assert.equal(await page.locator('#technical-tools').isVisible(), true);
         assert.equal(await page.locator('#toolbar-technical').getAttribute('aria-expanded'), 'true');
-        assert.equal(await page.locator('#technical-tools button').count(), 12);
+        assert.equal(await page.locator('#technical-tools .technical-insert-actions button').count(), 12);
         assert.equal(await page.locator('#technical-tools button:not(:has(svg))').count(), 0);
         assert.equal(await page.locator('#technical-tools button:not([aria-label])').count(), 0);
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+        assert.equal(await page.locator('#insert-more').isVisible(), mobile);
+        assert.equal(await page.locator('#technical-tools .technical-insert-actions button:visible').count(), mobile ? 5 : 12);
+        if (mobile) {
+          assert.equal(await page.locator('#insert-more').getAttribute('aria-expanded'), 'false');
+          assert.equal(await page.locator('#technical-tools').evaluate(el => {
+            const hiddenAction = el.querySelector('[data-mobile-extra]');
+            hiddenAction.focus();
+            return getComputedStyle(hiddenAction).display === 'none' && document.activeElement !== hiddenAction;
+          }), true, 'collapsed actions are absent from keyboard focus');
+        }
         if (mobile && !checkedNarrowLayouts) {
           for (const width of [320, 390, 768]) {
             await page.setViewportSize({ width, height: 844 });
-            const geometry = await page.locator('#technical-tools').evaluate(el => ({
-              toolbarHeight: el.closest('.formatbar').getBoundingClientRect().height,
-              minButtonSize: Math.min(...Array.from(el.querySelectorAll('button')).map(button => Math.min(button.getBoundingClientRect().width, button.getBoundingClientRect().height))),
-              fitsViewport: document.documentElement.scrollWidth <= innerWidth,
-            }));
+            const inspectGeometry = () => page.locator('#technical-tools').evaluate(el => {
+              const visibleButtons = Array.from(el.querySelectorAll('button')).filter(button => button.getClientRects().length);
+              const options = [el.querySelector('#insert-more'), el.querySelector('select'), el.querySelector('summary')].map(item => item.getBoundingClientRect());
+              return {
+                toolbarHeight: el.closest('.formatbar').getBoundingClientRect().height,
+                minButtonSize: Math.min(...visibleButtons.map(button => Math.min(button.getBoundingClientRect().width, button.getBoundingClientRect().height))),
+                optionsFit: options.every(rect => rect.left >= 0 && rect.right <= innerWidth && rect.height >= 44),
+                fitsViewport: document.documentElement.scrollWidth <= innerWidth,
+              };
+            });
+            const geometry = await inspectGeometry();
             if (width === 320) await page.screenshot({ path: `${evidence}/${lang}-320-buttons.png` });
             assert.ok(geometry.toolbarHeight < 320, `${width}px insert buttons leave room for the editor: ${JSON.stringify(geometry)}`);
             assert.ok(geometry.minButtonSize >= 44, `${width}px insert buttons have 44px touch targets`);
+            assert.equal(geometry.optionsFit, true, `${width}px More, language, and guide controls fit`);
             assert.equal(geometry.fitsViewport, true, `${width}px layout has no horizontal overflow`);
+            await page.locator('#insert-more').click();
+            assert.equal(await page.locator('#insert-more').getAttribute('aria-expanded'), 'true');
+            assert.equal(await page.locator('#technical-tools [data-mobile-extra]:visible').count(), 7);
+            const expanded = await inspectGeometry();
+            assert.ok(expanded.toolbarHeight < 320 && expanded.minButtonSize >= 44 && expanded.optionsFit && expanded.fitsViewport, `${width}px expanded buttons fit: ${JSON.stringify(expanded)}`);
+            if (width === 320) await page.screenshot({ path: `${evidence}/${lang}-320-all-buttons.png` });
+            await page.locator('#insert-more').click();
+            assert.equal(await page.locator('#technical-tools [data-mobile-extra]:visible').count(), 0);
           }
           await page.setViewportSize({ width: 390, height: 844 });
           checkedNarrowLayouts = true;
@@ -76,6 +101,7 @@ try {
           await target.evaluate(el => { const at = el.value.indexOf('SELECTED'); el.focus(); el.setSelectionRange(at, at + 8); });
           await openTools();
           if (kind === 'code') await page.locator('#technical-code-language').selectOption('sql');
+          if (mobile && !(await page.locator(`[data-technical-insert="${kind}"]`).isVisible())) await page.locator('#insert-more').click();
           await page.locator(`[data-technical-insert="${kind}"]`).click();
           assert.equal(await page.locator('#technical-tools').isVisible(), false);
           assert.equal(await page.locator('#toolbar-technical').getAttribute('aria-expanded'), 'false');
@@ -105,6 +131,7 @@ try {
             await page.locator('#toolbar-sidenote').click();
             assert.ok((await target.inputValue()).startsWith(prefix + 'Before SELECTED[^note-1] after'));
           } else if (insertion === 'color') {
+            if (mobile) await page.locator('#insert-more').click();
             await page.locator('[data-sidenote-tone="green"]').click();
             assert.equal(await target.inputValue(), prefix + 'Before {{green|SELECTED}} after');
           } else {
@@ -129,6 +156,10 @@ try {
       await page.locator('#markdown-canvas').fill(markdown);
       await openTools();
       await page.screenshot({ path: `${evidence}/${lang}-${mobile ? 'mobile' : 'desktop'}-buttons.png` });
+      if (mobile) {
+        await page.locator('#insert-more').click();
+        await page.screenshot({ path: `${evidence}/${lang}-mobile-all-buttons.png` });
+      }
       await page.keyboard.press('Escape');
       const before = savedRequests.length;
       await page.locator('#technical-preview-open').click();

@@ -13,6 +13,7 @@ const INSERT_ICONS = Object.freeze({
   svg: insertIcon('<circle cx="4" cy="17" r="2" /><circle cx="20" cy="7" r="2" /><path d="M6 17c7 0 5-10 12-10M4 10h5m6 4h5" />'),
   video: insertIcon('<rect x="2" y="4" width="20" height="16" rx="2" /><path d="m10 8 6 4-6 4z" />'),
   interactive: insertIcon('<rect x="2" y="3" width="20" height="18" rx="2" /><path d="m7 7 3 10 2-4 4-1zM16 7h2m-1-1v2" />'),
+  more: insertIcon('<path d="M4 12h1m6.5 0h1m6.5 0h1" />'),
 });
 
 function insertButton(attributes, label, icon) {
@@ -63,6 +64,7 @@ export const technicalEditorStyles = `
       font-size: 0.78rem;
     }
     .technical-insert-options label { display: flex; align-items: center; gap: 0.5rem; }
+    .formatbar #insert-more { display: none !important; }
     .technical-insert-options select {
       min-height: 2.5rem;
       border: 1px solid var(--line);
@@ -90,14 +92,29 @@ export const technicalEditorStyles = `
       box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.16);
     }
     @media (max-width: 900px) {
+      .technical-insert-bar:not(.show-all) [data-mobile-extra] { display: none !important; }
       .formatbar #toolbar-technical { width: 2.75rem; min-width: 2.75rem; padding: 0; }
       .formatbar #toolbar-technical .insert-label { display: none; }
       .formatbar .technical-insert-bar { width: 100%; padding: 0.4rem 0 0.2rem; }
       .technical-insert-actions { gap: 0.2rem; }
       .formatbar .technical-insert-actions button { min-height: 2.75rem; padding: 0; }
       .technical-insert-actions .insert-label { display: none; }
-      .technical-insert-options { margin-top: 0.35rem; }
+      .technical-insert-options { margin-top: 0.35rem; gap: 0.35rem; }
+      .technical-insert-options label { min-width: 0; }
       .technical-insert-options label span { display: none; }
+      .technical-insert-options select { min-height: 2.75rem; max-width: 7rem; }
+      .technical-insert-options summary { display: flex; align-items: center; min-height: 2.75rem; }
+      .formatbar #insert-more {
+        display: inline-flex !important;
+        width: auto;
+        min-width: 4rem;
+        min-height: 2.75rem;
+        gap: 0.2rem;
+        padding: 0 0.4rem;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        font-size: 0.78rem;
+      }
       .reference-theme.insert-tools-open .writer {
         padding-bottom: calc(17rem + env(safe-area-inset-bottom));
       }
@@ -137,18 +154,19 @@ export const technicalInsertMarkup = `
     <div class="technical-insert-actions">
       ${insertButton('id="toolbar-image"', 'Subir imagen', INSERT_ICONS.image)}
       ${insertButton('id="toolbar-sidenote"', 'Nota al margen', INSERT_ICONS.sidenote)}
-      ${insertButton('data-sidenote-tone="green"', 'Texto verde', INSERT_ICONS.color)}
-      ${insertButton('data-sidenote-tone="blue"', 'Texto azul', INSERT_ICONS.color)}
-      ${insertButton('data-sidenote-tone="amber"', 'Texto ámbar', INSERT_ICONS.color)}
+      ${insertButton('data-sidenote-tone="green" data-mobile-extra', 'Texto verde', INSERT_ICONS.color)}
+      ${insertButton('data-sidenote-tone="blue" data-mobile-extra', 'Texto azul', INSERT_ICONS.color)}
+      ${insertButton('data-sidenote-tone="amber" data-mobile-extra', 'Texto ámbar', INSERT_ICONS.color)}
       ${insertButton('data-technical-insert="inline-math"', 'Fórmula en línea', INSERT_ICONS.inlineMath)}
-      ${insertButton('data-technical-insert="display-math"', 'Ecuación', INSERT_ICONS.displayMath)}
+      ${insertButton('data-technical-insert="display-math" data-mobile-extra', 'Ecuación', INSERT_ICONS.displayMath)}
       ${insertButton('data-technical-insert="code"', 'Bloque de código', INSERT_ICONS.codeBlock)}
       ${insertButton('data-technical-insert="mermaid"', 'Diagrama Mermaid', INSERT_ICONS.mermaid)}
-      ${insertButton('data-technical-insert="image"', 'Diagrama SVG', INSERT_ICONS.svg)}
-      ${insertButton('data-technical-insert="video"', 'Animación / video', INSERT_ICONS.video)}
-      ${insertButton('data-technical-insert="interactive"', 'Visual interactivo', INSERT_ICONS.interactive)}
+      ${insertButton('data-technical-insert="image" data-mobile-extra', 'Diagrama SVG', INSERT_ICONS.svg)}
+      ${insertButton('data-technical-insert="video" data-mobile-extra', 'Animación / video', INSERT_ICONS.video)}
+      ${insertButton('data-technical-insert="interactive" data-mobile-extra', 'Visual interactivo', INSERT_ICONS.interactive)}
     </div>
     <div class="technical-insert-options">
+      <button type="button" id="insert-more" aria-expanded="false" aria-label="Mostrar más opciones" title="Mostrar más opciones">${INSERT_ICONS.more}<span class="insert-label">Más</span></button>
       <label><span>Lenguaje del bloque de código</span><select id="technical-code-language" aria-label="Lenguaje del bloque de código">
       <option value="python">Python</option><option value="javascript">JavaScript</option><option value="typescript">TypeScript</option><option value="sql">SQL</option><option value="bash">Bash</option><option value="json">JSON</option><option value="yaml">YAML</option><option value="rust">Rust</option><option value="go">Go</option><option value="plaintext">Texto</option>
       </select></label>
@@ -181,6 +199,7 @@ export const technicalEditorScript = String.raw`
 
       function bindTechnicalTools() {
         var trigger = document.getElementById("toolbar-technical");
+        var more = document.getElementById("insert-more");
         trigger.addEventListener("click", function () {
           if (!technicalTools.hidden) {
             closeTechnicalTools();
@@ -191,6 +210,13 @@ export const technicalEditorScript = String.raw`
           technicalTools.hidden = false;
           trigger.setAttribute("aria-expanded", "true");
           document.body.classList.add("insert-tools-open");
+        });
+        more.addEventListener("click", function () {
+          var expanded = technicalTools.classList.toggle("show-all");
+          more.setAttribute("aria-expanded", String(expanded));
+          more.setAttribute("aria-label", expanded ? "Mostrar menos opciones" : "Mostrar más opciones");
+          more.title = expanded ? "Mostrar menos opciones" : "Mostrar más opciones";
+          more.querySelector(".insert-label").textContent = expanded ? "Menos" : "Más";
         });
         Array.from(document.querySelectorAll("[data-close-technical]")).forEach(function (button) {
           button.addEventListener("click", function () { document.getElementById(button.dataset.closeTechnical).close(); });
@@ -219,6 +245,12 @@ export const technicalEditorScript = String.raw`
 
       function closeTechnicalTools() {
         technicalTools.hidden = true;
+        technicalTools.classList.remove("show-all");
+        var more = document.getElementById("insert-more");
+        more.setAttribute("aria-expanded", "false");
+        more.setAttribute("aria-label", "Mostrar más opciones");
+        more.title = "Mostrar más opciones";
+        more.querySelector(".insert-label").textContent = "Más";
         technicalTools.querySelector("details").open = false;
         document.getElementById("toolbar-technical").setAttribute("aria-expanded", "false");
         document.body.classList.remove("insert-tools-open");
