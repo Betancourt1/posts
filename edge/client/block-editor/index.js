@@ -372,7 +372,7 @@ export function createBlockEditor(options) {
       gutter.setAttribute("aria-label", empty ? t("Insert block", "Insertar bloque") : t("Block actions", "Acciones del bloque"));
       gutter.title = gutter.getAttribute("aria-label");
       gutter.style.left = Math.max(4, host.getBoundingClientRect().left - 48) + "px";
-      gutter.style.top = Math.max(barBottom + 4, coords.top - 8) + "px";
+      gutter.style.top = Math.max(barBottom + 4, (coords.top + coords.bottom - gutter.offsetHeight) / 2) + "px";
     }
     if (isPopover()) placeMenu();
     if (slashState) positionSlash();
