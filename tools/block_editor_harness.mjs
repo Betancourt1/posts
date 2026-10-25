@@ -205,6 +205,56 @@ try {
         await page.keyboard.press("ControlOrMeta+z");
         assert.equal((await inspect(page)).doc, before, `${term} is undoable`);
       }
+      // Margin notes and verbatim blocks: definitions keep single blank-line spacing, and
+      // inserts inside fenced/math content continue right after the block.
+      const noteText = lang === "es" ? "Nota al margen." : "Margin note.";
+      const insertNoteFromMenu = async () => {
+        await openInsertMenu(page);
+        await page.locator(".block-search").fill("note");
+        await page.locator(".block-command-list button:visible").first().click();
+      };
+      await fill(page, "Paragraph one.\n\n```python\nx = 1\n```\n\nParagraph two ends");
+      await select(page, (await inspect(page)).doc.indexOf("x = 1") + 1);
+      await insertNoteFromMenu();
+      assert.equal((await inspect(page)).doc, `Paragraph one.\n\n\`\`\`python\nx = 1\n\`\`\`\n\n[^note-1]\n\nParagraph two ends\n\n[^note-1]: ${noteText}\n`, "note from inside a fence lands right after it");
+      await page.keyboard.press("ControlOrMeta+z");
+      assert.equal((await inspect(page)).doc, "Paragraph one.\n\n```python\nx = 1\n```\n\nParagraph two ends", "fence note insert is one undo");
+      await fill(page, "First.\n\n```python\nx = 1\n```");
+      await select(page, (await inspect(page)).doc.length);
+      await insertNoteFromMenu();
+      assert.equal((await inspect(page)).doc, `First.\n\n\`\`\`python\nx = 1\n\`\`\`\n\n[^note-1]\n\n[^note-1]: ${noteText}\n`, "note at a closing fence redirects with blank-line gaps");
+      await page.keyboard.press("ControlOrMeta+z");
+      await fill(page, "Text.\n\n$$\na = b\n$$\n\nAfter.");
+      await select(page, (await inspect(page)).doc.indexOf("a = b") + 5);
+      await page.keyboard.press("Enter");
+      await page.keyboard.type("/note");
+      await page.locator(".block-slash").waitFor();
+      await page.keyboard.press("Enter");
+      assert.equal((await inspect(page)).doc, `Text.\n\n$$\na = b\n\n$$\n\n[^note-1]\n\nAfter.\n\n[^note-1]: ${noteText}\n`, "slash inside math consumes the query and redirects");
+      await page.keyboard.press("ControlOrMeta+z");
+      await fill(page, "First paragraph.");
+      await select(page, 16);
+      await page.keyboard.press("Enter");
+      assert.equal((await inspect(page)).doc, "First paragraph.\n");
+      await select(page, 16);
+      await insertNoteFromMenu();
+      assert.equal((await inspect(page)).doc, `First paragraph.[^note-1]\n\n[^note-1]: ${noteText}\n`, "definition takes one blank line after a doc ending in newline");
+      await select(page, (await inspect(page)).doc.length);
+      await insertNoteFromMenu();
+      assert.equal((await inspect(page)).doc, `First paragraph.[^note-1]\n\n[^note-1]: ${noteText}\n[^note-2]\n\n[^note-2]: ${noteText}\n`, "repeated notes keep single-blank spacing and unique ids");
+      await fill(page, "Line one\nLine two");
+      await select(page, 8);
+      await openInsertMenu(page);
+      await page.locator(".block-search").fill("heading");
+      await page.locator(".block-command-list button:visible").first().click();
+      assert.equal((await inspect(page)).doc, `Line one\n\n## ${lang === "es" ? "Encabezado" : "Heading"}\n\nLine two`, "block inserts reuse a single following newline");
+      await page.keyboard.press("ControlOrMeta+z");
+      await fill(page, "Before.\n\n```python\nx = 1\n```\n\nAfter.");
+      await select(page, 9, 9 + "```python\nx = 1\n```".length);
+      await openInsertMenu(page);
+      await page.locator(".block-search").fill("code");
+      await page.locator(".block-command-list button:visible").first().click();
+      assert.equal((await inspect(page)).doc, "Before.\n\n```python\ndef square(x):\n    return x ** 2\n```\n\nAfter.", "an exact fence selection is replaced by a fresh block, not nested");
       await fill(page, '![Original](/fixture.png "Caption")');
       await select(page, 4); await openBlock(page, width);
       await page.getByRole("button", { name: lang === "es" ? "Editar imagen" : "Edit image", exact: true }).click();

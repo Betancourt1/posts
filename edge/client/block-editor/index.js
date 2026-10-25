@@ -33,6 +33,8 @@ import trashIcon from "@tabler/icons/outline/trash.svg";
 const HINT_SESSIONS_KEY = "authorEditorHintSessions";
 const HINT_SESSION_LIMIT = 3;
 const TONES = ["green", "blue", "amber"];
+// Verbatim interiors must not receive block-level inserts; they continue right after the block.
+const VERBATIM_BLOCK = /^(?:FencedCode|CodeBlock|Math|HTMLBlock)$/;
 
 const prose = syntaxHighlighting(HighlightStyle.define([
   { tag: tags.heading1, fontSize: "1.45em", fontWeight: "600" },
@@ -301,13 +303,17 @@ export function createBlockEditor(options) {
     flashTimer = setTimeout(() => { if (mounted) view.dispatch({ effects: clearFlash.of(null) }); }, 900);
   }
 
-  function change(from, to, insert, anchor = from + insert.length, head = anchor, opts = {}) {
+  function changeMany(changes, anchor, head = anchor, opts = {}) {
     suppressSlash = true;
-    view.dispatch({ changes: { from, to, insert }, selection: { anchor, head },
+    view.dispatch({ changes, selection: { anchor, head },
       annotations: [Transaction.userEvent.of("input.block"), isolateHistory.of("full")], scrollIntoView: true });
     suppressSlash = false;
     if (opts.flash) flash(opts.flash[0], opts.flash[1]);
     if (opts.focus !== false) view.focus();
+  }
+
+  function change(from, to, insert, anchor = from + insert.length, head = anchor, opts = {}) {
+    changeMany([{ from, to, insert }], anchor, head, opts);
   }
 
   function wrap(before, after) {
@@ -416,32 +422,62 @@ export function createBlockEditor(options) {
     dialog.close();
   }
 
+  // Blank-line separation that reuses a single neighboring newline instead of stacking another.
+  function gapBefore(text) {
+    return !text || text.endsWith("\n\n") ? "" : text.endsWith("\n") ? "\n" : "\n\n";
+  }
+  function gapAfter(text) {
+    return text.startsWith("\n\n") ? "" : text.startsWith("\n") ? "\n" : "\n\n";
+  }
+
+  // Block inserts must not land inside verbatim content: an inner caret or selection
+  // continues right after the block — the resolved range is a fresh object, so identity
+  // separates a redirect from in-place replacement — and only an exact whole-block
+  // selection replaces the block. Unclosed verbatim blocks at EOF have no "after".
+  function insertionRange(range) {
+    const block = blockAt(source(), range.from);
+    if (!VERBATIM_BLOCK.test(block.type)) return range;
+    if (range.from === block.from && range.to === block.to) return range;
+    return { from: block.to, to: block.to };
+  }
+
   function insertMarkdown(text, inline = false, range = null) {
-    const selected = range || pendingUpload || slashRange || view.state.selection.main;
-    const { from, to } = selected;
+    const plain = range || pendingUpload || slashRange || view.state.selection.main;
+    const target = insertionRange(plain);
+    const redirected = target !== plain;
     const doc = source();
-    const before = inline || !from || doc.slice(0, from).endsWith("\n\n") ? "" : "\n\n";
-    const after = inline || doc.slice(to).startsWith("\n\n") ? "" : "\n\n";
+    const spaced = redirected || !inline;
+    const before = spaced ? gapBefore(doc.slice(0, target.from)) : "";
+    const after = spaced ? gapAfter(doc.slice(target.to)) : "";
+    const changes = [];
+    if (redirected && plain.from < plain.to && plain.to <= target.from) changes.push({ from: plain.from, to: plain.to });
+    changes.push({ from: target.from, to: target.to, insert: before + text + after });
     pendingUpload = null;
     slashRange = null;
     closeMenu();
-    const start = from + before.length;
-    change(from, to, before + text + after, start + text.length, undefined, { flash: inline ? null : [start, start + text.length] });
+    const start = target.from + before.length;
+    changeMany(changes, start + text.length, undefined, { flash: spaced ? [start, start + text.length] : null });
   }
 
   function insertNote() {
     const doc = source();
     const s = slashRange || view.state.selection.main;
+    const plain = { from: slashRange ? s.from : s.to, to: s.to };
+    const target = insertionRange(plain);
     let index = 1;
     while (doc.includes(`[^note-${index}]`)) index++;
     const ref = `[^note-${index}]`;
-    const note = `\n\n${ref}: ${t("Margin note.", "Nota al margen.")}\n`;
-    const from = slashRange ? s.from : s.to;
+    const redirected = target !== plain;
+    const gap = redirected ? gapBefore(doc.slice(0, target.from)) : "";
+    const insert = gap + ref + (redirected ? gapAfter(doc.slice(target.to)) : "");
+    const tail = doc.slice(0, target.from) + insert + doc.slice(target.to);
+    const note = `${gapBefore(tail)}${ref}: ${t("Margin note.", "Nota al margen.")}\n`;
+    const changes = [];
+    if (redirected && plain.from < plain.to && plain.to <= target.from) changes.push({ from: plain.from, to: plain.to });
+    changes.push({ from: target.from, to: target.to, insert }, { from: doc.length, insert: note });
     slashRange = null;
     closeMenu();
-    view.dispatch({ changes: [{ from, to: s.to, insert: ref }, { from: doc.length, insert: note }],
-      selection: { anchor: from + ref.length }, annotations: isolateHistory.of("full"), scrollIntoView: true });
-    view.focus();
+    changeMany(changes, target.from + gap.length + ref.length);
   }
 
   function commandCatalog(selected) {
@@ -479,7 +515,10 @@ export function createBlockEditor(options) {
     const list = element("div", "block-command-list");
     const empty = element("p", "block-no-results", t("No matching blocks", "No se encontraron bloques"));
     empty.hidden = true;
-    const selected = range ? "" : source().slice(selection.from, selection.to);
+    const anchorBlock = blockAt(source(), selection.from);
+    const coversVerbatim = !range && VERBATIM_BLOCK.test(anchorBlock.type)
+      && selection.from === anchorBlock.from && selection.to === anchorBlock.to;
+    const selected = range || coversVerbatim ? "" : source().slice(selection.from, selection.to);
     let group = "";
     for (const command of commandCatalog(selected)) {
       if (command.group !== group) {
