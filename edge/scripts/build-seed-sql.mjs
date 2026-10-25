@@ -10,7 +10,13 @@ import { uniqueTagRecords } from "../src/lib/tag-slug.mjs";
 const edgeRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repositoryRoot = resolve(edgeRoot, "..");
 const outputPath = join(edgeRoot, ".generated", "seed.sql");
-const projectorVersion = process.env.CONTENT_PROJECTOR_VERSION || "1";
+// The projector version must match the deployed worker's env var exactly: rows stamped
+// with a stale version wedge webhook reconciliation. No env or default fallback.
+const wranglerConfig = JSON.parse(await readFile(join(edgeRoot, "wrangler.jsonc"), "utf8"));
+const projectorVersion = String(wranglerConfig.vars?.CONTENT_PROJECTOR_VERSION ?? "");
+if (!/^\d+$/.test(projectorVersion)) {
+  throw new Error("edge/wrangler.jsonc must define vars.CONTENT_PROJECTOR_VERSION (integer) for the seed to stamp the deployed projector version.");
+}
 const commitSha = process.env.CONTENT_COMMIT_SHA || execFileSync(
   "git",
   ["rev-parse", "HEAD"],
@@ -153,10 +159,10 @@ const stats = {
   aliasRoutes: documents.flatMap((document) => document.routes).filter((route) => route.kind === "alias").length,
 };
 const expected = {
-  sources: 432,
-  documents: 532,
+  sources: 433,
+  documents: 533,
   searchable: 497,
-  canonicalRoutes: 532,
+  canonicalRoutes: 533,
   aliasRoutes: 122,
 };
 

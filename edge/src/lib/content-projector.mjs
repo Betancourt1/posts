@@ -1,5 +1,5 @@
 import YAML from "yaml";
-import { Marked, Renderer, walkTokens } from "marked";
+import { Marked, Renderer, Lexer, walkTokens } from "marked";
 import markedKatex from "marked-katex-extension";
 import { renderTechnicalCode } from "./technical-markdown.mjs";
 
@@ -113,6 +113,10 @@ function createSafeRenderer({ sidenotes = null, hideSidenoteReferences = false, 
     };
   }
   renderer.text = function text(token) {
+    // Structured tokens already carry their inline children (tight list items are text
+    // tokens with tokens); rendering their raw text would escape markup to literal
+    // asterisks. Only marker-bearing tokenless leaves need the split below.
+    if (token.tokens) return renderSafeText(token);
     const source = String(token.text ?? token.raw ?? "");
     const renderFragment = (part) => renderSafeText({
       ...token,
@@ -124,7 +128,9 @@ function createSafeRenderer({ sidenotes = null, hideSidenoteReferences = false, 
       ? new RegExp(`(${SIDENOTE_TONE_OPEN}(?:green|blue|amber)${SIDENOTE_TONE_CLOSE}:|:${SIDENOTE_TONE_CLOSE}|\\[\\^(?:[a-zA-Z0-9_-]+)\\])`, "g")
       : SIDENOTE_REFERENCE_PART;
 
-    return source.split(pattern).map((part) => {
+    const parts = source.split(pattern);
+    if (parts.length === 1) return renderFragment(source);
+    return parts.map((part) => {
       if (allowSidenoteTones) {
         if (part === `:${SIDENOTE_TONE_CLOSE}`) return "</span>";
         const tone = part.match(new RegExp(`^${SIDENOTE_TONE_OPEN}(green|blue|amber)${SIDENOTE_TONE_CLOSE}:$`))?.[1];
@@ -132,7 +138,7 @@ function createSafeRenderer({ sidenotes = null, hideSidenoteReferences = false, 
       }
 
       const reference = part.match(/^\[\^([a-zA-Z0-9_-]+)\]$/);
-      if (!reference) return renderFragment(part);
+      if (!reference) return this.parser.parseInline(Lexer.lexInline(part, MARKED_OPTIONS));
       const definition = sidenotes?.definitions.get(reference[1]);
       if (!definition) return renderFragment(part);
       if (linkDepth > 0) return renderFragment(part);

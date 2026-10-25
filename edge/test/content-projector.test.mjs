@@ -310,6 +310,21 @@ test("blocks raw HTML and unsafe Markdown URL schemes", () => {
   assert.match(rendered.bodyHtml, /<a href="https:\/\/example\.com">safe<\/a>/);
 });
 
+test("renders inline markup inside tight list items", () => {
+  const rendered = renderMarkdown(`- **H1** Los millennials destinan.
+- [enlace](/destino/) y \`código\`
+- **b [^r1] c** d
+- **b** {{blue|x}} c
+
+[^r1]: Nota.`);
+
+  assert.match(rendered.bodyHtml, /<li><strong>H1<\/strong> Los millennials destinan\.<\/li>/);
+  assert.match(rendered.bodyHtml, /<li><a href="\/destino\/">enlace<\/a> y <code>código<\/code><\/li>/);
+  assert.match(rendered.bodyHtml, /<strong>b <sup class="sidenote-reference">/);
+  assert.match(rendered.bodyHtml, /<li><strong>b<\/strong> <span class="sidenote-tone sidenote-tone--blue">x<\/span> c<\/li>/);
+  assert.doesNotMatch(rendered.bodyHtml, /\*\*H1\*\*|\[enlace\]|\{\{blue\|/);
+});
+
 test("renders safe colored text in normal post bodies", () => {
   const rendered = renderMarkdown(`Normal {{green|visible}}, {{blue|**strong**}}, and {{amber|_emphasis_}}.
 
@@ -484,9 +499,9 @@ test("projects the complete repository with the migration count contract", async
   const documents = projections.flatMap((projection) => projection.documents);
   const routes = documents.flatMap((document) => document.routes);
 
-  assert.equal(files.length, 432);
-  assert.equal(documents.length, 532);
+  assert.equal(files.length, 433);
+  assert.equal(documents.length, 533);
   assert.equal(documents.filter((document) => document.searchable).length, 497);
-  assert.equal(routes.filter((route) => route.kind === "canonical").length, 532);
+  assert.equal(routes.filter((route) => route.kind === "canonical").length, 533);
   assert.equal(routes.filter((route) => route.kind === "alias").length, 122);
 });

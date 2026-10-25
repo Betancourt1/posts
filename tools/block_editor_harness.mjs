@@ -327,6 +327,7 @@ try {
         await select(page, 0);
         await page.keyboard.type("Split refresh marker. ");
         await preview.locator("text=Split refresh marker.").waitFor({ timeout: 5000 });
+        assert.equal(await page.locator('[id="preview-frame"]').count(), 1, "double-buffer promotion keeps exactly one active frame");
         await page.screenshot({ path: `${evidence}/${lang}-${width}-split.png` });
         await page.locator("#preview-split").click();
         await selectView(page, width, "render");

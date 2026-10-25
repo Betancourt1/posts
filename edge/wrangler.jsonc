@@ -19,7 +19,7 @@
     }
   ],
   "vars": {
-    "CONTENT_PROJECTOR_VERSION": "1",
+    "CONTENT_PROJECTOR_VERSION": "2",
     "GITHUB_OWNER": "Betancourt1",
     "GITHUB_REPO": "posts",
     "GITHUB_BRANCH": "main",

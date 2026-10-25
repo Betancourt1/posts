@@ -1680,7 +1680,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       margin: 0 auto;
     }
     .preview-pane[hidden],
-    .preview-frame[hidden],
+    .preview-frame-stack[hidden],
     .preview-html-source[hidden],
     .preview-retry[hidden] {
       display: none !important;
@@ -1730,15 +1730,29 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
     .preview-split {
       margin-left: auto;
     }
-    .preview-frame,
+    .preview-frame-stack,
     .preview-html-source {
+      position: relative;
       display: block;
       width: 100%;
       height: calc(100dvh - var(--topbar-height) - 8rem);
       min-height: 22rem;
+      overflow: hidden;
       border: 1px solid var(--line);
       border-radius: 0.6rem;
       background: var(--bg);
+    }
+    .preview-frame {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: transparent;
+    }
+    .preview-frame-buffer {
+      visibility: hidden;
     }
     .preview-html-source {
       margin: 0;
@@ -1787,7 +1801,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         width: 100%;
         margin: 0;
       }
-      body.preview-split-active :is(.preview-frame, .preview-html-source) {
+      body.preview-split-active :is(.preview-frame-stack, .preview-html-source) {
         height: calc(100dvh - var(--topbar-height) - 5.5rem);
       }
     }
@@ -1879,7 +1893,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         left: auto;
         max-width: calc(100vw - 1.3rem);
       }
-      .preview-frame,
+      .preview-frame-stack,
       .preview-html-source {
         height: calc(100dvh - var(--topbar-height) - 6.5rem);
         min-height: 18rem;
@@ -1995,7 +2009,10 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           <button type="button" class="preview-retry" id="preview-retry" hidden>Reintentar</button>
           <button type="button" class="preview-split" id="preview-split" aria-pressed="false" title="Editar y ver la vista previa lado a lado">${ICONS.columns}<span>Lado a lado</span></button>
         </div>
-        <iframe class="preview-frame" id="preview-frame" title="Vista previa del artículo" sandbox="allow-scripts allow-same-origin"></iframe>
+        <div class="preview-frame-stack" id="preview-frame-stack">
+          <iframe class="preview-frame" id="preview-frame" title="Vista previa del artículo" sandbox="allow-scripts allow-same-origin"></iframe>
+          <iframe class="preview-frame preview-frame-buffer" id="preview-frame-buffer" title="Vista previa del artículo" sandbox="allow-scripts allow-same-origin"></iframe>
+        </div>
         <pre class="preview-html-source" id="preview-html-source" aria-label="HTML renderizado" tabindex="0" hidden><code></code></pre>
       </section>
     </section>

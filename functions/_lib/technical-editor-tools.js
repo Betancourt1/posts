@@ -206,6 +206,13 @@ export const technicalEditorScript = String.raw`
       var previewSplitStorageKey = "authorEditorPreviewSplit";
       var previewPane = document.getElementById("preview-pane");
       var previewFrame = document.getElementById("preview-frame");
+      var previewBuffer = document.getElementById("preview-frame-buffer");
+      var previewStack = document.getElementById("preview-frame-stack");
+      // Double-buffered preview: refreshes render into the hidden buffer and promote it
+      // on load, so the visible frame never blanks mid-update.
+      var previewGeneration = 0;
+      var previewBufferPending = false;
+      var lastPreviewHtml = "";
       var previewSource = document.getElementById("preview-html-source");
       var previewStatus = document.getElementById("preview-status");
       var previewRetry = document.getElementById("preview-retry");
@@ -366,7 +373,8 @@ export const technicalEditorScript = String.raw`
             syncPreviewPane();
           });
         });
-        previewFrame.addEventListener("load", applyPendingPreviewScroll);
+        previewFrame.addEventListener("load", onPreviewFrameLoad);
+        previewBuffer.addEventListener("load", onPreviewFrameLoad);
         window.matchMedia("(min-width: 1280px)").addEventListener("change", function () {
           if (inlinePreview.open) syncViewControls();
         });
@@ -380,7 +388,7 @@ export const technicalEditorScript = String.raw`
           button.setAttribute("aria-pressed", String(button.dataset.previewFormat === inlinePreview.format));
         });
         var ready = inlinePreview.ready;
-        previewFrame.hidden = !ready || inlinePreview.format !== "rendered";
+        previewStack.hidden = !ready || inlinePreview.format !== "rendered";
         previewSource.hidden = !ready || inlinePreview.format !== "html";
       }
 
@@ -418,6 +426,9 @@ export const technicalEditorScript = String.raw`
         inlinePreview.request += 1;
         window.clearTimeout(inlinePreview.timer);
         previewFrame.srcdoc = "";
+        previewBuffer.srcdoc = "";
+        previewBufferPending = false;
+        lastPreviewHtml = "";
         setInlinePreviewStatus("");
         syncViewControls();
         var top = wasSplit ? null : inlinePreview.windowTop || 0;
@@ -439,6 +450,31 @@ export const technicalEditorScript = String.raw`
         if (!inlinePreview.open || !isPreviewSplitActive()) return;
         window.clearTimeout(inlinePreview.timer);
         inlinePreview.timer = window.setTimeout(function () { refreshInlinePreview(true); }, immediate ? 0 : 700);
+      }
+
+      function onPreviewFrameLoad(event) {
+        if (event.target === previewBuffer) {
+          if (inlinePreview.open && previewBufferPending && Number(event.target.dataset.previewGen) === previewGeneration) {
+            promotePreviewBuffer();
+          }
+          return;
+        }
+        applyPendingPreviewScroll();
+      }
+
+      function promotePreviewBuffer() {
+        previewBufferPending = false;
+        var demoted = previewFrame;
+        demoted.id = "preview-frame-buffer";
+        demoted.classList.add("preview-frame-buffer");
+        previewBuffer.id = "preview-frame";
+        previewBuffer.classList.remove("preview-frame-buffer");
+        previewFrame = previewBuffer;
+        previewBuffer = demoted;
+        previewBuffer.srcdoc = "";
+        inlinePreview.ready = true;
+        syncPreviewPane();
+        applyPendingPreviewScroll();
       }
 
       function readPreviewFrameScroll() {
@@ -493,14 +529,17 @@ export const technicalEditorScript = String.raw`
         setInlinePreviewStatus(keepScroll ? "Actualizando…" : "Preparando vista previa…");
         postJson("/api/preview", previewPayload(body)).then(function (result) {
           if (requestId !== inlinePreview.request || !inlinePreview.open) return;
+          setInlinePreviewStatus("");
+          if (result.html === lastPreviewHtml) return;
           var bodyHtml = typeof result.bodyHtml === "string" ? result.bodyHtml : previewBodyFromHtml(result.html);
           // Rendered HTML is displayed as text only; it never enters the editor DOM.
           previewSource.firstElementChild.textContent = formatPreviewHtml(bodyHtml);
           inlinePreview.pendingScroll = typeof frameTop === "number" ? { top: frameTop } : { ratio: inlinePreview.scrollRatio };
-          previewFrame.srcdoc = result.html;
-          inlinePreview.ready = true;
-          syncPreviewPane();
-          setInlinePreviewStatus("");
+          previewGeneration += 1;
+          previewBufferPending = true;
+          previewBuffer.dataset.previewGen = String(previewGeneration);
+          previewBuffer.srcdoc = result.html;
+          lastPreviewHtml = result.html;
         }).catch(function (error) {
           if (requestId !== inlinePreview.request || !inlinePreview.open) return;
           setInlinePreviewStatus("No se pudo preparar la vista previa: " + error.message, true);
