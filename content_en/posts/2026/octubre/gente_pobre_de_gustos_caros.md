@@ -62,7 +62,8 @@ Esto nos va a ayudar a evaluar cómo distintos significados de _gasto innecesari
 
 Los hogares con un jefe entre 18 y 29 años, gastan una mayor proporción de sus ingresos en gastos no esenciales. El porcentaje de diferencia varía de acuerdo a la canasta que elijamos, pero la diferencia se encuentra en torno a un 4.2% con respecto a los hogares con un jefe de 60+ años. 
 
-![Gente pobre de gustos caros](/uploads/2026/10/h1-composicion-por-edad-1792910506082.png)
+![Gente pobre de gustos caros](/uploads/2026/10/h1-composicion-por-edad-1792914049511.png)
+
 
 Al descomponer esa diferencia:
 
@@ -78,14 +79,6 @@ La comparación de 2024 dejó abierta la pregunta sobre generaciones. Una difere
 - Edad o etapa de vida: empleo, crianza, jubilación, salud y tiempo disponible.
 - Generación o cohorte: experiencias y condiciones compartidas por quienes nacieron en épocas similares.
 - Periodo: las condiciones económicas, los precios y los productos disponibles en un año determinado.
-
-![Gente pobre de gustos caros](/uploads/2026/10/h1-historico-edades-1792911018099.png)
-
-![Gente pobre de gustos caros](/uploads/2026/10/h1-historico-jovenes-1792911040980.png)
-
-![Gente pobre de gustos caros](/uploads/2026/10/h1-historico-quintiles-1792911070077.png)
-
-![Gente pobre de gustos caros](/uploads/2026/10/h1b-bienes-ensafi-1792911084480.png)
 
 
 [^note-1]: En este ensayo asumiré el término millennial como sinónimo de persona por encima de sus veintitantos años y debajo de los cuarenta. El término es problemático y amerita una discusión que se puede leer mejor en otros lados; un buen ejemplo es el libro _No seas tú mismo_ de Eudald Espluga que cito al inicio. Por favor perdonen la licencia.
