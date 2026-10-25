@@ -23,8 +23,30 @@ Ejemplos de esta narrativa hay a montones. Por citar un solo ejemplo, muestro es
 
 ![Gente pobre de gustos caros](/uploads/2026/10/screenshot-2026-10-24-at-22-42-17-leon-palafox-on-x-los-mismos-milenials-que-se-quejan-de-que-no-se-van-a-retirar-con-una-pension-digna-son-los-mismos-que-cada-ano-te-mandan-fotos-de-2-3-viajes-internacionales-el-carro-nuevo-o-la-ropa-de-marca-e-1792903349053.png)
 
-Estas estructuras argumentativas surgen de vez en vez, cada una enfocándose en una crisis diferente y desmontarlas todas en un solo lugar es irreal. En este ensayo me voy a ocupar exclusivamente de la versión que el señor León Palafox  tuvo a bien expresar en Twitter.[^note-2]
+Estas estructuras argumentativas surgen de vez en vez, cada una enfocándose en una crisis diferente y abordarlas todas en un solo lugar es irreal. En este ensayo me voy a ocupar exclusivamente de la versión que el señor León Palafox  tuvo a bien expresar en Twitter.[^note-2] 
+
+Cabe hacer una aclaración: no tengo idea de con qué millennials se intercambia fotos el señor Palafox y desconozco si la preocupación de esos jóvenes es si se van a pensionar (espero de corazón que no). No pretendo atribuirle mala fe, desacreditarlo ni dar a entender que lo que dice no nace de una experiencia real. Él puede estar siendo perfectamente razonable y sincero sin que eso signifique que su consigna se aplica homogéneamente en toda la población que se engloba dentro de lo _millennial_. 
+
+Ahora bien, es difícil falsar afirmaciones tan generales como las que hace en su tweet porque no hay un registro nacional y abierto de quiénes viajan, compran carros nuevos o ropa de marca. Así que tenemos que poner estas consignas en términos que, más o menos, podamos analizar en el resto de la población. Otro constraint que tenemos es espacial: no tengo idea de por dónde empezar a investigar esto en otros países y tengo la sensación de que el aporte no será tan interesante. Por lo tanto, me concentraré en México y provisionalmente recurriré a literatura estadounidense para apoyarme a justificar nociones que yo mismo no tenga del todo claras sobre economía. 
+
+¿Qué datos tenemos a la mano entonces? Para este caso, usaremos el ENIGH (encuesta nacional de ingresos y gastos de los hogar) y el ENSAFI (encuesta nacional sobre salud financiera), ambos del INEGI. Además, es difícil atribuir a si una conducta se da en cierto grupo etario debido a un factor mayoritariamente etario o si la época en la que se hacen las observaciones es igual de relevante. Es decir, no sabemos si los millennials se comportan de cierta forma porque son millennials o solamente porque son jóvenes. Por ello, analizaremos distintas versiones del ENIGH para comparar adecuamente a los distintos grupos etarios. Entonces, nuestro universo de análisis queda tal que así:
+
+| Fuente | Año | Universo analizado | Ponderador |
+|---|---|---|---|
+| ENIGH histórica, INEGI | 1994, 2004, 2014 | 12,508; 22,565; 19,463 hogares con jefatura adulta, respectivamente | `HOG` / `factor_hog` |
+| ENIGH Nueva Serie, INEGI | 2024 | 91,380 hogares con jefatura de 18 años o más, de 91,414 en la fuente | `factor` |
+| ENSAFI, INEGI/CONDUSEF | 2023 | 20,448 personas de 18 años o más | `FAC_ELE` |
+
+A partir del tweet que vamos a analizar, y poniéndolo en un lenguaje que podamos contrastar contra nuestro universo de datos, podemos plantear cinco hipótesis:
+
+- **H1** Los millennials destinan una mayor proporción de su ingreso a gastos no básicos.
+- **H2** La diferencia persiste entre hogares de ingreso similar.
+- **H3** Ese gasto se financia con deuda o desahorro.
+- **H4** Hay desventajas de vivienda y pensión y las quejas son infundadas.
+- **H5** El gasto visible se concentra en una minoría.
+
+
 
 [^note-1]: En este ensayo asumiré el término millennial como sinónimo de persona por encima de sus veintitantos años y debajo de los cuarenta. El término es problemático y amerita una discusión que se puede leer mejor en otros lados; un buen ejemplo es el libro _No seas tú mismo_ de Eudald Espluga que cito al inicio. Por favor perdonen la licencia.
 
-[^note-2]: Puedo ofrecer, no obstante, sugerencias de lectura para otras formas similares. Por ejemplo, para la variante que habla de la crisis de vivienda pueden leer el capítulo 5 de _Pobres porque quieren_ de Máximo Jaramillo; para
+[^note-2]: Puedo ofrecer, no obstante, sugerencias de lectura para otras formas similares. Por ejemplo, para la variante que habla de la crisis de vivienda pueden leer el capítulo 5 de _Pobres porque quieren_, de Máximo Jaramillo; para la crisis de natalidad, _The Birth Strike_, de Jenny Brown; y para la precariedad laboral, los primeros dos capítulos de _The Precariat_, de Guy Standing.
