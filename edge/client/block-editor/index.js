@@ -450,12 +450,13 @@ export function createBlockEditor(options) {
     const before = spaced ? gapBefore(doc.slice(0, target.from)) : "";
     const after = spaced ? gapAfter(doc.slice(target.to)) : "";
     const changes = [];
-    if (redirected && plain.from < plain.to && plain.to <= target.from) changes.push({ from: plain.from, to: plain.to });
+    const removedLength = redirected && plain.from < plain.to && plain.to <= target.from ? plain.to - plain.from : 0;
+    if (removedLength) changes.push({ from: plain.from, to: plain.to });
     changes.push({ from: target.from, to: target.to, insert: before + text + after });
     pendingUpload = null;
     slashRange = null;
     closeMenu();
-    const start = target.from + before.length;
+    const start = target.from - removedLength + before.length;
     changeMany(changes, start + text.length, undefined, { flash: spaced ? [start, start + text.length] : null });
   }
 
@@ -473,11 +474,12 @@ export function createBlockEditor(options) {
     const tail = doc.slice(0, target.from) + insert + doc.slice(target.to);
     const note = `${gapBefore(tail)}${ref}: ${t("Margin note.", "Nota al margen.")}\n`;
     const changes = [];
-    if (redirected && plain.from < plain.to && plain.to <= target.from) changes.push({ from: plain.from, to: plain.to });
+    const removedLength = redirected && plain.from < plain.to && plain.to <= target.from ? plain.to - plain.from : 0;
+    if (removedLength) changes.push({ from: plain.from, to: plain.to });
     changes.push({ from: target.from, to: target.to, insert }, { from: doc.length, insert: note });
     slashRange = null;
     closeMenu();
-    changeMany(changes, target.from + gap.length + ref.length);
+    changeMany(changes, target.from - removedLength + gap.length + ref.length);
   }
 
   function commandCatalog(selected) {
