@@ -62,9 +62,11 @@ Es raro hablar de gastos no básicos. El mismo gasto puede resultar necesario pa
 Esto nos va a ayudar a evaluar cómo distintos significados de _gasto innecesario_ cambian el análisis. 
 
 ### Tipo de gasto por edad
-Los hogares con un jefe entre 18 y 29 años, gastan una mayor proporción de sus ingresos en gastos no esenciales. El porcentaje de diferencia varía de acuerdo a la canasta que elijamos, pero la diferencia se encuentra en torno a un 4.2% con respecto a los hogares con un jefe de 60+ años. 
+Entrando en materia, ¿los jóvenes parecen gastar más dinero en bienes no esenciales con respecto a gente de otras edades? Sí, los hogares con un jefe entre 18 y 29 años gastan una mayor proporción de sus ingresos en gastos no esenciales. El porcentaje de diferencia varía de acuerdo a la canasta que elijamos, pero la diferencia se encuentra en torno a un 4.2% con respecto a los hogares con un jefe de 60+ años. La diferencia más marcada se ve cuando contemplamos como canasta a D3, donde los otros tres grupos etarios son prácticamente iguales salvo el grupo de menor edad. 
 
 ![Gente pobre de gustos caros](/uploads/2026/10/h1-composicion-por-edad-1793045635209.png)
+
+Si bien podemos acordar que la diferencia existe (aunque no hemos probado que es **estadísticamente significativa**), cabe preguntarse en dónde se concentra esa diferencia una vez desagregamos la canasta por tipo de gasto. 
 
 ![Gente pobre de gustos caros](/uploads/2026/10/h1-componentes-d2-1793045028583.png)
 
