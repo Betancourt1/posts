@@ -549,6 +549,7 @@ export const technicalEditorScript = String.raw`
         var target = inlinePreview.pendingScroll;
         inlinePreview.pendingScroll = null;
         if (!target) return;
+        if (isPreviewSplitActive()) { syncPreviewScroll(); return; }
         function apply() {
           if (!inlinePreview.open) return;
           // A refreshed split preview follows the current editor position, even after layout settles.

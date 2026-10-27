@@ -451,12 +451,12 @@ try {
           assert.equal(await preview.locator("body").evaluate(() => scrollY), previousScroll, "old preview waits for matching content");
         } finally { releaseImage(); }
         await preview.getByRole("heading", { name: "Pending preview", exact: true }).waitFor();
-        await positionAnchor("## Scroll section 7");
+        assert.equal(await page.locator("#preview-frame").evaluate(frame => frame.previewBody), pendingBody, "loaded buffer becomes the active preview");
         await page.locator("#preview-split").click();
         await preview.locator("body").evaluate(() => window.scrollTo(0, 400));
         const independentTop = await preview.locator("body").evaluate(() => scrollY);
         await page.evaluate(() => { window.dispatchEvent(new Event("scroll")); window.dispatchEvent(new Event("resize")); });
-        await page.waitForTimeout(100);
+        await page.waitForTimeout(450);
         assert.equal(await preview.locator("body").evaluate(() => scrollY), independentTop, "full preview keeps independent scrolling");
         await selectView(page, width, "render");
         await page.evaluate(text => {
