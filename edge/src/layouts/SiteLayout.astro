@@ -3,6 +3,7 @@ import Nav from "../components/Nav.astro";
 import Sidebar from "../components/Sidebar.astro";
 import AuthorTools from "../components/AuthorTools.astro";
 import KnowledgeGraph from "../components/KnowledgeGraph.astro";
+import cvVisitScript from "../../client/cv-visit.js?raw";
 import { displayDate, safeJson } from "../components/_utils";
 import type {
   ArchiveMonth,
@@ -93,6 +94,8 @@ const archivesPath = authorMode
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {Astro.url.searchParams.has("cv_id") && <meta name="referrer" content="no-referrer" />}
+    {!authorMode && !isNotFound && <script is:inline set:html={cvVisitScript}></script>}
     {page.noindex && <meta name="robots" content="noindex" />}
     <script is:inline>
       (function () {
