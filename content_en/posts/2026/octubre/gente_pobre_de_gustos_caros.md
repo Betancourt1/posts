@@ -77,6 +77,22 @@ Al descomponer esa diferencia:
 
 Juntos suman aproximadamente el 91% de la brecha. Además de esto, podemos ver que son las familias cuyo jefe tiene entre 30-44 años quienes dedican más recursos a recreación. Buena parte de ese segmento poblacional encaja en la categoría millennial. Si hablamos de comprar automóvil nuevo, pareciera que el dato tiene demasiada incertidumbre en el rango de edad 18-29, así que es difícil hacer afirmaciones al respecto. 
 
+Hasta ahora, parece relativamente sólida la afirmación de que nuestra primer hipótesis es cierta. Las personas jóvenes tienden a gastar más de sus recursos en cosas no esenciales como viajes, restaurantes, hoteles y otro tipo de recreación. Cabe preguntarnos, no obstante, si esto se debe a que son millennials o se debe a que son jóvenes[^note-4]. Una forma de contrastar este matiz es ver cómo los distintos grupos etarios se han comportado en edicionas pasadas de la misma encuesta. Esto nos permite formular una hipótesis más general que H1 a la que denominaremos **H1c**.
+
+### H1c: Los millennials gastan más por millennials que por jóvenes
+
+Queremos asegurarnos de que, al estudiar las diferencias estadísticas entre grupos de individuos, no estamos atribuyendo erróneamente esas diferencias. Como es bien sabido, correlación no implica causalidad. Por esto, vale la pena ver qué realidad detectaron ediciones pasadas de la encuesta ENIGH. 
+
+![Gente pobre de gustos caros](/uploads/2026/10/h1-historico-edades-1793075812301.png)
+
+En 1994, los jóvenes jefes de hogar gastaron un 9.6% de su total de gastos en la canasta D2 en comparación a un 5.1% del grupo con más edad, una observación similar a la última encuesta levantada. Además, consistentemente cada grupo de edad se ha comportado de manera similar en lo que respecta a su incremento en gasto a través de los años. Con estos datos, podemos ver que los millennials parecen comportarse como cualquier otro grupo de su misma edad en décadas anteriores. 
+
+![Gente pobre de gustos caros](/uploads/2026/10/h1-historico-comparacion-1793075802837.png)
+
+Una cosa en la que los jóvenes pareciera que gastan significativamente más es en restaurantes, mientras que su gasto en viajes es más o menos el mismo o incluso ligeramente menor al de décadas anteriores. 
+
+![Gente pobre de gustos caros](/uploads/2026/10/h1-historico-quintiles-1793075842462.png)
+
 Como ya vimos, los datos que analizamos antes tienen un problema difícil de afrontar: están agregados por hogar. Esto significa que algunos de los gastos que corresponderían a un millennial podrían agregarse en hogares cuyo jefe pertenece a otro grupo de edad. Para intentar salvar esta distancia, vamos a recurrir al ENSAFI 2023, una encuesta sobre los hábitos financieros que sí está agregada a nivel de inidividuo. De este dataset podemos redactar una hipótesis más débil que H1 pero que podemos aspirar a responder con ese dataset. La denominaremos **H1b**.
 
 ### H1b: Los millennials gastan más en celular, internet, streaming y autómovil
@@ -90,22 +106,11 @@ A primera vista, la hip
 ![Gente pobre de gustos caros](/uploads/2026/10/h1b-historico-bienes-1793075991491.png)
 
 
-### Comparación con otras ediciones del ENIGH
-
-Hasta ahora, parece relativamente sólida la afirmación de que nuestra primer hipótesis es cierta. Las personas jóvenes tienden a gastar más de sus recursos en cosas no esenciales como viajes, restaurantes, hoteles y otro tipo de recreación. Cabe preguntarnos, no obstante, si esto se debe a que son millennials o se debe a que son jóvenes. Una forma de contrastar este matiz es ir a ver cómo los distintos grupos etarios se han comportado en edicionas pasadas de la misma encuesta. 
-
-![Gente pobre de gustos caros](/uploads/2026/10/h1-historico-comparacion-1793075802837.png)
-
-![Gente pobre de gustos caros](/uploads/2026/10/h1-historico-edades-1793075812301.png)
-
-![Gente pobre de gustos caros](/uploads/2026/10/h1-historico-jovenes-1793075829923.png)
-
-![Gente pobre de gustos caros](/uploads/2026/10/h1-historico-quintiles-1793075842462.png)
-
-
 
 [^note-1]: En este ensayo asumiré el término millennial como sinónimo de persona por encima de sus veintitantos años y debajo de los cuarenta. El término es problemático y amerita una discusión que se puede leer mejor en otros lados; un buen ejemplo es el libro _No seas tú mismo_ de Eudald Espluga que cito al inicio. Por favor perdonen la licencia.
 
 [^note-2]: Puedo ofrecer, no obstante, sugerencias de lectura para otras formas similares. Por ejemplo, para la variante que habla de la crisis de vivienda pueden leer el capítulo 5 de _Pobres porque quieren_, de Máximo Jaramillo; para la crisis de natalidad, _The Birth Strike_, de Jenny Brown; y para la precariedad laboral, los primeros dos capítulos de _The Precariat_, de Guy Standing.
 
 [^note-3]: Nadie se baña dos veces en el mismo río. Hay que tener en cuenta que es difícil hablar de _comparación_ en estas condiciones. La gente que tiene 30 años ahora se enfrenta a distintos retos socio-económicos y culturales que alguien que tuvo 30 años en 1984. Más aún, incluso si medimos una variable aparentemente idéntica en esos dos grupos —como cuánto gastan en restaurantes— es difícil defender que se está midiendo la misma conducta, pues esta puede responder a distintos incentivos y limitaciones.
+
+[^note-4]: Es retador hacer esta clase de comparaciones intergeneracionales. ¿Es un joven de 20 años en 2004 equiparable a un joven de 20 años ahora? Diría que la comparación es algo injusta. Pero veremos que nos sirve para un propósito.
