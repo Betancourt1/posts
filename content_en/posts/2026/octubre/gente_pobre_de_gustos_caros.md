@@ -50,7 +50,8 @@ A partir del tweet que vamos a analizar, y poniéndolo en un lenguaje que podamo
 Cuando sea posible, contrastaremos cada hipótesis con su evolución a través de distintas ediciones de la misma encuesta [^note-3]. 
 
 ## H1: Los millenials gastan más cosas en no básicas
-Es raro hablar de gastos no básicos. El mismo gasto puede resultar necesario para una persona y no serlo para otras muchas otras (por ejemplo una computadora o un viaje). Vamos a tener que hacer un acuerdo al respecto, una licencia digamos. En esta sección, y en las siguientes cuando sea relevante, nos apegaremos a esta clasificación de gastos:
+### Disclaimer
+Es raro hablar de gastos no básicos. El mismo gasto puede resultar necesario para una persona y no serlo para muchas otras (por ejemplo una computadora o un viaje). Vamos a tener que hacer un acuerdo al respecto, una licencia, digamos. En esta sección, y en las siguientes, cuando sea relevante, nos apegaremos a esta clasificación de gastos:
 
 | Canasta | Qué reúne | Para qué sirve |
 |---|---|---|
@@ -60,10 +61,12 @@ Es raro hablar de gastos no básicos. El mismo gasto puede resultar necesario pa
 
 Esto nos va a ayudar a evaluar cómo distintos significados de _gasto innecesario_ cambian el análisis. 
 
+### Tipo de gasto por edad
 Los hogares con un jefe entre 18 y 29 años, gastan una mayor proporción de sus ingresos en gastos no esenciales. El porcentaje de diferencia varía de acuerdo a la canasta que elijamos, pero la diferencia se encuentra en torno a un 4.2% con respecto a los hogares con un jefe de 60+ años. 
 
-![Gente pobre de gustos caros](/uploads/2026/10/h1-composicion-por-edad-1792914049511.png)
+![Gente pobre de gustos caros](/uploads/2026/10/h1-composicion-por-edad-1793045635209.png)
 
+![Gente pobre de gustos caros](/uploads/2026/10/h1-componentes-d2-1793045028583.png)
 
 Al descomponer esa diferencia:
 
