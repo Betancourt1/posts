@@ -4,7 +4,7 @@ import { defaultKeymap, history, historyKeymap, undo, redo, isolateHistory } fro
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags } from "@lezer/highlight";
-import { blockAt, imageParts, moveBlock } from "./markdown.js";
+import { blockAt, imageParts, markdownBlocks, moveBlock } from "./markdown.js";
 import { insertTemplateText } from "../../../functions/_lib/insert-templates.js";
 import boldIcon from "@tabler/icons/outline/bold.svg";
 import italicIcon from "@tabler/icons/outline/italic.svg";
@@ -132,6 +132,8 @@ export function createBlockEditor(options) {
   let slashRange = null;
   let slashState = null;
   let mounted = true;
+  let previewDocument = null;
+  let previewAnchors = [];
 
   const host = element("div", "block-editor");
   host.id = "block-editor";
@@ -794,6 +796,22 @@ export function createBlockEditor(options) {
   return {
     view,
     value: source,
+    previewAnchors() {
+      if (previewDocument !== view.state.doc) {
+        previewDocument = view.state.doc;
+        const text = source();
+        previewAnchors = markdownBlocks(text).flatMap(block => {
+          const heading = block.type.match(/^(?:ATX|Setext)Heading([1-6])$/);
+          const image = block.type === "Paragraph" && imageParts(text.slice(block.from, block.to));
+          return heading || image ? [{ ...block, tag: heading ? "h" + heading[1] : "img", src: image?.src }] : [];
+        });
+      }
+      const top = window.scrollY + view.documentTop;
+      return previewAnchors.map(anchor => ({ ...anchor,
+        top: top + view.lineBlockAt(anchor.from).top,
+        bottom: top + view.lineBlockAt(anchor.to).bottom,
+      }));
+    },
     focus: () => view.focus(),
     insertMarkdown,
     cancelUpload: () => { pendingUpload = null; },

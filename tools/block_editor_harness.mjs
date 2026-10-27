@@ -329,58 +329,129 @@ try {
         await preview.locator("text=Split refresh marker.").waitFor({ timeout: 5000 });
         assert.equal(await page.locator('[id="preview-frame"]').count(), 1, "double-buffer promotion keeps exactly one active frame");
         await page.screenshot({ path: `${evidence}/${lang}-${width}-split.png` });
-        const scrollSource = Array.from({ length: 45 }, (_, index) =>
-          `## Scroll section ${index + 1}\n\n${"A paragraph that wraps differently in the editor and preview. ".repeat(5)}`
+        let pendingImage = null;
+        await page.route("**/scroll-image-*.svg", async route => {
+          const name = new URL(route.request().url()).pathname;
+          if (name.endsWith("pending.svg")) await pendingImage;
+          const number = Number(name.match(/(\d+)\.svg$/)?.[1] || 0);
+          const late = name.endsWith("late.svg");
+          if (late) await new Promise(resolve => setTimeout(resolve, 250));
+          const imageHeight = late ? 3000 : number % 2 ? 1800 : 240;
+          await route.fulfill({ contentType: "image/svg+xml", body:
+            `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="${imageHeight}"><rect width="800" height="${imageHeight}" fill="#c7e8dd"/><text x="30" y="70" font-size="40">Chart ${number || "late"}</text></svg>` });
+        });
+        const scrollSource = Array.from({ length: 14 }, (_, index) =>
+          `## Scroll section ${index + 1}\n\n${"A paragraph that wraps differently in the editor and preview. ".repeat(4)}\n\n![Chart ${index + 1}](/scroll-image-${index + 1}.svg)` +
+          (index === 5 ? "\n\n![Consecutive chart](/scroll-image-3.svg)" : "")
         ).join("\n\n");
         await fill(page, scrollSource);
-        await preview.getByRole("heading", { name: "Scroll section 45", exact: true }).waitFor();
-        const assertScrollSync = async (format = "rendered") => {
-          await page.waitForFunction(format => {
-            const sourceMax = document.documentElement.scrollHeight - innerHeight;
-            const sourceRatio = sourceMax > 0 ? scrollY / sourceMax : 0;
+        await preview.getByRole("heading", { name: "Scroll section 14", exact: true }).waitFor();
+        for (const top of [0, 1, 10, 1, 0]) {
+          await page.evaluate(top => window.scrollTo(0, top), top);
+          await page.waitForTimeout(50);
+          assert.ok(await preview.locator("body").evaluate(() => scrollY <= 20), "small scrolls at the start do not jump the preview");
+        }
+        const assertAligned = async (label, edge = "top") => {
+          await page.waitForFunction(({ label, edge }) => {
             const frame = document.querySelector("#preview-frame");
-            const html = document.querySelector("#preview-html-source");
-            const targetMax = format === "html" ? html.scrollHeight - html.clientHeight
-              : frame.contentDocument.documentElement.scrollHeight - frame.contentWindow.innerHeight;
-            const targetTop = format === "html" ? html.scrollTop : frame.contentWindow.scrollY;
-            return targetMax > 0 && Math.abs(sourceRatio - targetTop / targetMax) < 0.01;
-          }, format);
+            const source = Array.from(document.querySelectorAll(".cm-line")).find(line => line.textContent === label);
+            const target = label.startsWith("## ")
+              ? Array.from(frame.contentDocument.querySelectorAll("h2")).find(heading => heading.textContent === label.slice(3))
+              : Array.from(frame.contentDocument.querySelectorAll(".post-body img")).find(img => img.alt === label.match(/!\[([^\]]+)/)?.[1]);
+            return source && target && Math.abs(source.getBoundingClientRect()[edge] -
+              (frame.getBoundingClientRect().top + target.getBoundingClientRect()[edge])) < 4;
+          }, { label, edge });
+        };
+        const positionAnchor = async (label, edge = "top") => {
+          await select(page, (await inspect(page)).doc.indexOf(label));
+          for (let pass = 0; pass < 2; pass++) {
+            await page.evaluate(({ label, edge }) => {
+              const source = Array.from(document.querySelectorAll(".cm-line")).find(line => line.textContent === label);
+              const delta = source.getBoundingClientRect()[edge] - document.querySelector("#preview-frame").getBoundingClientRect().top;
+              window.scrollBy(0, edge === "bottom" ? Math.ceil(delta) : Math.floor(delta));
+            }, { label, edge });
+            await page.waitForTimeout(80);
+          }
+          await assertAligned(label, edge);
         };
         for (const mode of ["render", "markdown"]) {
           await selectView(page, width, mode);
-          for (const ratio of [0, 0.5, 1]) {
-            await page.evaluate(ratio => window.scrollTo(0, ratio * (document.documentElement.scrollHeight - innerHeight)), ratio);
-            await assertScrollSync();
+          for (const label of ["## Scroll section 2", "## Scroll section 7", "## Scroll section 12",
+            "![Chart 5](/scroll-image-5.svg)", "![Consecutive chart](/scroll-image-3.svg)"]) {
+            await positionAnchor(label);
           }
+          await positionAnchor("![Chart 5](/scroll-image-5.svg)", "bottom");
         }
         await selectView(page, width, "render");
         await page.evaluate(() => window.scrollTo(0, 0));
-        await assertScrollSync();
+        await page.waitForFunction(() => document.querySelector("#preview-frame").contentWindow.scrollY === 0);
         await page.screenshot({ path: `${evidence}/${lang}-${width}-scroll-top.png` });
         await page.mouse.move(300, 500);
         await page.mouse.wheel(0, 1200);
-        await page.waitForFunction(() => scrollY > 500);
-        await assertScrollSync();
+        await page.waitForFunction(() => scrollY > 500 && document.querySelector("#preview-frame").contentWindow.scrollY > 500);
+        await positionAnchor("## Scroll section 7");
         await page.screenshot({ path: `${evidence}/${lang}-${width}-scroll-follow.png` });
+        // Change an earlier image after the frame has loaded, without another editor scroll.
+        await preview.locator('img[alt="Chart 3"]').evaluate(img => {
+          img.srcset = "/scroll-image-late.svg 1x";
+        });
+        await page.waitForFunction(() => document.querySelector("#preview-frame").contentDocument.querySelector('img[alt="Chart 3"]').naturalHeight === 3000);
+        await assertAligned("## Scroll section 7");
+        await page.screenshot({ path: `${evidence}/${lang}-${width}-scroll-image-loaded.png` });
         await page.locator("#preview-html").click();
-        await assertScrollSync("html");
+        const assertHtmlScroll = () => page.waitForFunction(() => {
+          const html = document.querySelector("#preview-html-source");
+          return Math.abs(scrollY / (document.documentElement.scrollHeight - innerHeight) - html.scrollTop / (html.scrollHeight - html.clientHeight)) < 0.01;
+        });
+        await assertHtmlScroll();
         await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-        await assertScrollSync("html");
+        await assertHtmlScroll();
         await page.locator("#preview-rendered").click();
-        await assertScrollSync();
-        // Refresh without moving the caret, then scroll while the new frame is loading.
-        await page.evaluate(() => window.fixtureEditor.view.dispatch({ changes: { from: 0, insert: "Refreshed scroll marker.\n\n" } }));
-        await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight * 0.35));
+        // CodeMirror measures previously offscreen lines after the format switch.
+        for (let pass = 0; pass < 3; pass++) {
+          await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+          await page.waitForTimeout(80);
+        }
+        await page.waitForFunction(() => {
+          const win = document.querySelector("#preview-frame").contentWindow;
+          return Math.abs(win.scrollY - (win.document.documentElement.scrollHeight - win.innerHeight)) < 2;
+        });
+        await positionAnchor("## Scroll section 7");
+        await page.evaluate(() => {
+          const { view } = window.fixtureEditor;
+          view.dispatch({ changes: { from: view.state.doc.length, insert: "\n\nRefreshed scroll marker." } });
+        });
         await preview.getByText("Refreshed scroll marker.", { exact: true }).waitFor();
         await page.waitForTimeout(450);
-        await assertScrollSync();
-        assert.equal((await inspect(page)).doc, "Refreshed scroll marker.\n\n" + scrollSource, "scrolling preserves document content");
+        await assertAligned("## Scroll section 7");
+        assert.equal((await inspect(page)).doc, scrollSource + "\n\nRefreshed scroll marker.", "scrolling preserves document content");
         await page.setViewportSize({ width: 1000, height: 900 });
         await page.locator(".paper").waitFor({ state: "hidden" });
         assert.equal(await page.locator(".paper").isVisible(), false, "below the breakpoint preview remains single-pane");
         await page.setViewportSize({ width, height: 900 });
         await page.locator(".paper").waitFor({ state: "visible" });
-        await assertScrollSync();
+        await positionAnchor("## Scroll section 7");
+        // An identical response during a slow image load still belongs to the hidden buffer.
+        let releaseImage;
+        pendingImage = new Promise(resolve => { releaseImage = resolve; });
+        const requested = page.waitForRequest("**/scroll-image-pending.svg");
+        const previousBody = (await inspect(page)).doc;
+        const pendingBody = "## Pending preview\n\n![Pending chart](/scroll-image-pending.svg)\n\n" + previousBody;
+        try {
+          await page.evaluate(text => window.fixtureEditor.setDocument(text), pendingBody);
+          await requested;
+          const repeated = page.waitForResponse(response => response.url().endsWith("/api/preview"));
+          await page.locator("#title").dispatchEvent("input");
+          await repeated;
+          await page.waitForFunction(() => document.querySelector("#preview-status").textContent === "");
+          assert.equal(await page.locator("#preview-frame").evaluate(frame => frame.previewBody), previousBody, "pending refresh does not relabel the visible old frame");
+          const previousScroll = await preview.locator("body").evaluate(() => scrollY);
+          await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight * 0.5));
+          await page.waitForTimeout(100);
+          assert.equal(await preview.locator("body").evaluate(() => scrollY), previousScroll, "old preview waits for matching content");
+        } finally { releaseImage(); }
+        await preview.getByRole("heading", { name: "Pending preview", exact: true }).waitFor();
+        await positionAnchor("## Scroll section 7");
         await page.locator("#preview-split").click();
         await preview.locator("body").evaluate(() => window.scrollTo(0, 400));
         const independentTop = await preview.locator("body").evaluate(() => scrollY);

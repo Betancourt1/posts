@@ -219,6 +219,7 @@ export const technicalEditorScript = String.raw`
       var previewSplitButton = document.getElementById("preview-split");
       var inlinePreview = { open: false, ready: false, split: false, format: "rendered", request: 0, timer: 0, scrollRatio: 0, windowTop: 0, pendingScroll: null };
       var previewScrollFrame = 0;
+      var previewResizeObserver = null;
 
       function bindTechnicalTools() {
         var trigger = document.getElementById("toolbar-technical");
@@ -414,7 +415,38 @@ export const technicalEditorScript = String.raw`
           try {
             var win = previewFrame.contentWindow;
             var root = previewFrame.contentDocument.documentElement;
-            win.scrollTo(0, ratio * Math.max(0, root.scrollHeight - win.innerHeight));
+            var targetMax = Math.max(0, root.scrollHeight - win.innerHeight);
+            if (!blockEditor || ratio === 0 || ratio === 1) {
+              win.scrollTo(0, ratio * targetMax);
+              return;
+            }
+            // Wait for the matching preview when the document is being edited.
+            if (previewFrame.previewBody !== blockEditor.value()) return;
+            var targets = Array.from(previewFrame.contentDocument.querySelectorAll(".post-body > h1, .post-body > h2, .post-body > h3, .post-body > h4, .post-body > h5, .post-body > h6, .post-body > p > img:only-child"));
+            var start = window.scrollY + els.paper.getBoundingClientRect().top + previewStack.offsetTop;
+            var points = [{ source: start, target: 0 }];
+            var next = 0;
+            blockEditor.previewAnchors().forEach(function (anchor) {
+              var index = targets.findIndex(function (target, index) {
+                return index >= next && target.localName === anchor.tag &&
+                  (anchor.tag !== "img" || target.src === new URL(anchor.src, root.baseURI).href);
+              });
+              if (index < 0) return;
+              next = index + 1;
+              var rect = targets[index].getBoundingClientRect();
+              points.push({ source: anchor.top, target: rect.top + win.scrollY });
+              points.push({ source: anchor.bottom, target: rect.bottom + win.scrollY });
+            });
+            points.push({ source: document.documentElement.scrollHeight, target: root.scrollHeight });
+            // Align the content crossing the top of the preview, interpolating only
+            // between neighboring anchors so a tall image cannot shift later sections.
+            var position = window.scrollY + previewFrame.getBoundingClientRect().top;
+            var index = points.findIndex(function (point) { return point.source > position; });
+            if (index < 1) return;
+            var before = points[index - 1];
+            var after = points[index];
+            var progress = (position - before.source) / (after.source - before.source);
+            win.scrollTo(0, Math.min(targetMax, Math.max(0, before.target + progress * (after.target - before.target))));
           } catch (error) {}
         }
       }
@@ -451,6 +483,7 @@ export const technicalEditorScript = String.raw`
         inlinePreview.open = false;
         inlinePreview.ready = false;
         inlinePreview.request += 1;
+        if (previewResizeObserver) previewResizeObserver.disconnect();
         window.clearTimeout(inlinePreview.timer);
         previewFrame.srcdoc = "";
         previewBuffer.srcdoc = "";
@@ -500,6 +533,10 @@ export const technicalEditorScript = String.raw`
         previewBuffer = demoted;
         previewBuffer.srcdoc = "";
         inlinePreview.ready = true;
+        if (previewResizeObserver) previewResizeObserver.disconnect();
+        previewResizeObserver = new ResizeObserver(schedulePreviewScroll);
+        previewResizeObserver.observe(previewFrame.contentDocument.body);
+        previewResizeObserver.observe(els.paper);
         syncPreviewPane();
         applyPendingPreviewScroll();
       }
@@ -560,7 +597,11 @@ export const technicalEditorScript = String.raw`
         postJson("/api/preview", previewPayload(body)).then(function (result) {
           if (requestId !== inlinePreview.request || !inlinePreview.open) return;
           setInlinePreviewStatus("");
-          if (result.html === lastPreviewHtml) return;
+          if (result.html === lastPreviewHtml) {
+            (previewBufferPending ? previewBuffer : previewFrame).previewBody = body;
+            schedulePreviewScroll();
+            return;
+          }
           var bodyHtml = typeof result.bodyHtml === "string" ? result.bodyHtml : previewBodyFromHtml(result.html);
           // Rendered HTML is displayed as text only; it never enters the editor DOM.
           previewSource.firstElementChild.textContent = formatPreviewHtml(bodyHtml);
@@ -568,6 +609,7 @@ export const technicalEditorScript = String.raw`
           previewGeneration += 1;
           previewBufferPending = true;
           previewBuffer.dataset.previewGen = String(previewGeneration);
+          previewBuffer.previewBody = body;
           previewBuffer.srcdoc = result.html;
           lastPreviewHtml = result.html;
         }).catch(function (error) {
