@@ -89,9 +89,17 @@ En 1994, los jóvenes jefes de hogar gastaron un 9.6% de su total de gastos en l
 
 ![Gente pobre de gustos caros](/uploads/2026/10/h1-historico-comparacion-1793075802837.png)
 
-Una cosa en la que los jóvenes pareciera que gastan significativamente más es en restaurantes, mientras que su gasto en viajes es más o menos el mismo o incluso ligeramente menor al de décadas anteriores. 
+Una cosa en la que los jóvenes pareciera que gastan significativamente más es en restaurantes, mientras que su gasto en viajes es más o menos el mismo o incluso ligeramente menor al de décadas anteriores. Esto en realidad no es extraño de ver, Aguiar y Hurst (2013)[^note-5] ya habían señalado que la probabilidad de que una persona quisiera comer fuera de casa disminuía con la edad. La explicación a la que ellos llegan es que «[…] la alimentación fuera del hogar está asociada positivamente con la oferta laboral del hogar» _(Aguiar y Hurst, 2013, p. 466, traducción propia)_. También separan distinta formas de comer fuera, como se ve en el siguiente gráfico (elaborado por ellos).
+
+![Gente pobre de gustos caros](/uploads/2026/10/screenshot-2026-10-27-at-00-26-21-microsoft-word-deconstructing-may2009-finaledits-v1-docx-deconstructing-lifecycle-expenditure-pdf-1793082455863.png)
+
+Pareciera hasta ahora que los jóvenes gastan más por el simple hecho de ser jóvenes, esto nos puede quitar alguna sospecha de que los millennials tienen una posición privilegiada que aprovechan para gastar excesivamente con respecto a sus predecesores. No obstante, para poder desagregar por edad, hemos hecho asunciones que puede tener sentido revisar; la primera de esas asunciones es la edad. Si bien hay marcadores claramente etarios (como tener menos propensión a enfermedades cardiacas), cuando hablamos de hábitos de consumo, no podemos descartar el factor de la clase social.
 
 ![Gente pobre de gustos caros](/uploads/2026/10/h1-historico-quintiles-1793075842462.png)
+
+Una cosa que podemos ver es que el consumo entre los quintiles más bajos se ha incrementado con los años en proporción al gasto total (un ~3.2% más con respecto a 1994), mientras que los dos quintiles más altos se han quedado prácticamente iguales. Otra cosa que notamos es que quienes concentran una mayor proporción de gasto en cosas no esenciales son aquellos que tienen un mayor nivel de ingresos. 
+
+Aquí me atrevo a estimar, pues, que quienes más dinero están usando en gastos no esenciales son justamente aquellos que no están preocupados de su pensión, mientras que quienes se encuentran en riesgo de sufrir una vejez precaria parecen estar actuando con bastante prudencia en relación con su proporción de gastos no esenciales.
 
 Como ya vimos, los datos que analizamos antes tienen un problema difícil de afrontar: están agregados por hogar. Esto significa que algunos de los gastos que corresponderían a un millennial podrían agregarse en hogares cuyo jefe pertenece a otro grupo de edad. Para intentar salvar esta distancia, vamos a recurrir al ENSAFI 2023, una encuesta sobre los hábitos financieros que sí está agregada a nivel de inidividuo. De este dataset podemos redactar una hipótesis más débil que H1 pero que podemos aspirar a responder con ese dataset. La denominaremos **H1b**.
 
@@ -114,3 +122,5 @@ A primera vista, la hip
 [^note-3]: Nadie se baña dos veces en el mismo río. Hay que tener en cuenta que es difícil hablar de _comparación_ en estas condiciones. La gente que tiene 30 años ahora se enfrenta a distintos retos socio-económicos y culturales que alguien que tuvo 30 años en 1984. Más aún, incluso si medimos una variable aparentemente idéntica en esos dos grupos —como cuánto gastan en restaurantes— es difícil defender que se está midiendo la misma conducta, pues esta puede responder a distintos incentivos y limitaciones.
 
 [^note-4]: Es retador hacer esta clase de comparaciones intergeneracionales. ¿Es un joven de 20 años en 2004 equiparable a un joven de 20 años ahora? Diría que la comparación es algo injusta. Pero veremos que nos sirve para un propósito.
+
+[^note-5]: Aguiar y Hurst (2013) - Deconstructing Life Cycle Expenditure. Lo puedes leer [aquí](https://markaguiar.com/papers/deconstructing_lifecycle_expenditure.pdf).
