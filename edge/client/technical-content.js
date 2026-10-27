@@ -1,6 +1,16 @@
 const sources = [...document.querySelectorAll(".post-body [data-mermaid]")];
 const spanish = document.documentElement.lang === "es";
 
+document.querySelectorAll(".post-body table, .article table").forEach((table) => {
+  const scroller = document.createElement("div");
+  scroller.className = "table-scroll";
+  scroller.tabIndex = 0;
+  scroller.setAttribute("role", "region");
+  scroller.setAttribute("aria-label", spanish ? "Tabla con desplazamiento horizontal" : "Horizontally scrollable table");
+  table.before(scroller);
+  scroller.append(table);
+});
+
 if (sources.length) {
   try {
     const { default: mermaid } = await import("/vendor/mermaid/mermaid.esm.min.mjs");

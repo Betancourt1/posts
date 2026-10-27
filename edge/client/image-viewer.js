@@ -3,6 +3,7 @@
   if (!dialog) return;
   var expandedImage = dialog.querySelector("img");
   var closeButton = dialog.querySelector("button");
+  var viewport = dialog.querySelector(".image-viewer-viewport");
   var opener = null;
   var openingAnimation = null;
 
@@ -33,6 +34,9 @@
       expandedImage.height = image.naturalHeight;
       dialog.showModal();
       document.documentElement.classList.add("image-viewer-open");
+      expandedImage.style.width = Math.max(initial.width * 2, Math.min(image.naturalWidth, viewport.clientWidth)) + "px";
+      viewport.scrollLeft = Math.max(0, (viewport.scrollWidth - viewport.clientWidth) / 2);
+      viewport.scrollTop = Math.max(0, (viewport.scrollHeight - viewport.clientHeight) / 2);
       var final = expandedImage.getBoundingClientRect();
       if (initial.width && initial.height && final.width && final.height && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         var x = initial.left + initial.width / 2 - final.left - final.width / 2;
@@ -49,7 +53,7 @@
 
   closeButton.addEventListener("click", function () { dialog.close(); });
   dialog.addEventListener("click", function (event) {
-    if (event.target === dialog) dialog.close();
+    if (event.target === dialog || event.target === viewport) dialog.close();
   });
   dialog.addEventListener("close", function () {
     if (openingAnimation) openingAnimation.cancel();

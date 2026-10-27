@@ -11,6 +11,7 @@ function element() {
   const classes = new Set();
   return {
     attributes,
+    style: {},
     classList: { add: (name) => classes.add(name), remove: (name) => classes.delete(name), contains: (name) => classes.has(name) },
     setAttribute: (name, value) => attributes.set(name, value),
     removeAttribute: (name) => attributes.delete(name),
@@ -31,14 +32,15 @@ function element() {
 
 function setup(linked = false, reducedMotion = false) {
   const root = element();
-  const image = Object.assign(element(), { src: "/fallback.jpg", currentSrc: "/full.jpg", alt: "Violeta" });
+  const image = Object.assign(element(), { src: "/fallback.jpg", currentSrc: "/full.jpg", alt: "Violeta", naturalWidth: 1800, naturalHeight: 1200 });
   const trigger = linked ? element() : image;
   image.closest = () => linked ? trigger : null;
   const expanded = element();
   const button = element();
+  const viewport = Object.assign(element(), { clientWidth: 342, clientHeight: 748, scrollWidth: 600, scrollHeight: 748 });
   const dialog = Object.assign(element(), {
     dataset: { openLabel: "Ampliar imagen" },
-    querySelector: (selector) => selector === "img" ? expanded : button,
+    querySelector: (selector) => selector === "img" ? expanded : selector === "button" ? button : viewport,
     showModal() { this.open = true; },
     close() { this.open = false; this.emit("close"); },
   });
@@ -47,7 +49,7 @@ function setup(linked = false, reducedMotion = false) {
     querySelector: () => dialog,
     querySelectorAll: () => [image],
   } });
-  return { root, image, trigger, expanded, button, dialog };
+  return { root, image, trigger, expanded, button, viewport, dialog };
 }
 
 test("opens the displayed image without navigation and closes using the dedicated button", () => {
@@ -64,12 +66,23 @@ test("opens the displayed image without navigation and closes using the dedicate
 });
 
 test("only the area outside the image closes the dialog", () => {
-  const { trigger, expanded, dialog } = setup();
+  const { trigger, expanded, viewport, dialog } = setup();
   trigger.emit("click");
   dialog.emit("click", { target: expanded });
   assert.equal(dialog.open, true);
   dialog.emit("click");
   assert.equal(dialog.open, false);
+  trigger.emit("click");
+  dialog.emit("click", { target: viewport });
+  assert.equal(dialog.open, false);
+});
+
+test("opens at least twice the inline width with overflow centered inside the viewer", () => {
+  const { trigger, expanded, viewport } = setup();
+  trigger.emit("click");
+  assert.equal(expanded.style.width, "600px");
+  assert.equal(viewport.scrollLeft, 129);
+  assert.equal(viewport.scrollTop, 0);
 });
 
 test("bare images support Enter and Space and keep their accessible description", () => {
