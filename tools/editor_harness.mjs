@@ -196,7 +196,7 @@ export async function startHarnessServer(savedRequests, { blockEditor = true, fi
       return;
     }
 
-    if (req.method === "GET" && (url.pathname === "/css/site.css" || url.pathname === "/js/technical-content.js" || url.pathname === "/js/block-editor.js" || url.pathname === "/css/block-editor.css" || url.pathname.startsWith("/vendor/"))) {
+    if (req.method === "GET" && (url.pathname === "/css/site.css" || url.pathname === "/js/technical-content.js" || url.pathname === "/js/article-outline.js" || url.pathname === "/js/block-editor.js" || url.pathname === "/css/block-editor.css" || url.pathname.startsWith("/vendor/"))) {
       const file = url.pathname === "/css/site.css" ? new URL("../static/css/site.css", import.meta.url)
         : url.pathname === "/js/technical-content.js" ? new URL("../edge/client/technical-content.js", import.meta.url)
         : new URL("../edge/.generated/public" + url.pathname, import.meta.url);

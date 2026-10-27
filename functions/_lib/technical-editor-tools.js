@@ -347,6 +347,7 @@ export const technicalEditorScript = String.raw`
           body: body,
           title: els.title.value,
           sourcePath: sourcePath,
+          section: editorController.notebook ? "" : (sourcePath || els.notebook.value).split("/")[1],
           frontMatter: frontMatter,
           lang: (sourcePath || els.notebook.value).indexOf("content_es/") === 0 ? "es" : "en",
           theme: theme,

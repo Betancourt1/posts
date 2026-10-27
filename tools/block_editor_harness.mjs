@@ -346,6 +346,16 @@ try {
         ).join("\n\n");
         await fill(page, scrollSource);
         await preview.getByRole("heading", { name: "Scroll section 14", exact: true }).waitFor();
+        const outline = preview.locator(".article-outline");
+        assert.equal(await outline.isVisible(), true, "unsaved blog drafts receive an automatic outline");
+        assert.equal(await outline.locator("a").count(), 14, "outline reflects the draft headings");
+        if (!await outline.evaluate(node => node.open)) await outline.locator("summary").click();
+        const previewUrl = await preview.locator("body").evaluate(() => location.href);
+        await outline.locator("a").last().click();
+        await page.waitForTimeout(100);
+        assert.equal(await preview.locator("body").evaluate(() => location.href), previewUrl, "draft outline links stay inside the preview despite its canonical base URL");
+        assert.ok(await preview.locator("body").evaluate(() => scrollY > 500), "draft outline link scrolls to its section");
+        await outline.locator("summary").click();
         for (const top of [0, 1, 10, 1, 0]) {
           await page.evaluate(top => window.scrollTo(0, top), top);
           await page.waitForTimeout(50);

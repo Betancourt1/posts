@@ -126,8 +126,8 @@ const rawSource = [
     </figure>
   ) : null}
 
-  {!isPhoto && wordCount >= 600 && (
-    <details class="article-outline" hidden>
+  {!isPhoto && (section === "posts" || wordCount >= 600) && (
+    <details class="article-outline" data-min-headings={section === "posts" ? 1 : 3} hidden>
       <summary>{lang === "es" ? "En este artículo" : "In this article"}</summary>
       <nav aria-label={lang === "es" ? "Secciones del artículo" : "Article sections"}><ol></ol></nav>
     </details>

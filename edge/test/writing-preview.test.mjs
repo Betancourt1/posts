@@ -43,6 +43,32 @@ test("preview escapes title and rejects active Markdown HTML", async () => {
   assert.match(html, /sandbox="allow-scripts"/);
 });
 
+test("blog previews include the automatic outline for new and saved drafts without publishing", async () => {
+  for (const lang of ["en", "es"]) {
+    for (const sourcePath of [null, `content_${lang}/posts/2026/septiembre/draft.md`]) {
+      const response = await onRequestPost({ request: request({
+        title: "Draft", lang, section: "posts", sourcePath, frontMatter: { draft: true },
+        body: "## One section\n\nA short draft.",
+      }) });
+      const { html, bodyHtml } = await response.json();
+      assert.match(html, /class="article-outline" data-min-headings="1" data-preview="true"/);
+      assert.ok(html.includes(lang === "es" ? "En este artículo" : "In this article"));
+      assert.match(html, /src="https:\/\/example.com\/js\/article-outline.js"/);
+      assert.doesNotMatch(bodyHtml, /article-outline/);
+      assert.equal(response.headers.get("cache-control"), "no-store");
+    }
+  }
+  for (const payload of [
+    { sourcePath: "content_en/posts/_index.md" },
+    { section: "", sourcePath: "content_en/posts/_index.md" },
+    { section: "", sourcePath: null },
+    { sourcePath: "content_es/zettelkasten/example.md" },
+  ]) {
+    const response = await onRequestPost({ request: request({ ...payload, body: "## Section\n\nText." }) });
+    assert.doesNotMatch((await response.json()).html, /article-outline/);
+  }
+});
+
 test("preview rejects invalid requests and remains behind author authentication", async () => {
   assert.equal((await onRequestPost({ request: request({ body: null }) })).status, 400);
   const response = await invokeAuthorPagesFunction(onRequestPost, {
