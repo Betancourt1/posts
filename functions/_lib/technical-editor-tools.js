@@ -523,6 +523,9 @@ export const technicalEditorScript = String.raw`
       }
 
       function promotePreviewBuffer() {
+        if (inlinePreview.ready && isPreviewSplitActive()) {
+          previewBuffer.contentWindow.scrollTo(0, readPreviewFrameScroll() || 0);
+        }
         previewBufferPending = false;
         var demoted = previewFrame;
         demoted.id = "preview-frame-buffer";

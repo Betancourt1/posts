@@ -391,6 +391,54 @@ try {
         await page.waitForFunction(() => scrollY > 500 && document.querySelector("#preview-frame").contentWindow.scrollY > 500);
         await positionAnchor("## Scroll section 7");
         await page.screenshot({ path: `${evidence}/${lang}-${width}-scroll-follow.png` });
+        for (const mode of ["render", "markdown"]) {
+          await selectView(page, width, mode);
+          await positionAnchor("## Scroll section 7");
+          await select(page, (await inspect(page)).doc.indexOf("## Scroll section 7") + "## Scroll section 7".length);
+          let releaseResponse;
+          const pendingResponse = new Promise(resolve => { releaseResponse = resolve; });
+          await page.route("**/api/preview", async route => {
+            const response = await route.fetch({ url: origin + "/api/preview" });
+            const payload = await response.json();
+            payload.html = payload.html.replaceAll(origin, new URL(page.url()).origin);
+            await pendingResponse;
+            await route.fulfill({ response, body: JSON.stringify(payload) });
+          }, { times: 1 });
+          const requested = page.waitForRequest("**/api/preview");
+          await page.keyboard.type(" first");
+          const staleBody = (await inspect(page)).doc;
+          await requested;
+          // Move while the response is pending: use the visible position at promotion.
+          await preview.locator("body").evaluate(() => window.scrollBy(0, 160));
+          const heldTop = await preview.locator("body").evaluate(() => scrollY);
+          await page.evaluate(() => {
+            window.previewScrollSamples = [];
+            function sample() {
+              window.previewScrollSamples.push(document.querySelector("#preview-frame").contentWindow.scrollY);
+              window.previewScrollSampleFrame = requestAnimationFrame(sample);
+            }
+            sample();
+          });
+          try {
+            await page.keyboard.type(" second");
+            releaseResponse();
+            await page.waitForFunction(body => document.querySelector("#preview-frame").previewBody === body, staleBody);
+            assert.equal(await preview.locator("body").evaluate(() => scrollY), heldTop, "stale response preserves the current visible position");
+            await page.screenshot({ path: `${evidence}/${lang}-${width}-typing-${mode}.png` });
+            await page.keyboard.type(" continued", { delay: 80 });
+            assert.equal(await preview.locator("body").evaluate(() => scrollY), heldTop, "preview stays steady while typing continues");
+            const currentBody = (await inspect(page)).doc;
+            await page.waitForFunction(body => document.querySelector("#preview-frame").previewBody === body, currentBody);
+            assert.ok(await page.evaluate(() => Math.min(...window.previewScrollSamples) > 500), "no displayed animation frame jumps to the start while typing or refreshing");
+          } finally {
+            releaseResponse();
+            await page.evaluate(() => cancelAnimationFrame(window.previewScrollSampleFrame));
+          }
+          await fill(page, scrollSource);
+          await page.waitForFunction(body => document.querySelector("#preview-frame").previewBody === body, scrollSource);
+          await positionAnchor("## Scroll section 7");
+        }
+        await selectView(page, width, "render");
         // Change an earlier image after the frame has loaded, without another editor scroll.
         await preview.locator('img[alt="Chart 3"]').evaluate(img => {
           img.srcset = "/scroll-image-late.svg 1x";
@@ -437,6 +485,7 @@ try {
         const requested = page.waitForRequest("**/scroll-image-pending.svg");
         const previousBody = (await inspect(page)).doc;
         const pendingBody = "## Pending preview\n\n![Pending chart](/scroll-image-pending.svg)\n\n" + previousBody;
+        let imageLoadTop;
         try {
           await page.evaluate(text => window.fixtureEditor.setDocument(text), pendingBody);
           await requested;
@@ -449,9 +498,13 @@ try {
           await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight * 0.5));
           await page.waitForTimeout(100);
           assert.equal(await preview.locator("body").evaluate(() => scrollY), previousScroll, "old preview waits for matching content");
+          await select(page, pendingBody.indexOf("## Scroll section 7") + "## Scroll section 7".length);
+          await page.keyboard.type(" continued");
+          imageLoadTop = await preview.locator("body").evaluate(() => scrollY);
         } finally { releaseImage(); }
         await preview.getByRole("heading", { name: "Pending preview", exact: true }).waitFor();
         assert.equal(await page.locator("#preview-frame").evaluate(frame => frame.previewBody), pendingBody, "loaded buffer becomes the active preview");
+        assert.equal(await preview.locator("body").evaluate(() => scrollY), imageLoadTop, "image load during an edit preserves preview position");
         await page.locator("#preview-split").click();
         await preview.locator("body").evaluate(() => window.scrollTo(0, 400));
         const independentTop = await preview.locator("body").evaluate(() => scrollY);
