@@ -218,6 +218,7 @@ export const technicalEditorScript = String.raw`
       var previewRetry = document.getElementById("preview-retry");
       var previewSplitButton = document.getElementById("preview-split");
       var inlinePreview = { open: false, ready: false, split: false, format: "rendered", request: 0, timer: 0, scrollRatio: 0, windowTop: 0, pendingScroll: null };
+      var previewScrollFrame = 0;
 
       function bindTechnicalTools() {
         var trigger = document.getElementById("toolbar-technical");
@@ -375,6 +376,8 @@ export const technicalEditorScript = String.raw`
         });
         previewFrame.addEventListener("load", onPreviewFrameLoad);
         previewBuffer.addEventListener("load", onPreviewFrameLoad);
+        window.addEventListener("scroll", schedulePreviewScroll, { passive: true });
+        window.addEventListener("resize", schedulePreviewScroll);
         window.matchMedia("(min-width: 1280px)").addEventListener("change", function () {
           if (inlinePreview.open) syncViewControls();
         });
@@ -390,6 +393,30 @@ export const technicalEditorScript = String.raw`
         var ready = inlinePreview.ready;
         previewStack.hidden = !ready || inlinePreview.format !== "rendered";
         previewSource.hidden = !ready || inlinePreview.format !== "html";
+        schedulePreviewScroll();
+      }
+
+      function schedulePreviewScroll() {
+        if (!inlinePreview.open || !inlinePreview.ready || !isPreviewSplitActive() || previewScrollFrame) return;
+        previewScrollFrame = window.requestAnimationFrame(function () {
+          previewScrollFrame = 0;
+          syncPreviewScroll();
+        });
+      }
+
+      function syncPreviewScroll() {
+        if (!inlinePreview.open || !inlinePreview.ready || !isPreviewSplitActive()) return;
+        var max = document.documentElement.scrollHeight - window.innerHeight;
+        var ratio = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+        if (inlinePreview.format === "html") {
+          previewSource.scrollTop = ratio * Math.max(0, previewSource.scrollHeight - previewSource.clientHeight);
+        } else {
+          try {
+            var win = previewFrame.contentWindow;
+            var root = previewFrame.contentDocument.documentElement;
+            win.scrollTo(0, ratio * Math.max(0, root.scrollHeight - win.innerHeight));
+          } catch (error) {}
+        }
       }
 
       function setInlinePreviewStatus(message, error) {
@@ -486,6 +513,9 @@ export const technicalEditorScript = String.raw`
         inlinePreview.pendingScroll = null;
         if (!target) return;
         function apply() {
+          if (!inlinePreview.open) return;
+          // A refreshed split preview follows the current editor position, even after layout settles.
+          if (isPreviewSplitActive()) { syncPreviewScroll(); return; }
           try {
             var win = previewFrame.contentWindow;
             var root = previewFrame.contentDocument.documentElement;

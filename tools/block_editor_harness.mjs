@@ -329,9 +329,70 @@ try {
         await preview.locator("text=Split refresh marker.").waitFor({ timeout: 5000 });
         assert.equal(await page.locator('[id="preview-frame"]').count(), 1, "double-buffer promotion keeps exactly one active frame");
         await page.screenshot({ path: `${evidence}/${lang}-${width}-split.png` });
-        await page.locator("#preview-split").click();
+        const scrollSource = Array.from({ length: 45 }, (_, index) =>
+          `## Scroll section ${index + 1}\n\n${"A paragraph that wraps differently in the editor and preview. ".repeat(5)}`
+        ).join("\n\n");
+        await fill(page, scrollSource);
+        await preview.getByRole("heading", { name: "Scroll section 45", exact: true }).waitFor();
+        const assertScrollSync = async (format = "rendered") => {
+          await page.waitForFunction(format => {
+            const sourceMax = document.documentElement.scrollHeight - innerHeight;
+            const sourceRatio = sourceMax > 0 ? scrollY / sourceMax : 0;
+            const frame = document.querySelector("#preview-frame");
+            const html = document.querySelector("#preview-html-source");
+            const targetMax = format === "html" ? html.scrollHeight - html.clientHeight
+              : frame.contentDocument.documentElement.scrollHeight - frame.contentWindow.innerHeight;
+            const targetTop = format === "html" ? html.scrollTop : frame.contentWindow.scrollY;
+            return targetMax > 0 && Math.abs(sourceRatio - targetTop / targetMax) < 0.01;
+          }, format);
+        };
+        for (const mode of ["render", "markdown"]) {
+          await selectView(page, width, mode);
+          for (const ratio of [0, 0.5, 1]) {
+            await page.evaluate(ratio => window.scrollTo(0, ratio * (document.documentElement.scrollHeight - innerHeight)), ratio);
+            await assertScrollSync();
+          }
+        }
         await selectView(page, width, "render");
-        await fill(page, technicalSource);
+        await page.evaluate(() => window.scrollTo(0, 0));
+        await assertScrollSync();
+        await page.screenshot({ path: `${evidence}/${lang}-${width}-scroll-top.png` });
+        await page.mouse.move(300, 500);
+        await page.mouse.wheel(0, 1200);
+        await page.waitForFunction(() => scrollY > 500);
+        await assertScrollSync();
+        await page.screenshot({ path: `${evidence}/${lang}-${width}-scroll-follow.png` });
+        await page.locator("#preview-html").click();
+        await assertScrollSync("html");
+        await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+        await assertScrollSync("html");
+        await page.locator("#preview-rendered").click();
+        await assertScrollSync();
+        // Refresh without moving the caret, then scroll while the new frame is loading.
+        await page.evaluate(() => window.fixtureEditor.view.dispatch({ changes: { from: 0, insert: "Refreshed scroll marker.\n\n" } }));
+        await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight * 0.35));
+        await preview.getByText("Refreshed scroll marker.", { exact: true }).waitFor();
+        await page.waitForTimeout(450);
+        await assertScrollSync();
+        assert.equal((await inspect(page)).doc, "Refreshed scroll marker.\n\n" + scrollSource, "scrolling preserves document content");
+        await page.setViewportSize({ width: 1000, height: 900 });
+        await page.locator(".paper").waitFor({ state: "hidden" });
+        assert.equal(await page.locator(".paper").isVisible(), false, "below the breakpoint preview remains single-pane");
+        await page.setViewportSize({ width, height: 900 });
+        await page.locator(".paper").waitFor({ state: "visible" });
+        await assertScrollSync();
+        await page.locator("#preview-split").click();
+        await preview.locator("body").evaluate(() => window.scrollTo(0, 400));
+        const independentTop = await preview.locator("body").evaluate(() => scrollY);
+        await page.evaluate(() => { window.dispatchEvent(new Event("scroll")); window.dispatchEvent(new Event("resize")); });
+        await page.waitForTimeout(100);
+        assert.equal(await preview.locator("body").evaluate(() => scrollY), independentTop, "full preview keeps independent scrolling");
+        await selectView(page, width, "render");
+        await page.evaluate(text => {
+          const { view } = window.fixtureEditor;
+          view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: text }, selection: { anchor: 0 }, scrollIntoView: true });
+        }, technicalSource);
+        await page.waitForFunction(value => document.querySelector("#body").value === value, technicalSource);
       }
       await page.evaluate(() => localStorage.removeItem("authorEditorPreviewSplit"));
       if (lang === "es") {
