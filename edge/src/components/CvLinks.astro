@@ -1,0 +1,81 @@
+---
+import type { Language } from "./types";
+
+interface Props { lang: Language }
+const { lang } = Astro.props;
+const strings = lang === "es" ? {
+  title: "Enlaces del CV",
+  intro: "Crea un ID por postulación y versión del CV. Guarda la relación con la empresa y vacante en tu registro privado.",
+  id: "ID del CV (opcional)",
+  hint: "Déjalo vacío para generar un ID aleatorio. Los nuevos IDs caducan en 180 días.",
+  register: "Registrar ID",
+  working: "Registrando…",
+  registered: "ID registrado. Ya puedes copiar el enlace para tu CV.",
+  existing: "Este ID ya estaba registrado. Se conservó su estado y caducidad.",
+  heading: "IDs registrados",
+  empty: "Todavía no hay IDs registrados.",
+  loading: "Cargando…",
+  active: "Activo",
+  disabled: "Deshabilitado",
+  expired: "Caducado",
+  expires: "Caduca",
+  copy: "Copiar enlace",
+  copied: "Enlace copiado.",
+  copyFailed: "Selecciona el enlace y cópialo manualmente.",
+  unavailable: "No se pudo acceder al registro. Comprueba tu sesión de administrador e inténtalo de nuevo.",
+  invalid: "Usa de 16 a 64 letras, dígitos, guiones o guiones bajos.",
+} : {
+  title: "CV links",
+  intro: "Create one ID per application and CV version. Keep the company and job mapping in your private records.",
+  id: "CV ID (optional)",
+  hint: "Leave blank to generate a random ID. New IDs expire in 180 days.",
+  register: "Register ID",
+  working: "Registering…",
+  registered: "ID registered. You can now copy the link for your CV.",
+  existing: "This ID was already registered. Its status and expiry were preserved.",
+  heading: "Registered IDs",
+  empty: "No IDs registered yet.",
+  loading: "Loading…",
+  active: "Active",
+  disabled: "Disabled",
+  expired: "Expired",
+  expires: "Expires",
+  copy: "Copy link",
+  copied: "Link copied.",
+  copyFailed: "Select the link and copy it manually.",
+  unavailable: "Could not access the registry. Check your admin session and try again.",
+  invalid: "Use 16–64 letters, digits, hyphens, or underscores.",
+};
+---
+
+<section class="cv-links" data-cv-links data-lang={lang} data-site-origin={Astro.site?.origin || Astro.url.origin} data-strings={JSON.stringify(strings)}>
+  <header class="page-header">
+    <h1>{strings.title}</h1>
+    <p class="lead">{strings.intro}</p>
+  </header>
+  <form class="cv-links-form" data-cv-form>
+    <label for="cv-id">{strings.id}</label>
+    <input id="cv-id" name="cv_id" type="text" minlength="16" maxlength="64" pattern="[A-Za-z0-9_\-]{16,64}" autocomplete="off" spellcheck="false" aria-describedby="cv-id-hint" />
+    <p id="cv-id-hint">{strings.hint}</p>
+    <button type="submit">{strings.register}</button>
+  </form>
+  <p class="cv-links-status" data-cv-status role="status" aria-live="polite"></p>
+  <h2>{strings.heading}</h2>
+  <p data-cv-empty>{strings.loading}</p>
+  <ul class="cv-links-list" data-cv-list></ul>
+  <template data-cv-row>
+    <li class="cv-links-card">
+      <code data-cv-id></code>
+      <p class="cv-links-meta"><span data-cv-state></span> · {strings.expires} <time data-cv-expires></time></p>
+      <div class="cv-links-copy">
+        <label><span>English</span><input type="text" readonly data-cv-url="en" /></label>
+        <button type="button" data-cv-copy="en">{strings.copy} (EN)</button>
+      </div>
+      <div class="cv-links-copy">
+        <label><span>Español</span><input type="text" readonly data-cv-url="es" /></label>
+        <button type="button" data-cv-copy="es">{strings.copy} (ES)</button>
+      </div>
+    </li>
+  </template>
+</section>
+<script is:inline src="/js/cv-links.js" defer></script>

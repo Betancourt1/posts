@@ -2,6 +2,7 @@
 import { env } from "cloudflare:workers";
 
 import PublicPage from "../../views/PublicPage.astro";
+import { navSections } from "../../lib/content-queries.mjs";
 import {
   adminPathForPublicRoute,
   loadNotFoundPage,
@@ -12,10 +13,22 @@ import {
 export const prerender = false;
 
 const publicPath = publicPathForAdminRoute(Astro.url.pathname);
-let model: any = await loadPublicPage(env.DB, publicPath, {
+const isCvLinks = publicPath === "/cv-links/" || publicPath === "/es/cv-links/";
+const lang = publicPath.startsWith("/es/") ? "es" : "en";
+let model: any = isCvLinks ? {
+  kind: "admin-tool",
+  layout: "cv-links",
+  lang,
+  path: publicPath,
+  translationPath: lang === "es" ? "/cv-links/" : "/es/cv-links/",
+  title: lang === "es" ? "Enlaces del CV" : "CV links",
+  page: { hidden: true, section: "cv-links" },
+  navigation: await navSections(env.DB, lang, { includeDrafts: true, includeHiddenListItems: true }),
+} : await loadPublicPage(env.DB, publicPath, {
   includeDrafts: true,
   includeHiddenListItems: true,
 });
+if (isCvLinks) Astro.response.headers.set("Cache-Control", "no-store");
 const redirectPath = model?.redirect ? adminPathForPublicRoute(model.redirect) : "";
 if (redirectPath) return Astro.redirect(redirectPath, 301);
 if (!model) {

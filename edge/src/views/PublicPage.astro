@@ -5,6 +5,7 @@ import portfolioSource from "../../../data/code_portfolio.yaml?raw";
 import Archives from "../components/Archives.astro";
 import Books from "../components/Books.astro";
 import CodePortfolio from "../components/CodePortfolio.astro";
+import CvLinks from "../components/CvLinks.astro";
 import Guestbook from "../components/Guestbook.astro";
 import KnowledgeGraph from "../components/KnowledgeGraph.astro";
 import List from "../components/List.astro";
@@ -157,7 +158,7 @@ const ignoredGraphTags = new Set([
   "book", "read", "currently-reading", "to-read", "essays", "essay", "note", "quote",
   "libro", "leído", "leyendo", "por-leer", "ensayo", "nota", "zettelkasten", "cita",
 ]);
-const canonical = new URL(model.path, Astro.site || Astro.url.origin).href;
+const canonical = new URL(model.layout === "cv-links" ? contentHref(model.path) : model.path, Astro.site || Astro.url.origin).href;
 const shellPage: ShellPage = {
   section: page.section,
   kind: model.kind,
@@ -201,8 +202,10 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
   hasSidenotes={hasSidenotes}
   authorMode={authorMode}
   canonical={canonical}
+  showSidebar={model.layout === "cv-links" ? false : undefined}
   showSearch
 >
+  {authorMode && model.layout === "cv-links" && <CvLinks lang={lang} />}
   {model.layout === "home" && (
     <>
       <header class="page-header">

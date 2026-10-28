@@ -31,6 +31,24 @@ evento. No hay promesa de entrega exacta ni deduplicación entre dispositivos.
 
 ## Activación y operación privada
 
+### Registrar IDs desde el sitio
+
+Entra a `/admin/cv-links/` o `/admin/es/cv-links/` con tu sesión de administrador.
+La opción **CV links / Enlaces del CV** aparece en la navegación de admin.
+
+1. Deja el campo vacío y pulsa **Registrar ID** para generar y dar de alta un UUID.
+   Si ya creaste un ID, pégalo en ese campo antes de registrarlo.
+2. Tras la confirmación, copia el enlace **EN** o **ES** y colócalo en el CV.
+3. Guarda la relación entre el ID, la postulación y la versión del CV en tu registro privado.
+
+La sección muestra los IDs registrados, su estado y su caducidad. Registrar un ID
+existente conserva su estado y fecha original. Los nuevos IDs caducan en 180 días.
+La lista y el alta requieren la autenticación de autor; los IDs se consultan desde
+una API privada y no forman parte del HTML público, la búsqueda ni el grafo.
+Dar de alta IDs no requiere otro despliegue.
+
+### Operación desde la terminal
+
 Se reutiliza el binding **DB** de `edge/wrangler.jsonc`; no requiere nuevos
 servicios, credenciales ni cambios de Access. La migración
 `edge/db/migrations/0003_cv_visits.sql` crea dos tablas separadas del contenido:
@@ -81,7 +99,7 @@ Para una retención de 180 días, el operador puede ejecutar periódicamente:
 npx wrangler d1 execute DB --local --command "DELETE FROM cv_visit_events WHERE visited_at < unixepoch() - 15552000;"
 ```
 
-**Producción pendiente de autorización:** revisar la cuenta y el binding DB,
+**Activación de un entorno de producción:** revisar la cuenta y el binding DB,
 aplicar la migración con `npm run db:migrate:remote`, desplegar mediante
 `npm run deploy` y registrar los IDs con `--remote` en lugar de `--local`.
 Esas acciones no forman parte de implementar/probar localmente. Tras autorizar y

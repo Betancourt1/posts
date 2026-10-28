@@ -59,6 +59,15 @@ const newNotebook = lang === "es" ? "Nuevo notebook" : "New notebook";
         </li>
       );
     })}
+    {authorMode && (
+      <li class="nav-admin-section">
+        <a
+          href={lang === "es" ? "/admin/es/cv-links/" : "/admin/cv-links/"}
+          class:list={{ active: activeSection === "cv-links" }}
+          aria-current={activeSection === "cv-links" ? "page" : undefined}
+        >{lang === "es" ? "Enlaces del CV" : "CV links"}</a>
+      </li>
+    )}
   </ul>
 </nav>
 
