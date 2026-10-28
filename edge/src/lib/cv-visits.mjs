@@ -12,7 +12,7 @@ export function validCvId(value) {
 const INSERT_VISIT = `
   INSERT INTO cv_visit_events (cv_id)
   SELECT cv_id FROM cv_attributions
-  WHERE cv_id = ?1 AND enabled = 1 AND expires_at > unixepoch()
+  WHERE cv_id = ?1 AND enabled = 1
     AND (SELECT COUNT(*) FROM cv_visit_events WHERE cv_id = ?1) < ?2
     AND (SELECT COUNT(*) FROM cv_visit_events
          WHERE cv_id = ?1 AND visited_at >= unixepoch() - 86400) < ?3
@@ -77,7 +77,7 @@ export async function receiveCvVisit(request, db) {
     const result = await db.prepare(INSERT_VISIT)
       .bind(payload.cvId, MAX_VISITS_PER_ID, MAX_VISITS_PER_DAY).run();
     if (!result.success) return response(503);
-    // Never reveal whether the ID exists, is disabled/expired, or reached a cap.
+    // Never reveal whether the ID exists, is disabled, or reached a cap.
     return response(204);
   } catch {
     // Do not log IDs, request bodies, headers, or database errors.

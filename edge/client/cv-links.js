@@ -39,12 +39,8 @@
       row.querySelector("[data-cv-visits]").textContent = entry.visits;
       row.querySelector("[data-cv-latest]").textContent = entry.last_visited_at === null ? strings.noVisits
         : new Intl.DateTimeFormat(root.dataset.lang, { dateStyle: "medium", timeStyle: "short" }).format(new Date(entry.last_visited_at * 1000));
-      const active = entry.enabled === 1 && entry.expires_at > Date.now() / 1000;
-      row.querySelector("[data-cv-state]").textContent = !entry.enabled ? strings.disabled : active ? strings.active : strings.expired;
-      const time = row.querySelector("[data-cv-expires]");
-      const date = new Date(entry.expires_at * 1000);
-      time.dateTime = date.toISOString();
-      time.textContent = new Intl.DateTimeFormat(root.dataset.lang, { dateStyle: "medium" }).format(date);
+      const active = entry.enabled === 1;
+      row.querySelector("[data-cv-state]").textContent = active ? strings.active : strings.disabled;
       const url = new URL("/about/", root.dataset.siteOrigin);
       url.searchParams.set("cv_id", entry.cv_id);
       const link = row.querySelector("[data-cv-url]");

@@ -46,10 +46,11 @@ La opción **CV links / Enlaces del CV** aparece en la navegación de admin.
 4. Vuelve a abrir o recarga la sección para consultar las **Visitas** y la
    **Última visita** de cada vacante. Los IDs sin eventos muestran cero visitas.
 
-La sección muestra los IDs registrados, su vacante, estado, caducidad, total de
+La sección muestra los IDs registrados, su vacante, estado, total de
 visitas y última visita. Los horarios se muestran en la zona horaria del navegador.
-Registrar un ID existente conserva su vacante, estado y fecha original.
-Los nuevos IDs caducan en 180 días.
+Registrar un ID existente conserva su vacante, estado e historial.
+Los enlaces existentes y nuevos no caducan. Se conservan los límites de
+almacenamiento descritos abajo.
 La lista y el alta requieren la autenticación de autor; los IDs se consultan desde
 una API privada y no forman parte del HTML público, la búsqueda ni el grafo.
 Dar de alta IDs no requiere otro despliegue.
@@ -59,9 +60,11 @@ Dar de alta IDs no requiere otro despliegue.
 Se reutiliza el binding **DB** de `edge/wrangler.jsonc`; no requiere nuevos
 servicios, credenciales ni cambios de Access. La migración
 `edge/db/migrations/0003_cv_visits.sql` crea dos tablas separadas del contenido:
-`cv_attributions` (IDs habilitados y caducidad) y `cv_visit_events` (visitas).
+`cv_attributions` (IDs y estado habilitado) y `cv_visit_events` (visitas).
 La migración `0004_cv_attribution_vacancy.sql` añade la etiqueta privada `vacancy`;
 los IDs existentes reciben una etiqueta vacía y conservan sus visitas.
+La migración `0005_cv_links_never_expire.sql` elimina la caducidad sin cambiar
+los IDs, vacantes, estados ni eventos.
 Los seeds de contenido no eliminan estas tablas. No hay API de lectura o alta
 pública; tampoco se envía al cliente la lista de IDs habilitados.
 
@@ -80,7 +83,7 @@ No reutilices los IDs de ejemplo ni uses IDs predecibles.
 npx wrangler d1 execute DB --local --command "INSERT INTO cv_attributions (cv_id) VALUES ('ID_GENERADO');"
 ```
 
-La caducidad predeterminada es de 180 días. En el CV coloca, por ejemplo,
+Los IDs no tienen fecha de caducidad. En el CV coloca, por ejemplo,
 `https://fbetancourt.work/es/about/?cv_id=ID_GENERADO`. **Un ID que no esté dado de
 alta en la base del entorno de destino no guardará ninguna visita.**
 
@@ -90,7 +93,7 @@ detalles pueden consultarse en tu registro externo):
 ```sh
 npx wrangler d1 execute DB --local --command "SELECT cv_id, COUNT(*) AS visitas, datetime(MIN(visited_at), 'unixepoch') AS primera_utc, datetime(MAX(visited_at), 'unixepoch') AS ultima_utc FROM cv_visit_events GROUP BY cv_id ORDER BY MAX(visited_at) DESC;"
 npx wrangler d1 execute DB --local --command "SELECT id, datetime(visited_at, 'unixepoch') AS visita_utc FROM cv_visit_events WHERE cv_id = 'ID_GENERADO' ORDER BY visited_at DESC, id DESC;"
-npx wrangler d1 execute DB --local --command "SELECT cv_id, enabled, datetime(expires_at, 'unixepoch') AS caduca_utc FROM cv_attributions;"
+npx wrangler d1 execute DB --local --command "SELECT cv_id, vacancy, enabled FROM cv_attributions;"
 ```
 
 Para dejar de recibir visitas de un enlace o borrar su historial:
@@ -101,14 +104,20 @@ npx wrangler d1 execute DB --local --command "UPDATE cv_attributions SET enabled
 npx wrangler d1 execute DB --local --command "DELETE FROM cv_attributions WHERE cv_id = 'ID_GENERADO';"
 ```
 
-La caducidad deja de aceptar visitas, pero no borra el historial automáticamente.
+Deshabilitar un ID no borra su historial. No hay borrado automático de visitas.
 Para una retención de 180 días, el operador puede ejecutar periódicamente:
 
 ```sh
 npx wrangler d1 execute DB --local --command "DELETE FROM cv_visit_events WHERE visited_at < unixepoch() - 15552000;"
 ```
 
-**Activación de un entorno de producción:** revisar la cuenta y el binding DB,
+**Actualización de un entorno existente:** desplegar primero el runtime que ya
+ignora la caducidad y verificar ambas rutas de admin. Después aplicar únicamente
+la migración `0005_cv_links_never_expire.sql` y comprobar que los IDs, vacantes,
+estados y eventos se conservaron. El runtime anterior requiere la columna
+eliminada y no debe restaurarse por separado.
+
+**Activación de un entorno nuevo:** revisar la cuenta y el binding DB,
 aplicar la migración con `npm run db:migrate:remote`, desplegar mediante
 `npm run deploy` y registrar los IDs con `--remote` en lugar de `--local`.
 Esas acciones no forman parte de implementar/probar localmente. Tras autorizar y
@@ -126,13 +135,13 @@ usan las credenciales existentes del operador y sus resultados deben ser privado
   origen coincidente. Rechaza otros campos, métodos, orígenes y tipos de contenido.
   Origin ayuda frente a envíos desde otras webs; no autentica personas ni impide
   que un cliente programático lo falsifique.
-- El alta privada, la caducidad y una inserción SQL atómica limitan cada ID a
+- El alta privada y una inserción SQL atómica limitan cada ID a
   100 eventos en las últimas 24 horas y 1.000 filas totales. Al borrar historial
   se libera ese cupo. Son límites de almacenamiento, no protección completa del
   presupuesto de peticiones o D1. Quien conozca un enlace puede falsificar visitas
   o agotar su cupo; tampoco existe garantía de conteo exhaustivo.
 - Se devuelve `204` vacío tanto al guardar como al ignorar un ID desconocido,
-  deshabilitado, caducado o limitado. **204 no prueba persistencia**: la verificación
+  deshabilitado o limitado. **204 no prueba persistencia**: la verificación
   exige consultar D1. Una falla de almacenamiento devuelve `503` sin detalles.
 - Las vacantes solo se devuelven en la API autenticada de admin. Nunca se añaden
   al HTML público, archivos estáticos, bundle, Git ni API pública. Las etiquetas

@@ -51,7 +51,7 @@ test("CV registration rejects wrong origins, content types, and malformed IDs be
   }
 });
 
-test("CV registry persists IDs and never renews or enables duplicates", async (t) => {
+test("CV registry persists permanent IDs and never enables duplicates", async (t) => {
   const worker = new Miniflare({
     modules: true,
     script: "export default { fetch() { return new Response('ok') } }",
@@ -77,7 +77,7 @@ test("CV registry persists IDs and never renews or enables duplicates", async (t
       assert.equal(data.attributions[0].last_visited_at, 100);
     });
 
-    await t.test("signed author request registers an ID and returns its server expiry", async () => {
+    await t.test("signed author request registers an ID without exposing legacy expiry", async () => {
       const keys = await crypto.subtle.generateKey({ name: "RSASSA-PKCS1-v1_5", modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" }, true, ["sign", "verify"]);
       const jwk = { ...await crypto.subtle.exportKey("jwk", keys.publicKey), kid: "cv-test" };
       const encode = (value) => Buffer.from(JSON.stringify(value)).toString("base64url");
@@ -98,7 +98,7 @@ test("CV registry persists IDs and never renews or enables duplicates", async (t
         assert.equal(data.attribution.visits, 0);
         assert.equal(data.attribution.last_visited_at, null);
         assert.equal(data.attribution.enabled, 1);
-        assert.ok(data.attribution.expires_at > Date.now() / 1000 + 179 * 86400);
+        assert.equal(Object.hasOwn(data.attribution, "expires_at"), false);
       } finally {
         globalThis.fetch = originalFetch;
       }
@@ -115,11 +115,21 @@ test("CV registry persists IDs and never renews or enables duplicates", async (t
       assert.equal(legacy.last_visited_at, 100);
     });
 
-    await t.test("repeated registration preserves vacancy, disabled state, expiry and visit history", async () => {
+    await t.test("expiry migration preserves IDs, vacancies, disabled state and all events", async () => {
       await DB.prepare("UPDATE cv_attributions SET enabled = 0, expires_at = 123 WHERE cv_id = ?").bind(id).run();
+      const before = await (await listCvAttributions({ env })).json();
+      const events = await DB.prepare("SELECT * FROM cv_visit_events ORDER BY id").all();
+      await DB.prepare(await readFile(new URL("../db/migrations/0005_cv_links_never_expire.sql", import.meta.url), "utf8")).run();
+      assert.deepEqual(await (await listCvAttributions({ env })).json(), before);
+      assert.deepEqual((await DB.prepare("SELECT * FROM cv_visit_events ORDER BY id").all()).results, events.results);
+      assert.equal((await DB.prepare("PRAGMA table_info(cv_attributions)").all()).results.some((column) => column.name === "expires_at"), false);
+      assert.deepEqual((await DB.prepare("PRAGMA foreign_key_check").all()).results, []);
+    });
+
+    await t.test("repeated registration preserves vacancy, disabled state and visit history", async () => {
       const response = await registerCvAttribution({ env, request: request({ cv_id: id, vacancy: "Replacement" }) });
       assert.equal(response.status, 200);
-      assert.deepEqual(await response.json(), { created: false, attribution: { cv_id: id, vacancy, enabled: 0, expires_at: 123, visits: 2, last_visited_at: 300 } });
+      assert.deepEqual(await response.json(), { created: false, attribution: { cv_id: id, vacancy, enabled: 0, visits: 2, last_visited_at: 300 } });
       assert.equal(await DB.prepare("SELECT COUNT(*) AS count FROM cv_attributions WHERE cv_id = ?").bind(id).first("count"), 1);
     });
 
@@ -127,16 +137,19 @@ test("CV registry persists IDs and never renews or enables duplicates", async (t
       const response = await listCvAttributions({ env });
       assert.equal(response.headers.get("cache-control"), "no-store");
       const data = await response.json();
-      assert.deepEqual(data.attributions.find((entry) => entry.cv_id === id), { cv_id: id, vacancy, enabled: 0, expires_at: 123, visits: 2, last_visited_at: 300 });
+      assert.deepEqual(data.attributions.find((entry) => entry.cv_id === id), { cv_id: id, vacancy, enabled: 0, visits: 2, last_visited_at: 300 });
     });
 
     await t.test("blank and omitted vacancies remain optional and zero-event IDs stay visible", async () => {
       for (const [suffix, label] of [["blank", "   "], ["omitted", undefined]]) {
         const cv_id = `cv_optional_test_${suffix}`;
-        const data = await (await registerCvAttribution({ env, request: request({ cv_id, vacancy: label }) })).json();
+        const response = await registerCvAttribution({ env, request: request({ cv_id, vacancy: label }) });
+        assert.equal(response.status, 201);
+        const data = await response.json();
         assert.equal(data.attribution.vacancy, "");
         assert.equal(data.attribution.visits, 0);
         assert.equal(data.attribution.last_visited_at, null);
+        assert.equal(Object.hasOwn(data.attribution, "expires_at"), false);
         const list = await (await listCvAttributions({ env })).json();
         assert.ok(list.attributions.some((entry) => entry.cv_id === cv_id && entry.visits === 0 && entry.last_visited_at === null));
       }

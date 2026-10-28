@@ -2,7 +2,7 @@ import { jsonResponse } from "../../../functions/_lib/http.js";
 import { validCvId } from "./cv-visits.mjs";
 
 const ATTRIBUTIONS = `
-  SELECT a.cv_id, a.vacancy, a.enabled, a.expires_at,
+  SELECT a.cv_id, a.vacancy, a.enabled,
     COUNT(v.id) AS visits, MAX(v.visited_at) AS last_visited_at
   FROM cv_attributions a LEFT JOIN cv_visit_events v ON v.cv_id = a.cv_id
 `;
@@ -10,7 +10,7 @@ const ATTRIBUTIONS = `
 export async function listCvAttributions({ env }) {
   try {
     const result = await env.DB.prepare(
-      `${ATTRIBUTIONS} GROUP BY a.cv_id ORDER BY a.expires_at DESC, a.cv_id`,
+      `${ATTRIBUTIONS} GROUP BY a.cv_id ORDER BY a.cv_id`,
     ).all();
     if (!result.success) throw new Error("D1 query failed");
     return jsonResponse({ attributions: result.results });

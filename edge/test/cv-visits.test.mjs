@@ -40,6 +40,20 @@ test("CV visit receiver validates requests and persists bounded private events i
     const count = (id) => db.prepare("SELECT COUNT(*) FROM cv_visit_events WHERE cv_id = ?").bind(id).first("COUNT(*)");
     await register(activeId);
 
+    await t.test("formerly expired IDs accept visits before and after removing expiry", async () => {
+      const cv_id = "cv_expired_0123456789";
+      await register(cv_id);
+      await db.prepare("UPDATE cv_attributions SET expires_at = 1 WHERE cv_id = ?").bind(cv_id).run();
+      assert.equal((await receiveCvVisit(request({ cv_id }), db)).status, 204);
+      assert.equal(await count(cv_id), 1);
+      for (const name of ["0004_cv_attribution_vacancy.sql", "0005_cv_links_never_expire.sql"]) {
+        await db.prepare(await readFile(new URL(`../db/migrations/${name}`, import.meta.url), "utf8")).run();
+      }
+      assert.equal(await count(cv_id), 1);
+      assert.equal((await receiveCvVisit(request({ cv_id }), db)).status, 204);
+      assert.equal(await count(cv_id), 2);
+    });
+
     await t.test("stores only an internal event number, registered CV ID, and server time", async () => {
       const before = Math.floor(Date.now() / 1000);
       const result = await receiveCvVisit(request(), db);
@@ -47,22 +61,17 @@ test("CV visit receiver validates requests and persists bounded private events i
       assert.equal(await result.text(), "");
       assert.equal(result.headers.get("cache-control"), "no-store");
       assert.equal(result.headers.get("access-control-allow-origin"), null);
-      const event = await db.prepare("SELECT * FROM cv_visit_events").first();
+      const event = await db.prepare("SELECT * FROM cv_visit_events WHERE cv_id = ?").bind(activeId).first();
       assert.deepEqual(Object.keys(event).sort(), ["cv_id", "id", "visited_at"]);
       assert.equal(event.cv_id, activeId);
       assert.ok(event.visited_at >= before && event.visited_at <= Math.floor(Date.now() / 1000));
-      const expires = await db.prepare("SELECT expires_at FROM cv_attributions WHERE cv_id = ?").bind(activeId).first("expires_at");
-      assert.ok(expires > before + 179 * 86400 && expires <= before + 181 * 86400);
     });
 
-    await t.test("unknown, disabled, and expired IDs receive the same empty response without inserting", async () => {
+    await t.test("unknown and disabled IDs receive the same empty response without inserting", async () => {
       const disabled = "cv_disabled_0123456789";
-      const expired = "cv_expired_0123456789";
       await register(disabled);
-      await register(expired);
       await db.prepare("UPDATE cv_attributions SET enabled = 0 WHERE cv_id = ?").bind(disabled).run();
-      await db.prepare("UPDATE cv_attributions SET expires_at = unixepoch() - 1 WHERE cv_id = ?").bind(expired).run();
-      for (const cv_id of [disabled, expired, "cv_unknown_0123456789"]) {
+      for (const cv_id of [disabled, "cv_unknown_0123456789"]) {
         const result = await receiveCvVisit(request({ cv_id }), db);
         assert.equal(result.status, 204);
         assert.equal(await result.text(), "");

@@ -10,18 +10,17 @@ const strings = lang === "es" ? {
   private: "Solo visible en admin. Hasta 200 caracteres.",
   unnamed: "Sin vacante asignada",
   id: "ID del CV (opcional)",
-  hint: "Déjalo vacío para generar un ID aleatorio. Los nuevos IDs caducan en 180 días.",
+  hint: "Déjalo vacío para generar un ID aleatorio. Los enlaces no caducan.",
   register: "Registrar ID",
   working: "Registrando…",
   registered: "ID registrado. Ya puedes copiar el enlace para tu CV.",
-  existing: "Este ID ya estaba registrado. Se conservó su vacante, estado y caducidad.",
+  existing: "Este ID ya estaba registrado. Se conservó su vacante y estado.",
   heading: "IDs registrados",
   empty: "Todavía no hay IDs registrados.",
   loading: "Cargando…",
   active: "Activo",
   disabled: "Deshabilitado",
-  expired: "Caducado",
-  expires: "Caduca",
+  neverExpires: "No caduca",
   link: "Enlace del CV",
   visits: "Visitas",
   latest: "Última visita",
@@ -39,18 +38,17 @@ const strings = lang === "es" ? {
   private: "Only visible in admin. Up to 200 characters.",
   unnamed: "No vacancy assigned",
   id: "CV ID (optional)",
-  hint: "Leave blank to generate a random ID. New IDs expire in 180 days.",
+  hint: "Leave blank to generate a random ID. Links never expire.",
   register: "Register ID",
   working: "Registering…",
   registered: "ID registered. You can now copy the link for your CV.",
-  existing: "This ID was already registered. Its vacancy, status and expiry were preserved.",
+  existing: "This ID was already registered. Its vacancy and status were preserved.",
   heading: "Registered IDs",
   empty: "No IDs registered yet.",
   loading: "Loading…",
   active: "Active",
   disabled: "Disabled",
-  expired: "Expired",
-  expires: "Expires",
+  neverExpires: "Never expires",
   link: "CV link",
   visits: "Visits",
   latest: "Latest visit",
@@ -86,7 +84,7 @@ const strings = lang === "es" ? {
     <li class="cv-links-card">
       <h3 data-cv-vacancy></h3>
       <code data-cv-id></code>
-      <p class="cv-links-meta"><span data-cv-state></span> · {strings.expires} <time data-cv-expires></time></p>
+      <p class="cv-links-meta"><span data-cv-state></span> · {strings.neverExpires}</p>
       <p><strong>{strings.visits}: <span data-cv-visits></span></strong><br />{strings.latest}: <span data-cv-latest></span></p>
       <div class="cv-links-copy">
         <label><span>{strings.link}</span><input type="text" readonly data-cv-url /></label>
