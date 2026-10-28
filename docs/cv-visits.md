@@ -3,8 +3,9 @@
 Los enlaces del CV pueden usar `https://fbetancourt.work/about/?cv_id=ID_OPACO`
 o cualquier otra página pública, incluido `/es/about/`. Crea un ID aleatorio distinto
 para cada **postulación y versión del CV**. No pongas nombres de empresas,
-vacantes, correos ni personas en la URL. La relación `ID → empresa / vacante /
-versión / fecha de envío` pertenece a una tabla privada fuera de este repositorio.
+vacantes, correos ni personas en la URL. Puedes asignar una vacante a cada ID
+desde admin: esa etiqueta se guarda en D1 y solo se consulta con autenticación
+de autor. Otros detalles de la postulación pueden permanecer en tu registro privado.
 
 ## Qué se registra
 
@@ -36,13 +37,19 @@ evento. No hay promesa de entrega exacta ni deduplicación entre dispositivos.
 Entra a `/admin/cv-links/` o `/admin/es/cv-links/` con tu sesión de administrador.
 La opción **CV links / Enlaces del CV** aparece en la navegación de admin.
 
-1. Deja el campo vacío y pulsa **Registrar ID** para generar y dar de alta un UUID.
-   Si ya creaste un ID, pégalo en ese campo antes de registrarlo.
-2. Tras la confirmación, copia el enlace **EN** o **ES** y colócalo en el CV.
-3. Guarda la relación entre el ID, la postulación y la versión del CV en tu registro privado.
+1. Escribe la **Vacante** (opcional, hasta 200 caracteres). Esta etiqueta solo se
+   muestra en admin y no forma parte del enlace público.
+2. Deja el campo **ID del CV** vacío y pulsa **Registrar ID** para generar y dar
+   de alta un UUID. Si ya creaste un ID, pégalo antes de registrarlo.
+3. Copia el único **Enlace del CV** y colócalo en ese CV. El visitante puede
+   cambiar el idioma desde el sitio.
+4. Vuelve a abrir o recarga la sección para consultar las **Visitas** y la
+   **Última visita** de cada vacante. Los IDs sin eventos muestran cero visitas.
 
-La sección muestra los IDs registrados, su estado y su caducidad. Registrar un ID
-existente conserva su estado y fecha original. Los nuevos IDs caducan en 180 días.
+La sección muestra los IDs registrados, su vacante, estado, caducidad, total de
+visitas y última visita. Los horarios se muestran en la zona horaria del navegador.
+Registrar un ID existente conserva su vacante, estado y fecha original.
+Los nuevos IDs caducan en 180 días.
 La lista y el alta requieren la autenticación de autor; los IDs se consultan desde
 una API privada y no forman parte del HTML público, la búsqueda ni el grafo.
 Dar de alta IDs no requiere otro despliegue.
@@ -53,6 +60,8 @@ Se reutiliza el binding **DB** de `edge/wrangler.jsonc`; no requiere nuevos
 servicios, credenciales ni cambios de Access. La migración
 `edge/db/migrations/0003_cv_visits.sql` crea dos tablas separadas del contenido:
 `cv_attributions` (IDs habilitados y caducidad) y `cv_visit_events` (visitas).
+La migración `0004_cv_attribution_vacancy.sql` añade la etiqueta privada `vacancy`;
+los IDs existentes reciben una etiqueta vacía y conservan sus visitas.
 Los seeds de contenido no eliminan estas tablas. No hay API de lectura o alta
 pública; tampoco se envía al cliente la lista de IDs habilitados.
 
@@ -75,8 +84,8 @@ La caducidad predeterminada es de 180 días. En el CV coloca, por ejemplo,
 `https://fbetancourt.work/es/about/?cv_id=ID_GENERADO`. **Un ID que no esté dado de
 alta en la base del entorno de destino no guardará ninguna visita.**
 
-Consulta privada por postulación/versión (la correspondencia comercial se busca
-en tu registro externo, nunca en un endpoint público):
+Consulta privada por postulación/versión (la vacante se ve en admin y los demás
+detalles pueden consultarse en tu registro externo):
 
 ```sh
 npx wrangler d1 execute DB --local --command "SELECT cv_id, COUNT(*) AS visitas, datetime(MIN(visited_at), 'unixepoch') AS primera_utc, datetime(MAX(visited_at), 'unixepoch') AS ultima_utc FROM cv_visit_events GROUP BY cv_id ORDER BY MAX(visited_at) DESC;"
@@ -125,8 +134,9 @@ usan las credenciales existentes del operador y sus resultados deben ser privado
 - Se devuelve `204` vacío tanto al guardar como al ignorar un ID desconocido,
   deshabilitado, caducado o limitado. **204 no prueba persistencia**: la verificación
   exige consultar D1. Una falla de almacenamiento devuelve `503` sin detalles.
-- La lista privada de correspondencia nunca debe añadirse a Markdown público,
-  archivos estáticos, el bundle del cliente, Git ni las respuestas de la API.
+- Las vacantes solo se devuelven en la API autenticada de admin. Nunca se añaden
+  al HTML público, archivos estáticos, bundle, Git ni API pública. Las etiquetas
+  pertenecen al CV; no identifican a la persona que abrió su enlace.
 
 ## Comprobación local
 

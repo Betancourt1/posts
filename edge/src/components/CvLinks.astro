@@ -5,13 +5,16 @@ interface Props { lang: Language }
 const { lang } = Astro.props;
 const strings = lang === "es" ? {
   title: "Enlaces del CV",
-  intro: "Crea un ID por postulación y versión del CV. Guarda la relación con la empresa y vacante en tu registro privado.",
+  intro: "Crea un enlace por CV y asígnalo a una vacante para ver las visitas que recibe.",
+  vacancy: "Vacante (opcional)",
+  private: "Solo visible en admin. Hasta 200 caracteres.",
+  unnamed: "Sin vacante asignada",
   id: "ID del CV (opcional)",
   hint: "Déjalo vacío para generar un ID aleatorio. Los nuevos IDs caducan en 180 días.",
   register: "Registrar ID",
   working: "Registrando…",
   registered: "ID registrado. Ya puedes copiar el enlace para tu CV.",
-  existing: "Este ID ya estaba registrado. Se conservó su estado y caducidad.",
+  existing: "Este ID ya estaba registrado. Se conservó su vacante, estado y caducidad.",
   heading: "IDs registrados",
   empty: "Todavía no hay IDs registrados.",
   loading: "Cargando…",
@@ -19,20 +22,28 @@ const strings = lang === "es" ? {
   disabled: "Deshabilitado",
   expired: "Caducado",
   expires: "Caduca",
+  link: "Enlace del CV",
+  visits: "Visitas",
+  latest: "Última visita",
+  noVisits: "Sin visitas registradas",
   copy: "Copiar enlace",
   copied: "Enlace copiado.",
   copyFailed: "Selecciona el enlace y cópialo manualmente.",
   unavailable: "No se pudo acceder al registro. Comprueba tu sesión de administrador e inténtalo de nuevo.",
   invalid: "Usa de 16 a 64 letras, dígitos, guiones o guiones bajos.",
+  invalidVacancy: "La vacante debe tener un máximo de 200 caracteres.",
 } : {
   title: "CV links",
-  intro: "Create one ID per application and CV version. Keep the company and job mapping in your private records.",
+  intro: "Create one link per CV and assign it to a vacancy to see the visits it receives.",
+  vacancy: "Vacancy (optional)",
+  private: "Only visible in admin. Up to 200 characters.",
+  unnamed: "No vacancy assigned",
   id: "CV ID (optional)",
   hint: "Leave blank to generate a random ID. New IDs expire in 180 days.",
   register: "Register ID",
   working: "Registering…",
   registered: "ID registered. You can now copy the link for your CV.",
-  existing: "This ID was already registered. Its status and expiry were preserved.",
+  existing: "This ID was already registered. Its vacancy, status and expiry were preserved.",
   heading: "Registered IDs",
   empty: "No IDs registered yet.",
   loading: "Loading…",
@@ -40,11 +51,16 @@ const strings = lang === "es" ? {
   disabled: "Disabled",
   expired: "Expired",
   expires: "Expires",
+  link: "CV link",
+  visits: "Visits",
+  latest: "Latest visit",
+  noVisits: "No recorded visits",
   copy: "Copy link",
   copied: "Link copied.",
   copyFailed: "Select the link and copy it manually.",
   unavailable: "Could not access the registry. Check your admin session and try again.",
   invalid: "Use 16–64 letters, digits, hyphens, or underscores.",
+  invalidVacancy: "The vacancy must be at most 200 characters.",
 };
 ---
 
@@ -54,6 +70,9 @@ const strings = lang === "es" ? {
     <p class="lead">{strings.intro}</p>
   </header>
   <form class="cv-links-form" data-cv-form>
+    <label for="cv-vacancy">{strings.vacancy}</label>
+    <input id="cv-vacancy" name="vacancy" type="text" maxlength="200" autocomplete="off" aria-describedby="cv-vacancy-hint" />
+    <p id="cv-vacancy-hint">{strings.private}</p>
     <label for="cv-id">{strings.id}</label>
     <input id="cv-id" name="cv_id" type="text" minlength="16" maxlength="64" pattern="[A-Za-z0-9_\-]{16,64}" autocomplete="off" spellcheck="false" aria-describedby="cv-id-hint" />
     <p id="cv-id-hint">{strings.hint}</p>
@@ -65,15 +84,13 @@ const strings = lang === "es" ? {
   <ul class="cv-links-list" data-cv-list></ul>
   <template data-cv-row>
     <li class="cv-links-card">
+      <h3 data-cv-vacancy></h3>
       <code data-cv-id></code>
       <p class="cv-links-meta"><span data-cv-state></span> · {strings.expires} <time data-cv-expires></time></p>
+      <p><strong>{strings.visits}: <span data-cv-visits></span></strong><br />{strings.latest}: <span data-cv-latest></span></p>
       <div class="cv-links-copy">
-        <label><span>English</span><input type="text" readonly data-cv-url="en" /></label>
-        <button type="button" data-cv-copy="en">{strings.copy} (EN)</button>
-      </div>
-      <div class="cv-links-copy">
-        <label><span>Español</span><input type="text" readonly data-cv-url="es" /></label>
-        <button type="button" data-cv-copy="es">{strings.copy} (ES)</button>
+        <label><span>{strings.link}</span><input type="text" readonly data-cv-url /></label>
+        <button type="button" data-cv-copy>{strings.copy}</button>
       </div>
     </li>
   </template>

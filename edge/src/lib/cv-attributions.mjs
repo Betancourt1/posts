@@ -1,10 +1,16 @@
 import { jsonResponse } from "../../../functions/_lib/http.js";
 import { validCvId } from "./cv-visits.mjs";
 
+const ATTRIBUTIONS = `
+  SELECT a.cv_id, a.vacancy, a.enabled, a.expires_at,
+    COUNT(v.id) AS visits, MAX(v.visited_at) AS last_visited_at
+  FROM cv_attributions a LEFT JOIN cv_visit_events v ON v.cv_id = a.cv_id
+`;
+
 export async function listCvAttributions({ env }) {
   try {
     const result = await env.DB.prepare(
-      "SELECT cv_id, enabled, expires_at FROM cv_attributions ORDER BY expires_at DESC, cv_id",
+      `${ATTRIBUTIONS} GROUP BY a.cv_id ORDER BY a.expires_at DESC, a.cv_id`,
     ).all();
     if (!result.success) throw new Error("D1 query failed");
     return jsonResponse({ attributions: result.results });
@@ -26,16 +32,21 @@ export async function registerCvAttribution({ env, request }) {
   } catch {
     return jsonResponse({ error: "id_invalid" }, 400);
   }
-  if (!payload || Array.isArray(payload) || Object.keys(payload).length !== 1 || !validCvId(payload.cv_id)) {
+  if (!payload || Array.isArray(payload) || !validCvId(payload.cv_id)
+    || Object.keys(payload).some((key) => key !== "cv_id" && key !== "vacancy")) {
     return jsonResponse({ error: "id_invalid" }, 400);
   }
+  if (payload.vacancy !== undefined && (typeof payload.vacancy !== "string" || payload.vacancy.trim().length > 200)) {
+    return jsonResponse({ error: "vacancy_invalid" }, 400);
+  }
+  const vacancy = payload.vacancy?.trim() || "";
   try {
     const result = await env.DB.prepare(
-      "INSERT INTO cv_attributions (cv_id) VALUES (?) ON CONFLICT(cv_id) DO NOTHING",
-    ).bind(payload.cv_id).run();
+      "INSERT INTO cv_attributions (cv_id, vacancy) VALUES (?, ?) ON CONFLICT(cv_id) DO NOTHING",
+    ).bind(payload.cv_id, vacancy).run();
     if (!result.success) throw new Error("D1 insert failed");
     const attribution = await env.DB.prepare(
-      "SELECT cv_id, enabled, expires_at FROM cv_attributions WHERE cv_id = ?",
+      `${ATTRIBUTIONS} WHERE a.cv_id = ? GROUP BY a.cv_id`,
     ).bind(payload.cv_id).first();
     if (!attribution) throw new Error("D1 readback failed");
     const created = result.meta.changes > 0;

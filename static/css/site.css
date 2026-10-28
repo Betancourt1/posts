@@ -1018,6 +1018,7 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 .cv-links-status.is-error { color: var(--accent); }
 .cv-links-list { list-style: none; padding: 0; }
 .cv-links-card { border-top: 1px solid var(--line); padding: 20px 0; }
+.cv-links-card > h3 { margin: 0 0 12px; overflow-wrap: anywhere; }
 .cv-links-card > code { overflow-wrap: anywhere; }
 .cv-links-meta, .cv-links-form p { color: var(--ink-muted); font-size: 0.9em; }
 .cv-links-copy { display: flex; align-items: end; gap: 10px; margin-top: 12px; }
