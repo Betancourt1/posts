@@ -4,6 +4,10 @@ This directory contains the production Astro SSR runtime.
 Git remains the canonical content store; D1 is a runtime projection used by the
 Worker to render pages immediately after a content commit.
 
+Private CV-attributed visits reuse this D1 database. See
+[CV visits](../docs/cv-visits.md) for ID registration, private queries, limits,
+local verification, and the separately authorized production activation steps.
+
 ## Content flow
 
 1. The author editor writes Markdown to GitHub.

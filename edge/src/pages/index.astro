@@ -7,7 +7,7 @@ import { loadNotFoundPage, loadPublicPage } from "../lib/public-page.mjs";
 export const prerender = false;
 
 let model: any = await loadPublicPage(env.DB, "/");
-if (model?.redirect) return Astro.redirect(model.redirect, 301);
+if (model?.redirect) return Astro.redirect(model.redirect + Astro.url.search, 301);
 if (!model) {
   Astro.response.status = 404;
   model = await loadNotFoundPage(env.DB, "/");
