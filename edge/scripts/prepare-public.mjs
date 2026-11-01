@@ -19,7 +19,6 @@ const staticFiles = [
   "fonts/Jersey10-Regular.woff2",
   "fonts/Doto-Variable.woff2",
   "js/author-tools.js",
-  "js/code-portfolio.js",
   "js/curved-scrollbar.js",
   "js/knowledge-graph.js",
   "js/photography-grid.js",

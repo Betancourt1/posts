@@ -283,6 +283,13 @@ test("home selects one published essay plus pins beyond the recent feed and surv
     await put(lang, "draft-pin", "date: 2026-09-21\nessay: true\npinned: true");
     await db.prepare("UPDATE documents SET draft = 1 WHERE lang = ? AND title = 'draft-pin'").bind(lang).run();
     await put(lang, "technical", "date: 2026-09-20\nessay: true\ntechnical: true");
+    const listing = { includeLanguageFallback: true };
+    const projects = await sectionItems(db, lang, "proyectos-profesionales", listing);
+    const blog = await sectionItems(db, lang, "posts", listing);
+    const articlePath = lang === "es" ? "/es/posts/technical/" : "/posts/technical/";
+    assert.ok(projects.some(item => item.path === articlePath));
+    assert.ok(blog.every(item => item.frontMatter.technical !== true));
+    assert.ok(blog.some(item => item.title === "latest-essay"));
     const selected = await homePosts(db, lang);
     assert.deepEqual(selected.map((item) => item.title), ["latest-essay", "tie-pin", "older-pin"]);
     assert.equal(selected[0].latestEssay, 1);
@@ -451,32 +458,32 @@ test("reads the projected public site through the real D1 API", async (t) => {
       "Destination",
     ]);
 
+    for (const lang of ["en", "es"]) {
+      const projects = await sectionItems(db, lang, "proyectos-profesionales", { includeLanguageFallback: true });
+      assert.deepEqual(projects.map(item => item.path), ["/es/posts/solo-espanol/"]);
+    }
     const publicEnglishWriting = await loadPublicPage(db, "/posts/");
     assert.deepEqual(publicEnglishWriting.items.map((document) => document.title), [
-      "Solo en español",
       "Ethical Data",
       "Destination",
     ]);
     assert.deepEqual(publicEnglishWriting.items.map((document) => document.path), [
-      "/es/posts/solo-espanol/",
       "/posts/ethical-data/",
       "/posts/target/",
     ]);
     const publicSpanishWriting = await loadPublicPage(db, "/es/posts/");
     assert.deepEqual(publicSpanishWriting.items.map((document) => document.title), [
-      "Solo en español",
       "Datos éticos",
       "Destination",
     ]);
     assert.deepEqual(publicSpanishWriting.items.map((document) => document.path), [
-      "/es/posts/solo-espanol/",
       "/es/posts/datos-eticos/",
       "/posts/target/",
     ]);
 
     for (const page of [publicEnglishWriting, publicSpanishWriting]) {
-      assert.deepEqual(page.items.map((document) => document.frontMatter.essay), [false, true, undefined]);
-      assert.deepEqual(page.items.map((document) => document.frontMatter.technical), [true, undefined, undefined]);
+      assert.deepEqual(page.items.map((document) => document.frontMatter.essay), [true, undefined]);
+      assert.deepEqual(page.items.map((document) => document.frontMatter.technical), [undefined, undefined]);
     }
 
     const adminOptions = {
@@ -486,7 +493,6 @@ test("reads the projected public site through the real D1 API", async (t) => {
     const adminEnglishWriting = await loadPublicPage(db, "/posts/", adminOptions);
     assert.deepEqual(adminEnglishWriting.items.map((document) => document.title), [
       "Borrador solo en español",
-      "Solo en español",
       "Draft link",
       "Hidden link",
       "Ethical Data",
@@ -498,14 +504,13 @@ test("reads the projected public site through the real D1 API", async (t) => {
     const adminSpanishWriting = await loadPublicPage(db, "/es/posts/", adminOptions);
     assert.deepEqual(adminSpanishWriting.items.map((document) => document.title), [
       "Borrador solo en español",
-      "Solo en español",
       "Draft link",
       "Hidden link",
       "Datos éticos",
       "Destination",
     ]);
-    assert.equal(adminSpanishWriting.items[2].path, "/posts/draft-link/");
-    assert.equal(adminSpanishWriting.items[2].lang, "en");
+    assert.equal(adminSpanishWriting.items[1].path, "/posts/draft-link/");
+    assert.equal(adminSpanishWriting.items[1].lang, "en");
     assert.equal(
       new Set(adminSpanishWriting.items.map((document) => document.translationKey)).size,
       adminSpanishWriting.items.length,

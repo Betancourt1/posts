@@ -302,16 +302,16 @@ test("keeps the Citas title in Spanish notebook navigation", async () => {
   assert.match(source, /\["Quotes", "\/lit\/", "lit"\]/);
 });
 
-test("keeps Code as the only project identity in bilingual navigation and archives", async () => {
+test("uses Projects in bilingual navigation and archives", async () => {
   const [publicPage, archives] = await Promise.all([
     readFile(publicPagePath, "utf8"),
     readFile(archivesPath, "utf8"),
   ]);
 
-  assert.match(publicPage, /\["Código", "\/es\/proyectos-profesionales\/", "proyectos-profesionales"\]/);
-  assert.match(publicPage, /\["Code", "\/proyectos-profesionales\/", "proyectos-profesionales"\]/);
+  assert.match(publicPage, /\["Proyectos", "\/es\/proyectos-profesionales\/", "proyectos-profesionales"\]/);
+  assert.match(publicPage, /\["Projects", "\/proyectos-profesionales\/", "proyectos-profesionales"\]/);
   assert.doesNotMatch(publicPage, /proyectos-academicos|Academic|Académico/);
-  assert.match(archives, /"proyectos-profesionales": lang === "es" \? "Código" : "Code"/);
+  assert.match(archives, /"proyectos-profesionales": lang === "es" \? "Proyectos" : "Projects"/);
   assert.doesNotMatch(archives, /proyectos-academicos|Academic|Académic/);
 });
 

@@ -2,6 +2,7 @@
 title: "Bicicletas GDL: Visualización de Viajes MiBici de Junio de 2026"
 date: 2026-07-22
 draft: false
+featured: true
 tags:
   - open-source
   - react

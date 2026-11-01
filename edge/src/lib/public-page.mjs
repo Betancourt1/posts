@@ -118,7 +118,6 @@ export function layoutForDocument(document) {
   if (document.kind === "page") return "single";
   if (["books", "libros"].includes(document.section)) return "books";
   if (document.section === "fotografia") return "photography";
-  if (document.section === "proyectos-profesionales") return "code";
   if (document.section === "lit") return "quotes";
   if (["guestbook", "visitas"].includes(document.section)) return "guestbook";
   if (document.section === "archives") return "archives";
@@ -148,11 +147,11 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
     : options;
   const itemsPromise = layout === "home"
     ? homePosts(db, document.lang)
-    : ["list", "books", "photography", "code", "quotes"].includes(layout)
+    : ["list", "books", "photography", "quotes"].includes(layout)
       ? sectionItems(db, document.lang, document.section, {
           ...(layout === "list" ? listItemOptions : options),
           body: ["list", "books"].includes(layout),
-          includeLanguageFallback: (layout === "list" && document.section === "posts") || layout === "photography",
+          includeLanguageFallback: (layout === "list" && ["posts", "proyectos-profesionales"].includes(document.section)) || layout === "photography",
         })
       : Promise.resolve([]);
   const recentItemsPromise = layout === "home"

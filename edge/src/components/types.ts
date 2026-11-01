@@ -43,7 +43,7 @@ export interface InfrastructureNode {
 export interface ShellPage {
   section?: string;
   kind?: string;
-  layout?: "default" | "books" | "photography" | "code" | "quotes" | "not-found";
+  layout?: "default" | "books" | "photography" | "quotes" | "not-found";
   sourcePath?: string | null;
   canonical?: string | null;
   socialImage?: string | null;
@@ -61,7 +61,7 @@ export interface ContentListItem {
   summary?: string | null;
   summaryHtml?: string | null;
   essay?: boolean;
-  technical?: boolean;
+  featured?: boolean;
   contentLanguage?: string;
   tags?: TagItem[];
   section?: string;
@@ -112,28 +112,6 @@ export interface PhotoImage {
   src: string;
   alt?: string | null;
   caption?: string | null;
-}
-
-export interface CodeProject extends ContentListItem {
-  shortTitle?: string | null;
-  technologies?: string[];
-  private?: boolean;
-}
-
-export interface GithubMonth {
-  column: number;
-  label?: string;
-  en?: string;
-  es?: string;
-}
-
-export interface GithubSnapshot {
-  username: string;
-  profileUrl: string;
-  snapshotEnd?: string;
-  weekCount?: number;
-  levels?: string;
-  months?: GithubMonth[];
 }
 
 export interface ArchiveItem extends ContentListItem {

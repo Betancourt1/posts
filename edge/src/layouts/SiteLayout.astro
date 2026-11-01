@@ -16,6 +16,7 @@ interface Props {
   page: ShellPage;
   lang: Language;
   currentPath: string;
+  activeSection?: string;
   translationPath?: string | null;
   navigation: NavItem[];
   archiveMonths?: ArchiveMonth[];
@@ -37,6 +38,7 @@ const {
   page,
   lang,
   currentPath,
+  activeSection = page.section,
   translationPath = lang === "es" ? "/" : "/es/",
   navigation,
   archiveMonths = [],
@@ -45,7 +47,7 @@ const {
     ? "Lecturas y textos de Betancourt."
     : "Readings and essays by Betancourt.",
   pageClass = "",
-  showSidebar = page.layout !== "code" && page.layout !== "not-found",
+  showSidebar = page.layout !== "not-found",
   showSearch = true,
   hasSidenotes = false,
   authorMode = false,
@@ -61,7 +63,6 @@ const origin = Astro.site || new URL(Astro.url.origin);
 const socialImageUrl = /^https?:\/\//.test(socialImage)
   ? socialImage
   : new URL(socialImage, origin).toString();
-const isCode = page.layout === "code";
 const isBooks = page.layout === "books";
 const bookCoverOrigins = [
   "https://covers.openlibrary.org",
@@ -72,7 +73,7 @@ const bookCoverOrigins = [
 const isPhotography = page.layout === "photography";
 const isQuotes = page.layout === "quotes";
 const isNotFound = page.layout === "not-found";
-const bodyClass = [pageClass, hasSidenotes ? "has-sidenotes" : "", authorMode ? "author-mode" : "", isCode ? "code-index" : "", isQuotes ? "quotes-index-page" : "", isNotFound ? "not-found" : ""].filter(Boolean).join(" ");
+const bodyClass = [pageClass, hasSidenotes ? "has-sidenotes" : "", authorMode ? "author-mode" : "", isQuotes ? "quotes-index-page" : "", isNotFound ? "not-found" : ""].filter(Boolean).join(" ");
 const updatedAt = page.updatedAt || new Date();
 const updatedDate = displayDate(updatedAt);
 const updatedLabel = updatedDate
@@ -220,17 +221,17 @@ const archivesPath = authorMode
     </header>
     <script is:inline src="/js/site-preferences.js" defer></script>
 
-    <div class:list={["layout", { "layout--code-index": isCode, "layout--quotes-index": isQuotes }]}>
+    <div class:list={["layout", { "layout--quotes-index": isQuotes }]}>
       <aside class="column nav-column">
         <Nav
           items={navigation}
           lang={lang}
           activePath={currentPath}
-          activeSection={page.section}
+          activeSection={activeSection}
           authorMode={authorMode}
         />
       </aside>
-      <main class:list={["column", "content-column", { "content-column--books": isBooks, "content-column--code-index": isCode, "content-column--photo-index": isPhotography, "content-column--quotes-index": isQuotes }]}>
+      <main class:list={["column", "content-column", { "content-column--books": isBooks, "content-column--photo-index": isPhotography, "content-column--quotes-index": isQuotes }]}>
         <div class="content-inner"><slot /></div>
       </main>
       {showSidebar && (
@@ -335,7 +336,6 @@ const archivesPath = authorMode
     <script is:inline src="/js/curved-scrollbar.js" defer></script>
     <script is:inline src="/js/sound.js" defer></script>
     <script is:inline type="module" src="/js/technical-content.js"></script>
-    {isCode && <script is:inline src="/js/code-portfolio.js" defer></script>}
     {isPhotography && <script is:inline src="/js/photography-grid.js" defer></script>}
     {isBooks && <script is:inline type="module" src="/js/books.js"></script>}
     {hasSidenotes && <script is:inline src="/js/sidenote-reading.js" defer></script>}

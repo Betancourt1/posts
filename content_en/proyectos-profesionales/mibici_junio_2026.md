@@ -2,6 +2,7 @@
 title: "Bicicletas GDL: MiBici Trip Visualization for June 2026"
 date: 2026-07-22
 draft: false
+featured: true
 tags: ["open-source","react","canvas","data-visualization","geospatial"]
 short_title: "Bicicletas GDL"
 summary: "An interactive map replay of 323,648 MiBici trips recorded during June 2026."

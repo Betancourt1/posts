@@ -100,8 +100,8 @@
       link.textContent = title;
       heading.appendChild(link);
       var labels = pageLanguage() === "es"
-        ? { posts: "Post", essay: "Ensayo", technical: "Técnico", books: "Libro", libros: "Libro", lit: "Cita", fotografia: "Foto", section: "Sección", "proyectos-profesionales": "Código", zettelkasten: "Nota" }
-        : { posts: "Post", essay: "Essay", technical: "Technical", books: "Book", libros: "Book", lit: "Quote", fotografia: "Photo", section: "Section", "proyectos-profesionales": "Code", zettelkasten: "Note" };
+        ? { posts: "Post", essay: "Ensayo", technical: "Técnico", books: "Libro", libros: "Libro", lit: "Cita", fotografia: "Foto", section: "Sección", "proyectos-profesionales": "Proyectos", zettelkasten: "Nota" }
+        : { posts: "Post", essay: "Essay", technical: "Technical", books: "Book", libros: "Book", lit: "Quote", fotografia: "Photo", section: "Section", "proyectos-profesionales": "Projects", zettelkasten: "Note" };
       var type = labels[result.type || result.section];
       if (type) {
         var badge = document.createElement("span");

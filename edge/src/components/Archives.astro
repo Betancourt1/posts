@@ -15,8 +15,8 @@ const visibleItems = items
   .sort((left, right) => displayDate(right.date).localeCompare(displayDate(left.date))
     || right.title.localeCompare(left.title, lang));
 const defaultFilterLabels: Record<string, string> = {
-  posts: lang === "es" ? "Escritos" : "Posts",
-  "proyectos-profesionales": lang === "es" ? "Código" : "Code",
+  posts: "Blog",
+  "proyectos-profesionales": lang === "es" ? "Proyectos" : "Projects",
   zettelkasten: "Zettelkasten",
   lit: lang === "es" ? "Lecturas" : "Readings",
   fotografia: lang === "es" ? "Fotografía" : "Photography",
@@ -25,7 +25,7 @@ const defaultFilterLabels: Record<string, string> = {
 };
 const badgeLabels: Record<string, string> = {
   posts: lang === "es" ? "escrito" : "post",
-  "proyectos-profesionales": lang === "es" ? "código" : "code",
+  "proyectos-profesionales": lang === "es" ? "proyecto" : "project",
   zettelkasten: "zettel",
   lit: lang === "es" ? "lectura" : "reading",
   fotografia: lang === "es" ? "foto" : "photo",

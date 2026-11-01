@@ -231,7 +231,7 @@ test("localizes aliases and extracts links from Marked tokens", async () => {
   ]);
 });
 
-test("projects the bilingual thesis as Code while redirecting old Academic routes", async () => {
+test("projects the bilingual thesis under Projects while redirecting old Academic routes", async () => {
   const [englishIndex, spanishIndex, englishThesis, spanishThesis] = await Promise.all(
     [
       "content_en/proyectos-profesionales/_index.md",
@@ -244,12 +244,12 @@ test("projects the bilingual thesis as Code while redirecting old Academic route
     }).documents[0]),
   );
 
-  assert.equal(englishIndex.title, "Code");
+  assert.equal(englishIndex.title, "Projects");
   assert.deepEqual(englishIndex.routes, [
     { path: "/proyectos-profesionales/", kind: "canonical" },
     { path: "/proyectos-academicos/", kind: "alias" },
   ]);
-  assert.equal(spanishIndex.title, "Código");
+  assert.equal(spanishIndex.title, "Proyectos");
   assert.deepEqual(spanishIndex.routes, [
     { path: "/es/proyectos-profesionales/", kind: "canonical" },
     { path: "/es/proyectos-academicos/", kind: "alias" },

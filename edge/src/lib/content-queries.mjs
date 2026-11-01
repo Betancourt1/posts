@@ -244,6 +244,10 @@ export async function sectionItems(db, lang, section, options = {}) {
   const selectedLanguage = language(lang);
 
   if (options.includeLanguageFallback) {
+    const technicalPost = "d.section = 'posts' AND COALESCE(json_extract(d.frontmatter_json, '$.technical'), 0) = 1";
+    const sectionFilter = section === "proyectos-profesionales"
+      ? `(d.section = ? OR (${technicalPost}))`
+      : section === "posts" ? `d.section = ? AND NOT (${technicalPost})` : "d.section = ?";
     const result = await db.prepare(`
       WITH ranked AS (
         SELECT
@@ -261,7 +265,7 @@ export async function sectionItems(db, lang, section, options = {}) {
         JOIN routes AS canonical
           ON canonical.document_id = d.id
          AND canonical.kind = 'canonical'
-        WHERE d.section = ?
+        WHERE ${sectionFilter}
           AND d.kind = 'page'
           AND (? = 1 OR d.draft = 0)
           AND (? = 1 OR d.hidden = 0)

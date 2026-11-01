@@ -1,10 +1,6 @@
 ---
-import YAML from "yaml";
-import portfolioSource from "../../../data/code_portfolio.yaml?raw";
-
 import Archives from "../components/Archives.astro";
 import Books from "../components/Books.astro";
-import CodePortfolio from "../components/CodePortfolio.astro";
 import CvLinks from "../components/CvLinks.astro";
 import Guestbook from "../components/Guestbook.astro";
 import KnowledgeGraph from "../components/KnowledgeGraph.astro";
@@ -31,7 +27,6 @@ const { model, authorMode = false } = Astro.props;
 const lang = model.lang === "es" ? "es" : "en";
 const page = model.page || {};
 const frontMatter = page.frontMatter || {};
-const portfolio = YAML.parse(portfolioSource);
 
 function contentHref(path: string) {
   return authorMode ? adminPathForPublicRoute(path) : path;
@@ -74,7 +69,7 @@ function listItem(document: any) {
     draft: document.draft,
     hidden: document.hidden,
     essay: document.frontMatter?.essay === true,
-    technical: document.frontMatter?.technical === true,
+    featured: document.frontMatter?.featured === true,
     image: document.frontMatter?.image || first?.src || null,
     thumbnail: document.frontMatter?.thumbnail || document.frontMatter?.thumb || first?.thumb || null,
     imageAlt: document.frontMatter?.image_alt || first?.alt || null,
@@ -100,8 +95,8 @@ function navigationItems(sections: any[]) {
     ? [
         ["Inicio", "/es/", ""],
         ["Sobre mí", "/es/about/", "about"],
-        ["Código", "/es/proyectos-profesionales/", "proyectos-profesionales"],
-        ["Escritos", "/es/posts/", "posts"],
+        ["Proyectos", "/es/proyectos-profesionales/", "proyectos-profesionales"],
+        ["Blog", "/es/posts/", "posts"],
         ["Zettelkasten", "/es/zettelkasten/", "zettelkasten"],
         ["Citas", "/es/lit/", "lit"],
         ["Fotografía", "/es/fotografia/", "fotografia"],
@@ -111,7 +106,7 @@ function navigationItems(sections: any[]) {
     : [
         ["Home", "/", ""],
         ["About", "/about/", "about"],
-        ["Code", "/proyectos-profesionales/", "proyectos-profesionales"],
+        ["Projects", "/proyectos-profesionales/", "proyectos-profesionales"],
         ["Blog", "/posts/", "posts"],
         ["Quotes", "/lit/", "lit"],
         ["Photography", "/fotografia/", "fotografia"],
@@ -140,7 +135,7 @@ function bookReview(markdown: string) {
 function badgeLabel(section: string, targetLang: Language) {
   const labels: Record<string, string> = {
     posts: targetLang === "es" ? "escrito" : "post",
-    "proyectos-profesionales": targetLang === "es" ? "código" : "code",
+    "proyectos-profesionales": targetLang === "es" ? "proyecto" : "project",
     zettelkasten: "zettel",
     lit: targetLang === "es" ? "cita" : "quote",
     fotografia: targetLang === "es" ? "foto" : "photo",
@@ -150,7 +145,7 @@ function badgeLabel(section: string, targetLang: Language) {
   return labels[section] || section;
 }
 
-const layout = ["books", "photography", "code", "quotes", "guestbook", "not-found"].includes(model.layout)
+const layout = ["books", "photography", "quotes", "guestbook", "not-found"].includes(model.layout)
   ? model.layout
   : "default";
 const emptyGraph = { posts: [], tagLinks: {} };
@@ -194,6 +189,7 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
   page={shellPage}
   lang={lang}
   currentPath={contentHref(model.path)}
+  activeSection={page.section === "posts" && frontMatter.technical === true ? "proyectos-profesionales" : page.section}
   translationPath={contentHref(model.translationPath || (lang === "es" ? "/" : "/es/"))}
   navigation={navigation}
   archiveMonths={model.archiveMonths || []}
@@ -350,7 +346,8 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
       lang={lang}
       authorMode={authorMode}
       notebook={page.sourcePath?.replace(/\/_index\.md$/, "")}
-      editorial={page.section === "posts"}
+      editorial={page.section === "posts" || page.section === "proyectos-profesionales"}
+      projects={page.section === "proyectos-profesionales"}
     />
   )}
 
@@ -407,29 +404,6 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
           height: photo.frontMatter?.height,
         };
       })}
-    />
-  )}
-
-  {model.layout === "code" && (
-    <CodePortfolio
-      title={title}
-      description={description}
-      lang={lang}
-      projects={(model.items || []).map((project: any) => ({
-        ...listItem(project),
-        shortTitle: project.frontMatter?.short_title,
-        technologies: project.frontMatter?.technologies || [],
-        private: tagsFor(project).some((tag: any) => tag.label.toLowerCase() === "private"),
-      }))}
-      technologies={portfolio.technologies || []}
-      github={{
-        username: portfolio.github.username,
-        profileUrl: portfolio.github.profile_url,
-        snapshotEnd: portfolio.github.snapshot_end,
-        weekCount: portfolio.github.week_count,
-        levels: portfolio.github.levels,
-        months: portfolio.github.months,
-      }}
     />
   )}
 

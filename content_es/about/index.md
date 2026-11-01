@@ -15,8 +15,8 @@ Si estás aquí, sabes mi nombre. Se supone que debo escribir aquí algo de mí 
 
 ## Cómo usar este sitio
 
-- **Código**: Proyectos de software, sistemas de datos, código de investigación, decisiones técnicas y resultados.
-- **Escritos**: Textos libres, notas y reflexiones.
+- [Proyectos](/es/proyectos-profesionales/): Software, sistemas de datos y escritos técnicos.
+- [Blog](/es/posts/): Textos libres, notas y reflexiones.
 - **CV**: Resumen de experiencia, formación y habilidades.
 
 ---

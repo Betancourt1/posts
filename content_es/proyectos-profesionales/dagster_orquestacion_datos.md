@@ -2,6 +2,7 @@
 title: "Orquestación de Pipelines de Datos con Dagster"
 date: 2026-05-18
 draft: false
+featured: true
 tags:
   - dagster
   - data-engineering

@@ -15,8 +15,8 @@ If you're here, you know my name. I'm supposed to write something about myself h
 
 ## How to use this site
 
-- **Code**: Software projects, data systems, research code, technical decisions, and results.
-- **Writings**: Freeform texts, notes, and reflections.
+- [Projects](/proyectos-profesionales/): Software, data systems, and technical writing.
+- [Blog](/posts/): Freeform texts, notes, and reflections.
 - **CV**: Summary of experience, education, and skills.
 
 ---

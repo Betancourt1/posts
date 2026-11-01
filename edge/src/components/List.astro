@@ -12,6 +12,7 @@ interface Props {
   notebook?: string;
   showTags?: boolean;
   editorial?: boolean;
+  projects?: boolean;
 }
 
 const {
@@ -23,6 +24,7 @@ const {
   notebook,
   showTags = true,
   editorial = false,
+  projects = false,
 } = Astro.props;
 const displayItems = authorMode ? items : items.filter((item) => !item.hidden);
 const addLabel = lang === "es" ? "Nuevo post" : "New post";
@@ -41,13 +43,16 @@ function editorialDate(value: ContentListItem["date"]) {
 }
 
 type YearGroup = { year: string | null; rows: { item: ContentListItem; day: string }[] };
-const writingCategories = [
+const writingCategories = projects ? [
+  { id: "selected-projects", title: lang === "es" ? "Proyectos destacados" : "Selected projects", groups: [] as YearGroup[] },
+  { id: "project-entries", title: lang === "es" ? "Más proyectos y escritos técnicos" : "More projects and technical writing", groups: [] as YearGroup[] },
+] : [
   { id: "essays", title: lang === "es" ? "Ensayos" : "Essays", groups: [] as YearGroup[] },
   { id: "personal-posts", title: lang === "es" ? "Posts breves y personales" : "Short and personal posts", groups: [] as YearGroup[] },
-  { id: "technical-writing", title: lang === "es" ? "Escritos técnicos" : "Technical writing", groups: [] as YearGroup[] },
 ];
 for (const item of displayItems) {
-  const editorialGroups = writingCategories[item.technical === true ? 2 : item.essay === true ? 0 : 1].groups;
+  const firstCategory = projects ? item.featured : item.essay;
+  const editorialGroups = writingCategories[firstCategory ? 0 : 1].groups;
   const date = editorialDate(item.date);
   const year = date?.year ?? null;
   let group = editorialGroups[editorialGroups.length - 1];
