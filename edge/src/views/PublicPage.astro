@@ -339,7 +339,10 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
   )}
 
   {model.layout === "list" && (page.section === "proyectos-profesionales" && !authorMode ? (
-    <header class="page-header"><h1>{title}</h1></header>
+    <>
+      <header class="page-header"><h1>{title}</h1></header>
+      <section class="post-body" set:html={removeLegacyLinkSpacing(page.bodyHtml || "")} />
+    </>
   ) : (
     <List
       title={title}

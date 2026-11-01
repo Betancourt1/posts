@@ -1,5 +1,5 @@
 ---
-title: "Bicicletas GDL: Visualización de Viajes MiBici de Junio de 2026"
+title: "MiBici: un mes de viajes en bicicleta"
 date: 2026-07-22
 draft: false
 featured: true
@@ -15,53 +15,30 @@ summary: "Una reproducción cartográfica interactiva de 323,648 viajes de MiBic
 technologies: [ "React", "Vite", "Canvas 2D", "Cloudflare Workers" ]
 ---
 
-## Contexto
+Elige un día de junio de 2026 y empieza la reproducción. Cada bicicleta que se mueve en el mapa representa un viaje registrado por MiBici en Guadalajara. Sigue una durante unos segundos: la salida y la llegada vienen del registro del viaje, mientras que las calles por las que pasa son una estimación.
 
-MiBici publica registros de viajes con estaciones de origen y destino, horarios y atributos básicos de las personas usuarias, pero no incluye la ruta GPS seguida por cada bicicleta. **Bicicletas GDL** transforma el dataset abierto de junio de 2026 en una reproducción diaria e interactiva del movimiento ciclista en el Área Metropolitana de Guadalajara.
+[Abrir el mapa interactivo](https://mibici.fbetancourt.work/) · [Ver el repositorio](https://github.com/Betancourt1/mibici_junio_2026)
 
-> [!TIP]
-> **Proyecto de Código Abierto:**
-> La aplicación, los datos procesados y la configuración de despliegue están disponibles en [Betancourt1/mibici_junio_2026](https://github.com/Betancourt1/mibici_junio_2026).
+## ¿Qué viajes aparecen en el mapa?
 
----
+MiBici registró **355,303 viajes** ese mes. Para dibujar un viaje necesitaba las coordenadas de ambas estaciones. En **31,655 viajes**, al menos una estación tenía `(0, 0)` como coordenadas provisionales. Conservé esos viajes en el total del mes y los dejé fuera de la animación. Así quedaron **323,648 viajes** que puedes seguir en el mapa.
 
-## Objetivo
+[Consultar los datos abiertos de MiBici](https://mibici.net/es/datos-abiertos/)
 
-Hacer explorable un mes de datos de movilidad como movimiento y no como una tabla estática:
+## ¿Cómo se mueve una bicicleta entre dos estaciones?
 
-1. Reproducir cualquiera de los 30 días sobre una línea de tiempo continua de 24 horas.
-2. Mostrar la dirección y el recorrido reciente de cada viaje activo sin saturar el mapa.
-3. Permitir la interacción desde escritorio y teléfono mediante controles responsivos, desplazamiento, zoom con rueda o gesto de pinza y detalles seleccionables de cada viaje.
+Los registros indican las estaciones y los horarios, pero no incluyen un recorrido GPS. Para los viajes con el mismo origen y destino reutilizo una ruta estimada sobre la red de calles. Cuando ha transcurrido la mitad del tiempo registrado, la bicicleta aparece a mitad de esa ruta. El tramo de calle que atraviesa determina hacia dónde apunta.
 
----
+Las dos funciones que hacen este cálculo se pueden leer juntas. `prepareTrip` mide los tramos. `pointAlong` toma la fracción del tiempo transcurrido y calcula la posición y el ángulo de la bicicleta. [Leer el código de interpolación](https://github.com/Betancourt1/mibici_junio_2026/blob/df35c491492d48b33d00da6c86d3d151fc9f9379/src/map/mercator.js#L17).
 
-## Datos y Método
+## ¿Cómo se reproduce un día completo?
 
-La fuente contiene **355,303 viajes**. De ellos, **323,648** tienen coordenadas utilizables en ambas estaciones y pueden renderizarse. Los 31,655 viajes restantes se conservan en el total estadístico, pero se excluyen de la animación porque sus registros oficiales de estación utilizan coordenadas provisionales `(0,0)`.
+Al elegir una fecha, la aplicación carga los archivos horarios de ese día. Una vez en memoria, puedes pausar o cambiar de velocidad sin volver a descargarlos. A `1800×`, un segundo en pantalla equivale a media hora en Guadalajara. React gestiona el reloj y el panel de reproducción. Canvas dibuja las bicicletas sobre el mapa.
 
-Como el dataset no contiene trazas GPS, cada ruta intermedia se infiere sobre la red vial a partir de su origen y destino. Los viajes que comparten el mismo par de estaciones reutilizan la geometría. La posición y orientación se interpolan con la hora de inicio, la duración y el tiempo actual de la simulación, por lo que el mapa presenta una aproximación informada y no el recorrido exacto de la persona usuaria.
+[Ver cómo se carga un día](https://github.com/Betancourt1/mibici_junio_2026/blob/df35c491492d48b33d00da6c86d3d151fc9f9379/src/App.jsx#L108-L115) · [Ver cómo se dibuja el mapa](https://github.com/Betancourt1/mibici_junio_2026/blob/df35c491492d48b33d00da6c86d3d151fc9f9379/src/map/MapSurface.jsx)
 
----
+## Lectura relacionada
 
-## Diseño Técnico
+[La red de transporte público de Guadalajara](/es/proyectos-profesionales/tesis/) mira la misma ciudad desde otro ángulo. En mi tesis utilicé un grafo de paradas y conexiones para estudiar qué le sucede a la red cuando falla una conexión.
 
-La interfaz utiliza **React** para el estado y los controles, **Canvas 2D** para renderizar una alta densidad de viajes y sus recorridos continuos de los cinco minutos recientes, y teselas de CARTO basadas en OpenStreetMap. Los archivos de datos por hora se cargan bajo demanda para el día seleccionado.
-
-La línea de tiempo combina barras de viajes activos con series por género y permite velocidades desde tiempo real hasta `1800×`. El mapa ofrece temas claro y oscuro, controles responsivos, manipulación directa y detalles de origen, destino y edad aproximada.
-
----
-
-## Resultados
-
-* Cobertura interactiva de los 30 días de junio de 2026.
-* 323,648 viajes cartografiados y 43,706 pares de estaciones origen-destino resueltos.
-* Un renderer en Canvas adecuado para viajes simultáneos, indicadores de dirección y recorridos recientes con desvanecimiento suave.
-* Una aplicación responsiva en React empaquetada como recursos estáticos para Cloudflare Workers.
-
----
-
-## Repositorio y Acceso
-
-* **Código fuente y documentación técnica:** [github.com/Betancourt1/mibici_junio_2026](https://github.com/Betancourt1/mibici_junio_2026)
-* **Fuente de datos:** [Datos Abiertos de MiBici](https://mibici.net/es/datos-abiertos/)
-* **Atribución del mapa:** © colaboradores de OpenStreetMap, © CARTO
+Cartografía de CARTO con datos de los colaboradores de OpenStreetMap.

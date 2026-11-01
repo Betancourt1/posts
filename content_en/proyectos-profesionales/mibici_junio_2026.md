@@ -1,5 +1,5 @@
 ---
-title: "Bicicletas GDL: MiBici Trip Visualization for June 2026"
+title: "MiBici: replaying a month of bike trips"
 date: 2026-07-22
 draft: false
 featured: true
@@ -9,53 +9,30 @@ summary: "An interactive map replay of 323,648 MiBici trips recorded during June
 technologies: ["React", "Vite", "Canvas 2D", "Cloudflare Workers"]
 ---
 
-## Context
+Choose a day in June 2026 and press play. Each moving bicycle represents a recorded MiBici trip in Guadalajara. Try following one across the map: its departure and arrival come from the trip record, while the streets it takes between them are an estimate.
 
-MiBici publishes trip records with origin and destination stations, timestamps, and basic rider attributes, but not the GPS path followed by each bicycle. **Bicicletas GDL** turns the June 2026 open dataset into an interactive daily replay of bicycle movement across the Guadalajara metropolitan area.
+[Open the interactive map](https://mibici.fbetancourt.work/) · [Browse the repository](https://github.com/Betancourt1/mibici_junio_2026)
 
-> [!TIP]
-> **Open Source Project:**
-> The application, processing output, and deployment configuration are available at [Betancourt1/mibici_junio_2026](https://github.com/Betancourt1/mibici_junio_2026).
+## Which trips made it onto the map?
 
----
+MiBici recorded **355,303 trips** that month. To draw a trip, I needed coordinates for both stations. For **31,655 trips**, at least one station had placeholder coordinates of `(0, 0)`. I kept those trips in the monthly count and left them out of the animation. That leaves **323,648 trips** you can follow on the map.
 
-## Objective
+[Explore the original MiBici data](https://mibici.net/es/datos-abiertos/)
 
-Make a month of mobility data explorable as movement rather than as a static table:
+## How does a bicycle move between two stations?
 
-1. Reproduce any of the 30 days on a continuous 24-hour timeline.
-2. Show the direction and recent path of each active trip without overwhelming the map.
-3. Support desktop and phone interaction with responsive playback controls, panning, wheel zoom, pinch zoom, and selectable rider details.
+The records give me the stations and times, but no GPS trace. I reuse an inferred street route for trips with the same origin and destination. Halfway through a recorded trip, the bicycle appears halfway along that route. Its direction comes from the street segment it is crossing.
 
----
+The two functions behind this are short enough to read together. `prepareTrip` measures the segments. `pointAlong` takes the fraction of the trip that has elapsed and finds the corresponding position and angle. [Read the interpolation code](https://github.com/Betancourt1/mibici_junio_2026/blob/df35c491492d48b33d00da6c86d3d151fc9f9379/src/map/mercator.js#L17).
 
-## Data and Method
+## How can you replay a whole day?
 
-The source contains **355,303 trips**. Of those, **323,648** have usable coordinates for both stations and can be rendered. The remaining 31,655 trips are retained in the statistical total but excluded from the animation because their official station records use `(0,0)` placeholder coordinates.
+Selecting a date loads that day's hourly files. Once they're in memory, you can pause or change the playback speed without downloading the day again. At `1800×`, one second on screen covers half an hour in Guadalajara. React handles the clock and controls, and Canvas draws the moving bicycles over the map tiles.
 
-Because the dataset does not contain GPS traces, each intermediate route is inferred over the street network from its origin and destination. Trips that share a station pair reuse the same geometry. Position and orientation are interpolated from the trip start time, duration, and current simulation time, so the map presents an informed approximation rather than the rider's exact route.
+[See how a day is loaded](https://github.com/Betancourt1/mibici_junio_2026/blob/df35c491492d48b33d00da6c86d3d151fc9f9379/src/App.jsx#L108-L115) · [Read the map renderer](https://github.com/Betancourt1/mibici_junio_2026/blob/df35c491492d48b33d00da6c86d3d151fc9f9379/src/map/MapSurface.jsx)
 
----
+## Related reading
 
-## Technical Design
+[Guadalajara's public transport network](/proyectos-profesionales/tesis/) looks at the same city from another angle. In my thesis I used a graph of stops and connections to study what happens to the network when a connection fails.
 
-The interface uses **React** for state and controls, **Canvas 2D** for dense animated riders and their continuous five-minute trails, and CARTO map tiles based on OpenStreetMap. Hourly data files are loaded on demand for the selected day.
-
-The timeline combines active-trip bars with gender series and supports speeds from real time to `1800×`. The map provides light and dark themes, responsive controls, direct manipulation, and rider details for origin, destination, and approximate age.
-
----
-
-## Results
-
-* Interactive coverage of all 30 days in June 2026.
-* 323,648 mapped trips and 43,706 resolved origin-destination station pairs.
-* A Canvas renderer suitable for simultaneous moving riders, direction markers, and softly fading recent trails.
-* A responsive React application packaged as static assets for Cloudflare Workers.
-
----
-
-## Repository and Access
-
-* **Source code and technical documentation:** [github.com/Betancourt1/mibici_junio_2026](https://github.com/Betancourt1/mibici_junio_2026)
-* **Data source:** [MiBici Open Data](https://mibici.net/es/datos-abiertos/)
-* **Map attribution:** © OpenStreetMap contributors, © CARTO
+Map tiles by CARTO, with map data from OpenStreetMap contributors.
