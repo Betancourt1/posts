@@ -7,6 +7,9 @@ tags: ["open-source","react","canvas","data-visualization","geospatial"]
 short_title: "Bicicletas GDL"
 summary: "Replay 323,648 bike trips across Guadalajara in June 2026."
 technologies: ["React", "Vite", "Canvas 2D", "Cloudflare Workers"]
+role: "Design and development"
+status: live
+highlights: ["355,303 trips recorded in June 2026, 323,648 of them drawn on the map", "31,655 trips left out because a station had placeholder coordinates", "Playback at 1800×: one second on screen covers half an hour"]
 project_links:
   - type: demo
     label: "Replay the trips"

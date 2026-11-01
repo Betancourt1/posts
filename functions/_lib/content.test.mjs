@@ -11,6 +11,7 @@ import {
   savePageFrontMatter,
 } from "./content.js";
 import { formatMarkdown, splitMarkdown } from "./markdown.js";
+import { projectOptionalFields } from "./project-links.js";
 
 const env = {
   GITHUB_OWNER: "owner",
@@ -544,4 +545,39 @@ test("create and publish a project with optional notes and ordered resources", a
   assert.equal(published.frontMatter.draft, undefined);
   assert.deepEqual(published.frontMatter.project_links, reordered);
   assert.equal(published.frontMatter.featured, true);
+  for (const key of projectOptionalFields) assert.equal(key in published.frontMatter, false, key);
+});
+
+test("project presentation fields round-trip, normalize and never block a save", async (t) => {
+  const index = "content_en/proyectos-profesionales/_index.md";
+  const files = new Map([[index, formatMarkdown({ title: "Projects" }, "")]]);
+  t.mock.method(globalThis, "fetch", async (url, options) => {
+    const path = decodeURIComponent(new URL(url).pathname.split("/contents/")[1]);
+    if (options.method === "PUT") {
+      files.set(path, Buffer.from(JSON.parse(options.body).content, "base64").toString());
+      return jsonResponse(200, { commit: { sha: "fixture" } });
+    }
+    return files.has(path)
+      ? jsonResponse(200, { type: "file", path, sha: "fixture", content: encoded(files.get(path)) })
+      : jsonResponse(404, { message: "Not Found" });
+  });
+  const highlights = ["355,303 trips, 323,648 drawn", 'Said "go", left'];
+  const created = await createPost(env, {
+    notebook: index.replace("/_index.md", ""), title: "Replay", slug: "replay", summary: "S.",
+    role: "Design and development", period: "2025–2026", org: "", status: "Private", highlights, order: "2",
+  });
+  const stored = splitMarkdown(files.get(created.path)).frontMatter;
+  assert.deepEqual([stored.role, stored.period, stored.status, stored.highlights, stored.order],
+    ["Design and development", "2025–2026", "private", highlights, "2"]);
+  assert.equal("org" in stored, false);
+  assert.match(files.get(created.path), /^order: 2$/m);
+
+  // The editor re-sends inherited front matter; hand-written bad values must not block saving.
+  await savePage(env, { path: created.path, frontMatter: { status: "Nope", order: "abc", role: "  ", period: "2026" }, body: "Notes." });
+  const cleaned = splitMarkdown(files.get(created.path)).frontMatter;
+  assert.deepEqual([cleaned.status, cleaned.order, cleaned.role, cleaned.period], [undefined, undefined, undefined, "2026"]);
+  assert.deepEqual(cleaned.highlights, highlights);
+
+  await savePage(env, { path: created.path, frontMatter: { highlights: null }, body: "Notes." });
+  assert.equal("highlights" in splitMarkdown(files.get(created.path)).frontMatter, false);
 });

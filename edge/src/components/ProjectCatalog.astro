@@ -1,5 +1,6 @@
 ---
-import { validProjectLink } from "../../../functions/_lib/project-links.js";
+import { projectMeta, sortProjects } from "../../../functions/_lib/project-links.js";
+import ProjectEntry from "./ProjectEntry.astro";
 import type { Language } from "./types";
 
 interface Props {
@@ -12,7 +13,14 @@ interface Props {
 }
 const { lang, title, description, authorMode, notebook, projects } = Astro.props;
 const es = lang === "es";
-const entries = projects.toSorted((a, b) => Number(b.frontMatter.featured === true) - Number(a.frontMatter.featured === true));
+const isFeatured = (project: any) => projectMeta(project.frontMatter).featured;
+const featured = sortProjects(projects.filter(isFeatured));
+const more = sortProjects(projects.filter((project) => !isFeatured(project)));
+const grouped = featured.length > 0 && more.length > 0;
+const groups: { id: string; heading: string; entries: any[]; compact: boolean }[] = [
+  { id: "featured", heading: es ? "Destacados" : "Featured", entries: featured, compact: false },
+  { id: "more", heading: es ? "Más trabajo" : "More work", entries: more, compact: true },
+].filter((group) => group.entries.length > 0);
 ---
 <header class="page-header">
   <h1>{title}</h1>
@@ -21,23 +29,12 @@ const entries = projects.toSorted((a, b) => Number(b.frontMatter.featured === tr
     <button type="button" class="project-control" data-author-action="edit-notebook" data-source-path={notebook + "/_index.md"}>{es ? "Editar catálogo" : "Edit catalog"}</button></div>}
 </header>
 <section class="project-catalog" aria-label={title}>
-  {entries.map((project) => {
-    const href = (authorMode ? "/admin" : "") + project.path;
-    const first = project.frontMatter.project_links?.find(validProjectLink);
-    return (
-      <article>
-        <div class="project-status">
-          {project.frontMatter.featured === true && <span>{es ? "Destacado" : "Featured"}</span>}
-          {authorMode && <span>{project.draft || project.hidden ? (es ? "Borrador" : "Draft") : (es ? "Publicado" : "Published")}</span>}
-        </div>
-        <h2><a href={href}>{project.title}</a></h2>
-        <p>{project.summary}</p>
-        <div class="project-actions">
-          {first && <a href={first.href}>{first.label} ↗</a>}
-          <a href={href}>{es ? "Ver proyecto" : "View project"} →</a>
-          {authorMode && <button type="button" class="project-control" data-author-action="edit-post" data-source-path={project.sourcePath}>{es ? "Editar" : "Edit"}</button>}
-        </div>
-      </article>
-    );
-  })}
+  {groups.map((group) => (
+    <div class={"project-group project-group-" + group.id}>
+      {grouped && <h2 class="project-group-title">{group.heading}</h2>}
+      {group.entries.map((project) => (
+        <ProjectEntry lang={lang} project={project} authorMode={authorMode} compact={group.compact} headingLevel={grouped ? "h3" : "h2"} />
+      ))}
+    </div>
+  ))}
 </section>

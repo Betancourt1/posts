@@ -1,0 +1,44 @@
+---
+import { projectMeta, projectStatusLabel } from "../../../functions/_lib/project-links.js";
+import type { Language } from "./types";
+
+interface Props {
+  lang: Language;
+  project: any;
+  authorMode: boolean;
+  compact?: boolean;
+  headingLevel?: "h2" | "h3";
+}
+const { lang, project, authorMode, compact = false, headingLevel = "h2" } = Astro.props;
+const es = lang === "es";
+const Heading = headingLevel;
+const meta = projectMeta(project.frontMatter);
+const primary = meta.links[0];
+const href = (authorMode ? "/admin" : "") + project.path;
+const facts = [meta.role, meta.period, meta.org].filter(Boolean);
+const stack = meta.technologies.slice(0, compact ? 4 : 6);
+const hiddenStack = meta.technologies.length - stack.length;
+const highlights = compact ? [] : meta.highlights.slice(0, 3);
+const isPrivate = meta.status === "private";
+const published = !(project.draft || project.hidden);
+---
+<article class={compact ? "project-entry is-compact" : "project-entry"}>
+  <div class="project-status">
+    {meta.status && <span class={"project-badge project-badge-" + meta.status}>{projectStatusLabel(meta.status, es)}</span>}
+    {authorMode && meta.featured && <span class="project-badge">{es ? "Destacado" : "Featured"}</span>}
+    {authorMode && <span class="project-badge">{published ? (es ? "Publicado" : "Published") : (es ? "Borrador" : "Draft")}</span>}
+  </div>
+  <Heading class="project-title"><a href={href}>{project.title}</a></Heading>
+  {facts.length > 0 && <p class="project-facts-line">{facts.join(" · ")}</p>}
+  <p class="project-blurb">{project.summary}</p>
+  {highlights.length > 0 && <ul class="project-highlights">{highlights.map((item) => <li>{item}</li>)}</ul>}
+  {stack.length > 0 && <ul class="project-stack" aria-label={es ? "Tecnologías" : "Stack"}>
+    {stack.map((item) => <li>{item}</li>)}
+    {hiddenStack > 0 && <li>+{hiddenStack}</li>}
+  </ul>}
+  <div class="project-actions">
+    {primary && <a href={primary.href}>{primary.label} ↗</a>}
+    <a href={href}>{isPrivate ? (es ? "Leer el caso" : "Read the case study") : (es ? "Ver proyecto" : "View project")} →</a>
+    {authorMode && <button type="button" class="project-control" data-author-action="edit-post" data-source-path={project.sourcePath}>{es ? "Editar" : "Edit"}</button>}
+  </div>
+</article>

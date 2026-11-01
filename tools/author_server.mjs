@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { splitMarkdown, formatMarkdown, tagsFromValue } from "../functions/_lib/markdown.js";
-import { projectFields } from "../functions/_lib/project-links.js";
+import { applyProjectFields, projectFields } from "../functions/_lib/project-links.js";
 
 import { createServer } from "node:http";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
@@ -581,7 +581,7 @@ function savePage(payload) {
   const body = String(payload.body || "");
 
   if (/^content_(?:en|es)\/proyectos-profesionales\/(?!_index\.md$)/.test(relativePath)) {
-    Object.assign(frontMatter, projectFields(frontMatter));
+    applyProjectFields(frontMatter);
   }
   normalizeBookFrontMatter(relativePath, frontMatter, body);
   normalizePhotoFrontMatter(relativePath, frontMatter);

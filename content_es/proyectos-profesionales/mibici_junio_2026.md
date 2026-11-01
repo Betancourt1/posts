@@ -7,6 +7,9 @@ tags: ["open-source","react","canvas","data-visualization","geospatial"]
 short_title: "Bicicletas GDL"
 summary: "Reproduce 323,648 viajes en bicicleta por Guadalajara durante junio de 2026."
 technologies: [ "React", "Vite", "Canvas 2D", "Cloudflare Workers" ]
+role: "Diseño y desarrollo"
+status: live
+highlights: ["355,303 viajes registrados en junio de 2026, 323,648 dibujados en el mapa", "31,655 viajes excluidos porque una estación tenía coordenadas provisionales", "Reproducción a 1800×: un segundo en pantalla equivale a media hora"]
 project_links:
   - type: demo
     label: "Reproducir los viajes"

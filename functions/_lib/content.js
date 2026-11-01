@@ -1,4 +1,4 @@
-import { projectFields } from "./project-links.js";
+import { applyProjectFields, projectFields } from "./project-links.js";
 import {
   deleteGitHubFile,
   deleteGitHubFiles,
@@ -560,7 +560,7 @@ export async function savePage(env, payload) {
 
   const body = String(payload.body || "");
   if (/^content_(?:en|es)\/proyectos-profesionales\/(?!_index\.md$)/.test(path)) {
-    Object.assign(frontMatter, projectFields(frontMatter));
+    applyProjectFields(frontMatter);
   }
   normalizeBookFrontMatter(path, frontMatter, body);
   normalizePhotoFrontMatter(path, frontMatter);
