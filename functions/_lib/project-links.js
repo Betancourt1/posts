@@ -14,7 +14,7 @@ export const projectStatuses = {
 };
 
 // Optional presentation fields. They are normalized on save and never required.
-export const projectOptionalFields = ["role", "period", "org", "status", "highlights", "order"];
+export const projectOptionalFields = ["role", "period", "org", "status", "highlights", "order", "technologies"];
 const MAX_HIGHLIGHTS = 4;
 
 export function projectStatusLabel(status, spanish) {
@@ -40,6 +40,11 @@ function textList(value, { split = true } = {}) {
   return items.map(cleanText).filter(Boolean);
 }
 
+function uniqueText(value) {
+  const seen = new Set();
+  return textList(value).filter((item) => !seen.has(item.toLowerCase()) && seen.add(item.toLowerCase()));
+}
+
 function explicitStatus(value) {
   const status = cleanText(value).toLowerCase();
   return Object.hasOwn(projectStatuses, status) ? status : "";
@@ -61,7 +66,7 @@ export function projectMeta(frontMatter) {
     org: cleanText(frontMatter.org),
     status,
     highlights: textList(frontMatter.highlights, { split: false }).slice(0, MAX_HIGHLIGHTS),
-    technologies: textList(frontMatter.technologies),
+    technologies: uniqueText(frontMatter.technologies),
     links: Array.isArray(frontMatter.project_links) ? frontMatter.project_links.filter(validProjectLink) : [],
     order: projectOrder(frontMatter.order),
     featured: frontMatter.featured === true,
@@ -92,9 +97,23 @@ export function projectFields(payload) {
   if (status) fields.status = status;
   const highlights = textList(payload.highlights, { split: false }).slice(0, MAX_HIGHLIGHTS);
   if (highlights.length) fields.highlights = highlights;
+  const technologies = uniqueText(payload.technologies);
+  if (technologies.length) fields.technologies = technologies;
   const order = projectOrder(payload.order);
   if (order !== null) fields.order = order;
   return fields;
+}
+
+// What an entry still needs to read well in the catalog. Private work needs no link.
+export function projectReadiness(frontMatter, summary) {
+  const meta = projectMeta(frontMatter);
+  const missing = [];
+  if (!cleanText(summary)) missing.push("summary");
+  if (!meta.role) missing.push("role");
+  if (!meta.technologies.length) missing.push("stack");
+  if (!meta.highlights.length) missing.push("highlights");
+  if (!meta.links.length && meta.status !== "private") missing.push("links");
+  return missing;
 }
 
 // Normalizes a project's front matter in place; emptied or invalid optional fields are removed.

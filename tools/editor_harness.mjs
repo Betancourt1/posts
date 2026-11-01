@@ -148,10 +148,12 @@ function readJson(req) {
   });
 }
 
-export async function startHarnessServer(savedRequests, { blockEditor = true, fixtures = {} } = {}) {
+// `routes(req, res, url)` may answer a request first by returning true.
+export async function startHarnessServer(savedRequests, { blockEditor = true, fixtures = {}, notebooks: notebookList = notebooks, routes = null } = {}) {
   let origin = "";
   const server = createServer(async (req, res) => {
     const url = new URL(req.url || "/", origin || "http://127.0.0.1");
+    if (routes && await routes(req, res, url)) return;
     if (!blockEditor && url.pathname === "/js/block-editor.js") {
       // Keep the existing textarea fallback regression suite while testing CM6 separately.
       res.writeHead(200, { "Content-Type": "text/javascript" }); res.end(""); return;
@@ -217,7 +219,12 @@ export async function startHarnessServer(savedRequests, { blockEditor = true, fi
     }
 
     if (req.method === "GET" && url.pathname === "/api/notebooks") {
-      json(res, 200, { notebooks });
+      json(res, 200, { notebooks: notebookList });
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/project-writings") {
+      json(res, 200, { writings: [{ title: "Notas de método", path: "/posts/2026/notas-de-metodo/" }] });
       return;
     }
 

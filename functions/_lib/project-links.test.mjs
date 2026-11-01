@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { applyProjectFields, projectFields, projectMeta, projectOrder, sortProjects } from "./project-links.js";
+import { applyProjectFields, projectFields, projectMeta, projectOrder, projectReadiness, sortProjects } from "./project-links.js";
 
 const link = { type: "code", label: "Repo", href: "https://example.org/" };
 
@@ -69,6 +69,22 @@ test("applyProjectFields removes emptied or invalid optional fields and keeps un
   assert.deepEqual(frontMatter, {
     title: "T", technologies: ["Python"], org: "Acme", highlights: ["x"], project_links: [link], featured: false,
   });
+});
+
+test("technologies are normalized, deduplicated and removed when emptied", () => {
+  assert.deepEqual(projectFields({ technologies: [" Python ", "python", "SQL", ""] }).technologies, ["Python", "SQL"]);
+  assert.deepEqual(projectFields({ technologies: "Rust, Ratatui" }).technologies, ["Rust", "Ratatui"]);
+  assert.deepEqual(projectMeta({ technologies: ["Go", "go", "Zig"] }).technologies, ["Go", "Zig"]);
+  const frontMatter = { technologies: [], project_links: [] };
+  applyProjectFields(frontMatter);
+  assert.equal("technologies" in frontMatter, false);
+});
+
+test("projectReadiness lists what a catalog entry still needs", () => {
+  assert.deepEqual(projectReadiness({}, ""), ["summary", "role", "stack", "highlights", "links"]);
+  assert.deepEqual(projectReadiness({ role: "Dev", technologies: ["Go"], highlights: ["x"], project_links: [link] }, "S"), []);
+  assert.deepEqual(projectReadiness({ role: "Dev", technologies: ["Go"], highlights: ["x"], tags: ["private"] }, "S"), [], "private work needs no link");
+  assert.deepEqual(projectReadiness({ role: "Dev", technologies: ["Go"], highlights: ["x"], status: "live", tags: ["private"] }, " "), ["summary", "links"]);
 });
 
 test("projectFields still rejects invalid resources", () => {

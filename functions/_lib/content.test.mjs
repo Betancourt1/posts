@@ -580,4 +580,12 @@ test("project presentation fields round-trip, normalize and never block a save",
 
   await savePage(env, { path: created.path, frontMatter: { highlights: null }, body: "Notes." });
   assert.equal("highlights" in splitMarkdown(files.get(created.path)).frontMatter, false);
+
+  const stack = await createPost(env, {
+    notebook: index.replace("/_index.md", ""), title: "Stack", slug: "stack", summary: "S.",
+    technologies: ["C, C++ ", "python", "Python"],
+  });
+  assert.deepEqual(splitMarkdown(files.get(stack.path)).frontMatter.technologies, ["C, C++", "python"]);
+  await savePage(env, { path: stack.path, frontMatter: { technologies: [] }, body: "" });
+  assert.equal("technologies" in splitMarkdown(files.get(stack.path)).frontMatter, false);
 });

@@ -43,5 +43,25 @@ test("project styles use theme variables and keep 44px mobile targets", async ()
   const block = css.slice(css.indexOf(".project-group + .project-group"), css.indexOf(".project-overview .project-control"));
   assert.ok(block.length > 0);
   assert.doesNotMatch(block, /#[0-9a-f]{3,8}\b/i, "no hard-coded colors");
-  assert.match(css, /@media \(max-width: 640px\) \{\n  \.project-actions a \{ min-height: 44px;/);
+  assert.match(css, /@media \(max-width: 640px\) \{\n  \.project-actions a, \.project-actions \.project-control \{ min-height: 44px;/);
+});
+
+test("catalog admin controls exist only in author mode and carry their intent as data", async () => {
+  const [entry, tools] = await Promise.all([
+    read("../src/components/ProjectEntry.astro"),
+    read("../../static/js/author-tools.js"),
+  ]);
+  assert.match(entry, /const missing = authorMode \? projectReadiness\(/);
+  assert.match(entry, /\{missing\.length > 0 && <p class="project-missing">/);
+  for (const action of ["toggle-featured", "toggle-publish"]) {
+    assert.match(entry, new RegExp(`\\{authorMode && <button[^\\n]*data-author-action="${action}"`), action);
+  }
+  assert.match(entry, /data-featured-to=\{meta\.featured \? "off" : "on"\}/);
+  assert.match(entry, /data-publish-to=\{published \? "draft" : "public"\} data-confirm=\{confirmPublish\}/);
+
+  assert.match(tools, /typeof page\.body !== "string"/, "never saves without the existing body");
+  assert.match(tools, /postJson\("\/api\/save-page", \{ path: path, frontMatter: patch, body: page\.body \}\)/);
+  assert.match(tools, /patch = \{ draft: null, hidden: null \}/);
+  assert.match(tools, /patch = \{ draft: true, hidden: true \}/);
+  assert.doesNotMatch(tools.slice(tools.indexOf("function toggleProject"), tools.indexOf("function boot")), /waitForPublicState|setTimeout/);
 });

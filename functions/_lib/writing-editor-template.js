@@ -2335,6 +2335,12 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       ${projectEditorScript}
       var projectEditor = bindProjectEditor(markContentEdited, request, function () {
         return (sourcePath || els.notebook.value).startsWith("content_es/") ? "es" : "en";
+      }, {
+        title: function () { return els.title.value; },
+        summary: function () { return els.summary.value; },
+        tags: function () { return els.tags.value; },
+        bodyEmpty: function () { return !editorBodyValue().trim(); },
+        insert: function (markdown) { insertAtCursor(activeTextArea(), markdown); markContentEdited(); },
       });
       ${technicalEditorScript}
       boot();
@@ -4179,6 +4185,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function markContentEdited() {
         saveFailed = false;
+        if (isProject()) projectEditor.sync();
         setPublicationState("idle", "Los cambios se aplicarán al guardar.");
         if (els.arenaEnabled.checked && arenaState.state !== "unavailable" && arenaState.state !== "syncing") {
           arenaState = Object.assign({}, arenaState, { state: "pending", error: "" });
@@ -4422,7 +4429,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         var stored = readStoredDraft();
         els.draftRestore.hidden = true;
         if (!stored || !draftMatchesEditor(stored)) return;
-        if (isProject() && stored.project) projectEditor.load(stored.project);
+        if (isProject() && stored.project) projectEditor.load(Object.assign(projectEditor.read(), stored.project));
         els.title.value = String(stored.title || "");
         els.summary.value = String(stored.summary || "");
         loadedBodySource = String(stored.body || "");
@@ -4514,7 +4521,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       function syncPhotoEditor() {
         projectEditor.show(isProject());
         els.summary.placeholder = isProject() ? "Descripción breve para el catálogo" : "Agregar un subtítulo…";
-        els.body.placeholder = isProject() ? "Notas del proyecto (opcional)" : "Comienza a escribir un artículo…";
+        els.body.placeholder = isProject() ? "Caso del proyecto (opcional)" : "Comienza a escribir un artículo…";
         els.writingTypeField.hidden = !isWritingPost();
         els.pinnedField.hidden = !isWritingPost();
         var photo = isPhotoEditor();

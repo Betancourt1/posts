@@ -77,6 +77,15 @@
       return;
     }
 
+    if (action === "toggle-featured" || action === "toggle-publish") {
+      toggleProject(button).catch(function (error) {
+        button.disabled = false;
+        button.removeAttribute("aria-busy");
+        toast(error.message);
+      });
+      return;
+    }
+
     clearBusy = setIconBusy(button, actionFeedback[action]);
 
     ensureNotebooks().then(function () {
@@ -123,6 +132,43 @@
         clearBusy();
       }
       toast(error.message);
+    });
+  }
+
+  // Catalog toggles save one front matter patch through the editor's own save endpoint, then reload.
+  // The intent is read from data attributes rendered next to the confirm text, so both always agree.
+  function toggleProject(button) {
+    var path = button.dataset.sourcePath;
+    var patch = null;
+
+    if (button.dataset.authorAction === "toggle-featured") {
+      patch = { featured: button.dataset.featuredTo === "on" };
+    } else if (button.dataset.publishTo === "public") {
+      patch = { draft: null, hidden: null };
+    } else if (button.dataset.publishTo === "draft") {
+      patch = { draft: true, hidden: true };
+    }
+    if (!path || !patch) {
+      return Promise.reject(new Error("Acción de proyecto desconocida."));
+    }
+    if (button.dataset.confirm && !window.confirm(button.dataset.confirm)) {
+      return Promise.resolve();
+    }
+
+    button.disabled = true;
+    button.setAttribute("aria-busy", "true");
+    return request("/api/page?path=" + encodeURIComponent(path)).then(function (page) {
+      if (typeof page.body !== "string") {
+        throw new Error("No se pudo leer el contenido; no se guardó nada.");
+      }
+      return postJson("/api/save-page", { path: path, frontMatter: patch, body: page.body });
+    }).then(function () {
+      window.location.reload();
+    }).catch(function (error) {
+      if (/projection/i.test(error.message)) {
+        error.message += " El archivo sí se guardó en GitHub; recarga la página.";
+      }
+      throw error;
     });
   }
 
