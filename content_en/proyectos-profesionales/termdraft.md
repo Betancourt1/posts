@@ -6,6 +6,10 @@ tags: ["open-source","rust","terminal","markdown","local-first"]
 short_title: "TermDraft"
 summary: "A local-first, keyboard-first Markdown editor that runs entirely in the terminal."
 technologies: ["Rust", "Ratatui", "Crossterm", "Markdown"]
+project_links:
+  - type: code
+    label: "Browse the repository"
+    href: "https://github.com/Betancourt1/TermDraft"
 ---
 
 ## Context

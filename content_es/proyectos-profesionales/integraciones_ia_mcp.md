@@ -2,16 +2,9 @@
 title: "Integraciones de IA con Model Context Protocol (MCP)"
 date: 2026-05-14
 draft: true
-tags:
-  - mcp
-  - artificial-intelligence
-  - technology
-  - data-warehouse
-  - architecture
-  - private
+tags: ["mcp","artificial-intelligence","technology","data-warehouse","architecture","private"]
 short_title: "Integraciones de IA con MCP"
-summary: "Herramientas de IA gobernadas que conectan modelos de lenguaje con
-  datos empresariales."
+summary: "Herramientas de IA gobernadas que conectan modelos de lenguaje con datos empresariales."
 technologies: [ "Python", "SQL", "FastAPI", "MCP", "Docker", "PostgreSQL" ]
 ---
 

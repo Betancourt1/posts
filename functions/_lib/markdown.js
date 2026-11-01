@@ -1,6 +1,10 @@
 function parseScalar(value) {
   const trimmed = String(value || "").trim();
 
+  // formatMarkdown uses double-quoted YAML strings with JSON-compatible escapes.
+  if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
+    try { return JSON.parse(trimmed); } catch { /* Fall through for YAML-only escapes. */ }
+  }
   if (trimmed === "true") return true;
   if (trimmed === "false") return false;
   if (trimmed === "[]") return [];

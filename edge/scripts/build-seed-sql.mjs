@@ -4,6 +4,7 @@ import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { expectedSeedCounts } from "./seed-counts.mjs";
 import { projectSource } from "../src/lib/content-projector.mjs";
 import { uniqueTagRecords } from "../src/lib/tag-slug.mjs";
 
@@ -158,13 +159,7 @@ const stats = {
   canonicalRoutes: documents.flatMap((document) => document.routes).filter((route) => route.kind === "canonical").length,
   aliasRoutes: documents.flatMap((document) => document.routes).filter((route) => route.kind === "alias").length,
 };
-const expected = {
-  sources: 433,
-  documents: 533,
-  searchable: 479,
-  canonicalRoutes: 533,
-  aliasRoutes: 122,
-};
+const expected = expectedSeedCounts(sources);
 
 if (JSON.stringify(stats) !== JSON.stringify(expected)) {
   throw new Error(`Projection counts changed: ${JSON.stringify({ expected, actual: stats })}`);

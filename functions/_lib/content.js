@@ -1,3 +1,4 @@
+import { projectFields } from "./project-links.js";
 import {
   deleteGitHubFile,
   deleteGitHubFiles,
@@ -394,7 +395,8 @@ export async function createPost(env, payload) {
   const images = imageItemsFromPayload(payload.images);
   const coverAlt = explicitImageAlt || images[0]?.alt || "";
   const isPhotoNotebook = notebook.endsWith("/fotografia");
-  const body = String(payload.body || (image ? "" : `# ${title}\n`));
+  const isProjectNotebook = notebook.endsWith("/proyectos-profesionales");
+  const body = String(payload.body || (image || isProjectNotebook ? "" : `# ${title}\n`));
   const existing = await readGitHubFile(env, path);
 
   if (existing) {
@@ -425,6 +427,8 @@ export async function createPost(env, payload) {
       frontMatter.arena_channel_id = String(payload.arenaChannelId).trim();
     }
   }
+
+  if (isProjectNotebook) Object.assign(frontMatter, projectFields(payload));
 
   if (isPhotoNotebook && frontMatter.tags.length === 0) {
     frontMatter.tags = ["photography"];
@@ -555,6 +559,9 @@ export async function savePage(env, payload) {
   });
 
   const body = String(payload.body || "");
+  if (/^content_(?:en|es)\/proyectos-profesionales\/(?!_index\.md$)/.test(path)) {
+    Object.assign(frontMatter, projectFields(frontMatter));
+  }
   normalizeBookFrontMatter(path, frontMatter, body);
   normalizePhotoFrontMatter(path, frontMatter);
 

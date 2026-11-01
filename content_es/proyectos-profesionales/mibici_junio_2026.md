@@ -3,18 +3,23 @@ title: "MiBici: un mes de viajes en bicicleta"
 date: 2026-07-22
 draft: false
 featured: true
-tags:
-  - open-source
-  - react
-  - canvas
-  - data-visualization
-  - geospatial
+tags: ["open-source","react","canvas","data-visualization","geospatial"]
 short_title: "Bicicletas GDL"
 summary: "Reproduce 323,648 viajes en bicicleta por Guadalajara durante junio de 2026."
-project_map: "https://mibici.fbetancourt.work/"
-project_repository: "https://github.com/Betancourt1/mibici_junio_2026"
-project_writing: "https://github.com/Betancourt1/tesis/blob/adbcab8f64112d78163cfd116399a67ecf8dbb6f/Latex/Tesis/main.pdf"
 technologies: [ "React", "Vite", "Canvas 2D", "Cloudflare Workers" ]
+project_links:
+  - type: demo
+    label: "Reproducir los viajes"
+    href: "https://mibici.fbetancourt.work/"
+  - type: code
+    label: "Explorar el repositorio"
+    href: "https://github.com/Betancourt1/mibici_junio_2026"
+  - type: writing
+    label: "Leer la tesis (PDF)"
+    href: "https://github.com/Betancourt1/tesis/blob/adbcab8f64112d78163cfd116399a67ecf8dbb6f/Latex/Tesis/main.pdf"
+  - type: data
+    label: "Consultar los datos de viajes"
+    href: "https://mibici.net/es/datos-abiertos/"
 ---
 
 Elige un día de junio de 2026 y empieza la reproducción. Cada bicicleta que se mueve en el mapa representa un viaje registrado por MiBici en Guadalajara. Sigue una durante unos segundos: la salida y la llegada vienen del registro del viaje, mientras que las calles por las que pasa son una estimación.

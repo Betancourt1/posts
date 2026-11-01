@@ -3,12 +3,7 @@ title: "Orquestación de Pipelines de Datos con Dagster"
 date: 2026-05-18
 draft: true
 featured: true
-tags:
-  - dagster
-  - data-engineering
-  - docker
-  - architecture
-  - private
+tags: ["dagster","data-engineering","docker","architecture","private"]
 short_title: "Orquestación de Datos con Dagster"
 summary: "Una plataforma multi-gRPC auditable para pipelines de datos resilientes."
 technologies: [ "Python", "SQL", "Dagster", "Docker", "PostgreSQL", "gRPC" ]

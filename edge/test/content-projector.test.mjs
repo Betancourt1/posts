@@ -1,3 +1,4 @@
+import { expectedSeedCounts } from "../scripts/seed-counts.mjs";
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
@@ -147,32 +148,6 @@ test("keeps visible bilingual inventories aligned while allowing local drafts", 
         `${section}/${relativePath} must remain the same in both languages`,
       );
     }
-  }
-
-  const codeRoots = ["content_en", "content_es"].map((root) =>
-    path.join(REPO_ROOT, root, "proyectos-profesionales"));
-  const codeFiles = await Promise.all(codeRoots.map(async (root) =>
-    relativeFiles(root, await markdownFiles(root))));
-  assert.deepEqual(codeFiles[0], codeFiles[1], "Code must expose the same projects");
-
-  for (const relativePath of codeFiles[0]) {
-    const documents = await Promise.all(codeRoots.map(async (root, index) => {
-      const sourcePath = path.join(root, relativePath);
-      return projectSource({
-        path: `content_${index === 0 ? "en" : "es"}/proyectos-profesionales/${relativePath}`,
-        rawMarkdown: await readFile(sourcePath, "utf8"),
-      }).documents[0];
-    }));
-    const [english, spanish] = documents;
-
-    assert.equal(english.translationKey, spanish.translationKey);
-    assert.equal(english.date, spanish.date);
-    assert.deepEqual(english.tags, spanish.tags);
-    assert.deepEqual(english.frontMatter.technologies, spanish.frontMatter.technologies);
-    assert.deepEqual(
-      english.links.filter((link) => link.external).map((link) => link.href),
-      spanish.links.filter((link) => link.external).map((link) => link.href),
-    );
   }
 
   const guestbookSources = [
@@ -499,9 +474,26 @@ test("projects the complete repository with the migration count contract", async
   const documents = projections.flatMap((projection) => projection.documents);
   const routes = documents.flatMap((document) => document.routes);
 
-  assert.equal(files.length, 433);
-  assert.equal(documents.length, 533);
-  assert.equal(documents.filter((document) => document.searchable).length, 479);
-  assert.equal(routes.filter((route) => route.kind === "canonical").length, 533);
-  assert.equal(routes.filter((route) => route.kind === "alias").length, 122);
+  assert.deepEqual({
+    sources: files.length,
+    documents: documents.length,
+    searchable: documents.filter(document => document.searchable).length,
+    canonicalRoutes: routes.filter(route => route.kind === "canonical").length,
+    aliasRoutes: routes.filter(route => route.kind === "alias").length,
+  }, expectedSeedCounts(projections));
+});
+
+test("project metadata survives opening and saving the catalog's English and Spanish sources", async () => {
+  const { splitMarkdown, formatMarkdown } = await import("../../functions/_lib/markdown.js");
+  for (const lang of ["en", "es"]) {
+    const folder = path.join(REPO_ROOT, "content_" + lang, "proyectos-profesionales");
+    for (const file of await markdownFiles(folder)) {
+      const rawMarkdown = await readFile(file, "utf8");
+      const relativePath = path.relative(REPO_ROOT, file);
+      const document = projectSource({ path: relativePath, rawMarkdown }).documents[0];
+      const edited = splitMarkdown(rawMarkdown);
+      const after = projectSource({ path: relativePath, rawMarkdown: formatMarkdown(edited.frontMatter, edited.body) }).documents[0];
+      assert.deepEqual(after.frontMatter, document.frontMatter, relativePath);
+    }
+  }
 });

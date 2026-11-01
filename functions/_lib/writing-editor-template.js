@@ -1,3 +1,4 @@
+import { projectEditorMarkup, projectEditorScript, projectEditorStyles } from "./project-editor.js";
 import { postEditorController } from "./post-editor-controller.js";
 import { technicalEditorMarkup, technicalEditorScript, technicalEditorStyles, technicalInsertMarkup } from "./technical-editor-tools.js";
 
@@ -1906,6 +1907,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
     }
     ${technicalEditorStyles}
+    ${projectEditorStyles}
   </style>
 </head>
   <body class="reference-theme" data-theme="dark">
@@ -1996,6 +1998,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         </div>
         <textarea class="title-input" id="title" rows="2" placeholder="Título (obligatorio)"></textarea>
         <input class="subtitle-input" id="summary" type="text" placeholder="Agregar un subtítulo…" />
+        ${projectEditorMarkup}
         <textarea class="body-input" id="body" placeholder="Comienza a escribir un artículo…"></textarea>
         <textarea class="markdown-input" id="markdown-canvas" aria-label="Markdown del documento" spellcheck="false" hidden></textarea>
       </article>
@@ -2329,6 +2332,10 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         path: document.getElementById("path"),
       };
 
+      ${projectEditorScript}
+      var projectEditor = bindProjectEditor(markContentEdited, request, function () {
+        return (sourcePath || els.notebook.value).startsWith("content_es/") ? "es" : "en";
+      });
       ${technicalEditorScript}
       boot();
 
@@ -3030,6 +3037,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       function loadExisting() {
         return request("/api/page?path=" + encodeURIComponent(sourcePath)).then(function (payload) {
           frontMatter = payload.frontMatter || {};
+          if (isProject()) projectEditor.load(frontMatter);
           savedUrl = payload.url || "";
           els.notebookField.hidden = true;
           els.title.value = frontMatter.title || "";
@@ -3168,6 +3176,10 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           }
         }
 
+        if (isProject()) {
+          Object.assign(payload, projectEditor.read());
+          payload.body = editorBodyValue();
+        }
         if (isWritingPost()) {
           payload.essay = els.writingType.value === "essay";
           payload.technical = els.writingType.value === "technical";
@@ -3182,6 +3194,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           date: els.date.value,
         });
 
+        if (isProject()) Object.assign(nextFrontMatter, projectEditor.read());
         if (isWritingPost()) {
           nextFrontMatter.essay = els.writingType.value === "essay";
           nextFrontMatter.technical = els.writingType.value === "technical";
@@ -4187,6 +4200,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           essay: isWritingPost() ? els.writingType.value === "essay" : undefined,
           technical: isWritingPost() ? els.writingType.value === "technical" : undefined,
           pinned: isWritingPost() ? els.pinned.checked : undefined,
+          project: isProject() ? projectEditor.read() : undefined,
           image: els.image.value,
           imageAlt: els.imageAlt.value,
           caption: els.caption.value,
@@ -4337,6 +4351,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           essay: isWritingPost() ? els.writingType.value === "essay" : undefined,
           technical: isWritingPost() ? els.writingType.value === "technical" : undefined,
           pinned: isWritingPost() ? els.pinned.checked : undefined,
+          project: isProject() ? projectEditor.read() : undefined,
           image: els.image.value,
           imageAlt: els.imageAlt.value,
           caption: els.caption.value,
@@ -4396,6 +4411,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         if (isWritingPost() && typeof stored.essay === "boolean" && stored.essay !== current.essay) differs = true;
         if (isWritingPost() && (stored.technical === true) !== current.technical) differs = true;
         if (isWritingPost() && typeof stored.pinned === "boolean" && stored.pinned !== current.pinned) differs = true;
+        if (isProject() && stored.project && JSON.stringify(stored.project) !== JSON.stringify(current.project)) differs = true;
         if (!differs) return;
         var minutes = Math.max(1, Math.round((Date.now() - stored.savedAt) / 60000));
         els.draftRestoreText.textContent = "Borrador sin guardar de hace " + minutes + " min. ¿Restaurarlo?";
@@ -4406,6 +4422,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         var stored = readStoredDraft();
         els.draftRestore.hidden = true;
         if (!stored || !draftMatchesEditor(stored)) return;
+        if (isProject() && stored.project) projectEditor.load(stored.project);
         els.title.value = String(stored.title || "");
         els.summary.value = String(stored.summary || "");
         loadedBodySource = String(stored.body || "");
@@ -4456,6 +4473,11 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         return false;
       }
 
+      function isProject() {
+        var notebook = mode === "edit" ? notebookPathForContent(sourcePath) : els.notebook.value;
+        return editorController.kind === "post" && /^(content_en|content_es)\\/proyectos-profesionales$/.test(notebook);
+      }
+
       function isWritingPost() {
         var notebook = mode === "edit" ? sourcePath.split("/").slice(0, 2).join("/") : els.notebook.value;
         return !editorController.notebook && !sourcePath.endsWith("/_index.md") &&
@@ -4490,6 +4512,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function syncPhotoEditor() {
+        projectEditor.show(isProject());
+        els.summary.placeholder = isProject() ? "Descripción breve para el catálogo" : "Agregar un subtítulo…";
+        els.body.placeholder = isProject() ? "Notas del proyecto (opcional)" : "Comienza a escribir un artículo…";
         els.writingTypeField.hidden = !isWritingPost();
         els.pinnedField.hidden = !isWritingPost();
         var photo = isPhotoEditor();

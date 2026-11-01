@@ -6,6 +6,10 @@ tags: ["open-source","python","scraping","mexican-cinema","dataset"]
 short_title: "IMCINE Open Data"
 summary: "A reproducible preservation pipeline for Mexican film-history datasets."
 technologies: ["Python", "Pandas", "Scraping", "CSV", "JSON"]
+project_links:
+  - type: code
+    label: "Browse the repository"
+    href: "https://github.com/Betancourt1/imcine_datos_abiertos"
 ---
 
 ## Context

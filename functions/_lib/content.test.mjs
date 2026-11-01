@@ -510,3 +510,38 @@ test("writing type survives creation and edits without changing paths", async ()
     globalThis.fetch = originalFetch;
   }
 });
+
+test("create and publish a project with optional notes and ordered resources", async (t) => {
+  const index = "content_en/proyectos-profesionales/_index.md";
+  const files = new Map([[index, formatMarkdown({ title: "Projects" }, "")]]);
+  t.mock.method(globalThis, "fetch", async (url, options) => {
+    const path = decodeURIComponent(new URL(url).pathname.split("/contents/")[1]);
+    if (options.method === "PUT") {
+      files.set(path, Buffer.from(JSON.parse(options.body).content, "base64").toString());
+      return jsonResponse(200, { commit: { sha: "fixture" } });
+    }
+    return files.has(path)
+      ? jsonResponse(200, { type: "file", path, sha: "fixture", content: encoded(files.get(path)) })
+      : jsonResponse(404, { message: "Not Found" });
+  });
+  const links = [
+    { type: "code", label: "Repository", href: "https://example.org/code" },
+    { type: "writing", label: 'Why “routes” differ from "trips"', href: "/posts/route-notes/" },
+    { type: "writing", label: "Method", href: "/posts/method/" },
+  ];
+  const draft = await createPost(env, {
+    notebook: index.replace("/_index.md", ""), title: "Trip replay", slug: "trip-replay",
+    summary: "See the method.", project_links: links, featured: true, draft: true,
+  });
+  const stored = splitMarkdown(files.get(draft.path));
+  assert.equal(stored.frontMatter.draft, true);
+  assert.deepEqual(stored.frontMatter.project_links, links);
+  assert.equal(stored.frontMatter.featured, true);
+  assert.equal(stored.body.trim(), "");
+  const reordered = [links[2], links[0], links[1]];
+  await savePage(env, { path: draft.path, frontMatter: { draft: null, project_links: reordered }, body: "Notes." });
+  const published = splitMarkdown(files.get(draft.path));
+  assert.equal(published.frontMatter.draft, undefined);
+  assert.deepEqual(published.frontMatter.project_links, reordered);
+  assert.equal(published.frontMatter.featured, true);
+});

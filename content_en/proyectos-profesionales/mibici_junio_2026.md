@@ -6,10 +6,20 @@ featured: true
 tags: ["open-source","react","canvas","data-visualization","geospatial"]
 short_title: "Bicicletas GDL"
 summary: "Replay 323,648 bike trips across Guadalajara in June 2026."
-project_map: "https://mibici.fbetancourt.work/"
-project_repository: "https://github.com/Betancourt1/mibici_junio_2026"
-project_writing: "https://github.com/Betancourt1/tesis/blob/adbcab8f64112d78163cfd116399a67ecf8dbb6f/Latex/Tesis/main.pdf"
 technologies: ["React", "Vite", "Canvas 2D", "Cloudflare Workers"]
+project_links:
+  - type: demo
+    label: "Replay the trips"
+    href: "https://mibici.fbetancourt.work/"
+  - type: code
+    label: "Browse the repository"
+    href: "https://github.com/Betancourt1/mibici_junio_2026"
+  - type: writing
+    label: "Read the thesis (PDF, Spanish)"
+    href: "https://github.com/Betancourt1/tesis/blob/adbcab8f64112d78163cfd116399a67ecf8dbb6f/Latex/Tesis/main.pdf"
+  - type: data
+    label: "Explore the trip data"
+    href: "https://mibici.net/es/datos-abiertos/"
 ---
 
 Choose a day in June 2026 and press play. Each moving bicycle represents a recorded MiBici trip in Guadalajara. Try following one across the map: its departure and arrival come from the trip record, while the streets it takes between them are an estimate.

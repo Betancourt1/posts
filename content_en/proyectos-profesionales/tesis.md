@@ -7,6 +7,13 @@ short_title: "Bachelor's Thesis"
 summary: "A reproducible graph-theory analysis of Guadalajara's public transport network, from GTFS data to robustness simulations."
 technologies: ["Python", "NetworkX", "Pandas", "GeoPandas", "LaTeX"]
 aliases: ["/proyectos-academicos/tesis/"]
+project_links:
+  - type: writing
+    label: "Read the thesis (PDF, Spanish)"
+    href: "https://github.com/Betancourt1/tesis/blob/adbcab8f64112d78163cfd116399a67ecf8dbb6f/Latex/Tesis/main.pdf"
+  - type: code
+    label: "Browse the repository"
+    href: "https://github.com/Betancourt1/tesis"
 ---
 
 ## Project

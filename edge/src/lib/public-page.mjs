@@ -150,8 +150,8 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
     : ["list", "books", "photography", "quotes"].includes(layout)
       ? sectionItems(db, document.lang, document.section, {
           ...(layout === "list" ? listItemOptions : options),
-          body: ["list", "books"].includes(layout),
-          includeLanguageFallback: (layout === "list" && ["posts", "proyectos-profesionales"].includes(document.section)) || layout === "photography",
+          body: ["list", "books"].includes(layout) && document.section !== "proyectos-profesionales",
+          includeLanguageFallback: (layout === "list" && document.section === "posts") || layout === "photography",
         })
       : Promise.resolve([]);
   const recentItemsPromise = layout === "home"

@@ -7,6 +7,7 @@ import KnowledgeGraph from "../components/KnowledgeGraph.astro";
 import List from "../components/List.astro";
 import NotFound from "../components/NotFound.astro";
 import Photography from "../components/Photography.astro";
+import ProjectCatalog from "../components/ProjectCatalog.astro";
 import ProjectOverview from "../components/ProjectOverview.astro";
 import Quotes from "../components/Quotes.astro";
 import Single from "../components/Single.astro";
@@ -312,16 +313,8 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
     </>
   )}
 
-  {model.layout === "single" && (page.section === "proyectos-profesionales" && frontMatter.project_map && !authorMode ? (
-    <ProjectOverview
-      lang={lang}
-      title={title}
-      summary={page.summary}
-      map={frontMatter.project_map}
-      repository={frontMatter.project_repository}
-      writing={frontMatter.project_writing}
-      bodyHtml={removeLegacyLinkSpacing(page.bodyHtml || "")}
-    />
+  {model.layout === "single" && (page.section === "proyectos-profesionales" ? (
+    <ProjectOverview lang={lang} page={page} authorMode={authorMode} bodyHtml={removeLegacyLinkSpacing(page.bodyHtml || "")} />
   ) : (
     <Single
       title={title}
@@ -349,11 +342,9 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
     />
   ))}
 
-  {model.layout === "list" && (page.section === "proyectos-profesionales" && !authorMode ? (
-    <>
-      <header class="page-header"><h1>{title}</h1></header>
-      <section class="post-body" set:html={removeLegacyLinkSpacing(page.bodyHtml || "")} />
-    </>
+  {model.layout === "list" && (page.section === "proyectos-profesionales" ? (
+    <ProjectCatalog lang={lang} title={title} description={description} authorMode={authorMode}
+      notebook={page.sourcePath.replace(/\/_index\.md$/, "")} projects={model.items} />
   ) : (
     <List
       title={title}

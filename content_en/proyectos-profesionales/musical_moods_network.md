@@ -6,6 +6,10 @@ tags: ["open-source","data-science","graphs","data-visualization"]
 short_title: "Musical Moods Network"
 summary: "An interactive graph of relationships between musical emotions."
 technologies: ["Python", "JavaScript", "Sigma.js", "Graphs"]
+project_links:
+  - type: code
+    label: "Browse the repository"
+    href: "https://github.com/Betancourt1/MusicalMoodsNTWRK"
 ---
 
 ## Context

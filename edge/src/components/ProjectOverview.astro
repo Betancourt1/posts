@@ -1,41 +1,43 @@
 ---
+import { projectTypes, validProjectLink } from "../../../functions/_lib/project-links.js";
 import type { Language } from "./types";
 
 interface Props {
   lang: Language;
-  title: string;
-  summary: string;
-  map: string;
-  repository: string;
-  writing: string;
+  page: any;
   bodyHtml: string;
+  authorMode: boolean;
 }
-
-const { lang, title, summary, map, repository, writing, bodyHtml } = Astro.props;
+const { lang, page, bodyHtml, authorMode } = Astro.props;
 const es = lang === "es";
-const resources = [
-  [es ? "Mapa" : "Map", es ? "Reproducir los viajes" : "Replay the trips", map],
-  [es ? "Código" : "Code", es ? "Explorar el repositorio" : "Browse the repository", repository],
-  [es ? "Lectura" : "Writing", es ? "Leer la tesis (PDF)" : "Read the thesis (PDF, Spanish)", writing],
-].filter(([, , href]) => /^https:\/\//i.test(href));
+const links = Array.isArray(page.frontMatter.project_links) ? page.frontMatter.project_links.filter(validProjectLink) : [];
+type Resource = { type: keyof typeof projectTypes; label: string; href: string };
+const [primary, ...more]: Resource[] = links;
+const groups: Resource[][] = [];
+for (const link of more) {
+  const previous = groups.at(-1);
+  if (previous?.[0].type === link.type) previous.push(link);
+  else groups.push([link]);
+}
+const parent = (authorMode ? "/admin" : "") + (es ? "/es" : "") + "/proyectos-profesionales/";
 ---
 
 <article class="project-overview">
   <header>
-    <a class="project-parent" href={es ? "/es/proyectos-profesionales/" : "/proyectos-profesionales/"}>← {es ? "Proyectos" : "Projects"}</a>
-    <h1>{title}</h1>
-    <p class="project-summary">{summary}</p>
+    <a class="project-parent" href={parent}>← {es ? "Proyectos" : "Projects"}</a>
+    {authorMode && <button type="button" class="project-control" data-author-action="edit-post" data-source-path={page.sourcePath}>{es ? "Editar proyecto" : "Edit project"}</button>}
+    <h1>{page.title}</h1>
+    <p class="project-summary">{page.summary}</p>
   </header>
-  <nav class="project-resources" aria-label={es ? "Recursos del proyecto" : "Project resources"}>
-    {resources.map(([label, action, href]) => (
-      <a href={href}>
-        <span>{label}</span>
-        <strong>{action} <span aria-hidden="true">↗</span></strong>
-      </a>
-    ))}
-  </nav>
-  <section class="post-body">
-    <h2>{es ? "Cómo funciona el mapa" : "How the map works"}</h2>
-    <div set:html={bodyHtml} />
-  </section>
+  {primary && <nav class="project-resources" aria-label={es ? "Recursos del proyecto" : "Project resources"}>
+    <div class="project-primary">
+      <span>{projectTypes[primary.type][Number(es)]}</span>
+      <a href={primary.href}>{primary.label} ↗</a>
+    </div>
+    {groups.map(group => <div>
+      <span>{projectTypes[group[0].type][Number(es)]}</span>
+      {group.map(link => <a href={link.href}>{link.label} ↗</a>)}
+    </div>)}
+  </nav>}
+  {bodyHtml && <section class="post-body" set:html={bodyHtml} />}
 </article>

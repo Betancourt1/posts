@@ -6,6 +6,13 @@ tags: ["open-source","three-js","javascript","lean4","data-visualization"]
 short_title: "Mathematical Dependency Interface"
 summary: "A fast 3D explorer for Lean 4 and mathlib dependency graphs."
 technologies: ["Python", "Lean 4", "JavaScript", "Three.js"]
+project_links:
+  - type: demo
+    label: "Explore the 3D viewer"
+    href: "https://betancourt1.github.io/mathematics_map/#mode=overview&depth=2"
+  - type: code
+    label: "Browse the repository"
+    href: "https://github.com/Betancourt1/mathematics_map"
 ---
 
 ## Context

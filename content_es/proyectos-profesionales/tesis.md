@@ -7,6 +7,13 @@ short_title: "Tesis de licenciatura"
 summary: "Un análisis reproducible con teoría de grafos de la red de transporte público de Guadalajara, desde datos GTFS hasta simulaciones de robustez."
 technologies: ["Python", "NetworkX", "Pandas", "GeoPandas", "LaTeX"]
 aliases: ["/proyectos-academicos/tesis/"]
+project_links:
+  - type: writing
+    label: "Leer la tesis (PDF)"
+    href: "https://github.com/Betancourt1/tesis/blob/adbcab8f64112d78163cfd116399a67ecf8dbb6f/Latex/Tesis/main.pdf"
+  - type: code
+    label: "Explorar el repositorio"
+    href: "https://github.com/Betancourt1/tesis"
 ---
 
 ## Proyecto

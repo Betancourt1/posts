@@ -2,15 +2,17 @@
 title: "Mathematical Dependency Interface: Modelador 3D de Dependencias para Lean 4"
 date: 2026-05-30
 draft: true
-tags:
-  - open-source
-  - three-js
-  - javascript
-  - lean4
-  - data-visualization
+tags: ["open-source","three-js","javascript","lean4","data-visualization"]
 short_title: "Mathematical Dependency Interface"
 summary: "Un explorador 3D rápido de dependencias de Lean 4 y mathlib."
 technologies: [ "Python", "Lean 4", "JavaScript", "Three.js" ]
+project_links:
+  - type: demo
+    label: "Abrir el visor 3D"
+    href: "https://betancourt1.github.io/mathematics_map/#mode=overview&depth=2"
+  - type: code
+    label: "Explorar el repositorio"
+    href: "https://github.com/Betancourt1/mathematics_map"
 ---
 
 ## Contexto

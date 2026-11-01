@@ -4580,26 +4580,24 @@ html.infra-mode .infra-raw-block {
 .project-summary { margin: 0; color: var(--ink-dim); }
 .project-resources {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 1.5rem 0 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
   border-block: 1px solid var(--line);
+  margin: 1.25rem 0 2rem;
 }
-.project-resources a {
-  display: grid;
-  align-content: start;
-  gap: .35rem;
-  padding: .85rem .7rem;
-}
-.project-resources a > span {
-  color: var(--ink-dim);
-  font-size: .8rem;
-}
-.project-resources strong { line-height: 1.35; }
-.project-resources a:first-child { background: var(--bg-soft); }
+.project-resources > div { padding: .75rem; }
+.project-resources span, .project-status { font-size: .8rem; color: var(--ink-dim); }
+.project-resources span, .project-resources a { display: block; }
+.project-resources a { padding: .4rem 0; overflow-wrap: anywhere; }
+.project-primary { background: var(--bg-soft); }
+.project-catalog article { border-top: 1px solid var(--line); padding: 1.25rem 0; }
+.project-catalog h2 { margin: .3rem 0; }
+.project-catalog p { margin: .5rem 0; color: var(--ink-dim); }
+.project-status, .project-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.project-actions a { padding: .55rem 0; }
+.project-control { font: inherit; color: var(--accent); background: var(--bg-soft); border: 1px solid var(--line); padding: .45rem .7rem; cursor: pointer; }
+.project-overview .project-control { margin-inline-start: 1rem; }
 @media (max-width: 640px) {
   .project-resources { grid-template-columns: 1fr; }
-  .project-resources a {
-    grid-template-columns: 4.5rem 1fr;
-    align-items: baseline;
-  }
+  .project-resources > div { display: grid; grid-template-columns: 4rem 1fr; align-items: baseline; padding: .15rem .5rem; }
+  .project-resources a { grid-column: 2; min-height: 44px; display: flex; align-items: center; }
 }
