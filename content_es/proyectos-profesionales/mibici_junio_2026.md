@@ -10,14 +10,14 @@ tags:
   - data-visualization
   - geospatial
 short_title: "Bicicletas GDL"
-summary: "Una reproducción cartográfica interactiva de 323,648 viajes de MiBici
-  registrados durante junio de 2026."
+summary: "Reproduce 323,648 viajes en bicicleta por Guadalajara durante junio de 2026."
+project_map: "https://mibici.fbetancourt.work/"
+project_repository: "https://github.com/Betancourt1/mibici_junio_2026"
+project_writing: "https://github.com/Betancourt1/tesis/blob/adbcab8f64112d78163cfd116399a67ecf8dbb6f/Latex/Tesis/main.pdf"
 technologies: [ "React", "Vite", "Canvas 2D", "Cloudflare Workers" ]
 ---
 
 Elige un día de junio de 2026 y empieza la reproducción. Cada bicicleta que se mueve en el mapa representa un viaje registrado por MiBici en Guadalajara. Sigue una durante unos segundos: la salida y la llegada vienen del registro del viaje, mientras que las calles por las que pasa son una estimación.
-
-[Abrir el mapa interactivo](https://mibici.fbetancourt.work/) · [Ver el repositorio](https://github.com/Betancourt1/mibici_junio_2026)
 
 ## ¿Qué viajes aparecen en el mapa?
 
@@ -39,6 +39,6 @@ Al elegir una fecha, la aplicación carga los archivos horarios de ese día. Una
 
 ## Lectura relacionada
 
-[La red de transporte público de Guadalajara](/es/proyectos-profesionales/tesis/) mira la misma ciudad desde otro ángulo. En mi tesis utilicé un grafo de paradas y conexiones para estudiar qué le sucede a la red cuando falla una conexión.
+[La red de transporte público de Guadalajara](https://github.com/Betancourt1/tesis/blob/adbcab8f64112d78163cfd116399a67ecf8dbb6f/Latex/Tesis/main.pdf) mira la misma ciudad desde otro ángulo. En mi tesis utilicé un grafo de paradas y conexiones para estudiar qué le sucede a la red cuando falla una conexión.
 
 Cartografía de CARTO con datos de los colaboradores de OpenStreetMap.

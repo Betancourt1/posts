@@ -1,7 +1,7 @@
 ---
 title: "Tesis de licenciatura"
 date: 2026-02-13
-draft: false
+draft: true
 tags: ["open-source","python","network-analysis","public-transport","thesis"]
 short_title: "Tesis de licenciatura"
 summary: "Un análisis reproducible con teoría de grafos de la red de transporte público de Guadalajara, desde datos GTFS hasta simulaciones de robustez."

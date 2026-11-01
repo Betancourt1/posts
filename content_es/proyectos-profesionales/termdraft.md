@@ -1,7 +1,7 @@
 ---
 title: "TermDraft: Editor Local-First de Markdown para la Terminal"
 date: 2026-07-22
-draft: false
+draft: true
 tags: ["open-source","rust","terminal","markdown","local-first"]
 short_title: "TermDraft"
 summary: "Un editor local-first y keyboard-first de Markdown que funciona por completo en la terminal."

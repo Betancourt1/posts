@@ -161,7 +161,7 @@ const stats = {
 const expected = {
   sources: 433,
   documents: 533,
-  searchable: 497,
+  searchable: 479,
   canonicalRoutes: 533,
   aliasRoutes: 122,
 };

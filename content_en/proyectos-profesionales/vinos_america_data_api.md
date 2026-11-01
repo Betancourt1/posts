@@ -1,7 +1,7 @@
 ---
 title: "Vinos América Data API: Database Integration and Custom GPTs"
 date: 2024-11-20
-draft: false
+draft: true
 tags: ["fastapi","python","sap-hana","gpt-integration","private"]
 short_title: "Vinos América Data API"
 summary: "Secure FastAPI endpoints connecting Custom GPTs to SAP HANA."

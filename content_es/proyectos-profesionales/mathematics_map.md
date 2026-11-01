@@ -1,7 +1,7 @@
 ---
 title: "Mathematical Dependency Interface: Modelador 3D de Dependencias para Lean 4"
 date: 2026-05-30
-draft: false
+draft: true
 tags:
   - open-source
   - three-js

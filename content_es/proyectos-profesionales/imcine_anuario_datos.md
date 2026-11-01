@@ -1,7 +1,7 @@
 ---
 title: "IMCINE Anuario CineMX: Dataset Abierto e Histórico"
 date: 2026-01-27
-draft: false
+draft: true
 tags:
   - open-source
   - python

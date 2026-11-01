@@ -5,13 +5,14 @@ draft: false
 featured: true
 tags: ["open-source","react","canvas","data-visualization","geospatial"]
 short_title: "Bicicletas GDL"
-summary: "An interactive map replay of 323,648 MiBici trips recorded during June 2026."
+summary: "Replay 323,648 bike trips across Guadalajara in June 2026."
+project_map: "https://mibici.fbetancourt.work/"
+project_repository: "https://github.com/Betancourt1/mibici_junio_2026"
+project_writing: "https://github.com/Betancourt1/tesis/blob/adbcab8f64112d78163cfd116399a67ecf8dbb6f/Latex/Tesis/main.pdf"
 technologies: ["React", "Vite", "Canvas 2D", "Cloudflare Workers"]
 ---
 
 Choose a day in June 2026 and press play. Each moving bicycle represents a recorded MiBici trip in Guadalajara. Try following one across the map: its departure and arrival come from the trip record, while the streets it takes between them are an estimate.
-
-[Open the interactive map](https://mibici.fbetancourt.work/) · [Browse the repository](https://github.com/Betancourt1/mibici_junio_2026)
 
 ## Which trips made it onto the map?
 
@@ -33,6 +34,6 @@ Selecting a date loads that day's hourly files. Once they're in memory, you can 
 
 ## Related reading
 
-[Guadalajara's public transport network](/proyectos-profesionales/tesis/) looks at the same city from another angle. In my thesis I used a graph of stops and connections to study what happens to the network when a connection fails.
+[Guadalajara's public transport network](https://github.com/Betancourt1/tesis/blob/adbcab8f64112d78163cfd116399a67ecf8dbb6f/Latex/Tesis/main.pdf) looks at the same city from another angle. In my thesis I used a graph of stops and connections to study what happens to the network when a connection fails.
 
 Map tiles by CARTO, with map data from OpenStreetMap contributors.

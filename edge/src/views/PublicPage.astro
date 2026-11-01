@@ -7,6 +7,7 @@ import KnowledgeGraph from "../components/KnowledgeGraph.astro";
 import List from "../components/List.astro";
 import NotFound from "../components/NotFound.astro";
 import Photography from "../components/Photography.astro";
+import ProjectOverview from "../components/ProjectOverview.astro";
 import Quotes from "../components/Quotes.astro";
 import Single from "../components/Single.astro";
 import TagList from "../components/TagList.astro";
@@ -311,7 +312,17 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
     </>
   )}
 
-  {model.layout === "single" && (
+  {model.layout === "single" && (page.section === "proyectos-profesionales" && frontMatter.project_map && !authorMode ? (
+    <ProjectOverview
+      lang={lang}
+      title={title}
+      summary={page.summary}
+      map={frontMatter.project_map}
+      repository={frontMatter.project_repository}
+      writing={frontMatter.project_writing}
+      bodyHtml={removeLegacyLinkSpacing(page.bodyHtml || "")}
+    />
+  ) : (
     <Single
       title={title}
       date={page.date}
@@ -336,7 +347,7 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
         date: backlink.date,
       }))}
     />
-  )}
+  ))}
 
   {model.layout === "list" && (page.section === "proyectos-profesionales" && !authorMode ? (
     <>

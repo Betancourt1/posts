@@ -501,7 +501,7 @@ test("projects the complete repository with the migration count contract", async
 
   assert.equal(files.length, 433);
   assert.equal(documents.length, 533);
-  assert.equal(documents.filter((document) => document.searchable).length, 497);
+  assert.equal(documents.filter((document) => document.searchable).length, 479);
   assert.equal(routes.filter((route) => route.kind === "canonical").length, 533);
   assert.equal(routes.filter((route) => route.kind === "alias").length, 122);
 });

@@ -4569,3 +4569,37 @@ html.infra-mode .infra-raw-block {
     font-size: 1rem;
   }
 }
+
+.project-overview h1 {
+  margin: .4em 0 .25em;
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  line-height: 1.06;
+  text-wrap: balance;
+}
+.project-parent { font-size: .875rem; }
+.project-summary { margin: 0; color: var(--ink-dim); }
+.project-resources {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 1.5rem 0 2rem;
+  border-block: 1px solid var(--line);
+}
+.project-resources a {
+  display: grid;
+  align-content: start;
+  gap: .35rem;
+  padding: .85rem .7rem;
+}
+.project-resources a > span {
+  color: var(--ink-dim);
+  font-size: .8rem;
+}
+.project-resources strong { line-height: 1.35; }
+.project-resources a:first-child { background: var(--bg-soft); }
+@media (max-width: 640px) {
+  .project-resources { grid-template-columns: 1fr; }
+  .project-resources a {
+    grid-template-columns: 4.5rem 1fr;
+    align-items: baseline;
+  }
+}

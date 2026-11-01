@@ -1,0 +1,41 @@
+---
+import type { Language } from "./types";
+
+interface Props {
+  lang: Language;
+  title: string;
+  summary: string;
+  map: string;
+  repository: string;
+  writing: string;
+  bodyHtml: string;
+}
+
+const { lang, title, summary, map, repository, writing, bodyHtml } = Astro.props;
+const es = lang === "es";
+const resources = [
+  [es ? "Mapa" : "Map", es ? "Reproducir los viajes" : "Replay the trips", map],
+  [es ? "Código" : "Code", es ? "Explorar el repositorio" : "Browse the repository", repository],
+  [es ? "Lectura" : "Writing", es ? "Leer la tesis (PDF)" : "Read the thesis (PDF, Spanish)", writing],
+].filter(([, , href]) => /^https:\/\//i.test(href));
+---
+
+<article class="project-overview">
+  <header>
+    <a class="project-parent" href={es ? "/es/proyectos-profesionales/" : "/proyectos-profesionales/"}>← {es ? "Proyectos" : "Projects"}</a>
+    <h1>{title}</h1>
+    <p class="project-summary">{summary}</p>
+  </header>
+  <nav class="project-resources" aria-label={es ? "Recursos del proyecto" : "Project resources"}>
+    {resources.map(([label, action, href]) => (
+      <a href={href}>
+        <span>{label}</span>
+        <strong>{action} <span aria-hidden="true">↗</span></strong>
+      </a>
+    ))}
+  </nav>
+  <section class="post-body">
+    <h2>{es ? "Cómo funciona el mapa" : "How the map works"}</h2>
+    <div set:html={bodyHtml} />
+  </section>
+</article>

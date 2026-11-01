@@ -1,7 +1,7 @@
 ---
 title: "Bachelor's Thesis"
 date: 2026-02-13
-draft: false
+draft: true
 tags: ["open-source","python","network-analysis","public-transport","thesis"]
 short_title: "Bachelor's Thesis"
 summary: "A reproducible graph-theory analysis of Guadalajara's public transport network, from GTFS data to robustness simulations."

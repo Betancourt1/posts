@@ -1,7 +1,7 @@
 ---
 title: "Musical Moods: Musical Sentiment Network Analysis"
 date: 2022-03-30
-draft: false
+draft: true
 tags: ["open-source","data-science","graphs","data-visualization"]
 short_title: "Musical Moods Network"
 summary: "An interactive graph of relationships between musical emotions."
