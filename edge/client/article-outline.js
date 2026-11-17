@@ -34,7 +34,7 @@
   outline.hidden = false;
   var firstBlock = body.firstElementChild;
   if (firstBlock && firstBlock.tagName === "H1") firstBlock.after(outline.closest(".article-outline-rail") || outline);
-  outline.open = !window.matchMedia("(max-width: 720px)").matches;
+  if (outline.tagName === "DETAILS") outline.open = !window.matchMedia("(max-width: 720px)").matches;
 
   function updateCurrentSection() {
     var header = document.querySelector(".public-site .site-header");
