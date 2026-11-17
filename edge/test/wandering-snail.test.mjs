@@ -5,11 +5,13 @@ import test from "node:test";
 
 const script = await readFile(new URL("../client/wandering-snail.js", import.meta.url), "utf8");
 
-function createSnail(draws, reducedMotion = false, quotes = []) {
+function createSnail(draws, reducedMotion = false, quotes = [], storage = {}) {
   let click;
   let frame;
   let pointerMove;
   let outsideClick;
+  let toggleClick;
+  const toggle = { dataset: { labelHide: "Hide snails", labelShow: "Show snails" }, attributes: {}, classList: { toggle() {} }, setAttribute(name, value) { this.attributes[name] = value; }, addEventListener(event, handler) { if (event === "click") toggleClick = handler; } };
   const bubbles = [];
   function makeSnail() {
     const snail = {
@@ -33,16 +35,18 @@ function createSnail(draws, reducedMotion = false, quotes = []) {
   runInNewContext(script, {
     document: {
       documentElement: { lang: "es" },
+      getElementById: () => toggle,
       querySelector: (selector) => selector === ".snail-path" ? path : { getBoundingClientRect: () => ({ bottom: 100 }) },
       createElement: () => ({ style: {}, replaceChildren(...children) { this.children = children; }, offsetWidth: 200, offsetHeight: 100 }),
       addEventListener(event, handler) { if (event === "click") outsideClick = handler; },
     },
     window: screen,
+    localStorage: { getItem: (key) => storage[key], setItem: (key, value) => { storage[key] = value; } },
     fetch: () => Promise.resolve({ ok: true, json: () => Promise.resolve({ quotes }) }),
     Math: math,
     requestAnimationFrame: (callback) => { frame = callback; },
   });
-  return { snail, path, click: (target = snail) => click({ target }), tick: (time) => frame(time), point: (x, y) => pointerMove({ pointerType: "mouse", clientX: x, clientY: y }), bubbles, screen, outside: () => outsideClick({ target: { closest: () => null } }) };
+  return { snail, path, toggle, toggleVisibility: () => toggleClick(), click: (target = snail) => click({ target }), tick: (time) => frame(time), point: (x, y) => pointerMove({ pointerType: "mouse", clientX: x, clientY: y }), bubbles, screen, outside: () => outsideClick({ target: { closest: () => null } }) };
 }
 
 test("selection follows the seven descending rarity weights", () => {
@@ -174,7 +178,7 @@ test("placement finds a gap between irregularly positioned snails", () => {
   const first = { dataset: {}, style: { setProperty() {} } };
   const path = { querySelector: () => first, appendChild() {}, addEventListener() {} };
   const context = {
-    document: { documentElement: { lang: "en" }, querySelector: (selector) => selector === ".snail-path" ? path : null, createElement: () => ({ style: {} }), addEventListener() {} },
+    document: { documentElement: { lang: "en" }, getElementById: () => null, querySelector: (selector) => selector === ".snail-path" ? path : null, createElement: () => ({ style: {} }), addEventListener() {} },
     window: { innerWidth: 234, innerHeight: 264, matchMedia: () => ({ matches: false }), addEventListener() {} },
     fetch: () => Promise.resolve({ ok: true, json: () => Promise.resolve({ quotes: [] }) }),
     requestAnimationFrame() {},
@@ -204,7 +208,7 @@ test("collision turns find clear paths for oblique approaches and corners", () =
   const first = { dataset: {}, style: { setProperty() {} } };
   const path = { querySelector: () => first, appendChild() {}, addEventListener() {} };
   const context = {
-    document: { documentElement: { lang: "en" }, querySelector: (selector) => selector === ".snail-path" ? path : null, createElement: () => ({ style: {} }), addEventListener() {} },
+    document: { documentElement: { lang: "en" }, getElementById: () => null, querySelector: (selector) => selector === ".snail-path" ? path : null, createElement: () => ({ style: {} }), addEventListener() {} },
     window: { innerWidth: 400, innerHeight: 400, matchMedia: () => ({ matches: false }), addEventListener() {} },
     fetch: () => Promise.resolve({ ok: true, json: () => Promise.resolve({ quotes: [] }) }),
     requestAnimationFrame() {},
@@ -297,4 +301,33 @@ test("a vertical boundary bounce keeps the existing facing", () => {
   tick(200);
   assert.equal(snail.dataset.direction, "right");
   assert.ok(Number(snail.style.transform.match(/translate\(([\d.]+)/)[1]) > 0.4 * 1146);
+});
+
+
+test("the snail control hides all snails and quotes, pauses movement, and remembers its setting", async () => {
+  const storage = {};
+  const { snail, path, bubbles, click, tick, toggle, toggleVisibility } = createSnail([0.3, 0.3, 0, 0, 0.5], false, [{ text: "Quote", author: "Author" }], storage);
+  await new Promise(setImmediate);
+  click();
+  await new Promise(setImmediate);
+  assert.equal(bubbles[0].hidden, false);
+  toggleVisibility();
+  assert.equal(path.hidden, true);
+  assert.equal(bubbles[0].hidden, true);
+  assert.equal(toggle.attributes["aria-pressed"], "false");
+  assert.equal(toggle.attributes["aria-label"], "Show snails");
+  assert.equal(storage.snails_visible, "false");
+  const position = snail.style.transform;
+  tick(100);
+  tick(200);
+  assert.equal(snail.style.transform, position);
+  const anotherPage = createSnail([0.3, 0.3, 0, 0, 0.5], false, [], storage);
+  assert.equal(anotherPage.path.hidden, true);
+  toggleVisibility();
+  assert.equal(path.hidden, false);
+  assert.equal(toggle.attributes["aria-pressed"], "true");
+  assert.equal(toggle.attributes["aria-label"], "Hide snails");
+  assert.equal(path.children.length, 2);
+  for (let time = 300; time <= 1500; time += 100) tick(time);
+  assert.notEqual(snail.style.transform, position);
 });

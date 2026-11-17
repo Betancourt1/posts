@@ -21,6 +21,33 @@
   var header = document.querySelector(".site-header");
   var pointer = null;
   var activeSnail = null;
+  var toggle = document.getElementById("snail-toggle");
+  var visible = true;
+  try { visible = localStorage.getItem("snails_visible") !== "false"; } catch (error) {}
+
+  function setVisibility(show) {
+    visible = show;
+    path.hidden = !show;
+    if (!show) {
+      activeSnail = null;
+      snails.forEach(function (snail) {
+        snail.bubble.hidden = true;
+        delete snail.element.dataset.reading;
+      });
+    }
+    if (toggle) {
+      var label = show ? toggle.dataset.labelHide : toggle.dataset.labelShow;
+      toggle.setAttribute("aria-label", label);
+      toggle.setAttribute("title", label);
+      toggle.setAttribute("aria-pressed", show ? "true" : "false");
+      toggle.classList.toggle("is-active", show);
+    }
+  }
+  setVisibility(visible);
+  if (toggle) toggle.addEventListener("click", function () {
+    setVisibility(!visible);
+    try { localStorage.setItem("snails_visible", String(visible)); } catch (error) {}
+  });
   var lang = document.documentElement.lang.startsWith("es") ? "es" : "en";
   var quotes = fetch("/api/snail-quotes?lang=" + lang)
     .then(function (response) { return response.ok ? response.json() : { quotes: [] }; })
@@ -210,7 +237,7 @@
       lastBounds = boundsKey;
     }
     snails.forEach(function (snail) {
-      if (snail.element.hidden) return;
+      if (!visible || snail.element.hidden) return;
       if (!reducedMotion.matches && snail.bubble.hidden && snail.turningFor > 0) {
         snail.turningFor = Math.max(0, snail.turningFor - elapsed);
       } else if (!reducedMotion.matches && snail.bubble.hidden) {
