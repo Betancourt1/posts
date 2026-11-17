@@ -17,6 +17,54 @@
   var snails = [];
   var previousTime = 0;
   var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var header = document.querySelector(".site-header");
+  var pointer = null;
+  var activeSnail = null;
+  var lang = document.documentElement.lang.startsWith("es") ? "es" : "en";
+  var quotes = fetch("/api/snail-quotes?lang=" + lang)
+    .then(function (response) { return response.ok ? response.json() : { quotes: [] }; })
+    .then(function (data) { return Array.isArray(data.quotes) ? data.quotes : []; })
+    .catch(function () { return []; });
+
+  window.addEventListener("pointermove", function (event) {
+    if (event.pointerType !== "touch") pointer = { x: event.clientX, y: event.clientY };
+  });
+  document.addEventListener("pointerleave", function () { pointer = null; });
+
+  function bounds() {
+    var bottom = Math.max(0, window.innerHeight - 44);
+    return {
+      maxX: Math.max(0, window.innerWidth - 54),
+      minY: Math.min(bottom, header ? Math.max(0, header.getBoundingClientRect().bottom) : 0),
+      maxY: bottom,
+    };
+  }
+
+  function placeBubble(snail) {
+    var bubble = snail.bubble;
+    var area = bounds();
+    var bubbleWidth = bubble.offsetWidth;
+    var bubbleHeight = bubble.offsetHeight;
+    var x = Math.max(0, Math.min(window.innerWidth - bubbleWidth, snail.x));
+    var below = snail.y + 44;
+    var y = below + bubbleHeight <= window.innerHeight ? below : snail.y - bubbleHeight;
+    bubble.style.transform = "translate(" + x + "px, " + Math.max(area.minY, y) + "px)";
+  }
+
+  function giveQuote(snail) {
+    quotes.then(function (available) {
+      if (!available.length || activeSnail !== snail) return;
+      var quote = available[Math.floor(Math.random() * available.length)];
+      var text = document.createElement("span");
+      var author = document.createElement("span");
+      text.textContent = '“' + quote.text + '”';
+      author.textContent = "— " + quote.author;
+      author.className = "snail-quote-author";
+      snail.bubble.replaceChildren(text, author);
+      snail.bubble.hidden = false;
+      placeBubble(snail);
+    });
+  }
 
   function chooseSnail(snail) {
     var total = designs.reduce(function (sum, design) { return sum + design.weight; }, 0);
@@ -34,46 +82,71 @@
   }
 
   function addSnail(element, x, y) {
-    var snail = { element: element, x: x, y: y };
+    var bubble = document.createElement("div");
+    bubble.className = "snail-quote";
+    bubble.hidden = true;
+    path.appendChild(bubble);
+    var area = bounds();
+    var snail = { element: element, bubble: bubble, x: Math.min(area.maxX, x), y: Math.max(area.minY, Math.min(area.maxY, y)) };
     chooseSnail(element);
     setDirection(snail);
     snails.push(snail);
-    element.style.transform = "translate(" + x + "px, " + y + "px)";
+    element.style.transform = "translate(" + snail.x + "px, " + snail.y + "px)";
   }
 
   path.addEventListener("click", function (event) {
     var element = event.target.closest(".wandering-snail");
     var original = snails.find(function (snail) { return snail.element === element; });
     if (!original) return;
+    snails.forEach(function (snail) { snail.bubble.hidden = true; });
+    activeSnail = original;
+    giveQuote(original);
     var copy = element.cloneNode(true);
-    var maxX = Math.max(0, window.innerWidth - 54);
+    var maxX = bounds().maxX;
     var x = original.x + 58 <= maxX ? original.x + 58 : Math.max(0, original.x - 58);
     path.appendChild(copy);
     addSnail(copy, x, original.y);
   });
 
+  document.addEventListener("click", function (event) {
+    if (event.target.closest(".wandering-snail, .snail-quote")) return;
+    activeSnail = null;
+    snails.forEach(function (snail) { snail.bubble.hidden = true; });
+  });
+
   function move(time) {
     var elapsed = previousTime ? Math.min((time - previousTime) / 1000, 0.1) : 0;
     previousTime = time;
-    if (!reducedMotion.matches) {
-      snails.forEach(function (snail) {
-        snail.turnIn -= elapsed;
-        if (snail.turnIn <= 0) setDirection(snail);
-        var maxX = Math.max(0, window.innerWidth - 54);
-        var maxY = Math.max(0, window.innerHeight - 44);
+    var area = bounds();
+    snails.forEach(function (snail) {
+      if (!reducedMotion.matches) {
+        var dx = pointer && pointer.x - (snail.x + 27);
+        var dy = pointer && pointer.y - (snail.y + 22);
+        var distance = pointer && Math.hypot(dx, dy);
+        if (distance && distance < 180) {
+          var speed = distance > 32 ? 36 : 0;
+          snail.dx = dx / distance * speed;
+          snail.dy = dy / distance * speed;
+          snail.turnIn = 0;
+        } else {
+          snail.turnIn -= elapsed;
+          if (snail.turnIn <= 0) setDirection(snail);
+        }
         snail.x += snail.dx * elapsed;
         snail.y += snail.dy * elapsed;
-        if (snail.x < 0 || snail.x > maxX) snail.dx *= -1;
-        if (snail.y < 0 || snail.y > maxY) snail.dy *= -1;
-        snail.x = Math.max(0, Math.min(maxX, snail.x));
-        snail.y = Math.max(0, Math.min(maxY, snail.y));
-        snail.element.style.transform = "translate(" + snail.x + "px, " + snail.y + "px)";
-        snail.element.dataset.direction = snail.dx < 0 ? "left" : "right";
-      });
-    }
+        if (snail.x < 0 || snail.x > area.maxX) snail.dx *= -1;
+        if (snail.y < area.minY || snail.y > area.maxY) snail.dy *= -1;
+      }
+      snail.x = Math.max(0, Math.min(area.maxX, snail.x));
+      snail.y = Math.max(area.minY, Math.min(area.maxY, snail.y));
+      snail.element.style.transform = "translate(" + snail.x + "px, " + snail.y + "px)";
+      snail.element.dataset.direction = snail.dx < 0 ? "left" : "right";
+      if (!snail.bubble.hidden) placeBubble(snail);
+    });
     requestAnimationFrame(move);
   }
 
-  addSnail(first, Math.random() * Math.max(0, window.innerWidth - 54), Math.random() * Math.max(0, window.innerHeight - 44));
+  var area = bounds();
+  addSnail(first, Math.random() * area.maxX, area.minY + Math.random() * (area.maxY - area.minY));
   requestAnimationFrame(move);
 })();
