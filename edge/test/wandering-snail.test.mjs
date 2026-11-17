@@ -226,3 +226,37 @@ test("collision turns find clear paths for oblique approaches and corners", () =
     assert.ok(Math.hypot(snail.dx, snail.dy) > 0);
   }
 });
+
+test("following the pointer does not turn a snail without a collision", () => {
+  const { snail, tick, point } = createSnail([0.4, 0.4, 0, 0, 0.5]);
+  const start = snail.style.transform;
+  const [, x, y] = start.match(/translate\(([\d.]+)px, ([\d.]+)px\)/);
+  assert.equal(snail.dataset.direction, "right");
+  point(Number(x) - 80, Number(y) + 22);
+  tick(100);
+  tick(200);
+  assert.ok(Number(snail.style.transform.match(/translate\(([\d.]+)/)[1]) < Number(x));
+  assert.equal(snail.dataset.direction, "right");
+});
+
+test("boundary collisions turn once even when the pointer remains outside", () => {
+  const { snail, tick, point } = createSnail([1, 0.4, 0, 0, 0.5]);
+  assert.equal(snail.dataset.direction, "right");
+  point(1300, 400);
+  tick(100);
+  assert.equal(snail.dataset.direction, "left");
+  for (let time = 200; time <= 1000; time += 100) tick(time);
+  assert.equal(snail.dataset.direction, "left");
+});
+
+test("a collision with another snail turns it while maintaining separation", () => {
+  const { snail, path, bubbles, click, tick, point } = createSnail([0.4, 0, 0, 0, 0.5]);
+  click();
+  bubbles[1].hidden = false;
+  const [, x, y] = snail.style.transform.match(/translate\(([\d.]+)px, ([\d.]+)px\)/);
+  point(Number(x) + 85, Number(y) + 22);
+  tick(100);
+  tick(200);
+  assert.equal(snail.dataset.direction, "left");
+  assertSeparated(path.children);
+});

@@ -163,6 +163,7 @@
     var snail = { element: element, bubble: bubble, x: Math.min(area.maxX, x), y: Math.max(area.minY, Math.min(area.maxY, y)) };
     chooseSnail(element);
     setDirection(snail);
+    element.dataset.direction = snail.dx < 0 ? "left" : "right";
     snails.push(snail);
     element.style.transform = "translate(" + snail.x + "px, " + snail.y + "px)";
   }
@@ -220,22 +221,32 @@
           snail.turnIn -= elapsed;
           if (snail.turnIn <= 0) setDirection(snail);
         }
-        var nextX = Math.max(0, Math.min(area.maxX, snail.x + snail.dx * elapsed));
-        var nextY = Math.max(area.minY, Math.min(area.maxY, snail.y + snail.dy * elapsed));
-        if (nextX === 0 || nextX === area.maxX) snail.dx *= -1;
-        if (nextY === area.minY || nextY === area.maxY) snail.dy *= -1;
+        var proposedX = snail.x + snail.dx * elapsed;
+        var proposedY = snail.y + snail.dy * elapsed;
+        var hitX = (proposedX <= 0 && snail.dx < 0) || (proposedX >= area.maxX && snail.dx > 0);
+        var hitY = (proposedY <= area.minY && snail.dy < 0) || (proposedY >= area.maxY && snail.dy > 0);
+        var nextX = Math.max(0, Math.min(area.maxX, proposedX));
+        var nextY = Math.max(area.minY, Math.min(area.maxY, proposedY));
+        if (hitX) snail.dx *= -1;
+        if (hitY) snail.dy *= -1;
+        var collided = hitX || hitY;
+        if (collided) {
+          snail.avoidFor = 1.5;
+          snail.turnIn = 1.5;
+        }
         var others = snails.filter(function (other) { return other !== snail && !other.element.hidden; });
         if (isFree(nextX, nextY, others)) {
           snail.x = nextX;
           snail.y = nextY;
         } else {
           turnAside(snail, others, area);
+          collided = true;
         }
+        if (collided) snail.element.dataset.direction = snail.element.dataset.direction === "left" ? "right" : "left";
       }
       snail.x = Math.max(0, Math.min(area.maxX, snail.x));
       snail.y = Math.max(area.minY, Math.min(area.maxY, snail.y));
       snail.element.style.transform = "translate(" + snail.x + "px, " + snail.y + "px)";
-      snail.element.dataset.direction = snail.dx < 0 ? "left" : "right";
       if (!snail.bubble.hidden) placeBubble(snail);
     });
     requestAnimationFrame(move);
