@@ -4,6 +4,7 @@ import { runInNewContext } from "node:vm";
 import test from "node:test";
 
 const script = await readFile(new URL("../client/wandering-snail.js", import.meta.url), "utf8");
+const getComputedStyle = () => ({ width: "37.8px", height: "30.8px" });
 
 function createSnail(draws, reducedMotion = false, quotes = [], storage = {}) {
   let click;
@@ -31,7 +32,7 @@ function createSnail(draws, reducedMotion = false, quotes = [], storage = {}) {
   };
   const math = Object.create(Math);
   math.random = () => draws.shift() ?? 0.125;
-  const screen = { innerWidth: 1200, innerHeight: 800, matchMedia: () => ({ matches: reducedMotion }), addEventListener(event, handler) { if (event === "pointermove") pointerMove = handler; } };
+  const screen = { innerWidth: 1200, innerHeight: 800, getComputedStyle, matchMedia: () => ({ matches: reducedMotion }), addEventListener(event, handler) { if (event === "pointermove") pointerMove = handler; } };
   runInNewContext(script, {
     document: {
       documentElement: { lang: "es" },
@@ -71,21 +72,23 @@ test("clicking keeps the original and adds an independently clickable random sna
 test("copies near the edge stay visible, and reduced motion stays still", () => {
   const { snail, path, click, tick } = createSnail([1, 1, 0, 0.125, 0.5], true);
   const position = snail.style.transform;
+  assert.equal(position, "translate(1162.2px, 769.2px)");
   tick(100);
   tick(200);
   assert.equal(snail.style.transform, position);
   click();
-  assert.equal(path.children[1].style.transform, "translate(1088px, 756px)");
+  assert.equal(path.children[1].style.transform, "translate(1104.2px, 769.2px)");
 });
 
 test("nearby pointer attracts the snail and the header remains a boundary", () => {
   const { snail, tick, point } = createSnail([0.3, 0, 0, 0.5, 0.5]);
+  const startX = Number(snail.style.transform.match(/translate\(([\d.]+)/)[1]);
   assert.match(snail.style.transform, /, 100px\)/);
   point(270, 122);
   tick(100);
   tick(200);
   const [, x, y] = snail.style.transform.match(/translate\(([\d.]+)px, ([\d.]+)px\)/);
-  assert.ok(Number(x) < 343.8);
+  assert.ok(Number(x) < startX);
   assert.ok(Number(y) >= 100);
 });
 
@@ -179,7 +182,7 @@ test("placement finds a gap between irregularly positioned snails", () => {
   const path = { querySelector: () => first, appendChild() {}, addEventListener() {} };
   const context = {
     document: { documentElement: { lang: "en" }, getElementById: () => null, querySelector: (selector) => selector === ".snail-path" ? path : null, createElement: () => ({ style: {} }), addEventListener() {} },
-    window: { innerWidth: 234, innerHeight: 264, matchMedia: () => ({ matches: false }), addEventListener() {} },
+    window: { innerWidth: 234, innerHeight: 264, getComputedStyle, matchMedia: () => ({ matches: false }), addEventListener() {} },
     fetch: () => Promise.resolve({ ok: true, json: () => Promise.resolve({ quotes: [] }) }),
     requestAnimationFrame() {},
   };
@@ -196,7 +199,7 @@ test("a snail walks around a paused neighbor instead of repeatedly hitting it", 
   bubbles[1].hidden = false;
   const start = snail.style.transform;
   const [, x, y] = start.match(/translate\(([\d.]+)px, ([\d.]+)px\)/);
-  point(Number(x) + 85, Number(y) + 22);
+  point(Number(x) + 76.9, Number(y) + 15.4);
   for (let time = 100; time <= 1500; time += 100) { tick(time); assertSeparated(path.children); }
   const [, nextX, nextY] = snail.style.transform.match(/translate\(([\d.]+)px, ([\d.]+)px\)/);
   assert.ok(Number(nextY) > Number(y) + 5);
@@ -209,7 +212,7 @@ test("collision turns find clear paths for oblique approaches and corners", () =
   const path = { querySelector: () => first, appendChild() {}, addEventListener() {} };
   const context = {
     document: { documentElement: { lang: "en" }, getElementById: () => null, querySelector: (selector) => selector === ".snail-path" ? path : null, createElement: () => ({ style: {} }), addEventListener() {} },
-    window: { innerWidth: 400, innerHeight: 400, matchMedia: () => ({ matches: false }), addEventListener() {} },
+    window: { innerWidth: 400, innerHeight: 400, getComputedStyle, matchMedia: () => ({ matches: false }), addEventListener() {} },
     fetch: () => Promise.resolve({ ok: true, json: () => Promise.resolve({ quotes: [] }) }),
     requestAnimationFrame() {},
   };
@@ -237,7 +240,7 @@ test("a nearby pointer behind makes snails turn smoothly before following", () =
     const start = snail.style.transform;
     const [, x, y] = start.match(/translate\(([\d.]+)px, ([\d.]+)px\)/);
     assert.equal(snail.dataset.direction, initialFacing);
-    point(Number(x) + 27 + offset, Number(y) + 22);
+    point(Number(x) + 18.9 + offset, Number(y) + 15.4);
     tick(100);
     assert.equal(snail.dataset.direction, expectedFacing);
     for (let time = 200; time <= 700; time += 100) tick(time);
@@ -263,7 +266,7 @@ test("a collision with another snail selects a clear path while maintaining faci
   click();
   bubbles[1].hidden = false;
   const [, x, y] = snail.style.transform.match(/translate\(([\d.]+)px, ([\d.]+)px\)/);
-  point(Number(x) + 85, Number(y) + 22);
+  point(Number(x) + 76.9, Number(y) + 15.4);
   tick(100);
   tick(200);
   assert.equal(snail.dataset.direction, "right");
@@ -273,7 +276,7 @@ test("a collision with another snail selects a clear path while maintaining faci
 
 test("random course changes keep the horizontal movement aligned with facing", () => {
   const { snail, tick } = createSnail([0.4, 0.4, 0, 0, 0]);
-  let previousX = 0.4 * 1146;
+  let previousX = Number(snail.style.transform.match(/translate\(([\d.]+)/)[1]);
   for (let time = 100; time <= 12000; time += 100) {
     tick(time);
     const x = Number(snail.style.transform.match(/translate\(([\d.]+)/)[1]);
@@ -291,16 +294,17 @@ test("a horizontal boundary reverses facing before movement resumes", () => {
   for (let time = 200; time <= 700; time += 100) tick(time);
   assert.equal(snail.style.transform, start);
   for (let time = 800; time <= 1000; time += 100) tick(time);
-  assert.ok(Number(snail.style.transform.match(/translate\(([\d.]+)/)[1]) < 1146);
+  assert.ok(Number(snail.style.transform.match(/translate\(([\d.]+)/)[1]) < Number(start.match(/translate\(([\d.]+)/)[1]));
 });
 
 test("a vertical boundary bounce keeps the existing facing", () => {
   const { snail, tick } = createSnail([0.4, 0, 0, 0.875, 0.5]);
+  const startX = Number(snail.style.transform.match(/translate\(([\d.]+)/)[1]);
   assert.equal(snail.dataset.direction, "right");
   tick(100);
   tick(200);
   assert.equal(snail.dataset.direction, "right");
-  assert.ok(Number(snail.style.transform.match(/translate\(([\d.]+)/)[1]) > 0.4 * 1146);
+  assert.ok(Number(snail.style.transform.match(/translate\(([\d.]+)/)[1]) > startX);
 });
 
 

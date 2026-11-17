@@ -2,6 +2,9 @@
   var path = document.querySelector(".snail-path");
   var first = path && path.querySelector(".wandering-snail");
   if (!first) return;
+  var size = window.getComputedStyle(first);
+  var snailWidth = parseFloat(size.width);
+  var snailHeight = parseFloat(size.height);
 
   // Common to rare: 1, 2, 3, 4, 6, 8, 7.
   var designs = [
@@ -60,9 +63,9 @@
   document.addEventListener("pointerleave", function () { pointer = null; });
 
   function bounds() {
-    var bottom = Math.max(0, window.innerHeight - 44);
+    var bottom = Math.max(0, window.innerHeight - snailHeight);
     return {
-      maxX: Math.max(0, window.innerWidth - 54),
+      maxX: Math.max(0, window.innerWidth - snailWidth),
       minY: Math.min(bottom, header ? Math.max(0, header.getBoundingClientRect().bottom) : 0),
       maxY: bottom,
     };
@@ -123,7 +126,7 @@
     var bubbleWidth = bubble.offsetWidth;
     var bubbleHeight = bubble.offsetHeight;
     var x = Math.max(0, Math.min(window.innerWidth - bubbleWidth, snail.x));
-    var below = snail.y + 44;
+    var below = snail.y + snailHeight;
     var y = below + bubbleHeight <= window.innerHeight ? below : snail.y - bubbleHeight;
     bubble.style.transform = "translate(" + x + "px, " + Math.max(area.minY, y) + "px)";
   }
@@ -241,8 +244,8 @@
       if (!reducedMotion.matches && snail.bubble.hidden && snail.turningFor > 0) {
         snail.turningFor = Math.max(0, snail.turningFor - elapsed);
       } else if (!reducedMotion.matches && snail.bubble.hidden) {
-        var dx = pointer && pointer.x - (snail.x + 27);
-        var dy = pointer && pointer.y - (snail.y + 22);
+        var dx = pointer && pointer.x - (snail.x + snailWidth / 2);
+        var dy = pointer && pointer.y - (snail.y + snailHeight / 2);
         var distance = pointer && Math.hypot(dx, dy);
         snail.avoidFor = Math.max(0, (snail.avoidFor || 0) - elapsed);
         if (distance && distance < 180 && !snail.avoidFor) {
