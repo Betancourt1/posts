@@ -75,7 +75,7 @@ test("copies near the edge stay visible, and reduced motion stays still", () => 
 });
 
 test("nearby pointer attracts the snail and the header remains a boundary", () => {
-  const { snail, tick, point } = createSnail([0.3, 0, 0, 0.125, 0.5]);
+  const { snail, tick, point } = createSnail([0.3, 0, 0, 0.5, 0.5]);
   assert.match(snail.style.transform, /, 100px\)/);
   point(270, 122);
   tick(100);
@@ -235,7 +235,7 @@ test("following the pointer does not turn a snail without a collision", () => {
   point(Number(x) - 80, Number(y) + 22);
   tick(100);
   tick(200);
-  assert.ok(Number(snail.style.transform.match(/translate\(([\d.]+)/)[1]) < Number(x));
+  assert.equal(Number(snail.style.transform.match(/translate\(([\d.]+)/)[1]), Number(x));
   assert.equal(snail.dataset.direction, "right");
 });
 
@@ -249,7 +249,7 @@ test("boundary collisions turn once even when the pointer remains outside", () =
   assert.equal(snail.dataset.direction, "left");
 });
 
-test("a collision with another snail turns it while maintaining separation", () => {
+test("a collision with another snail selects a clear path while maintaining facing", () => {
   const { snail, path, bubbles, click, tick, point } = createSnail([0.4, 0, 0, 0, 0.5]);
   click();
   bubbles[1].hidden = false;
@@ -257,6 +257,39 @@ test("a collision with another snail turns it while maintaining separation", () 
   point(Number(x) + 85, Number(y) + 22);
   tick(100);
   tick(200);
-  assert.equal(snail.dataset.direction, "left");
+  assert.equal(snail.dataset.direction, "right");
   assertSeparated(path.children);
+});
+
+
+test("random course changes keep the horizontal movement aligned with facing", () => {
+  const { snail, tick } = createSnail([0.4, 0.4, 0, 0, 0]);
+  let previousX = 0.4 * 1146;
+  for (let time = 100; time <= 12000; time += 100) {
+    tick(time);
+    const x = Number(snail.style.transform.match(/translate\(([\d.]+)/)[1]);
+    assert.ok(x >= previousX);
+    assert.equal(snail.dataset.direction, "right");
+    previousX = x;
+  }
+});
+
+test("a horizontal boundary reverses facing before movement resumes", () => {
+  const { snail, tick } = createSnail([1, 0.4, 0, 0, 0.5]);
+  const start = snail.style.transform;
+  tick(100);
+  assert.equal(snail.dataset.direction, "left");
+  for (let time = 200; time <= 700; time += 100) tick(time);
+  assert.equal(snail.style.transform, start);
+  for (let time = 800; time <= 1000; time += 100) tick(time);
+  assert.ok(Number(snail.style.transform.match(/translate\(([\d.]+)/)[1]) < 1146);
+});
+
+test("a vertical boundary bounce keeps the existing facing", () => {
+  const { snail, tick } = createSnail([0.4, 0, 0, 0.875, 0.5]);
+  assert.equal(snail.dataset.direction, "right");
+  tick(100);
+  tick(200);
+  assert.equal(snail.dataset.direction, "right");
+  assert.ok(Number(snail.style.transform.match(/translate\(([\d.]+)/)[1]) > 0.4 * 1146);
 });

@@ -129,6 +129,9 @@
   function setDirection(snail) {
     var angle = Math.random() * Math.PI * 2;
     snail.dx = Math.cos(angle) * 14;
+    if (snail.element && snail.element.dataset.direction) {
+      snail.dx = Math.abs(snail.dx) * (snail.element.dataset.direction === "left" ? -1 : 1);
+    }
     snail.dy = Math.sin(angle) * 14;
     snail.turnIn = 3 + Math.random() * 5;
   }
@@ -162,6 +165,7 @@
     var area = bounds();
     var snail = { element: element, bubble: bubble, x: Math.min(area.maxX, x), y: Math.max(area.minY, Math.min(area.maxY, y)) };
     chooseSnail(element);
+    delete element.dataset.direction;
     setDirection(snail);
     element.dataset.direction = snail.dx < 0 ? "left" : "right";
     snails.push(snail);
@@ -207,14 +211,17 @@
     }
     snails.forEach(function (snail) {
       if (snail.element.hidden) return;
-      if (!reducedMotion.matches && snail.bubble.hidden) {
+      if (!reducedMotion.matches && snail.bubble.hidden && snail.turningFor > 0) {
+        snail.turningFor = Math.max(0, snail.turningFor - elapsed);
+      } else if (!reducedMotion.matches && snail.bubble.hidden) {
         var dx = pointer && pointer.x - (snail.x + 27);
         var dy = pointer && pointer.y - (snail.y + 22);
         var distance = pointer && Math.hypot(dx, dy);
         snail.avoidFor = Math.max(0, (snail.avoidFor || 0) - elapsed);
         if (distance && distance < 180 && !snail.avoidFor) {
           var speed = distance > 32 ? 18 : 0;
-          snail.dx = dx / distance * speed;
+          var facing = snail.element.dataset.direction === "left" ? -1 : 1;
+          snail.dx = dx * facing > 0 ? dx / distance * speed : 0;
           snail.dy = dy / distance * speed;
           snail.turnIn = 0;
         } else {
@@ -227,7 +234,10 @@
         var hitY = (proposedY <= area.minY && snail.dy < 0) || (proposedY >= area.maxY && snail.dy > 0);
         var nextX = Math.max(0, Math.min(area.maxX, proposedX));
         var nextY = Math.max(area.minY, Math.min(area.maxY, proposedY));
-        if (hitX) snail.dx *= -1;
+        if (hitX) {
+          nextX = snail.x;
+          snail.dx *= -1;
+        }
         if (hitY) snail.dy *= -1;
         var collided = hitX || hitY;
         if (collided) {
@@ -242,7 +252,13 @@
           turnAside(snail, others, area);
           collided = true;
         }
-        if (collided) snail.element.dataset.direction = snail.element.dataset.direction === "left" ? "right" : "left";
+        if (collided && snail.dx) {
+          var direction = snail.dx < 0 ? "left" : "right";
+          if (direction !== snail.element.dataset.direction) {
+            snail.element.dataset.direction = direction;
+            snail.turningFor = 0.6;
+          }
+        }
       }
       snail.x = Math.max(0, Math.min(area.maxX, snail.x));
       snail.y = Math.max(area.minY, Math.min(area.maxY, snail.y));
