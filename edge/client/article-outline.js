@@ -36,7 +36,8 @@
   if (firstBlock && firstBlock.tagName === "H1") firstBlock.after(outline.closest(".article-outline-rail") || outline);
   if (outline.tagName === "DETAILS") outline.open = !window.matchMedia("(max-width: 720px)").matches;
 
-  function updateCurrentSection() {
+  var previousSection = -1;
+  function updateCurrentSection(force) {
     var header = document.querySelector(".public-site .site-header");
     var threshold = header ? Math.max(110, header.getBoundingClientRect().bottom + 16) : 110;
     var current = 0;
@@ -47,8 +48,17 @@
       if (index === current) link.setAttribute("aria-current", "location");
       else link.removeAttribute("aria-current");
     });
+    if (outline.tagName === "NAV" && (force === true || current !== previousSection)) {
+      var bounds = outline.getBoundingClientRect();
+      var linkBounds = links[current].getBoundingClientRect();
+      var top = bounds.top + 32;
+      var bottom = bounds.bottom - 32;
+      if (linkBounds.top < top) outline.scrollTop += linkBounds.top - top;
+      else if (linkBounds.bottom > bottom) outline.scrollTop += linkBounds.bottom - bottom;
+    }
+    previousSection = current;
   }
   window.addEventListener("scroll", updateCurrentSection, { passive: true });
-  window.addEventListener("resize", updateCurrentSection, { passive: true });
+  window.addEventListener("resize", function () { updateCurrentSection(true); }, { passive: true });
   updateCurrentSection();
 })();
