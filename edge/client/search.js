@@ -152,21 +152,33 @@
   }
 
   function setupKeyboard(root, view, copy) {
+    var toggle = root.querySelector(".search-toggle");
+    var panel = root.querySelector(".search-panel");
+    function openSearch() {
+      if (toggle) { panel.hidden = false; toggle.setAttribute("aria-expanded", "true"); }
+      view.input.focus();
+      view.input.select();
+    }
+    function closeSearch() {
+      clearSearch(view, copy);
+      if (toggle) { panel.hidden = true; toggle.setAttribute("aria-expanded", "false"); toggle.focus(); }
+    }
+    if (toggle) toggle.addEventListener("click", function () {
+      if (panel.hidden) openSearch(); else closeSearch();
+    });
     document.addEventListener("keydown", function (event) {
       var target = event.target;
       var typing = target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName);
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        view.input.focus();
-        view.input.select();
+        openSearch();
         if (view.input.value.trim()) setResultsOpen(view, true);
       } else if (event.key === "Escape" && (document.activeElement === view.input || !view.drawer.hidden)) {
         event.preventDefault();
         clearSearch(view, copy);
       } else if (event.key === "/" && !typing) {
         event.preventDefault();
-        view.input.focus();
-        view.input.select();
+        openSearch();
         if (view.input.value.trim()) setResultsOpen(view, true);
       }
     });

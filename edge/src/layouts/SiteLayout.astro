@@ -73,7 +73,7 @@ const bookCoverOrigins = [
 const isPhotography = page.layout === "photography";
 const isQuotes = page.layout === "quotes";
 const isNotFound = page.layout === "not-found";
-const bodyClass = [pageClass, hasSidenotes ? "has-sidenotes" : "", authorMode ? "author-mode" : "", isQuotes ? "quotes-index-page" : "", isNotFound ? "not-found" : ""].filter(Boolean).join(" ");
+const bodyClass = [!authorMode ? "public-site" : "", pageClass, hasSidenotes ? "has-sidenotes" : "", authorMode ? "author-mode" : "", isQuotes ? "quotes-index-page" : "", isNotFound ? "not-found" : ""].filter(Boolean).join(" ");
 const updatedAt = page.updatedAt || new Date();
 const updatedDate = displayDate(updatedAt);
 const updatedLabel = updatedDate
@@ -155,7 +155,8 @@ const archivesPath = authorMode
     <header class="site-header">
       <p class="site-title"><a href={homePath}>{siteTitle}</a></p>
       <button type="button" class="site-menu-toggle" id="site-menu-toggle" aria-controls="primary-navigation" aria-expanded="false" hidden>{lang === "es" ? "Menú" : "Menu"}</button>
-      <p class="site-subtitle">{subtitle}</p>
+      {authorMode && <p class="site-subtitle">{subtitle}</p>}
+      {!authorMode && <Nav items={navigation} lang={lang} activePath={currentPath} activeSection={activeSection} />}
       <details class="site-header-actions" id="site-preferences" open>
         <summary class="site-preferences-toggle">{lang === "es" ? "Ajustes" : "Settings"}</summary>
         <div class="site-preferences-controls">
@@ -205,6 +206,8 @@ const archivesPath = authorMode
       </details>
       {showSearch && (
         <div class="site-header-search" id="search">
+          {!authorMode && <button type="button" class="search-toggle" aria-label={lang === "es" ? "Buscar" : "Search"} aria-expanded="false" aria-controls="site-search-panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>}
+          <div class="search-panel" id="site-search-panel" hidden={!authorMode}>
           <form class="search-ui__form" role="search">
             <svg class="search-command-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <input class="search-ui__search-input" id="site-search-input" type="search" autocomplete="off" spellcheck="false" placeholder={lang === "es" ? "buscar en el archivo" : "search the archive"} aria-label={lang === "es" ? "Buscar en el archivo" : "Search the archive"} aria-controls="site-search-results" aria-expanded="false" />
@@ -216,13 +219,14 @@ const archivesPath = authorMode
               <ol class="search-ui__results"></ol>
             </div>
           </div>
+          </div>
         </div>
       )}
     </header>
     <script is:inline src="/js/site-preferences.js" defer></script>
 
     <div class:list={["layout", { "layout--quotes-index": isQuotes }]}>
-      <aside class="column nav-column">
+      {authorMode && <aside class="column nav-column">
         <Nav
           items={navigation}
           lang={lang}
@@ -230,7 +234,7 @@ const archivesPath = authorMode
           activeSection={activeSection}
           authorMode={authorMode}
         />
-      </aside>
+      </aside>}
       <main class:list={["column", "content-column", { "content-column--books": isBooks, "content-column--photo-index": isPhotography, "content-column--quotes-index": isQuotes }]}>
         <div class="content-inner"><slot /></div>
       </main>
@@ -247,11 +251,12 @@ const archivesPath = authorMode
                 <div class="sidenote-rail" id="sidenote-rail"></div>
               </div>
             )
-            : <Sidebar lang={lang} archives={archiveMonths} archivesHref={archivesPath} graphData={page.isHome ? null : page.graphData} />}
+            : <Sidebar lang={lang} archives={archiveMonths} archivesHref={archivesPath} graphData={page.isHome ? null : page.graphData} showArchives={authorMode} />}
         </aside>
       )}
     </div>
 
+    {!authorMode && showSidebar && <aside class="public-archives"><Sidebar lang={lang} archives={archiveMonths} archivesHref={archivesPath} /></aside>}
     <footer class="site-footer">
       <p class="site-footer-updated">
         {lang === "es" ? "Última actualización del sitio:" : "Last updated:"}

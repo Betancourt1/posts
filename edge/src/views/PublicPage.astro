@@ -206,7 +206,7 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
   {authorMode && model.layout === "cv-links" && <CvLinks lang={lang} />}
   {model.layout === "home" && (
     <>
-      <header class="page-header">
+      {authorMode && <header class="page-header">
         <div class="page-header-row">
           <h1>{title}</h1>
           {authorMode && page.sourcePath && (
@@ -216,7 +216,7 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
           )}
         </div>
         <p class="lead">{description}</p>
-      </header>
+      </header>}
       {page.bodyHtml && <section class="post-body" set:html={removeLegacyLinkSpacing(page.bodyHtml)}></section>}
       {items.length > 0 && (
         <section class="home-section home-feed">

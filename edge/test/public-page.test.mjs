@@ -196,7 +196,7 @@ test("starts visible book covers promptly and contains mobile header controls", 
   assert.ok(layout.indexOf('class="site-header-actions"') < layout.indexOf('class="site-header-search"'));
   assert.match(css, /\.site-header-actions\s*\{[\s\S]*?position:\s*fixed;[\s\S]*?top:\s*22px;[\s\S]*?right:\s*32px;/);
 
-  const mobileCss = css.slice(css.lastIndexOf("@media (max-width: 1000px)"));
+  const mobileCss = css.slice(css.indexOf("@media (max-width: 1000px) {\n  .site-header {"));
   const mobileActions = mobileCss.match(/\.site-header-actions\s*\{([^}]*)\}/)?.[1] || "";
   assert.match(mobileCss, /grid-template-areas:\s*"title menu preferences" "search search search"/);
   assert.match(mobileActions, /position:\s*relative;/);
@@ -205,7 +205,7 @@ test("starts visible book covers promptly and contains mobile header controls", 
   assert.match(mobileActions, /transform:\s*none;/);
 });
 
-test("uses a pipette for grayscale and keeps search inline", async () => {
+test("uses a pipette for grayscale and reveals search from the header", async () => {
   const [layout, css, search] = await Promise.all([
     readFile(siteLayoutPath, "utf8"),
     readFile(siteCssPath, "utf8"),
@@ -231,6 +231,9 @@ test("uses a pipette for grayscale and keeps search inline", async () => {
   const searchStart = layout.indexOf('<div class="site-header-search" id="search">');
   assert.ok(actionsStart >= 0 && actionsEnd > actionsStart && searchStart > actionsEnd);
   assert.match(layout, /<form class="search-ui__form" role="search">/);
+  assert.match(layout, /class="search-panel" id="site-search-panel" hidden=\{!authorMode\}/);
+  assert.match(layout, /class="search-toggle"[^>]*aria-expanded="false"/);
+  assert.match(search, /panel.hidden = false/);
   assert.match(layout, /<input class="search-ui__search-input" id="site-search-input" type="search"/);
   assert.match(layout, /placeholder=\{lang === "es" \? "buscar en el archivo" : "search the archive"\}/);
   assert.match(layout, /<svg class="search-command-icon"/);
