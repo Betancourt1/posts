@@ -16,6 +16,7 @@
   var properties = ["--snail-outline", "--snail-body", "--snail-shell", "--snail-highlight", "--snail-spiral", "--snail-cheek"];
   var snails = [];
   var previousTime = 0;
+  var lastBounds = "";
   var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   var header = document.querySelector(".site-header");
   var pointer = null;
@@ -38,6 +39,55 @@
       minY: Math.min(bottom, header ? Math.max(0, header.getBoundingClientRect().bottom) : 0),
       maxY: bottom,
     };
+  }
+
+  function isFree(x, y, others) {
+    return others.every(function (other) {
+      return Math.abs(x - other.x) >= 58 || Math.abs(y - other.y) >= 48;
+    });
+  }
+
+  function findSpace(x, y, area, others) {
+    function valid(left, top) {
+      return left >= 0 && left <= area.maxX && top >= area.minY && top <= area.maxY && isFree(left, top, others);
+    }
+    var offsets = [[0, 0], [58, 0], [-58, 0], [0, 48], [0, -48], [58, 48], [-58, 48], [58, -48], [-58, -48]];
+    for (var i = 0; i < offsets.length; i++) {
+      var left = x + offsets[i][0];
+      var top = y + offsets[i][1];
+      if (valid(left, top)) return { x: left, y: top };
+    }
+    var columns = [0, area.maxX, x];
+    var rows = [area.minY, area.maxY, y];
+    others.forEach(function (other) {
+      columns.push(other.x - 58, other.x + 58);
+      rows.push(other.y - 48, other.y + 48);
+    });
+    for (var row of rows) {
+      for (var column of columns) {
+        if (valid(column, row)) return { x: column, y: row };
+      }
+    }
+    return null;
+  }
+
+  function fitSnails(area) {
+    var placed = [];
+    var ordered = activeSnail ? [activeSnail].concat(snails.filter(function (snail) { return snail !== activeSnail; })) : snails;
+    ordered.forEach(function (snail) {
+      var x = Math.max(0, Math.min(area.maxX, snail.x));
+      var y = Math.max(area.minY, Math.min(area.maxY, snail.y));
+      var space = findSpace(x, y, area, placed);
+      snail.element.hidden = !space;
+      if (!space) {
+        snail.bubble.hidden = true;
+        delete snail.element.dataset.reading;
+        return;
+      }
+      snail.x = space.x;
+      snail.y = space.y;
+      placed.push(snail);
+    });
   }
 
   function placeBubble(snail) {
@@ -108,10 +158,11 @@
     giveQuote(original);
     var copy = element.cloneNode(true);
     delete copy.dataset.reading;
-    var maxX = bounds().maxX;
-    var x = original.x + 58 <= maxX ? original.x + 58 : Math.max(0, original.x - 58);
+    var area = bounds();
+    var space = findSpace(original.x, original.y, area, snails.filter(function (snail) { return !snail.element.hidden; }));
+    if (!space) return;
     path.appendChild(copy);
-    addSnail(copy, x, original.y);
+    addSnail(copy, space.x, space.y);
   });
 
   document.addEventListener("click", function (event) {
@@ -127,12 +178,19 @@
     var elapsed = previousTime ? Math.min((time - previousTime) / 1000, 0.1) : 0;
     previousTime = time;
     var area = bounds();
+    var boundsKey = [area.maxX, area.minY, area.maxY].join(":");
+    if (boundsKey !== lastBounds) {
+      fitSnails(area);
+      lastBounds = boundsKey;
+    }
     snails.forEach(function (snail) {
+      if (snail.element.hidden) return;
       if (!reducedMotion.matches && snail.bubble.hidden) {
         var dx = pointer && pointer.x - (snail.x + 27);
         var dy = pointer && pointer.y - (snail.y + 22);
         var distance = pointer && Math.hypot(dx, dy);
-        if (distance && distance < 180) {
+        snail.avoidFor = Math.max(0, (snail.avoidFor || 0) - elapsed);
+        if (distance && distance < 180 && !snail.avoidFor) {
           var speed = distance > 32 ? 18 : 0;
           snail.dx = dx / distance * speed;
           snail.dy = dy / distance * speed;
@@ -141,10 +199,18 @@
           snail.turnIn -= elapsed;
           if (snail.turnIn <= 0) setDirection(snail);
         }
-        snail.x += snail.dx * elapsed;
-        snail.y += snail.dy * elapsed;
-        if (snail.x < 0 || snail.x > area.maxX) snail.dx *= -1;
-        if (snail.y < area.minY || snail.y > area.maxY) snail.dy *= -1;
+        var nextX = Math.max(0, Math.min(area.maxX, snail.x + snail.dx * elapsed));
+        var nextY = Math.max(area.minY, Math.min(area.maxY, snail.y + snail.dy * elapsed));
+        if (nextX === 0 || nextX === area.maxX) snail.dx *= -1;
+        if (nextY === area.minY || nextY === area.maxY) snail.dy *= -1;
+        var others = snails.filter(function (other) { return other !== snail && !other.element.hidden; });
+        if (isFree(nextX, nextY, others)) {
+          snail.x = nextX;
+          snail.y = nextY;
+        } else {
+          setDirection(snail);
+          snail.avoidFor = 1;
+        }
       }
       snail.x = Math.max(0, Math.min(area.maxX, snail.x));
       snail.y = Math.max(area.minY, Math.min(area.maxY, snail.y));

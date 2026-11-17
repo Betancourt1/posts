@@ -29,6 +29,7 @@ function createSnail(draws, reducedMotion = false, quotes = []) {
   };
   const math = Object.create(Math);
   math.random = () => draws.shift() ?? 0.125;
+  const screen = { innerWidth: 1200, innerHeight: 800, matchMedia: () => ({ matches: reducedMotion }), addEventListener(event, handler) { if (event === "pointermove") pointerMove = handler; } };
   runInNewContext(script, {
     document: {
       documentElement: { lang: "es" },
@@ -36,12 +37,12 @@ function createSnail(draws, reducedMotion = false, quotes = []) {
       createElement: () => ({ style: {}, replaceChildren(...children) { this.children = children; }, offsetWidth: 200, offsetHeight: 100 }),
       addEventListener(event, handler) { if (event === "click") outsideClick = handler; },
     },
-    window: { innerWidth: 1200, innerHeight: 800, matchMedia: () => ({ matches: reducedMotion }), addEventListener(event, handler) { if (event === "pointermove") pointerMove = handler; } },
+    window: screen,
     fetch: () => Promise.resolve({ ok: true, json: () => Promise.resolve({ quotes }) }),
     Math: math,
     requestAnimationFrame: (callback) => { frame = callback; },
   });
-  return { snail, path, click: (target = snail) => click({ target }), tick: (time) => frame(time), point: (x, y) => pointerMove({ pointerType: "mouse", clientX: x, clientY: y }), bubbles, outside: () => outsideClick({ target: { closest: () => null } }) };
+  return { snail, path, click: (target = snail) => click({ target }), tick: (time) => frame(time), point: (x, y) => pointerMove({ pointerType: "mouse", clientX: x, clientY: y }), bubbles, screen, outside: () => outsideClick({ target: { closest: () => null } }) };
 }
 
 test("selection follows the seven descending rarity weights", () => {
@@ -125,4 +126,62 @@ test("a snail keeps its quote and pauses until its dialogue closes", async () =>
   await new Promise(setImmediate);
   assert.equal(bubbles[0].children[0].textContent, quote);
   assert.equal(path.children.length, 3);
+});
+
+function assertSeparated(snails) {
+  const positions = snails.filter((snail) => !snail.hidden).map((snail) => {
+    const [, x, y] = snail.style.transform.match(/translate\(([\d.]+)px, ([\d.]+)px\)/);
+    return { x: Number(x), y: Number(y) };
+  });
+  for (let i = 0; i < positions.length; i++) {
+    for (let j = i + 1; j < positions.length; j++) {
+      assert.ok(Math.abs(positions[i].x - positions[j].x) >= 58 || Math.abs(positions[i].y - positions[j].y) >= 48);
+    }
+  }
+}
+
+test("repeated copies and moving snails keep their distance, even on resize", () => {
+  const { snail, path, click, tick, point, screen } = createSnail([0.4, 0.4, 0, 0.125, 0.5]);
+  for (let i = 0; i < 20; i++) { click(snail); assertSeparated(path.children); }
+  point(500, 420);
+  for (let time = 100; time < 5000; time += 100) { tick(time); assertSeparated(path.children); }
+  screen.innerWidth = 250;
+  screen.innerHeight = 200;
+  tick(5100);
+  assertSeparated(path.children);
+  assert.ok(path.children.some((item) => item.hidden));
+  screen.innerWidth = 1200;
+  screen.innerHeight = 800;
+  tick(5200);
+  assertSeparated(path.children);
+  assert.ok(path.children.every((item) => !item.hidden));
+});
+
+test("a full viewport does not create an overlapping duplicate", () => {
+  const { snail, path, click, tick, screen } = createSnail([0, 0, 0, 0.125, 0.5], true);
+  screen.innerWidth = 112;
+  screen.innerHeight = 192;
+  tick(100);
+  for (let i = 0; i < 10; i++) click(snail);
+  assertSeparated(path.children);
+  const count = path.children.length;
+  click(snail);
+  assert.equal(path.children.length, count);
+});
+
+test("placement finds a gap between irregularly positioned snails", () => {
+  const instrumented = script.replace("})();", "globalThis.findSpaceForTest = findSpace; })();");
+  const first = { dataset: {}, style: { setProperty() {} } };
+  const path = { querySelector: () => first, appendChild() {}, addEventListener() {} };
+  const context = {
+    document: { documentElement: { lang: "en" }, querySelector: (selector) => selector === ".snail-path" ? path : null, createElement: () => ({ style: {} }), addEventListener() {} },
+    window: { innerWidth: 234, innerHeight: 264, matchMedia: () => ({ matches: false }), addEventListener() {} },
+    fetch: () => Promise.resolve({ ok: true, json: () => Promise.resolve({ quotes: [] }) }),
+    requestAnimationFrame() {},
+  };
+  runInNewContext(instrumented, context);
+  const occupied = [[39, 212], [3, 125], [151, 166], [127, 104], [93, 157]].map(([x, y]) => ({ x, y }));
+  const result = context.findSpaceForTest(39, 212, { maxX: 180, minY: 100, maxY: 220 }, occupied);
+  assert.ok(result);
+  assert.ok(occupied.every((other) => Math.abs(result.x - other.x) >= 58 || Math.abs(result.y - other.y) >= 48));
 });
