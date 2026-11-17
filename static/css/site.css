@@ -2681,7 +2681,7 @@ tr:nth-child(even) { background: var(--table-stripe); }
   font-size: 0.9rem;
 }
 
-button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.book-shelf-more-button):not(.typo-btn):not(.typo-btn-choice), .button:not(.graph-tool), a.button {
+button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.book-shelf-more-button):not(.typo-btn):not(.typo-btn-choice):not(.wandering-snail), .button:not(.graph-tool), a.button {
   display: inline-block;
   border: 1px solid var(--line);
   border-radius: 0;
@@ -2692,12 +2692,12 @@ button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.book-sh
   cursor: pointer;
 }
 
-button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.book-shelf-more-button):not(.typo-btn):not(.typo-btn-choice):hover, .button:not(.graph-tool):hover, a.button:hover {
+button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.book-shelf-more-button):not(.typo-btn):not(.typo-btn-choice):not(.wandering-snail):hover, .button:not(.graph-tool):hover, a.button:hover {
   border-color: var(--accent);
   color: var(--accent);
 }
 
-button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.book-shelf-more-button):not(.typo-btn):not(.typo-btn-choice):focus-visible, .button:not(.graph-tool):focus-visible, a.button:focus-visible {
+button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.book-shelf-more-button):not(.typo-btn):not(.typo-btn-choice):not(.wandering-snail):focus-visible, .button:not(.graph-tool):focus-visible, a.button:focus-visible {
   outline: 2px dashed var(--accent);
   outline-offset: 3px;
 }
@@ -4534,3 +4534,34 @@ html.infra-mode .infra-raw-block {
   .public-site .layout:has(.sidebar-column .knowledge-graph) { grid-template-columns: 1fr; }
   .public-site .content-column, .public-site .sidebar-column { grid-column: 1; }
 }
+
+.snail-path { position: fixed; inset: 0; z-index: 1000; pointer-events: none; }
+.wandering-snail { position: absolute; top: 0; left: 0; width: 54px; height: 44px; padding: 0; border: 0; background: transparent; cursor: pointer; pointer-events: auto; }
+.wandering-snail:focus-visible { outline: 2px dashed var(--accent); outline-offset: 2px; }
+.snail-sprite { display: block; width: 100%; height: 100%; overflow: visible; }
+.wandering-snail[data-direction="left"] .snail-sprite { transform: scaleX(-1); }
+.snail-body, .snail-shell, .snail-foot { animation: snail-crawl 1.2s steps(1, end) infinite; transform-origin: center bottom; }
+.snail-shell { animation-name: snail-shell-crawl; }
+.snail-foot { animation-name: snail-foot-crawl; }
+.snail-moss, .snail-star { display: none; }
+.wandering-snail[data-design="2"] .snail-moss, .wandering-snail[data-design="8"] .snail-star { display: inline; }
+@keyframes snail-crawl {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(1px) scaleX(1.03); }
+  50% { transform: translateX(2px); }
+  75% { transform: translateX(1px) scaleX(0.97); }
+}
+@keyframes snail-shell-crawl {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-1px); }
+  50% { transform: translate(1px, 0); }
+  75% { transform: translate(0, -1px); }
+}
+@keyframes snail-foot-crawl {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(1px); }
+  50% { transform: translateX(2px); }
+  75% { transform: translateX(1px); }
+}
+@media (prefers-reduced-motion: reduce) { .wandering-snail, .snail-sprite, .snail-body, .snail-shell, .snail-foot { animation: none; } }
+@media print { .snail-path { display: none; } }

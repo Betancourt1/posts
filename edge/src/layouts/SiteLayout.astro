@@ -1,5 +1,6 @@
 ---
 import Nav from "../components/Nav.astro";
+import WanderingSnail from "../components/WanderingSnail.astro";
 import Sidebar from "../components/Sidebar.astro";
 import AuthorTools from "../components/AuthorTools.astro";
 import KnowledgeGraph from "../components/KnowledgeGraph.astro";
@@ -225,6 +226,7 @@ const archivesPath = authorMode
     </header>
     <script is:inline src="/js/site-preferences.js" defer></script>
 
+    {!authorMode && <WanderingSnail lang={lang} />}
     <div class:list={["layout", { "layout--quotes-index": isQuotes }]}>
       {authorMode && <aside class="column nav-column">
         <Nav
