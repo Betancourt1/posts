@@ -221,8 +221,15 @@
         if (distance && distance < 180 && !snail.avoidFor) {
           var speed = distance > 32 ? 18 : 0;
           var facing = snail.element.dataset.direction === "left" ? -1 : 1;
-          snail.dx = dx * facing > 0 ? dx / distance * speed : 0;
-          snail.dy = dy / distance * speed;
+          if (speed && dx * facing < 0) {
+            snail.element.dataset.direction = facing < 0 ? "right" : "left";
+            snail.turningFor = 0.6;
+            snail.dx = 0;
+            snail.dy = 0;
+          } else {
+            snail.dx = dx / distance * speed;
+            snail.dy = dy / distance * speed;
+          }
           snail.turnIn = 0;
         } else {
           snail.turnIn -= elapsed;

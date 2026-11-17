@@ -227,16 +227,21 @@ test("collision turns find clear paths for oblique approaches and corners", () =
   }
 });
 
-test("following the pointer does not turn a snail without a collision", () => {
-  const { snail, tick, point } = createSnail([0.4, 0.4, 0, 0, 0.5]);
-  const start = snail.style.transform;
-  const [, x, y] = start.match(/translate\(([\d.]+)px, ([\d.]+)px\)/);
-  assert.equal(snail.dataset.direction, "right");
-  point(Number(x) - 80, Number(y) + 22);
-  tick(100);
-  tick(200);
-  assert.equal(Number(snail.style.transform.match(/translate\(([\d.]+)/)[1]), Number(x));
-  assert.equal(snail.dataset.direction, "right");
+test("a nearby pointer behind makes snails turn smoothly before following", () => {
+  for (const [angle, initialFacing, expectedFacing, offset] of [[0, "right", "left", -80], [0.5, "left", "right", 80]]) {
+    const { snail, tick, point } = createSnail([0.4, 0.4, 0, angle, 0.5]);
+    const start = snail.style.transform;
+    const [, x, y] = start.match(/translate\(([\d.]+)px, ([\d.]+)px\)/);
+    assert.equal(snail.dataset.direction, initialFacing);
+    point(Number(x) + 27 + offset, Number(y) + 22);
+    tick(100);
+    assert.equal(snail.dataset.direction, expectedFacing);
+    for (let time = 200; time <= 700; time += 100) tick(time);
+    assert.equal(snail.style.transform, start);
+    for (let time = 800; time <= 1000; time += 100) tick(time);
+    const nextX = Number(snail.style.transform.match(/translate\(([\d.]+)/)[1]);
+    assert.ok(offset < 0 ? nextX < Number(x) : nextX > Number(x));
+  }
 });
 
 test("boundary collisions turn once even when the pointer remains outside", () => {
