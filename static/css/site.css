@@ -4505,7 +4505,6 @@ html.infra-mode .infra-raw-block {
 .public-site .content-column { grid-column: 2; }
 .public-site .sidebar-column { grid-column: 3; }
 .public-site :is(.post-body h2, .post-body h3, .post-body h4, .post-body h5, .post-body h6, .book-shelf h2, .sidenote-item) { scroll-margin-top: 100px; }
-.public-site .public-archives { width: min(840px, calc(100% - 64px)); margin: 0 auto 48px; }
 .public-site .sidebar-column:empty { display: none; }
 .public-site .sidebar-list { max-width: 260px; }
 @media screen and (min-width: 1001px) {
@@ -4514,11 +4513,11 @@ html.infra-mode .infra-raw-block {
   .public-site .article-outline-position { position: sticky; top: 100px; height: calc(100vh - 100px); display: flex; align-items: center; }
   .public-site .article-outline { box-sizing: border-box; margin: 0; max-height: 100%; overflow-y: auto; width: 100%; }
 }
-@media (min-width: 1001px) and (max-width: 1120px) {
+@media (min-width: 1001px) and (max-width: 1400px) {
   .public-site .article-outline-position { top: 150px; height: calc(100vh - 150px); }
   .public-site :is(.post-body h2, .post-body h3, .post-body h4, .post-body h5, .post-body h6) { scroll-margin-top: 150px; }
 }
-@media (max-width: 1120px) {
+@media (max-width: 1400px) {
   .public-site .site-header { flex-wrap: wrap; }
   .public-site .site-header > .nav { flex-basis: 100%; order: 4; }
   .public-site .site-header-search { margin-left: auto; }
@@ -4534,5 +4533,4 @@ html.infra-mode .infra-raw-block {
   .public-site .layout { grid-template-columns: 1fr; padding: 20px 16px 36px; }
   .public-site .layout:has(.sidebar-column .knowledge-graph) { grid-template-columns: 1fr; }
   .public-site .content-column, .public-site .sidebar-column { grid-column: 1; }
-  .public-site .public-archives { width: calc(100% - 32px); }
 }

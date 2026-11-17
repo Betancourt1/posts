@@ -59,6 +59,15 @@ const newNotebook = lang === "es" ? "Nuevo notebook" : "New notebook";
         </li>
       );
     })}
+    {!authorMode && (
+      <li>
+        <a
+          href={lang === "es" ? "/es/archives/" : "/archives/"}
+          class:list={{ active: activePath === (lang === "es" ? "/es/archives/" : "/archives/") }}
+          aria-current={activePath === (lang === "es" ? "/es/archives/" : "/archives/") ? "page" : undefined}
+        >{lang === "es" ? "Archivos" : "Archives"}</a>
+      </li>
+    )}
     {authorMode && (
       <li class="nav-admin-section">
         <a
