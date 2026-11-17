@@ -18,28 +18,20 @@ const {
 } = Astro.props;
 const showLabel = lang === "es" ? "Mostrar notebooks" : "Show notebooks";
 const hideLabel = lang === "es" ? "Ocultar notebooks" : "Hide notebooks";
-const newNotebook = lang === "es" ? "Nuevo notebook" : "New notebook";
+const archivesPath = authorMode ? (lang === "es" ? "/admin/es/archives/" : "/admin/archives/") : (lang === "es" ? "/es/archives/" : "/archives/");
 ---
 
 <nav
-  class:list={["nav", { "nav--author": authorMode }]}
+  class="nav"
   id="site-navigation"
   data-collapsible-nav
   data-show-label={showLabel}
   data-hide-label={hideLabel}
 >
-  <div class:list={["nav-author-row", { "nav-author-row--public": !authorMode }]}>
-    {authorMode && <span class="nav-title">Notebooks</span>}
+  <div class="nav-author-row nav-author-row--public">
     <button type="button" class="nav-toggle" aria-controls="primary-navigation" aria-expanded="false" hidden>
       Notebooks
     </button>
-    {authorMode && (
-      <button type="button" class="author-action-button" data-author-action="add-notebook" aria-label={newNotebook} title={newNotebook}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M3 5h6l2 2h10v12H3z"></path><path d="M12 10v6"></path><path d="M9 13h6"></path>
-        </svg>
-      </button>
-    )}
   </div>
   <ul class="nav-list" id="primary-navigation">
     {items.map((item) => {
@@ -59,24 +51,13 @@ const newNotebook = lang === "es" ? "Nuevo notebook" : "New notebook";
         </li>
       );
     })}
-    {!authorMode && (
-      <li>
-        <a
-          href={lang === "es" ? "/es/archives/" : "/archives/"}
-          class:list={{ active: activePath === (lang === "es" ? "/es/archives/" : "/archives/") }}
-          aria-current={activePath === (lang === "es" ? "/es/archives/" : "/archives/") ? "page" : undefined}
-        >{lang === "es" ? "Archivos" : "Archives"}</a>
-      </li>
-    )}
-    {authorMode && (
-      <li class="nav-admin-section">
-        <a
-          href={lang === "es" ? "/admin/es/cv-links/" : "/admin/cv-links/"}
-          class:list={{ active: activeSection === "cv-links" }}
-          aria-current={activeSection === "cv-links" ? "page" : undefined}
-        >{lang === "es" ? "Enlaces del CV" : "CV links"}</a>
-      </li>
-    )}
+    <li>
+      <a
+        href={archivesPath}
+        class:list={{ active: activePath === archivesPath }}
+        aria-current={activePath === archivesPath ? "page" : undefined}
+      >{lang === "es" ? "Archivos" : "Archives"}</a>
+    </li>
   </ul>
 </nav>
 

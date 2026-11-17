@@ -206,17 +206,6 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
   {authorMode && model.layout === "cv-links" && <CvLinks lang={lang} />}
   {model.layout === "home" && (
     <>
-      {authorMode && <header class="page-header">
-        <div class="page-header-row">
-          <h1>{title}</h1>
-          {authorMode && page.sourcePath && (
-            <button type="button" class="author-action-button" data-author-action="edit-home" data-source-path={page.sourcePath} aria-label={lang === "es" ? "Editar página de inicio" : "Edit home page"} title={lang === "es" ? "Editar página de inicio" : "Edit home page"}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"></path></svg>
-            </button>
-          )}
-        </div>
-        <p class="lead">{description}</p>
-      </header>}
       {page.bodyHtml && <section class="post-body" set:html={removeLegacyLinkSpacing(page.bodyHtml)}></section>}
       {items.length > 0 && (
         <section class="home-section home-feed">

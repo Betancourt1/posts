@@ -29,6 +29,10 @@ Keep Astro, HTML, JavaScript, and CSS indentation consistent; 2 spaces is prefer
 
 ## Locked Design Decisions
 
+### Shared public and admin layout
+
+The public site and `/admin/` must always use the same layout, styling, and site behavior on corresponding pages and viewports. The only differences are the controls and content available to the author, and access to the editor. Implement layout changes in shared components and styles; do not retain a separate admin layout.
+
 ### Production runtime source of truth
 
 1. Start public UI and runtime work in `edge/src/` and `edge/client/`.

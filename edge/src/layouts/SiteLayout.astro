@@ -29,7 +29,6 @@ interface Props {
   hasSidenotes?: boolean;
   authorMode?: boolean;
   siteTitle?: string;
-  subtitle?: string;
   socialImage?: string;
   canonical?: string;
   enableInfrastructure?: boolean;
@@ -53,7 +52,6 @@ const {
   hasSidenotes = false,
   authorMode = false,
   siteTitle = "betancourt",
-  subtitle = lang === "es" ? "aquí escribo cosas" : "here I write things",
   socialImage = page.socialImage || "/og-image.png",
   canonical = page.canonical || Astro.url.href,
   enableInfrastructure = true,
@@ -74,7 +72,7 @@ const bookCoverOrigins = [
 const isPhotography = page.layout === "photography";
 const isQuotes = page.layout === "quotes";
 const isNotFound = page.layout === "not-found";
-const bodyClass = [!authorMode ? "public-site" : "", pageClass, hasSidenotes ? "has-sidenotes" : "", authorMode ? "author-mode" : "", isQuotes ? "quotes-index-page" : "", isNotFound ? "not-found" : ""].filter(Boolean).join(" ");
+const bodyClass = ["public-site", pageClass, hasSidenotes ? "has-sidenotes" : "", authorMode ? "author-mode" : "", isQuotes ? "quotes-index-page" : "", isNotFound ? "not-found" : ""].filter(Boolean).join(" ");
 const updatedAt = page.updatedAt || new Date();
 const updatedDate = displayDate(updatedAt);
 const updatedLabel = updatedDate
@@ -156,11 +154,20 @@ const archivesPath = authorMode
     <header class="site-header">
       <p class="site-title"><a href={homePath}>{siteTitle}</a></p>
       <button type="button" class="site-menu-toggle" id="site-menu-toggle" aria-controls="primary-navigation" aria-expanded="false" hidden>{lang === "es" ? "Menú" : "Menu"}</button>
-      {authorMode && <p class="site-subtitle">{subtitle}</p>}
-      {!authorMode && <Nav items={navigation} lang={lang} activePath={currentPath} activeSection={activeSection} />}
+      <Nav items={navigation} lang={lang} activePath={currentPath} activeSection={activeSection} authorMode={authorMode} />
       <details class="site-header-actions" id="site-preferences" open>
         <summary class="site-preferences-toggle">{lang === "es" ? "Ajustes" : "Settings"}</summary>
         <div class="site-preferences-controls">
+        {authorMode && <details class="author-more-actions">
+          <summary class="author-action-button" aria-label={lang === "es" ? "Herramientas de autor" : "Author tools"} title={lang === "es" ? "Herramientas de autor" : "Author tools"}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"></path></svg>
+          </summary>
+          <div class="author-more-menu">
+            <button type="button" class="author-action-button" data-author-action="add-notebook">{lang === "es" ? "Nuevo notebook" : "New notebook"}</button>
+            {page.isHome && page.sourcePath && <button type="button" class="author-action-button" data-author-action="edit-home" data-source-path={page.sourcePath}>{lang === "es" ? "Editar página de inicio" : "Edit home page"}</button>}
+            <a class="author-menu-link" href={lang === "es" ? "/admin/es/cv-links/" : "/admin/cv-links/"}>{lang === "es" ? "Enlaces del CV" : "CV links"}</a>
+          </div>
+        </details>}
         {translationPath && <a class="lang-toggle" href={translationPath} title={languageTitle}>{otherLanguage}</a>}
         <div class="typo-container">
           <button class="typo-toggle" id="typo-toggle" type="button" aria-label={lang === "es" ? "Ajustes de texto" : "Text settings"} title={lang === "es" ? "Ajustes de texto" : "Text settings"}>Aa</button>
@@ -196,13 +203,13 @@ const archivesPath = authorMode
             <circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 0 20V2z" fill="currentColor"></path>
           </svg>
         </button>
-        {!authorMode && <button class="snail-toggle" id="snail-toggle" type="button" aria-label={lang === "es" ? "Ocultar caracoles" : "Hide snails"} title={lang === "es" ? "Ocultar caracoles" : "Hide snails"} aria-pressed="true" data-label-show={lang === "es" ? "Mostrar caracoles" : "Show snails"} data-label-hide={lang === "es" ? "Ocultar caracoles" : "Hide snails"}>
+        <button class="snail-toggle" id="snail-toggle" type="button" aria-label={lang === "es" ? "Ocultar caracoles" : "Hide snails"} title={lang === "es" ? "Ocultar caracoles" : "Hide snails"} aria-pressed="true" data-label-show={lang === "es" ? "Mostrar caracoles" : "Show snails"} data-label-hide={lang === "es" ? "Ocultar caracoles" : "Hide snails"}>
           <svg class="header-display-icon" viewBox="0 0 32 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M24 7V2m5 5V2M23 9h5c2 0 3 2 3 4v5c0 2-2 3-4 3H3c-1 0-1-2 1-2h3" />
             <path d="M22 13a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
             <path d="M13 8a5 5 0 1 1-5 5c0-2 2-3 4-3s3 1 3 3-1 2-2 2" />
           </svg>
-        </button>}
+        </button>
         <button class="sound-toggle" id="sound-toggle" type="button" aria-label={lang === "es" ? "Activar sonidos" : "Enable sounds"} title={lang === "es" ? "Activar sonidos" : "Enable sounds"} aria-pressed="false" data-label-enable={lang === "es" ? "Activar sonidos" : "Enable sounds"} data-label-disable={lang === "es" ? "Desactivar sonidos" : "Disable sounds"}>
           <svg class="header-display-icon sound-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M11 5 6 9H3v6h3l5 4V5z"></path>
@@ -214,8 +221,8 @@ const archivesPath = authorMode
       </details>
       {showSearch && (
         <div class="site-header-search" id="search">
-          {!authorMode && <button type="button" class="search-toggle" aria-label={lang === "es" ? "Buscar" : "Search"} aria-expanded="false" aria-controls="site-search-panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>}
-          <div class="search-panel" id="site-search-panel" hidden={!authorMode}>
+          <button type="button" class="search-toggle" aria-label={lang === "es" ? "Buscar" : "Search"} aria-expanded="false" aria-controls="site-search-panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
+          <div class="search-panel" id="site-search-panel" hidden>
           <form class="search-ui__form" role="search">
             <svg class="search-command-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <input class="search-ui__search-input" id="site-search-input" type="search" autocomplete="off" spellcheck="false" placeholder={lang === "es" ? "buscar en el archivo" : "search the archive"} aria-label={lang === "es" ? "Buscar en el archivo" : "Search the archive"} aria-controls="site-search-results" aria-expanded="false" />
@@ -233,17 +240,8 @@ const archivesPath = authorMode
     </header>
     <script is:inline src="/js/site-preferences.js" defer></script>
 
-    {!authorMode && <WanderingSnail lang={lang} />}
+    <WanderingSnail lang={lang} />
     <div class:list={["layout", { "layout--quotes-index": isQuotes }]}>
-      {authorMode && <aside class="column nav-column">
-        <Nav
-          items={navigation}
-          lang={lang}
-          activePath={currentPath}
-          activeSection={activeSection}
-          authorMode={authorMode}
-        />
-      </aside>}
       <main class:list={["column", "content-column", { "content-column--books": isBooks, "content-column--photo-index": isPhotography, "content-column--quotes-index": isQuotes }]}>
         <div class="content-inner"><slot /></div>
       </main>
@@ -260,7 +258,7 @@ const archivesPath = authorMode
                 <div class="sidenote-rail" id="sidenote-rail"></div>
               </div>
             )
-            : <Sidebar lang={lang} archives={archiveMonths} archivesHref={archivesPath} graphData={page.isHome ? null : page.graphData} showArchives={authorMode} />}
+            : <Sidebar lang={lang} archives={archiveMonths} archivesHref={archivesPath} graphData={page.isHome ? null : page.graphData} showArchives={false} />}
         </aside>
       )}
     </div>

@@ -151,6 +151,23 @@ test("single pages avoid duplicating a Markdown H1", async () => {
   assert.match(single, /\{!titleInBody && <h1 class="post-title"/);
 });
 
+test("public and admin pages share the site shell and keep author controls", async () => {
+  const [layout, nav, publicPage] = await Promise.all([
+    readFile(siteLayoutPath, "utf8"),
+    readFile(new URL("../src/components/Nav.astro", import.meta.url), "utf8"),
+    readFile(publicPagePath, "utf8"),
+  ]);
+  assert.match(layout, /const bodyClass = \["public-site"/);
+  assert.equal((layout.match(/<Nav items=\{navigation\}/g) || []).length, 1);
+  assert.match(layout, /<WanderingSnail lang=\{lang\} \/>/);
+  assert.doesNotMatch(layout, /!authorMode && <WanderingSnail|!authorMode && <button[^>]*search-toggle/);
+  assert.match(layout, /data-author-action="add-notebook"/);
+  assert.match(layout, /data-author-action="edit-home"/);
+  assert.match(layout, /\/admin\/es\/cv-links\//);
+  assert.match(nav, /authorMode \? \(lang === "es" \? "\/admin\/es\/archives\/"/);
+  assert.doesNotMatch(publicPage, /authorMode && <header class="page-header">/);
+});
+
 test("sidenote typography stays compact, rich, and wrappable", async () => {
   const css = await readFile(siteCssPath, "utf8");
   const italicRule = css.match(/\.sidenote-copy em\s*\{([^}]*)\}/)?.[1] || "";
@@ -191,8 +208,8 @@ test("starts visible book covers promptly and contains mobile header controls", 
     assert.match(layout, new RegExp(origin.replaceAll(".", "\\.")));
   }
   assert.match(layout, /isBooks && bookCoverOrigins\.map[\s\S]*rel="dns-prefetch"[\s\S]*rel="preconnect"/);
-  assert.ok(layout.indexOf('class="site-title"') < layout.indexOf('class="site-subtitle"'));
-  assert.ok(layout.indexOf('class="site-subtitle"') < layout.indexOf('class="site-header-actions"'));
+  assert.ok(layout.indexOf('class="site-title"') < layout.indexOf('class="site-header-actions"'));
+  assert.doesNotMatch(layout, /class="site-subtitle"/);
   assert.ok(layout.indexOf('class="site-header-actions"') < layout.indexOf('class="site-header-search"'));
   assert.match(css, /\.site-header-actions\s*\{[\s\S]*?position:\s*fixed;[\s\S]*?top:\s*22px;[\s\S]*?right:\s*32px;/);
 
@@ -231,7 +248,7 @@ test("uses a pipette for grayscale and reveals search from the header", async ()
   const searchStart = layout.indexOf('<div class="site-header-search" id="search">');
   assert.ok(actionsStart >= 0 && actionsEnd > actionsStart && searchStart > actionsEnd);
   assert.match(layout, /<form class="search-ui__form" role="search">/);
-  assert.match(layout, /class="search-panel" id="site-search-panel" hidden=\{!authorMode\}/);
+  assert.match(layout, /class="search-panel" id="site-search-panel" hidden/);
   assert.match(layout, /class="search-toggle"[^>]*aria-expanded="false"/);
   assert.match(search, /panel.hidden = false/);
   assert.match(layout, /<input class="search-ui__search-input" id="site-search-input" type="search"/);
@@ -333,7 +350,8 @@ test("keeps the quote archive inside the standard site shell", async () => {
 
   assert.match(layout, /<p class="site-title"><a href=\{homePath\}>\{siteTitle\}<\/a><\/p>/);
   assert.match(layout, /authorMode \? "author-mode" : ""/);
-  assert.match(layout, /<aside class="column nav-column">[\s\S]*?<Nav[\s\S]*?items=\{navigation\}/);
+  assert.match(layout, /<header class="site-header">[\s\S]*?<Nav items=\{navigation\}[\s\S]*?authorMode=\{authorMode\}/);
+  assert.doesNotMatch(layout, /<aside class="column nav-column">/);
   assert.doesNotMatch(layout, /quotes-header-navigation|friendlyArchiveLabels|\{!isQuotes/);
   assert.doesNotMatch(publicPage, /layout === "quotes" \? null|quoteNavigationSections/);
   assert.match(sidebar, />\{month\.key\}<\/a>/);

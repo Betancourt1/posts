@@ -135,11 +135,6 @@ body {
   letter-spacing: 0;
 }
 
-.site-subtitle {
-  margin: 6px 0 0;
-  color: var(--ink-muted);
-}
-
 html {
   font-size: var(--site-font-size, 100%);
 }
@@ -369,12 +364,6 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   color: var(--heading);
 }
 
-.nav--author {
-  --nav-title-size: 1.2rem;
-  width: max-content;
-  max-width: 100%;
-}
-
 .nav-author-row {
   display: flex;
   align-items: center;
@@ -479,12 +468,6 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 .nav-list a.active {
   color: var(--accent);
   font-weight: 700;
-}
-
-.nav-list .nav-admin-section {
-  margin-top: 20px;
-  padding-top: 10px;
-  border-top: 1px solid var(--line);
 }
 
 .cv-links-form,
@@ -2881,7 +2864,6 @@ sup, sub { line-height: 0; }
 
   .site-title { grid-area: title; }
   .site-title a { font-size: 2.55rem; }
-  .site-subtitle { display: none; }
   .site-menu-toggle { grid-area: menu; }
   .site-header-search { grid-area: search; width: 100%; margin: 0; }
 
@@ -2930,6 +2912,11 @@ sup, sub { line-height: 0; }
 
   .site-header-actions .typo-container {
     position: static;
+  }
+
+  .site-header-actions .author-more-menu {
+    left: 0;
+    right: auto;
   }
 
   .site-header-actions .typo-dropdown {
@@ -3851,6 +3838,11 @@ html.infra-mode .infra-raw-block {
   justify-content: flex-start;
   gap: 0.4rem;
   padding: 0.45rem 0.55rem !important;
+  font-size: 0.72rem;
+}
+
+.author-menu-link {
+  padding: 0.45rem 0.55rem;
   font-size: 0.72rem;
 }
 
