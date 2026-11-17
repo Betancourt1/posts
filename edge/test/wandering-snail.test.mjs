@@ -98,3 +98,31 @@ test("a click shows the selected quote only until an outside click", async () =>
   outside();
   assert.equal(bubbles[0].hidden, true);
 });
+
+test("a snail keeps its quote and pauses until its dialogue closes", async () => {
+  const draws = [0.3, 0.3, 0, 0.125, 0.5];
+  const { snail, path, bubbles, click, tick, outside } = createSnail(draws, false, [
+    { text: "First quote", author: "First author" },
+    { text: "Second quote", author: "Second author" },
+  ]);
+  await new Promise(setImmediate);
+  draws.push(0, 0, 0, 0.99);
+  click();
+  await new Promise(setImmediate);
+  const quote = bubbles[0].children[0].textContent;
+  assert.equal(quote, "“Second quote”");
+  assert.equal(snail.dataset.reading, "true");
+  const paused = snail.style.transform;
+  tick(100);
+  tick(200);
+  assert.equal(snail.style.transform, paused);
+  outside();
+  assert.equal(snail.dataset.reading, undefined);
+  tick(300);
+  assert.notEqual(snail.style.transform, paused);
+  draws.push(0, 0, 0, 0);
+  click();
+  await new Promise(setImmediate);
+  assert.equal(bubbles[0].children[0].textContent, quote);
+  assert.equal(path.children.length, 3);
+});

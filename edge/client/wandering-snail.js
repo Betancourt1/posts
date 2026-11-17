@@ -54,7 +54,8 @@
   function giveQuote(snail) {
     quotes.then(function (available) {
       if (!available.length || activeSnail !== snail) return;
-      var quote = available[Math.floor(Math.random() * available.length)];
+      var quote = snail.quote || available[Math.floor(Math.random() * available.length)];
+      snail.quote = quote;
       var text = document.createElement("span");
       var author = document.createElement("span");
       text.textContent = '“' + quote.text + '”';
@@ -62,6 +63,7 @@
       author.className = "snail-quote-author";
       snail.bubble.replaceChildren(text, author);
       snail.bubble.hidden = false;
+      snail.element.dataset.reading = "true";
       placeBubble(snail);
     });
   }
@@ -76,8 +78,8 @@
 
   function setDirection(snail) {
     var angle = Math.random() * Math.PI * 2;
-    snail.dx = Math.cos(angle) * 28;
-    snail.dy = Math.sin(angle) * 28;
+    snail.dx = Math.cos(angle) * 14;
+    snail.dy = Math.sin(angle) * 14;
     snail.turnIn = 3 + Math.random() * 5;
   }
 
@@ -98,10 +100,14 @@
     var element = event.target.closest(".wandering-snail");
     var original = snails.find(function (snail) { return snail.element === element; });
     if (!original) return;
-    snails.forEach(function (snail) { snail.bubble.hidden = true; });
+    snails.forEach(function (snail) {
+      snail.bubble.hidden = true;
+      delete snail.element.dataset.reading;
+    });
     activeSnail = original;
     giveQuote(original);
     var copy = element.cloneNode(true);
+    delete copy.dataset.reading;
     var maxX = bounds().maxX;
     var x = original.x + 58 <= maxX ? original.x + 58 : Math.max(0, original.x - 58);
     path.appendChild(copy);
@@ -111,7 +117,10 @@
   document.addEventListener("click", function (event) {
     if (event.target.closest(".wandering-snail, .snail-quote")) return;
     activeSnail = null;
-    snails.forEach(function (snail) { snail.bubble.hidden = true; });
+    snails.forEach(function (snail) {
+      snail.bubble.hidden = true;
+      delete snail.element.dataset.reading;
+    });
   });
 
   function move(time) {
@@ -119,12 +128,12 @@
     previousTime = time;
     var area = bounds();
     snails.forEach(function (snail) {
-      if (!reducedMotion.matches) {
+      if (!reducedMotion.matches && snail.bubble.hidden) {
         var dx = pointer && pointer.x - (snail.x + 27);
         var dy = pointer && pointer.y - (snail.y + 22);
         var distance = pointer && Math.hypot(dx, dy);
         if (distance && distance < 180) {
-          var speed = distance > 32 ? 36 : 0;
+          var speed = distance > 32 ? 18 : 0;
           snail.dx = dx / distance * speed;
           snail.dy = dy / distance * speed;
           snail.turnIn = 0;
