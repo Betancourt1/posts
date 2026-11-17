@@ -3025,70 +3025,6 @@ sup, sub { line-height: 0; }
   font-weight: 400;
 }
 
-.zen-toggle-btn {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  border: none !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-  width: auto;
-  min-height: 44px;
-  gap: 0.45rem;
-  font: inherit;
-  font-size: 0.78rem;
-  background: transparent !important;
-  color: var(--ink-dim) !important;
-  cursor: pointer;
-  transition: color 0.16s var(--ease-out), background-color 0.16s var(--ease-out), transform 0.16s var(--ease-out);
-}
-
-.zen-toggle-btn:hover {
-  color: var(--accent) !important;
-  background: transparent !important;
-}
-
-.zen-toggle-btn.is-active {
-  color: var(--accent) !important;
-}
-
-.zen-toggle-btn.is-active:hover {
-  color: var(--accent-2) !important;
-}
-
-/* Normal state: show normal eye, hide eye-off */
-.zen-toggle-btn .zen-icon-normal { display: block; }
-.zen-toggle-btn .zen-icon-active { display: none; }
-
-.zen-toggle-btn svg {
-  width: 17px;
-  height: 17px;
-}
-
-/* Active Zen state: show eye-off, hide normal eye */
-.zen-toggle-btn.is-active .zen-icon-normal { display: none; }
-.zen-toggle-btn.is-active .zen-icon-active { display: block; }
-
-body.zen-mode .ssh-terminal-open-btn,
-body.zen-mode .site-menu-toggle {
-  display: none !important;
-}
-
-body.zen-mode .nav-column,
-body.zen-mode .sidebar-column {
-  display: none !important;
-}
-
-body.zen-mode .layout {
-  overflow-x: clip;
-  transition: none;
-}
-
-body.zen-mode-returning .layout {
-  overflow-x: clip;
-  transition: none;
-}
-
 @media (min-width: 1001px) {
   .nav-column {
     width: 220px;
@@ -3108,79 +3044,6 @@ body.zen-mode-returning .layout {
     overflow: hidden;
     transition: transform 0.42s ease-out, visibility 0s linear;
   }
-
-  body.zen-mode-fading .nav-column,
-  body.zen-mode-fading .sidebar-column,
-  body.zen-mode .nav-column,
-  body.zen-mode .sidebar-column {
-    pointer-events: none;
-    visibility: hidden;
-    transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.42s;
-  }
-
-  body.zen-mode-returning .nav-column,
-  body.zen-mode-returning .sidebar-column {
-    pointer-events: none;
-    visibility: visible;
-    transition: none;
-  }
-
-  body.zen-mode .nav-column {
-    display: block !important;
-    width: 220px;
-    transform: translate3d(calc(-100% - max(0px, 50vw - 720px) - 64px), 0, 0);
-    overflow: hidden;
-  }
-
-  body.zen-mode .sidebar-column {
-    display: block !important;
-    width: 260px;
-    transform: translate3d(calc(100% + max(0px, 50vw - 720px) + 64px), 0, 0);
-    overflow: hidden;
-  }
-
-  body.zen-mode-fading .layout {
-    overflow-x: clip;
-  }
-
-  body.zen-mode-fading .nav-column,
-  body.zen-mode-returning .nav-column {
-    transform: translate3d(calc(-100% - max(0px, 50vw - 720px) - 64px), 0, 0);
-  }
-
-  body.zen-mode-fading .sidebar-column,
-  body.zen-mode-returning .sidebar-column {
-    transform: translate3d(calc(100% + max(0px, 50vw - 720px) + 64px), 0, 0);
-  }
-
-  body.has-sidenotes.zen-mode .sidebar-column--sidenotes,
-  body.has-sidenotes.zen-mode-returning .sidebar-column--sidenotes {
-    display: block !important;
-    width: 260px;
-    pointer-events: auto;
-    visibility: visible;
-    transform: translate3d(0, 0, 0);
-    overflow: visible;
-    transition: none;
-  }
-
-  body.has-sidenotes.zen-mode .sidenote-sidebar-graph,
-  body.has-sidenotes.zen-mode-returning .sidenote-sidebar-graph {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transform: translateY(-6px);
-    transition-delay: 0s, 0s, 0.2s;
-  }
-
-  body.has-sidenotes .sidenote-sidebar-graph.is-zen-collapsed {
-    max-height: 0;
-    margin-bottom: 0;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transform: translateY(-6px);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3188,12 +3051,6 @@ body.zen-mode-returning .layout {
     transform: none;
     transition-duration: 0.12s, 0s, 0s;
     transition-delay: 0s;
-  }
-
-  body.has-sidenotes.zen-mode .sidenote-sidebar-graph,
-  body.has-sidenotes.zen-mode-returning .sidenote-sidebar-graph {
-    transform: none;
-    transition-delay: 0s, 0s, 0.12s;
   }
 }
 
@@ -3335,7 +3192,6 @@ html.curved-scrollbar-active .curved-scrollbar.is-dragging {
   .nav-column,
   .sidebar-column,
   .site-footer,
-  .zen-toggle-btn,
   .print-btn-container,
   .curved-scrollbar,
   .backlinks-section {
@@ -4649,6 +4505,11 @@ html.infra-mode .infra-raw-block {
 .public-site .public-archives { width: min(840px, calc(100% - 64px)); margin: 0 auto 48px; }
 .public-site .sidebar-column:empty { display: none; }
 .public-site .sidebar-list { max-width: 260px; }
+@media screen and (min-width: 1001px) {
+  .public-site .layout:has(.post .article-outline:not([hidden])) { grid-template-columns: minmax(190px, 1fr) minmax(0, 840px) minmax(260px, 1fr); }
+  .public-site .post { position: relative; }
+  .public-site .post .article-outline { position: absolute; top: 0; right: calc(100% + 20px); width: 180px; }
+}
 @media (max-width: 1120px) {
   .public-site .site-header { flex-wrap: wrap; }
   .public-site .site-header > .nav { flex-basis: 100%; order: 4; }

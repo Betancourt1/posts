@@ -84,7 +84,7 @@ const rawSource = [
   <header class="post-header">
     <div class="post-header-top" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 8px;">
       <div class="post-card-meta">{dateLabel}</div>
-      {(authorMode || !isPhoto) && <div class="post-header-actions">
+      {authorMode && sourcePath && <div class="post-header-actions">
         {authorMode && sourcePath && (
           <>
             <button type="button" class="author-action-button" data-author-action="edit-post" data-source-path={sourcePath} aria-label={lang === "es" ? "Editar página" : "Edit page"} title={lang === "es" ? "Editar página" : "Edit page"}>
@@ -92,15 +92,6 @@ const rawSource = [
             </button>
             <button type="button" class="author-action-button author-action-button--danger" data-author-action="delete-post" data-source-path={sourcePath} aria-label={lang === "es" ? "Eliminar página" : "Delete page"} title={lang === "es" ? "Eliminar página" : "Delete page"}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 15H6L5 6"></path></svg>
-            </button>
-          </>
-        )}
-        {!isPhoto && (
-          <>
-            <button type="button" class="zen-toggle-btn" id="zen-toggle-btn" aria-pressed="false" title={lang === "es" ? "Modo lectura Zen" : "Zen reading mode"}>
-              <svg class="zen-icon-normal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-              <svg class="zen-icon-active" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-              <span>{lang === "es" ? "Modo lectura" : "Reading mode"}</span>
             </button>
           </>
         )}
@@ -171,46 +162,3 @@ const rawSource = [
 </dialog>
 <script is:inline src="/js/image-viewer.js" defer></script>
 <script is:inline src="/js/article-outline.js" defer></script>
-
-<script is:inline>
-  document.addEventListener("DOMContentLoaded", function () {
-    var button = document.getElementById("zen-toggle-btn");
-    if (!button) return;
-    var body = document.body;
-    var key = "zen_mode_enabled";
-    var returnFrame = null;
-
-    function setZen(enabled, instant) {
-      if (returnFrame !== null) {
-        cancelAnimationFrame(returnFrame);
-        returnFrame = null;
-      }
-
-      if (enabled) {
-        body.classList.remove("zen-mode-returning");
-        body.classList.add("zen-mode");
-      } else if (body.classList.contains("zen-mode")) {
-        body.classList.add("zen-mode-returning");
-        body.classList.remove("zen-mode");
-        void body.offsetWidth;
-        returnFrame = requestAnimationFrame(function () {
-          body.classList.remove("zen-mode-returning");
-          returnFrame = null;
-        });
-      } else {
-        body.classList.remove("zen-mode", "zen-mode-returning");
-      }
-
-      if (enabled && instant) {
-        var graph = document.querySelector(".sidenote-sidebar-graph");
-        if (graph) graph.classList.add("is-zen-collapsed");
-      }
-
-      button.classList.toggle("is-active", enabled);
-      button.setAttribute("aria-pressed", enabled ? "true" : "false");
-      try { localStorage.setItem(key, enabled ? "true" : "false"); } catch (error) {}
-    }
-    try { setZen(localStorage.getItem(key) === "true", true); } catch (error) {}
-    button.addEventListener("click", function () { setZen(!body.classList.contains("zen-mode")); });
-  });
-</script>
