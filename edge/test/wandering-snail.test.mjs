@@ -185,3 +185,44 @@ test("placement finds a gap between irregularly positioned snails", () => {
   assert.ok(result);
   assert.ok(occupied.every((other) => Math.abs(result.x - other.x) >= 58 || Math.abs(result.y - other.y) >= 48));
 });
+
+test("a snail walks around a paused neighbor instead of repeatedly hitting it", () => {
+  const { snail, path, bubbles, click, tick, point } = createSnail([0.4, 0, 0, 0, 0.5]);
+  click();
+  bubbles[1].hidden = false;
+  const start = snail.style.transform;
+  const [, x, y] = start.match(/translate\(([\d.]+)px, ([\d.]+)px\)/);
+  point(Number(x) + 85, Number(y) + 22);
+  for (let time = 100; time <= 1500; time += 100) { tick(time); assertSeparated(path.children); }
+  const [, nextX, nextY] = snail.style.transform.match(/translate\(([\d.]+)px, ([\d.]+)px\)/);
+  assert.ok(Number(nextY) > Number(y) + 5);
+  assert.ok(Number(nextX) <= Number(x) + 0.01);
+});
+
+test("collision turns find clear paths for oblique approaches and corners", () => {
+  const instrumented = script.replace("})();", "globalThis.turnAsideForTest = turnAside; })();");
+  const first = { dataset: {}, style: { setProperty() {} } };
+  const path = { querySelector: () => first, appendChild() {}, addEventListener() {} };
+  const context = {
+    document: { documentElement: { lang: "en" }, querySelector: (selector) => selector === ".snail-path" ? path : null, createElement: () => ({ style: {} }), addEventListener() {} },
+    window: { innerWidth: 400, innerHeight: 400, matchMedia: () => ({ matches: false }), addEventListener() {} },
+    fetch: () => Promise.resolve({ ok: true, json: () => Promise.resolve({ quotes: [] }) }),
+    requestAnimationFrame() {},
+  };
+  runInNewContext(instrumented, context);
+  const area = { maxX: 300, minY: 100, maxY: 300 };
+  const cases = [
+    { snail: { x: 100, y: 200, dx: 14, dy: 0 }, other: { x: 158, y: 200 } },
+    { snail: { x: 100, y: 200, dx: 10, dy: 10 }, other: { x: 158, y: 220 } },
+    { snail: { x: 100, y: 100, dx: 14, dy: 0 }, other: { x: 158, y: 100 } },
+    { snail: { x: 300, y: 300, dx: 0, dy: -14 }, other: { x: 300, y: 252 } },
+  ];
+  for (const { snail, other } of cases) {
+    context.turnAsideForTest(snail, [other], area);
+    const x = snail.x + snail.dx * 0.25;
+    const y = snail.y + snail.dy * 0.25;
+    assert.ok(x >= 0 && x <= area.maxX && y >= area.minY && y <= area.maxY);
+    assert.ok(Math.abs(x - other.x) >= 58 || Math.abs(y - other.y) >= 48);
+    assert.ok(Math.hypot(snail.dx, snail.dy) > 0);
+  }
+});

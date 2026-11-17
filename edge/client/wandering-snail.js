@@ -133,6 +133,27 @@
     snail.turnIn = 3 + Math.random() * 5;
   }
 
+  function turnAside(snail, others, area) {
+    var choices = [
+      { dx: -snail.dy, dy: snail.dx },
+      { dx: snail.dy, dy: -snail.dx },
+      { dx: -snail.dx, dy: -snail.dy },
+    ];
+    var direction = choices.find(function (choice) {
+      var x = snail.x + choice.dx * 0.25;
+      var y = snail.y + choice.dy * 0.25;
+      return x >= 0 && x <= area.maxX && y >= area.minY && y <= area.maxY && isFree(x, y, others);
+    });
+    if (direction) {
+      snail.dx = direction.dx;
+      snail.dy = direction.dy;
+    } else {
+      setDirection(snail);
+    }
+    snail.avoidFor = 1.5;
+    snail.turnIn = 1.5;
+  }
+
   function addSnail(element, x, y) {
     var bubble = document.createElement("div");
     bubble.className = "snail-quote";
@@ -208,8 +229,7 @@
           snail.x = nextX;
           snail.y = nextY;
         } else {
-          setDirection(snail);
-          snail.avoidFor = 1;
+          turnAside(snail, others, area);
         }
       }
       snail.x = Math.max(0, Math.min(area.maxX, snail.x));
