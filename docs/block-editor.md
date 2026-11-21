@@ -52,7 +52,8 @@ one view button (`#view-menu-button`) whose menu also contains Deshacer/Rehacer.
 - `Renderizado | HTML` switches between the rendered iframe and the article's
   rendered HTML. The HTML is assigned with `textContent`, so it is never injected.
 - At 1280px and above, “Lado a lado” shows editor and preview together and
-  refreshes 700ms after typing stops (`authorEditorPreviewSplit`).
+  refreshes after a 1.2-second pause (`authorEditorPreviewSplit`). The previous
+  render stays visible while the editor prepares a preview of the current draft.
 - Notebooks keep their previous rule: no preview. The book template still forces
   Markdown. Per-block “Vista previa del bloque” keeps the modal preview dialog.
 
