@@ -2,7 +2,7 @@
 title: "No longer human"
 date: 2026-11-20
 tags: ["essays", "mathematics", "artificial-intelligence", "technology"]
-summary: ""
+summary: "Cómo un llm me robó el gozo por la hipótesis de Riemann"
 essay: true
 pinned: true
 technical: false
