@@ -34,7 +34,7 @@ Es imposible predecir el futuro. Nadie puede saber qué tan mejores se harán lo
 
 ![No longer human](/uploads/2026/11/screenshot-2026-11-20-at-22-47-07-ilya-sutskever-on-x-if-you-value-intelligence-above-all-other-human-qualities-you-re-gonna-have-a-bad-time-x-1795236446456.png)
 
-Ciertamente ser bueno en matemáticas puede estar a punto de dejar de ser una skill tan valorada socialmente. Esa es una posibilidad que, en contraposición, me hace pensar en este otra extracto del libro _A Mathematician’s Apology_ de G. H. Hardy:
+Ciertamente ser bueno en matemáticas puede estar a punto de dejar de ser una skill tan valorada socialmente. Esa es una posibilidad que, en contraposición, me hace pensar en este otra extracto del libro _A Mathematician’s Apology_[^note-4] de G. H. Hardy:
 
 > We have of course to take account of the differences in value between different activities. I would rather be a novelist or a painter than a statesman of similar rank; and there are many roads to fame which most of us would reject as actively pernicious. Yet it is seldom that such differences of value will turn the scale in a man’s choice of a career, which will almost always be dictated by the limitations of his natural abilities. Poetry is more valuable than cricket, but Bradman would be a fool if he sacrificed his cricket in order to write second-rate minor poetry (and I suppose that it is unlikely that he could do better). If the cricket were a little less supreme, and the poetry better, then the choice might be more difficult: I do not know whether I would rather have been Victor Trumper or Rupert Brooke. It is fortunate that such dilemmas are so seldom.
 >
@@ -54,3 +54,5 @@ No lo sé, pero prefiero no saber y esperar lo mejor. Al menos así puedo plante
 [^note-2]: Pueden encontrarlo gratis para descargar en [scribd](https://www.scribd.com/document/902846292/Mathematics-for-Human-Flourishing-9780300248814-Compress).
 
 [^note-3]: Me reservo hacer una lista exhaustiva pero mis cuatro grandes ejemplos son: La Música de los Números Primos de Marcus du Satoy, Amor y Matemáticas de Frenkel, El Último Teorema de Fermat de Simon Singh y, finalmente, The Code Book también de Simon Singh.
+
+[^note-4]: Gran libro, por cierto. Lo pueden leer [aquí](https://www.arvindguptatoys.com/arvindgupta/mathsapology-hardy.pdf).
