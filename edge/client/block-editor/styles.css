@@ -6,8 +6,8 @@
   --editor-font: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 }
 .reference-theme.block-editor-ready[data-theme="dark"] { --block-paper: #191b20; }
-.block-editor-ready .shell,
-.block-editor-ready .topbar { background: var(--block-paper) !important; }
+.block-editor-ready[data-theme="light"] .shell,
+.block-editor-ready[data-theme="light"] .topbar { background: var(--block-paper) !important; }
 .block-editor-ready .topbar { border-bottom: 1px solid var(--line); }
 .reference-theme.block-editor-ready .writer { padding: 3.5rem 4rem 9rem; }
 .block-editor-ready .paper { position: relative; }
