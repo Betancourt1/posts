@@ -29,7 +29,7 @@ Esa emoción también nace de la inherente belleza que las matemáticas contiene
 
 Encontrar formas de encontrar lo bello en las matemáticas es una tarea social importante para la civilización porque, como dice Francis Su, "Mathematics helps people flourish".
 
-# Esperanza y desesperanza
+## Esperanza y desesperanza
 Es imposible predecir el futuro. Nadie puede saber qué tan mejores se harán los modelos de lenguaje con los meses o los años en el arte de resolver problemas matemáticos. Pienso mucho en este tweet:
 
 ![No longer human](/uploads/2026/11/screenshot-2026-11-20-at-22-47-07-ilya-sutskever-on-x-if-you-value-intelligence-above-all-other-human-qualities-you-re-gonna-have-a-bad-time-x-1795236446456.png)
