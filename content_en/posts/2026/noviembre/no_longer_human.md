@@ -1,5 +1,5 @@
 ---
-title: "# No longer human"
+title: "No longer human"
 date: 2026-11-20
 draft: true
 tags: []
