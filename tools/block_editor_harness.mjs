@@ -34,6 +34,17 @@ async function fill(page, text) {
   await page.locator(".cm-content").fill(text);
   await page.waitForFunction(value => document.querySelector("#body").value === value, text);
 }
+async function setDocument(page, text) {
+  await page.evaluate(value => window.fixtureEditor.setDocument(value), text);
+  assert.equal(await page.locator("#body").inputValue(), text);
+}
+async function holdPreviewResponse(route, pending) {
+  const response = await route.fetch({ url: origin + "/api/preview" });
+  const payload = await response.json();
+  payload.html = payload.html.replaceAll(origin, new URL(route.request().url()).origin);
+  await pending;
+  await route.fulfill({ response, body: JSON.stringify(payload) });
+}
 async function selectView(page, width, view) {
   if (width <= 900) {
     await page.locator("#view-menu-button").click();
@@ -325,8 +336,17 @@ try {
         assert.equal(await page.locator(".paper").isVisible(), true, "split view shows editor and preview");
         assert.equal(await page.locator("#view-render").getAttribute("aria-pressed"), "true");
         await select(page, 0);
-        await page.keyboard.type("Split refresh marker. ");
-        await preview.locator("text=Split refresh marker.").waitFor({ timeout: 5000 });
+        let previewRequests = 0;
+        const countPreview = request => { if (request.url().endsWith("/api/preview")) previewRequests += 1; };
+        page.on("request", countPreview);
+        try {
+          await page.keyboard.type("Live ", { delay: 850 });
+          assert.equal(previewRequests, 0, "paced typing does not refresh the preview between characters");
+          await preview.getByText(/^Live Inline/).waitFor({ timeout: 5000 });
+          assert.equal(previewRequests, 1, "one refresh includes the complete typing burst");
+        } finally {
+          page.off("request", countPreview);
+        }
         assert.equal(await page.locator('[id="preview-frame"]').count(), 1, "double-buffer promotion keeps exactly one active frame");
         await page.screenshot({ path: `${evidence}/${lang}-${width}-split.png` });
         let pendingImage = null;
@@ -405,19 +425,15 @@ try {
           await selectView(page, width, mode);
           await positionAnchor("## Scroll section 7");
           await select(page, (await inspect(page)).doc.indexOf("## Scroll section 7") + "## Scroll section 7".length);
+          const visibleBody = await page.locator("#preview-frame").evaluate(frame => frame.previewBody);
           let releaseResponse;
           const pendingResponse = new Promise(resolve => { releaseResponse = resolve; });
-          await page.route("**/api/preview", async route => {
-            const response = await route.fetch({ url: origin + "/api/preview" });
-            const payload = await response.json();
-            payload.html = payload.html.replaceAll(origin, new URL(page.url()).origin);
-            await pendingResponse;
-            await route.fulfill({ response, body: JSON.stringify(payload) });
-          }, { times: 1 });
+          await page.route("**/api/preview", route => holdPreviewResponse(route, pendingResponse), { times: 1 });
           const requested = page.waitForRequest("**/api/preview");
           await page.keyboard.type(" first");
           const staleBody = (await inspect(page)).doc;
           await requested;
+          assert.equal(await page.locator("#preview-status").textContent(), "", "background rendering leaves the ready preview steady");
           // Move while the response is pending: use the visible position at promotion.
           await preview.locator("body").evaluate(() => window.scrollBy(0, 160));
           const heldTop = await preview.locator("body").evaluate(() => scrollY);
@@ -431,9 +447,12 @@ try {
           });
           try {
             await page.keyboard.type(" second");
+            const staleResponse = page.waitForResponse(response => response.url().endsWith("/api/preview") && response.request().postDataJSON().body === staleBody);
             releaseResponse();
-            await page.waitForFunction(body => document.querySelector("#preview-frame").previewBody === body, staleBody);
-            assert.equal(await preview.locator("body").evaluate(() => scrollY), heldTop, "stale response preserves the current visible position");
+            await staleResponse;
+            await page.waitForTimeout(150);
+            assert.equal(await page.locator("#preview-frame").evaluate(frame => frame.previewBody), visibleBody, "an outdated response never replaces the visible preview");
+            assert.equal(await preview.locator("body").evaluate(() => scrollY), heldTop, "typing preserves the current visible preview position");
             await page.screenshot({ path: `${evidence}/${lang}-${width}-typing-${mode}.png` });
             await page.keyboard.type(" continued", { delay: 80 });
             assert.equal(await preview.locator("body").evaluate(() => scrollY), heldTop, "preview stays steady while typing continues");
@@ -494,6 +513,7 @@ try {
         pendingImage = new Promise(resolve => { releaseImage = resolve; });
         const requested = page.waitForRequest("**/scroll-image-pending.svg");
         const previousBody = (await inspect(page)).doc;
+        const previousHtml = await page.locator("#preview-html-source").textContent();
         const pendingBody = "## Pending preview\n\n![Pending chart](/scroll-image-pending.svg)\n\n" + previousBody;
         let imageLoadTop;
         try {
@@ -504,17 +524,24 @@ try {
           await repeated;
           await page.waitForFunction(() => document.querySelector("#preview-status").textContent === "");
           assert.equal(await page.locator("#preview-frame").evaluate(frame => frame.previewBody), previousBody, "pending refresh does not relabel the visible old frame");
+          assert.equal(await page.locator("#preview-html-source").textContent(), previousHtml, "HTML and rendered output keep showing the same draft");
           const previousScroll = await preview.locator("body").evaluate(() => scrollY);
-          await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight * 0.5));
+          await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
           await page.waitForTimeout(100);
           assert.equal(await preview.locator("body").evaluate(() => scrollY), previousScroll, "old preview waits for matching content");
           await select(page, pendingBody.indexOf("## Scroll section 7") + "## Scroll section 7".length);
           await page.keyboard.type(" continued");
           imageLoadTop = await preview.locator("body").evaluate(() => scrollY);
         } finally { releaseImage(); }
-        await preview.getByRole("heading", { name: "Pending preview", exact: true }).waitFor();
-        assert.equal(await page.locator("#preview-frame").evaluate(frame => frame.previewBody), pendingBody, "loaded buffer becomes the active preview");
+        await page.waitForFunction(() => Array.from(document.querySelectorAll(".preview-frame")).some(frame =>
+          frame.contentDocument.querySelector('img[alt="Pending chart"]')?.naturalWidth > 0));
+        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(resolve)));
+        assert.equal(await page.locator("#preview-frame").evaluate(frame => frame.previewBody), previousBody, "a buffer that finishes loading during a newer edit stays hidden");
         assert.equal(await preview.locator("body").evaluate(() => scrollY), imageLoadTop, "image load during an edit preserves preview position");
+        const latestBody = (await inspect(page)).doc;
+        await page.waitForFunction(body => document.querySelector("#preview-frame").previewBody === body, latestBody);
+        await preview.getByRole("heading", { name: "Pending preview", exact: true }).waitFor();
+        assert.match(await page.locator("#preview-html-source").textContent(), /Scroll section 7 continued/);
         await page.locator("#preview-split").click();
         await preview.locator("body").evaluate(() => window.scrollTo(0, 400));
         const independentTop = await preview.locator("body").evaluate(() => scrollY);
@@ -544,7 +571,7 @@ try {
       for (const height of width < 500 ? [480, 330] : [900]) {
         await page.setViewportSize({ width, height });
         const lines = Array.from({ length: 75 }, (_, i) => `Paragraph ${i}. A line of text for the writing viewport.`).join("\n\n");
-        await fill(page, lines); await select(page, lines.indexOf("Paragraph 30") + 12);
+        await setDocument(page, lines); await select(page, lines.indexOf("Paragraph 30") + 12);
         await page.evaluate(() => {
           const { view } = window.fixtureEditor;
           const rect = view.coordsAtPos(view.state.selection.main.head);
@@ -569,7 +596,24 @@ try {
         }
       }
       await page.setViewportSize({ width, height: 900 });
-      await fill(page, "A new block document.\n\nSource stays intact.");
+      if (width < 500) {
+        let releaseResponse;
+        const pendingResponse = new Promise(resolve => { releaseResponse = resolve; });
+        await page.route("**/api/preview", route => holdPreviewResponse(route, pendingResponse), { times: 1 });
+        try {
+          const requested = page.waitForRequest("**/api/preview");
+          await selectView(page, width, "preview");
+          await requested;
+          // An upload can finish after the single-pane preview has opened.
+          await page.evaluate(() => window.fixtureEditor.insertMarkdown("Async preview marker.\n"));
+        } finally { releaseResponse(); }
+        await preview.getByText("Async preview marker.", { exact: true }).waitFor({ timeout: 5000 });
+        const mobileBody = (await inspect(page)).doc;
+        await selectView(page, width, "render");
+        await page.keyboard.type("x");
+        assert.notEqual((await inspect(page)).doc, mobileBody, "closing the mobile preview returns to the writable editor");
+      }
+      await setDocument(page, "A new block document.\n\nSource stays intact.");
       await page.locator("#title").fill("New block writing");
       await page.locator("#top-settings-button").click();
       await page.locator("#settings-advanced > summary").click();
@@ -579,7 +623,7 @@ try {
       await page.locator("#settings-close").click();
       // Saving while the inline preview is open still persists the editor document.
       await selectView(page, width, "preview");
-      await page.locator("#preview-pane").waitFor();
+      await preview.getByText("Source stays intact.", { exact: true }).waitFor();
       const createStart = saved.length;
       await page.locator("#save").click();
       await page.waitForURL(/\/admin\/(es\/)?posts\/$/);
