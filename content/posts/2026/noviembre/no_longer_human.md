@@ -13,15 +13,15 @@ technical: false
 
 
 ## Érase una vez
-La primera vez que escuché de la hipótesis de Riemman fue a los 17 años más o menos, leyendo un libro de Marcus du Satoy. Entonces mi aspiración era ser teólogo o filósofo, así que el libro no tuvo ningún efecto importante en mí. En general no tuve una relación muy sentimental con las matemáticas hasta bien entrados 20s. Aún así, desde que supe de ese problema tuve claro que **nunca** lo iba a ver resuelto. De hecho, no conozco a nadie que creyera algo distinto, simplemente el problema parecía imposible de resolver. 
+La primera vez que escuché de la hipótesis de Riemann fue a los 17 años más o menos, leyendo un libro de Marcus du Sautoy. Entonces mi aspiración era ser teólogo o filósofo, así que el libro no tuvo ningún efecto importante en mí. En general no tuve una relación muy sentimental con las matemáticas hasta bien entrados 20s. Aun así, desde que supe de ese problema tuve claro que **nunca** lo iba a ver resuelto. De hecho, no conozco a nadie que creyera algo distinto, simplemente el problema parecía imposible de resolver. 
 
-Creo que todo matemático ha fantaseado con el momento en el que se solucione la hipóteis de Riemann. Personalmente siempre pensé que sería un momento alegre, que lo hablaría con otros matemáticos y que habría una cierta esperanza entre nosotros. Al final, habríamos resuelto lo que llaman "la forma más difícil de ganarse un millón de dólares". Una victoria más para la humanidad. 
+Creo que todo matemático ha fantaseado con el momento en el que se solucione la hipótesis de Riemann. Personalmente siempre pensé que sería un momento alegre, que lo hablaría con otros matemáticos y que habría una cierta esperanza entre nosotros. Al final, habríamos resuelto lo que llaman "la forma más difícil de ganarse un millón de dólares". Una victoria más para la humanidad. 
 
 ## Clímax y Anticlímax
 
-Hoy, en cambio, no me describiría como feliz. La cantidad de soluciones que han surgido estos últimos meses por parte de los laboratorios de inteligencia artificial —y de particulares asistidos por modelos de lenguaje— han vuelto algo anticlimático el llegar a estas soluciones. [^note-1] Creo que este antíclimax se debe a que no hay una historia clara con la cual empatizar detrás gran parte de estas demostraciones ni a una persona clara a la cual admirar. Incluso cuando la hay, entra en juego otro factor: un sentimiento de fatiga generalizado entre la comunidad. Por muy bien que me caiga Levent Alpöge, no puedo evitar sentir que su solución a RH es una más de las muchas demostraciones asistidas por modelos de lenguaje que han llegado y que están por llegar. 
+Hoy, en cambio, no me describiría como feliz. La cantidad de soluciones que han surgido estos últimos meses por parte de los laboratorios de inteligencia artificial —y de particulares asistidos por modelos de lenguaje— han vuelto algo anticlimático el llegar a estas soluciones. [^note-1] Creo que este anticlímax se debe a que no hay una historia clara con la cual empatizar detrás gran parte de estas demostraciones ni a una persona clara a la cual admirar. Incluso cuando la hay, entra en juego otro factor: un sentimiento de fatiga generalizado entre la comunidad. Por muy bien que me caiga Levent Alpöge, no puedo evitar sentir que su solución a RH es una más de las muchas demostraciones asistidas por modelos de lenguaje que han llegado y que están por llegar. 
 
-En general es difícil sentir emoción ante algo que puede hacerse de forma masiva. La matemática como algo emocionante nace en parte de la empatía hacía aquellos que se han puesto a la encomienda de descubrir conocimiento que, de otra forma, nos estaría velado como especie. Por eso tenemos tantos y tan buenos libros sobre historia de las matemáticas[^note-3], porque es emocionante leer sobre las vidas de aquellos que intentaron saber más. 
+En general es difícil sentir emoción ante algo que puede hacerse de forma masiva. La matemática como algo emocionante nace en parte de la empatía hacia aquellos que se han puesto a la encomienda de descubrir conocimiento que, de otra forma, nos estaría velado como especie. Por eso tenemos tantos y tan buenos libros sobre historia de las matemáticas[^note-3], porque es emocionante leer sobre las vidas de aquellos que intentaron saber más. 
 
 Esa emoción también nace de la inherente belleza que las matemáticas contienen. Esa belleza no es fácil de encontrar y los matemáticos no siempre nos hemos esforzado lo suficiente en hacerle fácil a los demás verla. Y me temo que estas demostraciones masivamente desplegadas hacen ese trabajo aún más difícil. En su excelente libro —y uno de mis tres favoritos— _Mathematics for Human Flourishing_[^note-2] Francis Su nos dice:
 
@@ -43,7 +43,7 @@ Ciertamente ser bueno en matemáticas puede estar a punto de dejar de ser una sk
 Por un lado, la narrativa cada vez más es que las matemáticas dejarán de ser una habilidad igual de valiosa socialmente; por el otro, ¿qué más podría hacer un matemático?
 
 ## ... :L ... :D
-Que no sé qué va a pasar es cierto en todo sentido, así que tampoco puedo asegurar que el futuro no será, de hecho, más amable. Creo que es positivo que la humanidad pueda hacer más cosas y no menos. En general soy un tecno-optimista en el sentido en el que confío que todos nosotros haremos lo necesario para que el futuro sea mejor que el peor escenario posible. Que problemas como la hipótesis de Riemann dejen de ser un inconveniente para que la humanidad progrese en su conocimiento matemático puede significar que hay por delante problemas que antes ni fuéramos capaces de imaginar. 
+Que no sé qué va a pasar es cierto en todo sentido, así que tampoco puedo asegurar que el futuro no será, de hecho, más amable. Creo que es positivo que la humanidad pueda hacer más cosas y no menos. En general soy un tecnooptimista en el sentido en el que confío que todos nosotros haremos lo necesario para que el futuro sea mejor que el peor escenario posible. Que problemas como la hipótesis de Riemann dejen de ser un inconveniente para que la humanidad progrese en su conocimiento matemático puede significar que hay por delante problemas que antes ni fuéramos capaces de imaginar. 
 
 Hacer viajes transatlánticos era un lujo de pocos, además de ser peligroso y excesivamente tardado. Hoy una porción significativa de la población se plantea volar a través de este océano para visitar Asia o Europa. Quizá en el futuro los matemáticos hablarán de cómo les resulta trivial solucionar problemas que a nosotros nos tomó 300 años resolver. 
 
@@ -51,8 +51,8 @@ No lo sé, pero prefiero no saber y esperar lo mejor. Al menos así puedo plante
 
 [^note-1]: No estoy solo en este sentimiento, puede leerse la opinión de muchos otros matemáticos [aquí](https://lists.illinois.edu/lists/arc/algtop-l/2026-10/msg00064.html).
 
-[^note-2]: Pueden encontrarlo gratis para descargar en [scribd](https://www.scribd.com/document/902846292/Mathematics-for-Human-Flourishing-9780300248814-Compress).
+[^note-2]: Pueden encontrarlo gratis para descargar en [Scribd](https://www.scribd.com/document/902846292/Mathematics-for-Human-Flourishing-9780300248814-Compress).
 
-[^note-3]: Me reservo hacer una lista exhaustiva pero mis cuatro grandes ejemplos son: La Música de los Números Primos de Marcus du Satoy, Amor y Matemáticas de Frenkel, El Último Teorema de Fermat de Simon Singh y, finalmente, The Code Book también de Simon Singh.
+[^note-3]: Me reservo hacer una lista exhaustiva pero mis cuatro grandes ejemplos son: La Música de los Números Primos de Marcus du Sautoy, Amor y Matemáticas de Frenkel, El Último Teorema de Fermat de Simon Singh y, finalmente, The Code Book también de Simon Singh.
 
 [^note-4]: Gran libro, por cierto. Lo pueden leer [aquí](https://www.arvindguptatoys.com/arvindgupta/mathsapology-hardy.pdf).
