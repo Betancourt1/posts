@@ -13,7 +13,7 @@ technical: false
 
 
 ## Érase una vez
-La primera vez que escuché de la hipótesis de Riemman fue a los 17 años, más o menos, leyendo un libro de Marcus du Satoy. Entonces mi aspiración era ser teólogo o filósofo, así que el libro no tuvo ningún efecto importante en mí. En general no tuve una relación muy sentimental con las matemáticas hasta bien entrados 20s. Aún así, desde que supe de ese problema tuve claro que **nunca** lo iba a ver resuelto. De hecho, no conozco a nadie que creyera algo distinto, simplemente el problema parecía imposible de resolver. 
+La primera vez que escuché de la hipótesis de Riemman fue a los 17 años más o menos, leyendo un libro de Marcus du Satoy. Entonces mi aspiración era ser teólogo o filósofo, así que el libro no tuvo ningún efecto importante en mí. En general no tuve una relación muy sentimental con las matemáticas hasta bien entrados 20s. Aún así, desde que supe de ese problema tuve claro que **nunca** lo iba a ver resuelto. De hecho, no conozco a nadie que creyera algo distinto, simplemente el problema parecía imposible de resolver. 
 
 Creo que todo matemático ha fantaseado con el momento en el que se solucione la hipóteis de Riemann. Personalmente siempre pensé que sería un momento alegre, que lo hablaría con otros matemáticos y que habría una cierta esperanza entre nosotros. Al final, habríamos resuelto lo que llaman "la forma más difícil de ganarse un millón de dólares". Una victoria más para la humanidad. 
 
