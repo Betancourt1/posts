@@ -1,10 +1,6 @@
----
-import type { Language } from "./types";
-const { lang } = Astro.props as { lang: Language };
----
 
 <div class="snail-path">
-  <button class="wandering-snail" type="button" aria-label={lang === "es" ? "Añadir otro caracol" : "Add another snail"} title={lang === "es" ? "Añadir otro caracol" : "Add another snail"}>
+  <button class="wandering-snail" type="button" aria-label="Add another snail" title="Add another snail">
     <svg class="snail-sprite" viewBox="0 0 32 24" aria-hidden="true" shape-rendering="crispEdges">
       <g class="snail-body">
         <path fill="var(--snail-outline)" d="M24 1h3v6h-3zm5 0h3v6h-3zM25 6h2v4h-2zm4 0h2v4h-2zM23 8h6v1h2v1h1v7h-1v2h-2v2H3v-1H1v-2h3v-2h3v-2h14v-3h2z"/>

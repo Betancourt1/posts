@@ -384,12 +384,10 @@ function listNotebooks() {
       }
 
       const { frontMatter } = splitMarkdown(readFileSync(absoluteIndex, "utf8"));
-      const lang = root === "content_es" ? "es" : "en";
 
       notebooks.push({
         path: relativePath,
         indexPath,
-        lang,
         slug: entry.name,
         title: notebookTitle(frontMatter, entry.name),
         description: frontMatter.description || frontMatter.summary || "",
@@ -622,13 +620,12 @@ async function createLocalNotebookChannel(payload) {
       title: notebook.frontMatter.title || path.basename(notebookPath),
       description: [
         String(notebook.frontMatter.description || "").trim(),
-        `[Publicado originalmente en el blog](${new URL(notebook.url, publicOrigin).href})`,
+        `[Originally published on the blog](${new URL(notebook.url, publicOrigin).href})`,
       ].filter(Boolean).join("\n\n"),
       visibility: "closed",
       metadata: {
         integration: "fbetancourt_blog",
         notebook_path: notebookPath,
-        language: projectionSourcePath(notebook.path).startsWith("content_es/") ? "es" : "en",
       },
     });
     channelId = channel.id;
@@ -1018,9 +1015,7 @@ async function route(req, res) {
   }
 
   if (req.method === "GET" && url.pathname === "/api/project-writings") {
-    const root = contentRoot === "content"
-      ? "content/posts"
-      : url.searchParams.get("lang") === "es" ? "content_es/posts" : "content_en/posts";
+    const root = `${contentRoot}/posts`;
     const writings = walkFiles(path.join(REPO_ROOT, root), root)
       .filter(file => file.relativePath.endsWith(".md") && !/(?:^|\/)(?:_index|no_post[^/]*)\.md$/.test(file.relativePath))
       .map(file => parseMarkdownFile(file.relativePath))

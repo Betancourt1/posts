@@ -1,16 +1,13 @@
 ---
 import { projectMeta, projectReadiness, projectStatusLabel } from "../../../functions/_lib/project-links.js";
-import type { Language } from "./types";
 
 interface Props {
-  lang: Language;
   project: any;
   authorMode: boolean;
   compact?: boolean;
   headingLevel?: "h2" | "h3";
 }
-const { lang, project, authorMode, compact = false, headingLevel = "h2" } = Astro.props;
-const es = lang === "es";
+const { project, authorMode, compact = false, headingLevel = "h2" } = Astro.props;
 const Heading = headingLevel;
 const meta = projectMeta(project.frontMatter);
 const primary = meta.links[0];
@@ -21,35 +18,32 @@ const hiddenStack = meta.technologies.length - stack.length;
 const highlights = compact ? [] : meta.highlights.slice(0, 3);
 const isPrivate = meta.status === "private";
 const published = !(project.draft || project.hidden);
-const missingLabels: Record<string, string> = es
-  ? { summary: "resumen", role: "rol", stack: "stack", highlights: "resultados", links: "enlaces" }
-  : { summary: "summary", role: "role", stack: "stack", highlights: "results", links: "links" };
+const missingLabels: Record<string, string> = { summary: "summary", role: "role", stack: "stack", highlights: "results", links: "links" };
 const missing = authorMode ? projectReadiness(project.frontMatter, project.frontMatter?.summary).map((key: string) => missingLabels[key]) : [];
-const language = es ? "ES" : "EN";
 const confirmPublish = published
-  ? (es ? `¿Pasar «${project.title}» (${language}) a borrador? Dejará de ser visible en el sitio público.` : `Unpublish “${project.title}” (${language})? It will no longer be visible on the public site.`)
-  : (es ? `¿Publicar «${project.title}» (${language})? Será visible en el sitio público.` : `Publish “${project.title}” (${language})? It will be visible on the public site.`);
+  ? (`Unpublish “${project.title}”? It will no longer be visible on the public site.`)
+  : (`Publish “${project.title}”? It will be visible on the public site.`);
 ---
 <article class={compact ? "project-entry is-compact" : "project-entry"}>
   <div class="project-status">
-    {meta.status && <span class={"project-badge project-badge-" + meta.status}>{projectStatusLabel(meta.status, es)}</span>}
-    {authorMode && meta.featured && <span class="project-badge">{es ? "Destacado" : "Featured"}</span>}
-    {authorMode && <span class="project-badge">{published ? (es ? "Publicado" : "Published") : (es ? "Borrador" : "Draft")}</span>}
+    {meta.status && <span class={"project-badge project-badge-" + meta.status}>{projectStatusLabel(meta.status)}</span>}
+    {authorMode && meta.featured && <span class="project-badge">Featured</span>}
+    {authorMode && <span class="project-badge">{published ? ("Published") : ("Draft")}</span>}
   </div>
   <Heading class="project-title"><a href={href}>{project.title}</a></Heading>
   {facts.length > 0 && <p class="project-facts-line">{facts.join(" · ")}</p>}
   <p class="project-blurb">{project.summary}</p>
   {highlights.length > 0 && <ul class="project-highlights">{highlights.map((item) => <li>{item}</li>)}</ul>}
-  {stack.length > 0 && <ul class="project-stack" aria-label={es ? "Tecnologías" : "Stack"}>
+  {stack.length > 0 && <ul class="project-stack" aria-label="Stack">
     {stack.map((item) => <li>{item}</li>)}
     {hiddenStack > 0 && <li>+{hiddenStack}</li>}
   </ul>}
-  {missing.length > 0 && <p class="project-missing">{es ? "Falta: " : "Missing: "}{missing.join(", ")}</p>}
+  {missing.length > 0 && <p class="project-missing">Missing: {missing.join(", ")}</p>}
   <div class="project-actions">
     {primary && <a href={primary.href}>{primary.label} ↗</a>}
-    <a href={href}>{isPrivate ? (es ? "Leer el caso" : "Read the case study") : (es ? "Ver proyecto" : "View project")} →</a>
-    {authorMode && <button type="button" class="project-control" data-author-action="edit-post" data-source-path={project.sourcePath}>{es ? "Editar" : "Edit"}</button>}
-    {authorMode && <button type="button" class="project-control" data-author-action="toggle-featured" data-source-path={project.sourcePath} data-featured-to={meta.featured ? "off" : "on"}>{meta.featured ? (es ? "Quitar destacado" : "Remove featured") : (es ? "Destacar" : "Feature")}</button>}
-    {authorMode && <button type="button" class="project-control" data-author-action="toggle-publish" data-source-path={project.sourcePath} data-publish-to={published ? "draft" : "public"} data-confirm={confirmPublish}>{published ? (es ? "Pasar a borrador" : "Unpublish") : (es ? "Publicar" : "Publish")}</button>}
+    <a href={href}>{isPrivate ? ("Read the case study") : ("View project")} →</a>
+    {authorMode && <button type="button" class="project-control" data-author-action="edit-post" data-source-path={project.sourcePath}>Edit</button>}
+    {authorMode && <button type="button" class="project-control" data-author-action="toggle-featured" data-source-path={project.sourcePath} data-featured-to={meta.featured ? "off" : "on"}>{meta.featured ? ("Remove featured") : ("Feature")}</button>}
+    {authorMode && <button type="button" class="project-control" data-author-action="toggle-publish" data-source-path={project.sourcePath} data-publish-to={published ? "draft" : "public"} data-confirm={confirmPublish}>{published ? ("Unpublish") : ("Publish")}</button>}
   </div>
 </article>

@@ -2334,9 +2334,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       };
 
       ${projectEditorScript}
-      var projectEditor = bindProjectEditor(markContentEdited, request, function () {
-        return "en";
-      }, {
+      var projectEditor = bindProjectEditor(markContentEdited, request, {
         title: function () { return els.title.value; },
         summary: function () { return els.summary.value; },
         tags: function () { return els.tags.value; },
@@ -2406,7 +2404,6 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           parent: els.paper,
           value: loadedBodySource === null ? els.body.value : loadedBodySource,
           raw: activeViewMode === "markdown",
-          language: function () { return "en"; },
           onChange: function (value) { els.body.value = value; markContentEdited(); },
           onUpload: function () { els.imageFile.click(); },
           onPreview: function (value) { closeSettings(); previewTechnicalContent(value); },
@@ -2597,7 +2594,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           more.setAttribute("aria-expanded", "true");
           more.setAttribute("aria-label", "Show less formatting");
           more.title = "Show less formatting";
-          more.querySelector(".format-more-label").textContent = "Menos";
+          more.querySelector(".format-more-label").textContent = "Less";
         });
         ["pointerdown", "focusin"].forEach(function (type) {
           document.addEventListener(type, function (event) {
@@ -2682,7 +2679,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           if (preferredId && !arenaChannels.some(function (channel) { return String(channel.id) === preferredId; })) {
             var configuredOption = document.createElement("option");
             configuredOption.value = preferredId;
-            configuredOption.textContent = "Canal configurado (" + preferredId + ")";
+            configuredOption.textContent = "Configured channel (" + preferredId + ")";
             configuredOption.selected = true;
             els.arenaChannel.appendChild(configuredOption);
           }
@@ -2940,33 +2937,15 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         return editorTemplate === "book" || /^content(?:_en)?\\/books\\/|^content_es\\/libros\\//.test(sourceIdentity);
       }
 
-      function isEnglishBook() {
-        var contentPath = sourceIdentity || preferredNotebook || els.notebook.value;
-        return /^content(?:_en)?\\/books(?:\\/|$)/.test(contentPath);
-      }
-
       function bookTemplateBody() {
-        if (isEnglishBook()) {
-          return [
-            "# ",
-            "",
-            "**Author:** ",
-            "**Progress:** 0%",
-            "**My rating:** ",
-            "",
-            "## My review",
-            "",
-          ].join("\\n");
-        }
-
         return [
           "# ",
           "",
-          "**Autor:** ",
-          "**Progreso:** 0%",
-          "**Mi calificación:** ",
+          "**Author:** ",
+          "**Progress:** 0%",
+          "**My rating:** ",
           "",
-          "## Mi reseña",
+          "## My review",
           "",
         ].join("\\n");
       }
@@ -2975,7 +2954,6 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         var body = String(value || "");
         if (/^\\*\\*(?:Progress|Progreso):\\*\\*/mi.test(body)) return body;
 
-        var english = isEnglishBook();
         var storedProgress = Number(frontMatter.book_progress);
         var progress = Number.isFinite(storedProgress) && storedProgress >= 0 && storedProgress <= 100
           ? storedProgress + "%"
@@ -2983,8 +2961,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
             ? "100%"
             : frontMatter.book_status === "to-read"
               ? "0%"
-              : english ? "not set" : "sin registrar";
-        var progressLine = "**" + (english ? "Progress" : "Progreso") + ":** " + progress;
+              : "not set";
+        var progressLine = "**Progress:** " + progress;
         var statusPattern = /^\\*\\*(?:Status|Estado):\\*\\*.*$/mi;
 
         if (statusPattern.test(body)) {
@@ -3070,7 +3048,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           if (frontMatter.arena_channel_id) {
             var loadingChannel = document.createElement("option");
             loadingChannel.value = String(frontMatter.arena_channel_id);
-            loadingChannel.textContent = "Canal configurado";
+            loadingChannel.textContent = "Configured channel";
             els.arenaChannel.appendChild(loadingChannel);
             els.arenaChannel.value = String(frontMatter.arena_channel_id);
           }
@@ -3154,7 +3132,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           return true;
         }).then(function (arenaSaved) {
           if (arenaSaved === null && els.arenaEnabled.checked) {
-            throw new Error(arenaState.error || "Are.na necesita un reintento.");
+            throw new Error(arenaState.error || "Are.na needs a retry.");
           }
           // Product contract: GitHub -> Are.na -> Notebook. Code deployment is unrelated.
           redirectToNotebook();
@@ -3306,7 +3284,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           if (channel.url) els.notebookChannelLink.href = channel.url;
         }).catch(function (error) {
           els.notebookChannelStatus.textContent = error.message;
-          els.createNotebookChannel.textContent = "Reintentar channel desde notebook";
+          els.createNotebookChannel.textContent = "Retry notebook sync";
         }).finally(function () {
           els.createNotebookChannel.disabled = false;
         });
@@ -4578,7 +4556,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           if (channelUrl) els.notebookChannelLink.href = channelUrl;
           if (frontMatter.arena_channel_id) {
             els.createNotebookChannel.textContent = "Sync notebook to Are.na";
-            els.notebookChannelStatus.textContent = "Channel configurado. Reintentar no duplica publicaciones.";
+            els.notebookChannelStatus.textContent = "Channel configured. Retrying will not duplicate posts.";
           }
         }
         syncArenaSurfaceVisibility();
@@ -4781,11 +4759,11 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function contentPathToUrl(relativePath) {
         var root = relativePath.split("/")[0];
-        var lang = root === "content_es" ? "es" : "en";
+        var prefix = root === "content_es" ? "/es" : "";
         var route = relativePath.slice(root.length).replace(/\\.md$/, "");
         route = route.replace(/\\/index$/, "/").replace(/\\/_index$/, "/");
         if (route.charAt(0) !== "/") route = "/" + route;
-        var url = (lang === "es" ? "/es" : "") + route;
+        var url = prefix + route;
         return editorCore.sitePathForStoredRoute(url.endsWith("/") ? url : url + "/");
       }
     })();

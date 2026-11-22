@@ -1,40 +1,37 @@
 ---
 import { displayDate } from "./_utils";
-import type { ArchiveItem, Language } from "./types";
+import type { ArchiveItem } from "./types";
 
 interface Props {
   title: string;
   items: ArchiveItem[];
-  lang?: Language;
   sectionLabels?: Record<string, string>;
 }
 
-const { title, items, lang = "en", sectionLabels = {} } = Astro.props;
+const { title, items, sectionLabels = {} } = Astro.props;
 const visibleItems = items
   .filter((item) => !item.hidden && displayDate(item.date))
   .sort((left, right) => displayDate(right.date).localeCompare(displayDate(left.date))
-    || right.title.localeCompare(left.title, lang));
+    || right.title.localeCompare(left.title, "en"));
 const defaultFilterLabels: Record<string, string> = {
   posts: "Blog",
-  "proyectos-profesionales": lang === "es" ? "Proyectos" : "Projects",
+  "proyectos-profesionales": "Projects",
   zettelkasten: "Zettelkasten",
-  lit: lang === "es" ? "Lecturas" : "Readings",
-  fotografia: lang === "es" ? "Fotografía" : "Photography",
-  books: lang === "es" ? "Libros" : "Books",
-  libros: lang === "es" ? "Libros" : "Books",
+  lit: "Readings",
+  fotografia: "Photography",
+  books: "Books",
+  libros: "Books",
 };
 const badgeLabels: Record<string, string> = {
-  posts: lang === "es" ? "escrito" : "post",
-  "proyectos-profesionales": lang === "es" ? "proyecto" : "project",
+  posts: "post",
+  "proyectos-profesionales": "project",
   zettelkasten: "zettel",
-  lit: lang === "es" ? "lectura" : "reading",
-  fotografia: lang === "es" ? "foto" : "photo",
-  books: lang === "es" ? "libro" : "book",
-  libros: lang === "es" ? "libro" : "book",
+  lit: "reading",
+  fotografia: "photo",
+  books: "book",
+  libros: "book",
 };
-const sectionOrder = lang === "es"
-  ? ["lit", "proyectos-profesionales", "posts", "fotografia", "libros"]
-  : ["lit", "books", "proyectos-profesionales"];
+const sectionOrder = ["lit", "books", "proyectos-profesionales"];
 const availableSections = new Set(visibleItems.map((item) => item.section));
 const sections = sectionOrder.filter((section) => availableSections.has(section));
 const years = [...visibleItems.reduce((yearMap, item) => {
@@ -54,7 +51,7 @@ const years = [...visibleItems.reduce((yearMap, item) => {
 
 <header class="page-header"><h1>{title}</h1></header>
 <div class="archive-filters">
-  <button class="filter-btn active" data-filter="all">{lang === "es" ? "Todos" : "All"}</button>
+  <button class="filter-btn active" data-filter="all">All</button>
   {sections.map((section) => <button class="filter-btn" data-filter={section}>{sectionLabels[section] || defaultFilterLabels[section] || section}</button>)}
 </div>
 

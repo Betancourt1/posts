@@ -23,14 +23,14 @@ export async function replaceProjectedSource(db, projection, runId) {
     return {
       documentKey: document.documentKey,
       sourcePath: source.path,
-      lang: document.lang,
+      storageBucket: document.storageBucket,
       kind: document.kind,
       section: document.section || "",
       title: document.title || "",
       date: document.date || null,
       summary: document.summary || "",
       description: document.description || "",
-      translationKey: document.translationKey || null,
+      catalogKey: document.catalogKey || null,
       bodyMarkdown: document.bodyMarkdown || "",
       bodyText: document.bodyText || "",
       bodyHtml: document.bodyHtml || "",
@@ -55,14 +55,14 @@ export async function replaceProjectedSource(db, projection, runId) {
 
   for (const document of projection.documents) {
     for (const [position, tag] of uniqueTagRecords(document.tags).entries()) {
-      tagRowsByKey.set(`${document.lang}\u0000${tag.slug}`, {
-        lang: document.lang,
+      tagRowsByKey.set(`${document.storageBucket}\u0000${tag.slug}`, {
+        storageBucket: document.storageBucket,
         label: tag.label,
         slug: tag.slug,
       });
       documentTagRows.push({
         documentKey: document.documentKey,
-        lang: document.lang,
+        storageBucket: document.storageBucket,
         slug: tag.slug,
         position,
       });
@@ -98,7 +98,7 @@ export async function replaceProjectedSource(db, projection, runId) {
       source.path,
       source.blobSha,
       source.commitSha || null,
-      source.lang,
+      source.storageBucket,
       source.normalizedMarkdown,
       json(source.frontMatter),
       source.projectorVersion,
@@ -132,14 +132,14 @@ export async function replaceProjectedSource(db, projection, runId) {
     SELECT
       json_extract(value, '$.documentKey'),
       json_extract(value, '$.sourcePath'),
-      json_extract(value, '$.lang'),
+      json_extract(value, '$.storageBucket'),
       json_extract(value, '$.kind'),
       json_extract(value, '$.section'),
       json_extract(value, '$.title'),
       json_extract(value, '$.date'),
       json_extract(value, '$.summary'),
       json_extract(value, '$.description'),
-      json_extract(value, '$.translationKey'),
+      json_extract(value, '$.catalogKey'),
       json_extract(value, '$.bodyMarkdown'),
       json_extract(value, '$.bodyText'),
       json_extract(value, '$.bodyHtml'),
@@ -205,7 +205,7 @@ export async function replaceProjectedSource(db, projection, runId) {
     statements.push(db.prepare(`
       INSERT INTO tags (lang, label, slug)
       SELECT
-        json_extract(value, '$.lang'),
+        json_extract(value, '$.storageBucket'),
         json_extract(value, '$.label'),
         json_extract(value, '$.slug')
       FROM json_each(?)
@@ -225,7 +225,7 @@ export async function replaceProjectedSource(db, projection, runId) {
       JOIN documents
         ON documents.document_key = json_extract(rows.value, '$.documentKey')
       JOIN tags
-        ON tags.lang = json_extract(rows.value, '$.lang')
+        ON tags.lang = json_extract(rows.value, '$.storageBucket')
        AND tags.slug = json_extract(rows.value, '$.slug')
     `).bind(JSON.stringify(documentTagRows)));
   }
@@ -284,7 +284,7 @@ export async function finishProjection(db) {
         AND target_path LIKE '/%'
         AND target_path NOT LIKE '/es/%'
         AND source_document_id IN (
-          SELECT id FROM documents WHERE lang = 'es'
+          SELECT document_id FROM routes WHERE kind = 'canonical' AND path GLOB '/es/*'
         )
     `),
     db.prepare(`

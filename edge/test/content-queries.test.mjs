@@ -22,7 +22,6 @@ import {
   sectionItems,
   tagIndex,
   tagResults,
-  translationPeer,
 } from "../src/lib/content-queries.mjs";
 import { projectSource } from "../src/lib/content-projector.mjs";
 import {
@@ -318,7 +317,7 @@ test("one catalog shares the latest essay and pins across legacy source folders"
   assert.deepEqual(await loadPublicPage(db, "/es/posts/latest-essay/"), { redirect: "/posts/latest-essay/" });
   assert.deepEqual(await loadPublicPage(db, "/es/tags/ethics/"), { redirect: "/tags/ethics/" });
   assert.deepEqual(await loadPublicPage(db, "/es/posts/spanish-latest/"), { redirect: "/posts/spanish-latest/" });
-  assert.equal((await loadPublicPage(db, "/posts/spanish-latest/")).lang, "en");
+  assert.equal((await loadPublicPage(db, "/posts/spanish-latest/")).path, "/posts/spanish-latest/");
 
   await put("en", "older-pin", "date: 2020-01-01\npinned: false");
   await put("en", "tie-pin", "date: 2020-01-01\ntranslationKey: shared-tie-pin\npinned: false");
@@ -402,7 +401,7 @@ test("reads the projected public site through the real D1 API", async (t) => {
     );
   });
 
-  await t.test("returns ordered tags and the translated peer", async () => {
+  await t.test("returns ordered tags for both authored records", async () => {
     const english = await resolveDocument(db, "/posts/ethical-data/");
     assert.deepEqual(
       (await documentTags(db, english.id)).map(({ label, slug, position }) => ({
@@ -416,23 +415,22 @@ test("reads the projected public site through the real D1 API", async (t) => {
       ],
     );
 
-    const spanish = await translationPeer(db, english.id);
-    assert.equal(spanish.lang, "es");
+    const spanish = await resolveDocument(db, "/es/posts/datos-eticos/");
+    assert.equal(spanish.catalogKey, english.catalogKey);
     assert.equal(spanish.path, "/es/posts/datos-eticos/");
     assert.equal(spanish.frontMatter.translationKey, "ethical-data");
     assert.deepEqual(spanish.tags.map((tag) => tag.label), ["ethics", "essays"]);
-    assert.deepEqual((await translationPeer(db, english.id, { tags: false })).tags, []);
     assert.deepEqual((await resolveDocument(db, "/posts/ethical-data/", { tags: false })).tags, []);
   });
 
-  await t.test("pairs Guestbook and Visitas as localized views of one wall", async () => {
+  await t.test("preserves the Visitas alias for Guestbook", async () => {
     const english = await resolveDocument(db, "/guestbook/");
-    const spanish = await translationPeer(db, english.id);
+    const spanish = await resolveDocument(db, "/es/visitas/");
 
     assert.equal(english.frontMatter.translationKey, "guestbook");
     assert.equal(spanish.path, "/es/visitas/");
     assert.equal(spanish.frontMatter.translationKey, "guestbook");
-    assert.equal((await translationPeer(db, spanish.id)).path, "/guestbook/");
+    assert.deepEqual(await loadPublicPage(db, "/es/visitas/"), { redirect: "/guestbook/" });
   });
 
   await t.test("builds section, navigation, archive, and taxonomy lists", async () => {
@@ -524,7 +522,6 @@ test("reads the projected public site through the real D1 API", async (t) => {
     assert.deepEqual(await loadPublicPage(db, "/es/visitas/"), { redirect: "/guestbook/" });
     assert.deepEqual(await loadPublicPage(db, "/es/posts/datos-eticos/"), { redirect: "/posts/datos-eticos/" });
     const legacyArticle = await loadPublicPage(db, "/posts/datos-eticos/");
-    assert.equal(legacyArticle.lang, "en");
     assert.equal(legacyArticle.title, "Datos éticos");
     assert.match(legacyArticle.page.bodyMarkdown, /La ética de datos/);
     const adminOptions = { includeDrafts: true, includeHiddenListItems: true };
@@ -537,10 +534,9 @@ test("reads the projected public site through the real D1 API", async (t) => {
       "Destination",
     ]);
     assert.equal(adminEnglishWriting.items[0].path, "/posts/borrador-solo-espanol/");
-    assert.equal(adminEnglishWriting.items[0].lang, "es");
 
     assert.deepEqual(await loadPublicPage(db, "/es/posts/", adminOptions), { redirect: "/posts/" });
-    assert.equal(new Set(adminEnglishWriting.items.map(item => item.translationKey)).size, adminEnglishWriting.items.length);
+    assert.equal(new Set(adminEnglishWriting.items.map(item => item.catalogKey)).size, adminEnglishWriting.items.length);
     assert.deepEqual(
       (await loadPublicPage(db, "/", { includeHiddenListItems: true })).items,
       (await loadPublicPage(db, "/")).items,

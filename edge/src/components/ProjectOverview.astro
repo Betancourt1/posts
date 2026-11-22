@@ -1,15 +1,12 @@
 ---
 import { projectMeta, projectStatusLabel, projectTypes } from "../../../functions/_lib/project-links.js";
-import type { Language } from "./types";
 
 interface Props {
-  lang: Language;
   page: any;
   bodyHtml: string;
   authorMode: boolean;
 }
-const { lang, page, bodyHtml, authorMode } = Astro.props;
-const es = lang === "es";
+const { page, bodyHtml, authorMode } = Astro.props;
 const meta = projectMeta(page.frontMatter);
 type Resource = { type: keyof typeof projectTypes; label: string; href: string };
 const [primary, ...more]: Resource[] = meta.links;
@@ -20,38 +17,36 @@ for (const link of more) {
   else groups.push([link]);
 }
 const facts = [
-  { label: es ? "Rol" : "Role", value: meta.role },
-  { label: es ? "Periodo" : "Period", value: meta.period },
-  { label: es ? "Organización" : "Organization", value: meta.org },
+  { label: "Role", value: meta.role },
+  { label: "Period", value: meta.period },
+  { label: "Organization", value: meta.org },
 ].filter((fact) => fact.value);
-const parent = (authorMode ? "/admin" : "") + (es ? "/es" : "") + "/proyectos-profesionales/";
+const parent = (authorMode ? "/admin" : "") + "/proyectos-profesionales/";
 ---
 
 <article class="project-overview">
   <header>
-    <a class="project-parent" href={parent}>← {es ? "Proyectos" : "Projects"}</a>
-    {authorMode && <button type="button" class="project-control" data-author-action="edit-post" data-source-path={page.sourcePath}>{es ? "Editar proyecto" : "Edit project"}</button>}
-    {meta.status && <p class="project-status"><span class={"project-badge project-badge-" + meta.status}>{projectStatusLabel(meta.status, es)}</span></p>}
+    <a class="project-parent" href={parent}>← Projects</a>
+    {authorMode && <button type="button" class="project-control" data-author-action="edit-post" data-source-path={page.sourcePath}>Edit project</button>}
+    {meta.status && <p class="project-status"><span class={"project-badge project-badge-" + meta.status}>{projectStatusLabel(meta.status)}</span></p>}
     <h1>{page.title}</h1>
     <p class="project-summary">{page.summary}</p>
     {(facts.length > 0 || meta.technologies.length > 0) && <dl class="project-facts">
       {facts.map((fact) => <div><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}
-      {meta.technologies.length > 0 && <div><dt>{es ? "Tecnologías" : "Stack"}</dt><dd>
+      {meta.technologies.length > 0 && <div><dt>Stack</dt><dd>
         <ul class="project-stack">{meta.technologies.map((item) => <li>{item}</li>)}</ul>
       </dd></div>}
     </dl>}
     {meta.highlights.length > 0 && <ul class="project-highlights">{meta.highlights.map((item) => <li>{item}</li>)}</ul>}
-    {meta.status === "private" && <p class="project-note">{es
-      ? "Trabajo privado: el código y los datos son confidenciales. Esta página describe el enfoque y los resultados."
-      : "Private work: the code and data are confidential. This page describes the approach and results."}</p>}
+    {meta.status === "private" && <p class="project-note">Private work: the code and data are confidential. This page describes the approach and results.</p>}
   </header>
-  {primary && <nav class="project-resources" aria-label={es ? "Recursos del proyecto" : "Project resources"}>
+  {primary && <nav class="project-resources" aria-label="Project resources">
     <div class="project-primary">
-      <span>{projectTypes[primary.type][Number(es)]}</span>
+      <span>{projectTypes[primary.type]}</span>
       <a href={primary.href}>{primary.label} ↗</a>
     </div>
     {groups.map(group => <div>
-      <span>{projectTypes[group[0].type][Number(es)]}</span>
+      <span>{projectTypes[group[0].type]}</span>
       {group.map(link => <a href={link.href}>{link.label} ↗</a>)}
     </div>)}
   </nav>}

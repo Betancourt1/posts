@@ -22,6 +22,11 @@ Cloudflare deployment. Deletion may still verify the public 404.
 
 The webhook is intentionally incremental and accepts at most three changed
 content sources per delivery so it stays below the Workers Free D1 query limit.
+The Worker serves one English interface. The projection keeps stable source keys
+and historical route mappings for old links. New projections create one document
+per authored source and attach historical book URLs as aliases. The original D1
+columns remain in use as storage keys so existing data can stay in place.
+
 Use the seed CLI for the initial import, projector-version changes, or bulk
 content edits.
 

@@ -118,7 +118,6 @@ function readHintSession() {
 
 export function createBlockEditor(options) {
   const { parent, onChange, onUpload, onPreview } = options;
-  const t = (en, es) => options.language() === "es" ? es : en;
   const presentation = new Compartment();
   const hintSession = readHintSession();
   let raw = options.raw;
@@ -148,10 +147,10 @@ export function createBlockEditor(options) {
         markdown({ base: markdownLanguage }), history(), drawSelection(), flashField,
         EditorView.lineWrapping,
         EditorView.contentAttributes.of({
-          "aria-label": t("Writing", "Contenido"), spellcheck: "true",
+          "aria-label": "Writing", spellcheck: "true",
           autocapitalize: "sentences", "data-writing-surface": "true",
         }),
-        placeholder(t("Write, or type / to insert…", "Escribe, o usa / para insertar…")),
+        placeholder("Write, or type / to insert…"),
         presentation.of(raw ? [] : prose),
         // The slash list only captures keys while it is open; Tab still leaves the editor otherwise.
         Prec.highest(keymap.of([
@@ -201,18 +200,18 @@ export function createBlockEditor(options) {
 
   const toolbar = element("div", "block-selection-toolbar");
   toolbar.setAttribute("role", "toolbar");
-  toolbar.setAttribute("aria-label", t("Text formatting", "Formato del texto"));
+  toolbar.setAttribute("aria-label", "Text formatting");
   toolbar.hidden = true;
   toolbar.addEventListener("pointerdown", (event) => event.preventDefault());
   const formats = element("div", "block-selection-actions");
   formats.append(
-    button(t("Bold", "Negrita"), boldIcon, () => wrap("**", "**")),
-    button(t("Italic", "Cursiva"), italicIcon, () => wrap("_", "_")),
-    button(t("Link", "Enlace"), linkIcon, () => wrap("[", "](https://)")),
-    button(t("Inline code", "Código en línea"), codeIcon, () => wrap("`", "`")),
+    button("Bold", boldIcon, () => wrap("**", "**")),
+    button("Italic", italicIcon, () => wrap("_", "_")),
+    button("Link", linkIcon, () => wrap("[", "](https://)")),
+    button("Inline code", codeIcon, () => wrap("`", "`")),
     element("span", "block-toolbar-separator"),
   );
-  const toneLabels = { green: t("Green text", "Texto verde"), blue: t("Blue text", "Texto azul"), amber: t("Amber text", "Texto ámbar") };
+  const toneLabels = { green: "Green text", blue: "Blue text", amber: "Amber text" };
   for (const tone of TONES) {
     const action = button(toneLabels[tone], '<span class="block-tone-dot"></span>', () => wrap(`{{${tone}|`, "}}"));
     action.classList.add("block-tone");
@@ -221,27 +220,27 @@ export function createBlockEditor(options) {
   }
   toolbar.append(formats);
 
-  const gutter = button(t("Block actions", "Acciones del bloque"), gripIcon, () => {
+  const gutter = button("Block actions", gripIcon, () => {
     const empty = gutter.dataset.empty === "true";
     if (empty) openInsert(); else openBlockMenu();
   });
   gutter.classList.add("block-gutter");
   gutter.hidden = true;
-  const add = button(t("Insert block", "Insertar bloque"), plusIcon, () => openInsert());
+  const add = button("Insert block", plusIcon, () => openInsert());
   add.classList.add("block-add");
   add.setAttribute("aria-haspopup", "dialog");
-  const actions = button(t("Block actions", "Acciones del bloque"), gripIcon, () => openBlockMenu());
+  const actions = button("Block actions", gripIcon, () => openBlockMenu());
   actions.classList.add("block-mobile-actions");
   const dock = element("div", "block-dock");
   dock.append(actions, add);
   for (const control of [gutter, dock]) control.addEventListener("pointerdown", event => event.preventDefault());
-  const hint = element("p", "block-writing-hint", t("Select text to format · / to insert · Alt+↑/↓ moves a block", "Selecciona texto para dar formato · / para insertar · Alt+↑/↓ mueve un bloque"));
+  const hint = element("p", "block-writing-hint", "Select text to format · / to insert · Alt+↑/↓ moves a block");
   host.after(hint);
 
   const slash = element("div", "block-slash");
   slash.id = "block-slash";
   slash.setAttribute("role", "listbox");
-  slash.setAttribute("aria-label", t("Insert block", "Insertar bloque"));
+  slash.setAttribute("aria-label", "Insert block");
   slash.hidden = true;
   slash.addEventListener("pointerdown", (event) => event.preventDefault());
 
@@ -250,7 +249,7 @@ export function createBlockEditor(options) {
   const header = element("header");
   const menuTitle = element("h2", "", "");
   menuTitle.id = "block-menu-title";
-  header.append(menuTitle, button(t("Close", "Cerrar"), closeIcon, closeMenu));
+  header.append(menuTitle, button("Close", closeIcon, closeMenu));
   const content = element("div", "block-menu-content");
   dialog.append(header, content);
   document.body.append(toolbar, gutter, dock, slash, dialog);
@@ -320,7 +319,7 @@ export function createBlockEditor(options) {
 
   function wrap(before, after) {
     const { from, to } = view.state.selection.main;
-    const selected = source().slice(from, to) || t("text", "texto");
+    const selected = source().slice(from, to) || "text";
     closeMenu();
     change(from, to, before + selected + after, from + before.length, from + before.length + selected.length);
   }
@@ -377,7 +376,7 @@ export function createBlockEditor(options) {
       gutter.dataset.empty = String(empty);
       gutter.innerHTML = empty ? plusIcon : gripIcon;
       gutter.querySelector("svg")?.setAttribute("aria-hidden", "true");
-      gutter.setAttribute("aria-label", empty ? t("Insert block", "Insertar bloque") : t("Block actions", "Acciones del bloque"));
+      gutter.setAttribute("aria-label", empty ? "Insert block" : "Block actions");
       gutter.title = gutter.getAttribute("aria-label");
       gutter.style.left = Math.max(4, host.getBoundingClientRect().left - 48) + "px";
       gutter.style.top = Math.max(barBottom + 4, (coords.top + coords.bottom - gutter.offsetHeight) / 2) + "px";
@@ -474,7 +473,7 @@ export function createBlockEditor(options) {
     const gap = redirected ? gapBefore(doc.slice(0, target.from)) : "";
     const insert = gap + ref + (redirected ? gapAfter(doc.slice(target.to)) : "");
     const tail = doc.slice(0, target.from) + insert + doc.slice(target.to);
-    const note = `${gapBefore(tail)}${ref}: ${t("Margin note.", "Nota al margen.")}\n`;
+    const note = `${gapBefore(tail)}${ref}: ${"Margin note."}\n`;
     const changes = [];
     const removedLength = redirected && plain.from < plain.to && plain.to <= target.from ? plain.to - plain.from : 0;
     if (removedLength) changes.push({ from: plain.from, to: plain.to });
@@ -485,39 +484,38 @@ export function createBlockEditor(options) {
   }
 
   function commandCatalog(selected) {
-    const lang = options.language() === "es" ? "es" : "en";
-    const template = (kind) => insertTemplateText(kind, { selected, lang, language: "python" });
+    const template = (kind) => insertTemplateText(kind, { selected, language: "python" });
     return [
-      { group: "text", label: t("Heading", "Encabezado"), icon: headingIcon, keywords: "heading titulo encabezado h2", run: () => insertMarkdown("## " + t("Heading", "Encabezado")) },
-      { group: "text", label: t("Bulleted list", "Lista con viñetas"), icon: listIcon, keywords: "list lista bullet", run: () => insertMarkdown("- " + t("First item", "Primer elemento")) },
-      { group: "text", label: t("Numbered list", "Lista numerada"), icon: listNumbersIcon, keywords: "list numbered ordenada", run: () => insertMarkdown("1. " + t("First item", "Primer elemento")) },
-      { group: "text", label: t("Quote", "Cita"), icon: quoteIcon, keywords: "quote cita", run: () => insertMarkdown("> " + t("Quote", "Cita")) },
-      { group: "text", label: t("Margin note", "Nota al margen"), icon: noteIcon, keywords: "note nota sidenote", run: insertNote },
-      { group: "media", label: t("Upload image", "Subir imagen"), icon: photoIcon, keywords: "image imagen foto upload", run: () => { pendingUpload = slashRange || view.state.selection.main; slashRange = null; closeMenu(); onUpload(); } },
-      { group: "media", label: t("SVG diagram", "Diagrama SVG"), icon: diagramIcon, keywords: "svg diagram diagrama", run: () => insertMarkdown(template("image")) },
-      { group: "media", label: t("Animation / video", "Animación / video"), icon: videoIcon, keywords: "video animation animacion", run: () => insertMarkdown(template("video")) },
-      { group: "technical", label: t("Code block", "Bloque de código"), icon: codeIcon, keywords: "code codigo", run: () => insertMarkdown(template("code")) },
-      { group: "technical", label: t("Inline formula", "Fórmula en línea"), icon: mathIcon, keywords: "math formula latex", run: () => insertMarkdown(template("inline-math"), true) },
-      { group: "technical", label: t("Equation", "Ecuación"), icon: mathIcon, keywords: "math equation ecuacion latex", run: () => insertMarkdown(template("display-math")) },
-      { group: "technical", label: t("Mermaid diagram", "Diagrama Mermaid"), icon: diagramIcon, keywords: "mermaid diagram diagrama flowchart", run: () => insertMarkdown(template("mermaid")) },
-      { group: "technical", label: t("Interactive visual", "Visual interactivo"), icon: pointerIcon, keywords: "interactive interactivo", run: () => insertMarkdown(template("interactive")) },
+      { group: "text", label: "Heading", icon: headingIcon, keywords: "heading titulo encabezado h2", run: () => insertMarkdown("## " + "Heading") },
+      { group: "text", label: "Bulleted list", icon: listIcon, keywords: "list lista bullet", run: () => insertMarkdown("- " + "First item") },
+      { group: "text", label: "Numbered list", icon: listNumbersIcon, keywords: "list numbered ordenada", run: () => insertMarkdown("1. " + "First item") },
+      { group: "text", label: "Quote", icon: quoteIcon, keywords: "quote cita", run: () => insertMarkdown("> " + "Quote") },
+      { group: "text", label: "Margin note", icon: noteIcon, keywords: "note nota sidenote", run: insertNote },
+      { group: "media", label: "Upload image", icon: photoIcon, keywords: "image imagen foto upload", run: () => { pendingUpload = slashRange || view.state.selection.main; slashRange = null; closeMenu(); onUpload(); } },
+      { group: "media", label: "SVG diagram", icon: diagramIcon, keywords: "svg diagram diagrama", run: () => insertMarkdown(template("image")) },
+      { group: "media", label: "Animation / video", icon: videoIcon, keywords: "video animation animacion", run: () => insertMarkdown(template("video")) },
+      { group: "technical", label: "Code block", icon: codeIcon, keywords: "code codigo", run: () => insertMarkdown(template("code")) },
+      { group: "technical", label: "Inline formula", icon: mathIcon, keywords: "math formula latex", run: () => insertMarkdown(template("inline-math"), true) },
+      { group: "technical", label: "Equation", icon: mathIcon, keywords: "math equation ecuacion latex", run: () => insertMarkdown(template("display-math")) },
+      { group: "technical", label: "Mermaid diagram", icon: diagramIcon, keywords: "mermaid diagram diagrama flowchart", run: () => insertMarkdown(template("mermaid")) },
+      { group: "technical", label: "Interactive visual", icon: pointerIcon, keywords: "interactive interactivo", run: () => insertMarkdown(template("interactive")) },
     ].map((command) => ({ ...command, search: searchable(command.label + " " + command.keywords) }));
   }
 
   function groupLabel(group) {
-    return { text: t("Text", "Texto"), media: t("Media", "Medios"), technical: t("Technical", "Técnico") }[group];
+    return { text: "Text", media: "Media", technical: "Technical" }[group];
   }
 
   function openInsert(range = null) {
     slashRange = range;
     const selection = view.state.selection.main;
-    openMenu(t("Insert", "Insertar"));
+    openMenu("Insert");
     const search = element("input", "block-search");
     search.type = "search";
-    search.placeholder = t("Search blocks…", "Buscar bloques…");
-    search.setAttribute("aria-label", t("Search blocks", "Buscar bloques"));
+    search.placeholder = "Search blocks…";
+    search.setAttribute("aria-label", "Search blocks");
     const list = element("div", "block-command-list");
-    const empty = element("p", "block-no-results", t("No matching blocks", "No se encontraron bloques"));
+    const empty = element("p", "block-no-results", "No matching blocks");
     empty.hidden = true;
     const anchorBlock = blockAt(source(), selection.from);
     const coversVerbatim = !range && VERBATIM_BLOCK.test(anchorBlock.type)
@@ -589,7 +587,7 @@ export function createBlockEditor(options) {
     slash.replaceChildren();
     const { items, index } = slashState;
     if (!items.length) {
-      slash.append(element("p", "block-no-results", t("No matching blocks · Esc to close", "Sin resultados · Esc para cerrar")));
+      slash.append(element("p", "block-no-results", "No matching blocks · Esc to close"));
     }
     let group = "";
     items.forEach((command, position) => {
@@ -692,16 +690,16 @@ export function createBlockEditor(options) {
   function openBlockMenu(focusAction = "") {
     const block = currentBlock();
     if (block.type === "Empty") { openInsert(); return; }
-    openMenu(t("Block", "Bloque"), block.from);
+    openMenu("Block", block.from);
     const text = source().slice(block.from, block.to);
     const image = imageParts(text);
     if (block.type === "FencedCode") {
       const match = text.match(/^([`~]{3,})([^\n\r]*)/);
       if (match) {
-        const label = element("label", "block-field", t("Code language", "Lenguaje del código"));
+        const label = element("label", "block-field", "Code language");
         const select = element("select");
         for (const name of [...new Set([match[2], "python", "javascript", "typescript", "sql", "bash", "json", "yaml", "rust", "go", "mermaid", "interactive", ""])]) {
-          const option = element("option", "", name || t("Plain text", "Texto"));
+          const option = element("option", "", name || "Plain text");
           option.value = name; select.append(option);
         }
         select.value = match[2];
@@ -712,23 +710,23 @@ export function createBlockEditor(options) {
       }
     }
     if (image) {
-      content.append(button(t("Edit image", "Editar imagen"), photoIcon, () => openImage(block, image), true));
-      content.append(button(t("Replace image", "Reemplazar imagen"), photoIcon, () => {
+      content.append(button("Edit image", photoIcon, () => openImage(block, image), true));
+      content.append(button("Replace image", photoIcon, () => {
         pendingUpload = { from: block.from, to: block.to }; closeMenu(); onUpload();
       }, true));
     }
     if (/^(Paragraph|ATXHeading\d|SetextHeading\d|Blockquote|BulletList|OrderedList)$/.test(block.type) && !image && !/^\[\^/.test(text)) {
       const current = blockType(block);
-      const title = element("p", "block-field-label", t("Turn into", "Convertir en"));
+      const title = element("p", "block-field-label", "Turn into");
       const row = element("div", "block-convert");
       row.setAttribute("role", "group");
-      row.setAttribute("aria-label", t("Turn into", "Convertir en"));
+      row.setAttribute("aria-label", "Turn into");
       const types = [
-        ["paragraph", t("Paragraph", "Párrafo"), pilcrowIcon],
-        ["heading", t("Heading", "Encabezado"), headingIcon],
-        ["quote", t("Quote", "Cita"), quoteIcon],
-        ["list", t("Bulleted list", "Lista con viñetas"), listIcon],
-        ["ordered", t("Numbered list", "Lista numerada"), listNumbersIcon],
+        ["paragraph", "Paragraph", pilcrowIcon],
+        ["heading", "Heading", headingIcon],
+        ["quote", "Quote", quoteIcon],
+        ["list", "Bulleted list", listIcon],
+        ["ordered", "Numbered list", listNumbersIcon],
       ];
       for (const [value, label, icon] of types) {
         const choice = button(label, icon, () => {
@@ -744,23 +742,23 @@ export function createBlockEditor(options) {
       }
       content.append(title, row);
     }
-    content.append(button(t("Preview block", "Vista previa del bloque"), eyeIcon, () => { closeMenu(); onPreview(text); }, true));
-    content.append(button(t("Insert after", "Insertar después"), plusIcon, () => {
+    content.append(button("Preview block", eyeIcon, () => { closeMenu(); onPreview(text); }, true));
+    content.append(button("Insert after", plusIcon, () => {
       closeMenu(); change(block.to, block.to, "\n\n"); openInsert();
     }, true));
-    content.append(button(t("Duplicate", "Duplicar"), copyIcon, () => {
+    content.append(button("Duplicate", copyIcon, () => {
       closeMenu();
       const start = block.to + 2;
       change(block.to, block.to, "\n\n" + text, undefined, undefined, { flash: [start, start + text.length] });
     }, true));
-    for (const [direction, label, icon, name] of [[-1, t("Move up", "Mover arriba"), upIcon, "up"], [1, t("Move down", "Mover abajo"), moveDownIcon, "down"]]) {
+    for (const [direction, label, icon, name] of [[-1, "Move up", upIcon, "up"], [1, "Move down", moveDownIcon, "down"]]) {
       const action = button(label, icon, () => moveCurrent(direction, true), true);
       action.dataset.action = name;
       action.disabled = !block.blocks[block.index + direction];
       action.title = label + (direction < 0 ? " (Alt+↑)" : " (Alt+↓)");
       content.append(action);
     }
-    const remove = button(t("Delete block", "Eliminar bloque"), trashIcon, () => {
+    const remove = button("Delete block", trashIcon, () => {
       closeMenu(); change(block.from, block.blocks[block.index + 1]?.from ?? block.to, "");
     }, true);
     remove.classList.add("block-delete"); content.append(remove);
@@ -770,14 +768,14 @@ export function createBlockEditor(options) {
   }
 
   function openImage(block, image) {
-    openMenu(t("Image", "Imagen"), block.from);
+    openMenu("Image", block.from);
     const inputs = {};
-    for (const [key, title] of [["src", t("Image URL", "URL de la imagen")], ["alt", t("Alternative text", "Texto alternativo")], ["caption", t("Caption", "Pie de imagen")]]) {
+    for (const [key, title] of [["src", "Image URL"], ["alt", "Alternative text"], ["caption", "Caption"]]) {
       const label = element("label", "block-field", title);
       const input = element("input"); input.value = image[key]; input.type = "text";
       label.append(input); content.append(label); inputs[key] = input;
     }
-    const apply = button(t("Apply", "Aplicar"), photoIcon, () => {
+    const apply = button("Apply", photoIcon, () => {
       const src = inputs.src.value.trim().replace(/[<>\n\r]/g, "");
       if (!src) { inputs.src.focus(); return; }
       const alt = inputs.alt.value.replace(/[\[\]\n\r]/g, "");

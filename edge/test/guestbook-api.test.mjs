@@ -75,7 +75,7 @@ test("renders the postcard wall with a shielded form", async () => {
 
   assert.match(css, /\.guestbook-card \{/);
   assert.match(css, /\.guestbook-honeypot \{/);
-  assert.match(view, /\["Visitas", "\/es\/visitas\/", "visitas"\]/);
+  assert.doesNotMatch(view, /\/es\/visitas\//);
   assert.match(view, /\["Guestbook", "\/guestbook\/", "guestbook"\]/);
   assert.match(view, /"guestbook", "not-found"/);
   assert.match(lib, /return "guestbook"/);

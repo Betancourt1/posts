@@ -67,7 +67,7 @@ test("renders taxonomy summaries", () => {
   assert.doesNotMatch(automatic, /outside the summary/);
 });
 
-test("derives localized routes, content kinds, and visibility", () => {
+test("derives historical routes, content kinds, and visibility", () => {
   const hidden = projectSource({
     path: "content_es/posts/2026/julio/no_post_secret.md",
     blobSha: "abc123",
@@ -78,11 +78,11 @@ test("derives localized routes, content kinds, and visibility", () => {
 
   assert.equal(hidden.source.blobSha, "abc123");
   assert.equal(document.documentKey, "content_es/posts/2026/julio/no_post_secret.md::es");
-  assert.equal(document.lang, "es");
+  assert.equal(document.storageBucket, "es");
   assert.equal(document.kind, "page");
   assert.equal(document.section, "posts");
   assert.equal(
-    document.translationKey,
+    document.catalogKey,
     "source:posts/2026/julio/no_post_secret.md",
   );
   assert.equal(document.hidden, true);
@@ -119,7 +119,7 @@ test("preserves nested photo metadata from a real source", async () => {
   assert.equal(document.searchable, true);
 });
 
-test("keeps stable translation keys for legacy guestbook routes", async () => {
+test("keeps stable catalog keys for legacy guestbook routes", async () => {
   const guestbookSources = [
     "content_en/guestbook/_index.md",
     "content_es/visitas/_index.md",
@@ -129,8 +129,8 @@ test("keeps stable translation keys for legacy guestbook routes", async () => {
       path: relativePath,
       rawMarkdown: await fixture(relativePath),
     }).documents[0]));
-  assert.equal(guestbooks[0].translationKey, "guestbook");
-  assert.equal(guestbooks[1].translationKey, "guestbook");
+  assert.equal(guestbooks[0].catalogKey, "guestbook");
+  assert.equal(guestbooks[1].catalogKey, "guestbook");
 });
 
 test("localizes aliases and extracts links from Marked tokens", async () => {
@@ -217,7 +217,7 @@ test("projects the bilingual thesis under Projects while redirecting old Academi
     ],
   ]) {
     assert.equal(document.section, "proyectos-profesionales");
-    assert.equal(document.translationKey, "source:proyectos-profesionales/tesis.md");
+    assert.equal(document.catalogKey, "source:proyectos-profesionales/tesis.md");
     assert.equal(document.frontMatter.short_title, shortTitle);
     assert.match(document.summary, summaryPattern);
     assert.deepEqual(document.routes, [
@@ -392,41 +392,23 @@ test("preserves valid Markdown entities in body and sidenote tones", () => {
   assert.doesNotMatch(rendered.bodyHtml, /&amp;amp;/);
 });
 
-test("generates the canonical English book as a matching Spanish document", async () => {
+test("keeps historical book links with one authored document", async () => {
   const relativePath = "content_en/books/nada-que-temer.md";
-  const projected = projectSource({
-    path: relativePath,
-    rawMarkdown: await fixture(relativePath),
-  });
-
-  assert.equal(projected.documents.length, 2);
-  const [english, spanish] = projected.documents;
-  assert.equal(english.routes[0].path, "/books/nada-que-temer/");
-  assert.equal(english.generated, false);
-  assert.equal(spanish.documentKey, `${relativePath}::es`);
-  assert.equal(spanish.routes[0].path, "/es/libros/nada-que-temer/");
-  assert.equal(spanish.section, "libros");
-  assert.equal(spanish.generated, true);
-  assert.equal(spanish.summary, "De Julian Barnes · Leído · 5/5");
-  assert.deepEqual(spanish.tags, [
-    "book",
-    "read",
-    "essays",
-    "death",
-    "religion",
-    "memory",
-    "family",
+  const rawMarkdown = await fixture(relativePath);
+  const projected = projectSource({ path: relativePath, rawMarkdown });
+  assert.equal(projected.documents.length, 1);
+  const [book] = projected.documents;
+  assert.equal(book.documentKey, `${relativePath}::en`);
+  assert.deepEqual(book.routes, [
+    { path: "/books/nada-que-temer/", kind: "canonical" },
+    { path: "/es/libros/nada-que-temer/", kind: "alias" },
   ]);
-  assert.equal(spanish.frontMatter.source_path, relativePath);
-  assert.equal(spanish.frontMatter.source_body, english.bodyMarkdown);
-  assert.match(spanish.bodyMarkdown, /\*\*Autor:\*\* Julian Barnes/);
-  assert.match(spanish.bodyMarkdown, /## Mi reseña/);
-  assert.deepEqual(spanish.links.at(-1), {
-    href: "https://www.goodreads.com/book/show/8994891",
-    label: "Ver en Goodreads",
-    targetPath: null,
-    external: true,
-  });
+  assert.match(book.bodyMarkdown, /\*\*Author:\*\* Julian Barnes/);
+  assert.match(book.bodyMarkdown, /## My review/);
+
+  const newBook = projectSource({ path: "content/books/new-book.md", rawMarkdown });
+  assert.equal(newBook.documents.length, 1);
+  assert.deepEqual(newBook.documents[0].routes, [{ path: "/books/new-book/", kind: "canonical" }]);
 });
 
 test("projects the complete repository with the migration count contract", async () => {

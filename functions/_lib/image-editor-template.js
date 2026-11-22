@@ -2038,7 +2038,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
           if (frontMatter.arena_channel_id) {
             var configuredChannel = document.createElement("option");
             configuredChannel.value = String(frontMatter.arena_channel_id);
-            configuredChannel.textContent = "Canal configurado";
+            configuredChannel.textContent = "Configured channel";
             els.arenaChannel.appendChild(configuredChannel);
             els.arenaChannel.value = String(frontMatter.arena_channel_id);
           }

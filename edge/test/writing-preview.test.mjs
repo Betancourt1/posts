@@ -18,7 +18,8 @@ test("unsaved preview shares math, code, diagram and media rendering without sto
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("cache-control"), "no-store");
   const { html, bodyHtml } = await response.json();
-  assert.match(html, /lang="es" data-theme="light"/);
+  assert.match(html, /lang="en" data-theme="light"/);
+  assert.doesNotMatch(html, /En este artículo/);
   assert.equal(typeof bodyHtml, "string");
   assert.ok(html.includes(bodyHtml), "the HTML view shows exactly the rendered article body");
   assert.match(bodyHtml, /class="katex"/);

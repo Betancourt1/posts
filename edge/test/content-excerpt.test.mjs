@@ -11,8 +11,8 @@ test("list excerpts prefer summaries, remove a repeated title, and end at a word
   assert.match(excerpt, /(?:A|readable|excerpt\.)…$/);
 });
 
-test("book excerpts use reader-facing metadata instead of catalog fields in either locale", () => {
-  for (const [lang, expected] of [["en", "Ada · Now reading"], ["es", "Ada · Leyendo ahora"]]) {
-    assert.equal(contentExcerpt({ section: "books", lang, frontMatter: { book_author: "Ada", book_status: "currently-reading" }, bodyText: "ISBN: 123 Pages: 300" }), expected);
+test("book excerpts use reader-facing metadata instead of catalog fields regardless of source route", () => {
+  for (const section of ["books", "libros"]) {
+    assert.equal(contentExcerpt({ section, frontMatter: { book_author: "Ada", book_status: "currently-reading" }, bodyText: "ISBN: 123 Pages: 300" }), "Ada · Now reading");
   }
 });

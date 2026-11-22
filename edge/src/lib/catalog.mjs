@@ -1,3 +1,11 @@
+export function catalogOrder(alias) {
+  return `${alias}.generated, EXISTS (
+    SELECT 1 FROM routes
+    WHERE routes.document_id = ${alias}.id
+      AND routes.kind = 'canonical' AND routes.path GLOB '/es/*'
+  ), ${alias}.id`;
+}
+
 export function catalogEntry(alias = "d") {
   return `NOT EXISTS (
     SELECT 1 FROM documents AS preferred
@@ -5,7 +13,6 @@ export function catalogEntry(alias = "d") {
       AND preferred.kind = ${alias}.kind
       AND preferred.draft = ${alias}.draft
       AND preferred.hidden = ${alias}.hidden
-      AND (preferred.generated, preferred.lang, preferred.id)
-        < (${alias}.generated, ${alias}.lang, ${alias}.id)
+      AND (${catalogOrder("preferred")}) < (${catalogOrder(alias)})
   )`;
 }

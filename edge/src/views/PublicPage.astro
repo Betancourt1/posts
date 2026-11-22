@@ -26,7 +26,6 @@ interface Props {
 }
 
 const { model, authorMode = false } = Astro.props;
-const lang = model.lang === "es" ? "es" : "en";
 const page = model.page || {};
 const frontMatter = page.frontMatter || {};
 
@@ -91,19 +90,7 @@ function taxonomyItem(document: any) {
 
 function navigationItems(sections: any[]) {
   const visiblePaths = new Set(sections.map((section) => section.path));
-  const preferred = lang === "es"
-    ? [
-        ["Inicio", "/es/", ""],
-        ["Sobre mí", "/es/about/", "about"],
-        ["Proyectos", "/es/proyectos-profesionales/", "proyectos-profesionales"],
-        ["Blog", "/es/posts/", "posts"],
-        ["Zettelkasten", "/es/zettelkasten/", "zettelkasten"],
-        ["Citas", "/es/lit/", "lit"],
-        ["Fotografía", "/es/fotografia/", "fotografia"],
-        ["Libros", "/es/libros/", "libros"],
-        ["Visitas", "/es/visitas/", "visitas"],
-      ]
-    : [
+  const preferred = [
         ["Home", "/", ""],
         ["About", "/about/", "about"],
         ["Projects", "/proyectos-profesionales/", "proyectos-profesionales"],
@@ -180,14 +167,13 @@ const recentItems = (model.recentItems || []).map((document: any) => ({
   ...listItem(document),
   summary: document.summary || document.description || document.bodyText?.slice(0, 220),
 }));
-const title = model.title || (lang === "es" ? "Sin título" : "Untitled");
+const title = model.title || ("Untitled");
 const description = model.description || undefined;
 const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").includes('class="sidenote-endnotes"');
 ---
 
 <SiteLayout
   page={shellPage}
-  lang={lang}
   currentPath={contentHref(model.path)}
   activeSection={page.section === "posts" && frontMatter.technical === true ? "proyectos-profesionales" : page.section}
   navigation={navigation}
@@ -200,17 +186,17 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
   showSidebar={model.layout === "cv-links" ? false : undefined}
   showSearch
 >
-  {authorMode && model.layout === "cv-links" && <CvLinks lang={lang} />}
+  {authorMode && model.layout === "cv-links" && <CvLinks />}
   {model.layout === "home" && (
     <>
       {page.bodyHtml && <section class="post-body" set:html={removeLegacyLinkSpacing(page.bodyHtml)}></section>}
       {items.length > 0 && (
         <section class="home-section home-feed">
           <div class="home-section-head">
-            <h2>{lang === "es" ? "Para leer" : "Selected writing"}</h2>
+            <h2>Selected writing</h2>
             <span class="sidebar-more">
-              <a href={contentHref(lang === "es" ? "/es/posts/" : "/posts/")}>
-                {lang === "es" ? "Todos los escritos →" : "All writing →"}
+              <a href={contentHref("/posts/")}>
+                All writing →
               </a>
             </span>
           </div>
@@ -234,27 +220,27 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
                         height={item.height}
                       />
                       {(item.imageCount || 0) > 1 && (
-                        <span class="photo-card-count">{item.imageCount} {lang === "es" ? "imágenes" : "images"}</span>
+                        <span class="photo-card-count">{item.imageCount} images</span>
                       )}
                     </a>
                   )}
                   <h2><a href={item.href}>{item.title}</a></h2>
                   {item.summary && <p class="post-summary">{item.summary}</p>}
-                  {item.tags.length > 0 && <TagList tags={item.tags} lang={lang} />}
+                  {item.tags.length > 0 && <TagList tags={item.tags} />}
                 </article>
               );
             })}
           </div>
         </section>
       )}
-      <KnowledgeGraph data={shellPage.graphData || emptyGraph} lang={lang} variant="home" />
+      <KnowledgeGraph data={shellPage.graphData || emptyGraph} variant="home" />
       {recentItems.length > 0 && (
         <section class="home-section home-feed">
           <div class="home-section-head">
-            <h2>{lang === "es" ? "Reciente" : "Recent"}</h2>
+            <h2>Recent</h2>
             <span class="sidebar-more">
-              <a href={contentHref(lang === "es" ? "/es/archives/" : "/archives/")}>
-                {lang === "es" ? "Todos los archivos →" : "All archives →"}
+              <a href={contentHref("/archives/")}>
+                All archives →
               </a>
             </span>
           </div>
@@ -283,13 +269,13 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
                         height={item.height}
                       />
                       {(item.imageCount || 0) > 1 && (
-                        <span class="photo-card-count">{item.imageCount} {lang === "es" ? "imágenes" : "images"}</span>
+                        <span class="photo-card-count">{item.imageCount} images</span>
                       )}
                     </a>
                   )}
                   <h2><a href={item.href}>{item.title}</a></h2>
                   {item.summary && <p class="post-summary">{item.summary}</p>}
-                  {item.tags.length > 0 && <TagList tags={item.tags} lang={lang} />}
+                  {item.tags.length > 0 && <TagList tags={item.tags} />}
                 </article>
               );
             })}
@@ -300,7 +286,7 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
   )}
 
   {model.layout === "single" && (page.section === "proyectos-profesionales" ? (
-    <ProjectOverview lang={lang} page={page} authorMode={authorMode} bodyHtml={removeLegacyLinkSpacing(page.bodyHtml || "")} />
+    <ProjectOverview page={page} authorMode={authorMode} bodyHtml={removeLegacyLinkSpacing(page.bodyHtml || "")} />
   ) : (
     <Single
       title={title}
@@ -319,7 +305,6 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
       images={photoImages(frontMatter.images)}
       titleInBody={/^\s*#\s+\S/m.test(page.bodyMarkdown || "")}
       authorMode={authorMode}
-      lang={lang}
       backlinks={(model.backlinks || []).map((backlink: any) => ({
         title: backlink.title,
         href: contentHref(backlink.path),
@@ -329,14 +314,13 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
   ))}
 
   {model.layout === "list" && (page.section === "proyectos-profesionales" ? (
-    <ProjectCatalog lang={lang} title={title} description={description} authorMode={authorMode}
+    <ProjectCatalog title={title} description={description} authorMode={authorMode}
       notebook={page.sourcePath.replace(/\/_index\.md$/, "")} projects={model.items} />
   ) : (
     <List
       title={title}
       description={description}
       items={items}
-      lang={lang}
       authorMode={authorMode}
       notebook={page.sourcePath?.replace(/\/_index\.md$/, "")}
       editorial={page.section === "posts" || page.section === "proyectos-profesionales"}
@@ -348,7 +332,6 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
     <Quotes
       title={title}
       description={description}
-      lang={lang}
       authorMode={authorMode}
       notebook={page.sourcePath?.replace(/\/_index\.md$/, "")}
       items={(model.items || []).map((document: any) => ({
@@ -362,7 +345,6 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
     <Books
       title={title}
       description={description}
-      lang={lang}
       authorMode={authorMode}
       books={(model.items || []).map((book: any) => ({
         ...listItem(book),
@@ -381,7 +363,6 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
     <Photography
       title={title}
       description={description}
-      lang={lang}
       authorMode={authorMode}
       photos={(model.items || []).map((photo: any) => {
         const gallery = photoImages(photo.frontMatter?.images);
@@ -404,7 +385,6 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
     <Guestbook
       title={title}
       description={description}
-      lang={lang}
       entries={(model.entries || []).map((entry: any) => ({
         id: entry.id,
         name: entry.name,
@@ -415,12 +395,11 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
     />
   )}
 
-  {model.layout === "archives" && <Archives title={title} items={items} lang={lang} />}
+  {model.layout === "archives" && <Archives title={title} items={items} />}
 
   {model.layout === "tags" && (
     <Tags
       title={title}
-      lang={lang}
       terms={(model.tags || []).map((tag: any) => ({
         label: tag.label,
         slug: tag.slug,
@@ -431,8 +410,8 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
   )}
 
   {model.layout === "tag" && (
-    <List title={title} items={(model.items || []).map(taxonomyItem)} lang={lang} showTags={false} />
+    <List title={title} items={(model.items || []).map(taxonomyItem)} showTags={false} />
   )}
 
-  {model.layout === "not-found" && <NotFound lang={lang} homeHref={contentHref(lang === "es" ? "/es/" : "/")} />}
+  {model.layout === "not-found" && <NotFound homeHref={contentHref("/")} />}
 </SiteLayout>

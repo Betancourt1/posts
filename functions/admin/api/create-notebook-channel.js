@@ -49,13 +49,12 @@ export async function onRequestPost({ env, request }) {
         title: notebook.frontMatter.title || notebookPath.split("/").at(-1),
         description: [
           String(notebook.frontMatter.description || "").trim(),
-          `[Publicado originalmente en el blog](${publicPageUrl(notebook, publicOrigin)})`,
+          `[Originally published on the blog](${publicPageUrl(notebook, publicOrigin)})`,
         ].filter(Boolean).join("\n\n"),
         visibility: "closed",
         metadata: {
           integration: "fbetancourt_blog",
           notebook_path: notebookPath,
-          language: projectionSourcePath(notebook.path).startsWith("content_es/") ? "es" : "en",
         },
       });
       channelId = channel.id;

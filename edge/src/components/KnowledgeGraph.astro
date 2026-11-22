@@ -1,26 +1,15 @@
 ---
 import { safeJson } from "./_utils";
-import type { GraphData, Language } from "./types";
+import type { GraphData } from "./types";
 
 interface Props {
   data: GraphData;
-  lang?: Language;
   variant?: "home" | "sidebar";
 }
 
-const { data, lang = "en", variant = "home" } = Astro.props;
+const { data, variant = "home" } = Astro.props;
 const sidebar = variant === "sidebar";
-const copy = lang === "es"
-  ? {
-      tools: "Controles del grafo de conocimiento",
-      reset: "Restablecer vista",
-      labels: "Mostrar etiquetas",
-      spacing: "Espaciado",
-      search: "Buscar temas",
-      searchPlaceholder: "Buscar un tema…",
-      map: "Mapa interactivo de temas",
-    }
-  : {
+const copy = {
       tools: "Knowledge graph controls",
       reset: "Reset view",
       labels: "Show labels",

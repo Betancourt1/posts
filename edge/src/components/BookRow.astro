@@ -1,21 +1,20 @@
 ---
 import { normalizeBookProgress, plainExcerpt, previewBookCoverUrl } from "./_utils";
-import type { BookItem, Language } from "./types";
+import type { BookItem } from "./types";
 
 interface Props {
   book: BookItem;
-  lang: Language;
   statusLabel: string;
   defaultFilled: number;
   initiallyHidden?: boolean;
 }
 
-const { book, lang, statusLabel, defaultFilled, initiallyHidden = false } = Astro.props;
+const { book, statusLabel, defaultFilled, initiallyHidden = false } = Astro.props;
 const progress = normalizeBookProgress(book.progress);
 const progressLabel = progress !== null
   ? `${progress}%`
   : book.status === "currently-reading"
-    ? (lang === "es" ? "Progreso sin registrar" : "Progress not set")
+    ? ("Progress not set")
     : statusLabel;
 const filledSegments = progress === null ? defaultFilled : Math.floor((progress * 7) / 100);
 const opinion = book.review ? plainExcerpt(book.review) : "";
@@ -51,7 +50,7 @@ const opinion = book.review ? plainExcerpt(book.review) : "";
   {opinion && (
     <div class="book-opinion">
       <div class="book-opinion-heading">
-        <span>{lang === "es" ? "Mi opinión" : "My opinion"}</span>
+        <span>My opinion</span>
         {book.rating != null && <span>{book.rating}/5</span>}
       </div>
       <p>{opinion}</p>

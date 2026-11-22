@@ -18,7 +18,6 @@ import {
   sectionItems,
   tagIndex,
   tagResults,
-  translationPeer,
 } from "./content-queries.mjs";
 
 const TAG_ROUTE = /^\/tags(?:\/([^/]+))?\/$/u;
@@ -84,7 +83,6 @@ async function syntheticPage(db, route, options = {}) {
     return {
       ...chrome,
       kind: "tags",
-      lang: "en",
       path: route.path,
       title: "Tags",
       tags,
@@ -104,7 +102,6 @@ async function syntheticPage(db, route, options = {}) {
   return {
     ...chrome,
     kind: "tag",
-    lang: "en",
     path: route.path,
     title,
     tag: { label, slug: route.slug },
@@ -125,14 +122,6 @@ export function layoutForDocument(document) {
   return "list";
 }
 
-function equivalentArticle(document, peer) {
-  if (document.generated || document.kind !== "page") return true;
-  if (document.bodyMarkdown !== peer.bodyMarkdown) return false;
-  const { pinned: _pin, ...metadata } = document.frontMatter;
-  const { pinned: _peerPin, ...peerMetadata } = peer.frontMatter;
-  return JSON.stringify(metadata) === JSON.stringify(peerMetadata);
-}
-
 export async function loadPublicPage(db, requestedPath, options = {}) {
   const path = normalizeRoute(requestedPath);
   if (path === "/es/" || path.startsWith("/es/tags/")) return { redirect: path.slice(3) };
@@ -151,13 +140,7 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
       : null);
   if (!document) return null;
 
-  let canonicalPath = sitePathForStoredRoute(document.canonicalPath);
-  if (document.lang === "es" && !document.draft && !document.hidden) {
-    const peer = await translationPeer(db, document.id, { body: true, tags: false });
-    if (peer?.kind === document.kind && equivalentArticle(document, peer)) {
-      canonicalPath = sitePathForStoredRoute(peer.canonicalPath);
-    }
-  }
+  const canonicalPath = sitePathForStoredRoute(document.canonicalPath);
 
   if (path !== canonicalPath) return { redirect: canonicalPath };
 
@@ -200,7 +183,6 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
   return {
     ...chrome,
     kind: document.kind,
-    lang: "en",
     path,
     title: document.title,
     description: document.description || document.summary,
@@ -219,7 +201,6 @@ export async function loadNotFoundPage(db, path) {
   return {
     ...chrome,
     kind: "not-found",
-    lang: "en",
     path: normalizeRoute(path),
     title: "Page not found",
     description: "The page you are looking for does not exist.",

@@ -194,7 +194,6 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 .grayscale-toggle,
 .sound-toggle,
 .snail-toggle,
-.lang-toggle,
 .infra-toggle {
   border: none !important;
   border-radius: 0 !important;
@@ -216,7 +215,6 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
   position: relative;
 }
 
-.site-header-actions .lang-toggle,
 .site-header-actions .typo-toggle {
   font-size: 0.82rem;
   letter-spacing: 0;
@@ -232,7 +230,6 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 .grayscale-toggle:hover,
 .sound-toggle:hover,
 .snail-toggle:hover,
-.lang-toggle:hover,
 .infra-toggle:hover {
   background: transparent !important;
   color: var(--accent) !important;
@@ -245,7 +242,6 @@ html, body, p, li, a, h1, h2, h3, h4, h5, h6, pre, code, table, tr, td, th, bloc
 .grayscale-toggle:active,
 .sound-toggle:active,
 .snail-toggle:active,
-.lang-toggle:active,
 .infra-toggle:active {
   transform: scale(0.96) !important;
   transition: transform 0.12s var(--ease-out) !important;
@@ -4154,7 +4150,6 @@ html.infra-mode .infra-raw-block {
   .grayscale-toggle:hover,
   .sound-toggle:hover,
   .snail-toggle:hover,
-  .lang-toggle:hover,
   .infra-toggle:hover,
   .typo-toggle:hover {
     transform: scale(1.04) !important;
@@ -4203,7 +4198,6 @@ html.infra-mode .infra-raw-block {
   .grayscale-toggle:hover,
   .sound-toggle:hover,
   .snail-toggle:hover,
-  .lang-toggle:hover,
   .infra-toggle:hover,
   .typo-toggle:hover,
   .ssh-terminal-open-btn:hover {
@@ -4261,7 +4255,6 @@ html.infra-mode .infra-raw-block {
   .grayscale-toggle,
   .sound-toggle,
   .snail-toggle,
-  .lang-toggle,
   .infra-toggle,
   .typo-toggle,
   .author-action-button {

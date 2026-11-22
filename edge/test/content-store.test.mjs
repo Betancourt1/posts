@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 
 import { Miniflare } from "miniflare";
 
+import { loadPublicPage } from "../src/lib/public-page.mjs";
 import { projectSource } from "../src/lib/content-projector.mjs";
 import {
   contentStats,
@@ -78,29 +79,29 @@ translationKey: book-data-feminism
     await replaceProjectedSource(db, firstProjection, null);
     await finishProjection(db);
     assert.deepEqual(await contentStats(db), {
-      alias_routes: 0,
-      canonical_routes: 2,
-      documents: 2,
-      searchable: 2,
+      alias_routes: 1,
+      canonical_routes: 1,
+      documents: 1,
+      searchable: 1,
       sources: 1,
     });
 
     const firstIds = await db
       .prepare("SELECT document_key, id FROM documents ORDER BY document_key")
       .all();
-    assert.equal(firstIds.results.length, 2);
+    assert.equal(firstIds.results.length, 1);
     assert.equal(
       await db.prepare("SELECT COUNT(*) AS count FROM tags").first("count"),
-      6,
+      3,
     );
     assert.equal(
       await db.prepare("SELECT COUNT(*) AS count FROM documents_fts WHERE documents_fts MATCH 'ethics'").first("count"),
-      2,
+      1,
     );
 
     const replacement = projectSource({
       path: "content_en/books/data-feminism.md",
-      rawMarkdown: rawMarkdown.replace("[Related]", "Updated [Related]"),
+      rawMarkdown: rawMarkdown.replace("date:", "slug: revised-feminism\ndate:"),
       blobSha: "second-blob",
       commitSha: "second-commit",
       projectorVersion: "1",
@@ -112,6 +113,7 @@ translationKey: book-data-feminism
       .prepare("SELECT document_key, id FROM documents ORDER BY document_key")
       .all();
     assert.deepEqual(secondIds.results, firstIds.results);
+    assert.deepEqual(await loadPublicPage(db, "/es/libros/data-feminism/"), { redirect: "/books/revised-feminism/" });
     assert.equal(
       await db.prepare("SELECT COUNT(*) AS count FROM routes").first("count"),
       2,

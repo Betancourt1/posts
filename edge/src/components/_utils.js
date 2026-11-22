@@ -1,5 +1,4 @@
 /**
- * @typedef {import("./types").Language} Language
  * @typedef {import("./types").TagItem} TagItem
  */
 
@@ -19,9 +18,9 @@ export function tagSlug(tag) {
     .replace(/^-+|-+$/g, "");
 }
 
-export function tagHref(tag, lang) {
+export function tagHref(tag) {
   if (tag.href) return tag.href;
-  return `${lang === "es" ? "/es" : ""}/tags/${tagSlug(tag)}/`;
+  return `/tags/${tagSlug(tag)}/`;
 }
 
 export function safeJson(value) {

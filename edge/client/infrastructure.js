@@ -4,12 +4,6 @@
   var TERMINAL_KEY = "infra_terminal_open";
   var terminal = { cwd: "/", history: [], historyIndex: 0, root: null };
 
-  function language() {
-    return (document.documentElement.lang || (location.pathname.indexOf("/es/") === 0 ? "es" : "en"))
-      .toLowerCase()
-      .split("-")[0];
-  }
-
   function escapeHtml(value) {
     return String(value || "")
       .replace(/&/g, "&amp;")
@@ -75,7 +69,6 @@
     var element = document.getElementById("infra-sitemap");
     var endpoint = element && element.dataset.infrastructureEndpoint || "/api/infrastructure";
     var url = new URL(endpoint, location.origin);
-    url.searchParams.set("lang", language());
     try {
       var response = await fetch(url, { headers: { Accept: "application/json" } });
       if (!response.ok) throw new Error("Infrastructure returned " + response.status);
@@ -241,14 +234,12 @@
       if (!rootPromise) rootPromise = loadRoot();
       terminal.root = await rootPromise;
       if (!terminal.root) {
-        output.textContent = language() === "es"
-          ? "No fue posible cargar el árbol de contenido."
-          : "The content tree could not be loaded.";
+        output.textContent = "The content tree could not be loaded.";
         return false;
       }
 
       var currentPath = document.documentElement.getAttribute("data-infra-path") || "";
-      var section = currentPath.split("/").filter(Boolean).filter(function (part) { return !/^content_/.test(part); })[0];
+      var section = currentPath.split("/").filter(Boolean).filter(function (part) { return !/^content(?:_en|_es)?$/.test(part); })[0];
       if (section && getNode("/" + section)) terminal.cwd = "/" + section;
       append('<div class="term-result term-welcome">betancourt.work — infrastructure mode\nType "help" for available commands.\n</div>');
       updatePrompt();

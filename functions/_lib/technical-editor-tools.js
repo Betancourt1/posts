@@ -333,10 +333,9 @@ export const technicalEditorScript = String.raw`
         var template = INSERT_TEMPLATES[kind];
         if (!template) return "";
         var language = options.language || "python";
-        var pattern = typeof template.pattern === "string" ? template.pattern : template.pattern.en;
-        var content = options.selected || (template.languageSamples && template.languageSamples[language]) || template.sample.en;
+        var content = options.selected || (template.languageSamples && template.languageSamples[language]) || template.sample;
         if (template.json) content = JSON.stringify(content).slice(1, -1);
-        return pattern.replace("%l", function () { return language; }).replace("%s", function () { return content; });
+        return template.pattern.replace("%l", function () { return language; }).replace("%s", function () { return content; });
       }
 
       function previewPayload(body) {

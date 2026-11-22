@@ -5,36 +5,7 @@ import { renderTechnicalCode } from "./technical-markdown.mjs";
 
 import { projectionSourcePath } from "../../../functions/_lib/content-storage.js";
 
-const CONTENT_ROOTS = {
-  content: "en",
-  content_en: "en",
-  content_es: "es",
-};
-
-const BOOK_STATUS_LABELS_ES = {
-  read: "Leído",
-  "currently-reading": "Leyendo",
-  "to-read": "Por leer",
-};
-
-const BOOK_BODY_REPLACEMENTS_ES = [
-  ["**Progress:** not set", "**Progreso:** sin registrar"],
-  ["**Status:** Currently reading", "**Estado:** Leyendo"],
-  ["**Status:** Want to read", "**Estado:** Por leer"],
-  ["**Status:** Read", "**Estado:** Leído"],
-  ["**Additional contributors:**", "**Colaboradores adicionales:**"],
-  ["**Author:**", "**Autor:**"],
-  ["**Progress:**", "**Progreso:**"],
-  ["**My rating:**", "**Mi calificación:**"],
-  ["**Added:**", "**Añadido:**"],
-  ["**Finished:**", "**Terminado:**"],
-  ["**Published:**", "**Publicado:**"],
-  ["**Publisher:**", "**Editorial:**"],
-  ["**Format:**", "**Formato:**"],
-  ["**Pages:**", "**Páginas:**"],
-  ["## My review", "## Mi reseña"],
-  ["[View on Goodreads]", "[Ver en Goodreads]"],
-];
+import { CONTENT_ROOTS, legacySourcePrefix } from "../../../functions/_lib/paths.js";
 
 const marked = new Marked({
   breaks: true,
@@ -266,7 +237,7 @@ export function normalizeContentPath(value) {
 
   if (
     parts.some((part) => !part || part === "." || part === "..") ||
-    !Object.hasOwn(CONTENT_ROOTS, parts[0]) ||
+    !CONTENT_ROOTS.includes(parts[0]) ||
     !sourcePath.endsWith(".md")
   ) {
     throw new TypeError(`Unsupported content path: ${value}`);
@@ -275,7 +246,7 @@ export function normalizeContentPath(value) {
   return sourcePath;
 }
 
-function normalizePagePath(value, lang) {
+function normalizePagePath(value, legacyPrefix = "") {
   let route = String(value ?? "")
     .trim()
     .split(/[?#]/, 1)[0]
@@ -285,8 +256,8 @@ function normalizePagePath(value, lang) {
   if (!route.startsWith("/")) route = `/${route}`;
   route = route.replace(/\/{2,}/g, "/");
 
-  if (lang === "es" && route !== "/es" && !route.startsWith("/es/")) {
-    route = `/es${route}`;
+  if (legacyPrefix && route !== legacyPrefix && !route.startsWith(legacyPrefix + "/")) {
+    route = legacyPrefix + route;
   }
 
   if (route === "/es") route = "/es/";
@@ -302,13 +273,13 @@ function normalizePagePath(value, lang) {
 
 function sourceParts(sourcePath) {
   const normalizedPath = projectionSourcePath(normalizeContentPath(sourcePath));
-  const [root, ...relativeParts] = normalizedPath.split("/");
+  const relativeParts = normalizedPath.split("/").slice(1);
   const filename = relativeParts.at(-1);
   const stem = filename.slice(0, -3);
 
   return {
     sourcePath: normalizedPath,
-    lang: CONTENT_ROOTS[root],
+    legacyPrefix: legacySourcePrefix(normalizedPath),
     relativeParts,
     filename,
     stem,
@@ -319,7 +290,7 @@ export function routeForSource(sourcePath, frontMatter = {}) {
   const parts = sourceParts(sourcePath);
 
   if (typeof frontMatter.url === "string" && frontMatter.url.trim()) {
-    return normalizePagePath(frontMatter.url, parts.lang);
+    return normalizePagePath(frontMatter.url, parts.legacyPrefix);
   }
 
   const routeParts = parts.relativeParts.slice(0, -1);
@@ -331,7 +302,7 @@ export function routeForSource(sourcePath, frontMatter = {}) {
     routeParts.push(slug);
   }
 
-  return normalizePagePath(routeParts.join("/"), parts.lang);
+  return normalizePagePath(routeParts.join("/"), parts.legacyPrefix);
 }
 
 function kindForSource(sourcePath) {
@@ -347,7 +318,7 @@ function sectionForSource(sourcePath) {
   return relativeParts.length > 1 ? relativeParts[0] : null;
 }
 
-function normalizeAliases(value, lang, canonicalPath) {
+function normalizeAliases(value, legacyPrefix, canonicalPath) {
   const aliases = Array.isArray(value) ? value : value == null ? [] : [value];
   const seen = new Set([canonicalPath]);
 
@@ -355,7 +326,7 @@ function normalizeAliases(value, lang, canonicalPath) {
     if (typeof alias !== "string" || !alias.trim()) return [];
     if (/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(alias.trim())) return [];
 
-    const path = normalizePagePath(alias, lang);
+    const path = normalizePagePath(alias, legacyPrefix);
     if (seen.has(path)) return [];
     seen.add(path);
     return [path];
@@ -534,12 +505,11 @@ export function renderMarkdownSummary(markdown, { wordLimit } = {}) {
 
 function createDocument({
   sourcePath,
-  lang,
+  legacyPrefix,
   kind,
   section,
   frontMatter,
   bodyMarkdown,
-  generated,
   canonicalPath,
 }) {
   const draft = frontMatter.draft === true;
@@ -547,22 +517,28 @@ function createDocument({
   const hidden = frontMatter.hidden === true || basename.startsWith("no_post");
   const searchable =
     kind === "page" && !draft && !hidden && frontMatter.search !== false;
-  const aliases = normalizeAliases(frontMatter.aliases, lang, canonicalPath);
+  const aliases = normalizeAliases(frontMatter.aliases, legacyPrefix, canonicalPath);
+  if (isLegacyBook(sourcePath)) {
+    const oldBookPath = normalizePagePath("libros/" + sourceParts(sourcePath).stem, "/es");
+    aliases.push(oldBookPath, ...normalizeAliases(frontMatter.aliases, "/es", oldBookPath));
+  }
   const rendered = renderMarkdown(bodyMarkdown, canonicalPath);
-  const explicitTranslationKey = optionalText(frontMatter.translationKey)?.trim();
-  const implicitTranslationKey = `source:${sourceParts(sourcePath).relativeParts.join("/")}`;
+  const explicitCatalogKey = optionalText(frontMatter.translationKey)?.trim();
+  const implicitCatalogKey = `source:${sourceParts(sourcePath).relativeParts.join("/")}`;
+  // Preserve keys written by the original D1 schema when these sources are edited.
+  const storageBucket = legacyPrefix ? "es" : "en";
 
   return {
-    documentKey: `${sourcePath}::${lang}`,
+    documentKey: `${sourcePath}::${storageBucket}`,
     sourcePath,
-    lang,
+    storageBucket,
     kind,
     section,
     title: optionalText(frontMatter.title),
     date: optionalText(frontMatter.date),
     summary: optionalText(frontMatter.summary),
     description: optionalText(frontMatter.description),
-    translationKey: explicitTranslationKey || implicitTranslationKey,
+    catalogKey: explicitCatalogKey || implicitCatalogKey,
     bodyMarkdown,
     bodyText: rendered.bodyText,
     bodyHtml: rendered.bodyHtml,
@@ -571,40 +547,16 @@ function createDocument({
     hidden,
     searchable,
     tags: normalizeTags(frontMatter.tags),
-    generated,
     routes: [
       { path: canonicalPath, kind: "canonical" },
-      ...aliases.map((path) => ({ path, kind: "alias" })),
+      ...[...new Set(aliases)].filter(path => path !== canonicalPath).map(path => ({ path, kind: "alias" })),
     ],
     links: rendered.links,
   };
 }
 
-function isCanonicalEnglishBook(sourcePath) {
-  return /^content(?:_en)?\/books\/[^/]+\.md$/.test(sourcePath) &&
-    !sourcePath.endsWith("/_index.md");
-}
-
-export function generateSpanishBook(frontMatter, bodyMarkdown) {
-  const translatedBody = BOOK_BODY_REPLACEMENTS_ES.reduce(
-    (body, [from, to]) => body.replaceAll(from, to),
-    bodyMarkdown,
-  );
-  const author = optionalText(frontMatter.book_author) ?? "";
-  const status = BOOK_STATUS_LABELS_ES[frontMatter.book_status] ?? "";
-  let summary = `De ${author} · ${status}`;
-
-  if (frontMatter.rating) summary += ` · ${frontMatter.rating}/5`;
-
-  return {
-    bodyMarkdown: translatedBody,
-    frontMatter: {
-      ...frontMatter,
-      source_body: bodyMarkdown,
-      summary,
-      tags: normalizeTags(frontMatter.tags),
-    },
-  };
+function isLegacyBook(sourcePath) {
+  return /^content_en\/books\/(?!_index\.md$)[^/]+\.md$/.test(sourcePath);
 }
 
 export function projectSource({
@@ -615,40 +567,20 @@ export function projectSource({
   projectorVersion = "1",
 }) {
   const sourcePath = projectionSourcePath(normalizeContentPath(path));
-  const { lang } = sourceParts(sourcePath);
+  const { legacyPrefix } = sourceParts(sourcePath);
   const parsed = parseMarkdown(rawMarkdown);
   const canonicalPath = routeForSource(sourcePath, parsed.frontMatter);
   const documents = [
     createDocument({
       sourcePath,
-      lang,
+      legacyPrefix,
       kind: kindForSource(sourcePath),
       section: sectionForSource(sourcePath),
       frontMatter: parsed.frontMatter,
       bodyMarkdown: parsed.bodyMarkdown,
-      generated: false,
       canonicalPath,
     }),
   ];
-
-  if (isCanonicalEnglishBook(sourcePath)) {
-    const book = generateSpanishBook(parsed.frontMatter, parsed.bodyMarkdown);
-    book.frontMatter.source_path = sourcePath;
-    const stem = sourcePath.split("/").at(-1).slice(0, -3);
-
-    documents.push(
-      createDocument({
-        sourcePath,
-        lang: "es",
-        kind: "page",
-        section: "libros",
-        frontMatter: book.frontMatter,
-        bodyMarkdown: book.bodyMarkdown,
-        generated: true,
-        canonicalPath: normalizePagePath(`libros/${stem}`, "es"),
-      }),
-    );
-  }
 
   return {
     source: {
@@ -656,7 +588,7 @@ export function projectSource({
       blobSha: blobSha == null ? null : String(blobSha),
       commitSha: commitSha == null ? null : String(commitSha),
       projectorVersion: String(projectorVersion),
-      lang,
+      storageBucket: documents[0].storageBucket,
       normalizedMarkdown: parsed.normalizedMarkdown,
       frontMatter: parsed.frontMatter,
       bodyMarkdown: parsed.bodyMarkdown,

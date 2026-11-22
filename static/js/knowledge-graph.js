@@ -72,12 +72,6 @@
     }
   }
 
-  function pageLanguage() {
-    return (document.documentElement.lang || (location.pathname.indexOf("/es/") === 0 ? "es" : "en"))
-      .toLowerCase()
-      .split("-")[0];
-  }
-
   function authorUrl(url) {
     if (
       location.pathname.indexOf("/admin/") !== 0 ||
@@ -99,7 +93,6 @@
     try {
       var endpoint = container.dataset.graphEndpoint || "/api/graph";
       var url = new URL(endpoint, location.origin);
-      url.searchParams.set("lang", pageLanguage());
       url.searchParams.set("format", "posts");
       var response = await fetch(url, { headers: { Accept: "application/json" } });
       if (!response.ok) {

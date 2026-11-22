@@ -9,21 +9,20 @@ function escapeHtml(value) {
 export async function onRequestPost({ request }) {
   try {
     const payload = await readJson(request);
-    if (typeof payload.body !== "string") throw new Error("El contenido debe ser Markdown.");
-    const lang = payload.lang === "es" ? "es" : "en";
+    if (typeof payload.body !== "string") throw new Error("The body must be Markdown.");
     const theme = payload.theme === "light" ? "light" : "dark";
     const origin = new URL(request.url).origin;
     const path = payload.sourcePath
       ? routeForSource(payload.sourcePath, payload.frontMatter || {})
-      : lang === "es" ? "/es/" : "/";
+      : "/";
     const { bodyHtml } = renderMarkdown(payload.body, path);
     const title = escapeHtml(payload.title || "");
     const section = payload.section ?? String(payload.sourcePath || "").split("/")[1];
     const showOutline = section === "posts" && !String(payload.sourcePath || "").endsWith("/_index.md");
     const outline = showOutline ? `<details class="article-outline" data-min-headings="1" data-preview="true" hidden>
-<summary>${lang === "es" ? "En este artículo" : "In this article"}</summary>
-<nav aria-label="${lang === "es" ? "Secciones del artículo" : "Article sections"}"><ol></ol></nav></details>` : "";
-    const html = `<!doctype html><html lang="${lang}" data-theme="${theme}"><head>
+<summary>In this article</summary>
+<nav aria-label="Article sections"><ol></ol></nav></details>` : "";
+    const html = `<!doctype html><html lang="en" data-theme="${theme}"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <base href="${escapeHtml(new URL(path, origin).href)}"><title>${title}</title>
 <link rel="stylesheet" href="${origin}/css/site.css">

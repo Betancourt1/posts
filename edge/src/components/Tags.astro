@@ -1,18 +1,17 @@
 ---
 import TagList from "./TagList.astro";
-import type { Language, TagItem } from "./types";
+import type { TagItem } from "./types";
 
 interface Props {
   title: string;
   terms: TagItem[];
-  lang?: Language;
 }
 
-const { title, terms, lang = "en" } = Astro.props;
+const { title, terms } = Astro.props;
 const visibleTerms = terms
   .filter((term) => term.count === undefined || term.count > 0)
-  .sort((left, right) => left.label.localeCompare(right.label, lang));
+  .sort((left, right) => left.label.localeCompare(right.label, "en"));
 ---
 
 <header class="page-header"><h1>{title}</h1></header>
-<TagList tags={visibleTerms} lang={lang} cloud />
+<TagList tags={visibleTerms} cloud />

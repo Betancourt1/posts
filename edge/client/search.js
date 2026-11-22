@@ -4,35 +4,16 @@
   var activeRequest = null;
   var debounceTimer = null;
 
-  function pageLanguage() {
-    return (document.documentElement.lang || (location.pathname.indexOf("/es/") === 0 ? "es" : "en"))
-      .toLowerCase()
-      .split("-")[0];
-  }
-
-  function copyFor(lang) {
-    return lang === "es"
-      ? {
-          placeholder: "Buscar en el sitio…",
-          label: "Buscar",
-          idle: "Escribe para buscar.",
-          searching: "Buscando…",
-          empty: "No se encontraron resultados.",
-          one: "1 resultado",
-          many: " resultados",
-          error: "No fue posible cargar la búsqueda.",
-        }
-      : {
-          placeholder: "Search the site…",
-          label: "Search",
-          idle: "Type to search.",
-          searching: "Searching…",
-          empty: "No results found.",
-          one: "1 result",
-          many: " results",
-          error: "Search could not be loaded.",
-        };
-  }
+  var copy = {
+    placeholder: "Search the site…",
+    label: "Search",
+    idle: "Type to search.",
+    searching: "Searching…",
+    empty: "No results found.",
+    one: "1 result",
+    many: " results",
+    error: "Search could not be loaded.",
+  };
 
   function resultList(payload) {
     if (Array.isArray(payload)) return payload;
@@ -99,9 +80,7 @@
       link.href = url;
       link.textContent = title;
       heading.appendChild(link);
-      var labels = pageLanguage() === "es"
-        ? { posts: "Post", essay: "Ensayo", technical: "Técnico", books: "Libro", libros: "Libro", lit: "Cita", fotografia: "Foto", section: "Sección", "proyectos-profesionales": "Proyectos", zettelkasten: "Nota" }
-        : { posts: "Post", essay: "Essay", technical: "Technical", books: "Book", libros: "Book", lit: "Quote", fotografia: "Photo", section: "Section", "proyectos-profesionales": "Projects", zettelkasten: "Note" };
+      var labels = { posts: "Post", essay: "Essay", technical: "Technical", books: "Book", libros: "Book", lit: "Quote", fotografia: "Photo", section: "Section", "proyectos-profesionales": "Projects", zettelkasten: "Note" };
       var type = labels[result.type || result.section];
       if (type) {
         var badge = document.createElement("span");
@@ -122,7 +101,7 @@
     });
   }
 
-  async function search(root, view, query, lang, copy) {
+  async function search(root, view, query, copy) {
     if (activeRequest) activeRequest.abort();
     activeRequest = new AbortController();
     view.message.textContent = copy.searching;
@@ -131,7 +110,6 @@
     var endpoint = root.dataset.searchEndpoint || "/api/search";
     var url = new URL(endpoint, location.origin);
     url.searchParams.set("q", query);
-    url.searchParams.set("lang", lang);
     url.searchParams.set("limit", "20");
 
     try {
@@ -192,8 +170,6 @@
     var root = document.getElementById("search");
     if (!root) return;
 
-    var lang = pageLanguage();
-    var copy = copyFor(lang);
     var view = searchView(root);
     if (!view.form || !view.input || !view.drawer || !view.message || !view.results) return;
     setupKeyboard(root, view, copy);
@@ -204,7 +180,7 @@
       var query = view.input.value.trim();
       if (!query) return clearSearch(view, copy);
       setResultsOpen(view, true);
-      search(root, view, query, lang, copy);
+      search(root, view, query, copy);
     });
     view.input.addEventListener("input", function () {
       window.clearTimeout(debounceTimer);
@@ -218,7 +194,7 @@
       view.message.textContent = copy.searching;
       setResultsOpen(view, true);
       debounceTimer = window.setTimeout(function () {
-        search(root, view, query, lang, copy);
+        search(root, view, query, copy);
       }, 160);
     });
     view.input.addEventListener("focus", function () {

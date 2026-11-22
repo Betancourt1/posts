@@ -28,12 +28,11 @@
       if (!copy || typeof HTMLDialogElement === "undefined") return;
 
       if (!noteDialog) {
-        var spanish = document.documentElement.lang.startsWith("es");
         noteDialog = document.createElement("dialog");
         noteDialog.className = "sidenote-dialog";
         noteDialog.setAttribute("aria-labelledby", "sidenote-dialog-title");
         noteDialog.innerHTML = '<div class="sidenote-dialog-header"><h2 id="sidenote-dialog-title"></h2>' +
-          '<button type="button" autofocus>' + (spanish ? "Cerrar" : "Close") + '</button></div>' +
+          '<button type="button" autofocus>' + "Close" + '</button></div>' +
           '<div class="sidenote-dialog-copy"></div>';
         document.body.append(noteDialog);
         noteDialog.querySelector("button").addEventListener("click", closeNote);
@@ -51,7 +50,7 @@
       event.preventDefault();
       noteTrigger = reference;
       noteDialog.querySelector("h2").textContent =
-        (document.documentElement.lang.startsWith("es") ? "Nota " : "Note ") +
+        "Note " +
         note.getAttribute("data-sidenote-number").padStart(2, "0");
       var dialogCopy = noteDialog.querySelector(".sidenote-dialog-copy");
       dialogCopy.replaceChildren(...copy.cloneNode(true).childNodes);

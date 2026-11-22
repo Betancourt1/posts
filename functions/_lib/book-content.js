@@ -31,10 +31,6 @@ function normalizeTags(tags, status) {
   return ["book", status, ...thematicTags].filter(Boolean);
 }
 
-function bookSlug(path) {
-  return String(path).split("/").pop().replace(/\.md$/, "");
-}
-
 export function normalizeBookFrontMatter(path, frontMatter, body) {
   if (!isBookContentPath(path)) return frontMatter;
 
@@ -103,7 +99,6 @@ export function normalizeBookFrontMatter(path, frontMatter, body) {
 
   frontMatter.summary = summaryParts.filter(Boolean).join(" · ");
   frontMatter.tags = normalizeTags(frontMatter.tags, frontMatter.book_status);
-  frontMatter.translationKey ||= `book-${bookSlug(path)}`;
 
   return frontMatter;
 }

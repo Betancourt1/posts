@@ -189,7 +189,7 @@ function validateQuotes(file, quotes, blocks) {
 const files = (await readdir(quotesRoot))
   .filter((file) => {
     const path = `content/lit/${file}`;
-    return file.endsWith(".md") && !isNotebookIndex(path) && projectionSourcePath(path).startsWith("content_es/");
+    return file.endsWith(".md") && !isNotebookIndex(path);
   })
   .sort();
 

@@ -1,16 +1,13 @@
 ---
-import type { Language } from "./types";
 
 interface Props {
   sourcePath?: string | null;
-  lang?: Language;
   kind?: string;
   section?: string;
 }
 
 const {
   sourcePath = "",
-  lang = "en",
   kind = "",
   section = "",
 } = Astro.props;
@@ -21,7 +18,6 @@ const {
   id="author-tools"
   data-api="/admin"
   data-source-path={sourcePath}
-  data-lang={lang}
   data-kind={kind}
   data-section={section}
 >
@@ -30,7 +26,7 @@ const {
     <div class="author-dialog" role="dialog" aria-modal="true" aria-labelledby="author-modal-title">
       <div class="author-dialog-header">
         <h2 id="author-modal-title">Author</h2>
-        <button class="author-close" id="author-close" type="button" aria-label="Cerrar">&times;</button>
+        <button class="author-close" id="author-close" type="button" aria-label="Close">&times;</button>
       </div>
       <div id="author-modal-body"></div>
     </div>

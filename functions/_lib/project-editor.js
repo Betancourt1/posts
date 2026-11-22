@@ -1,10 +1,7 @@
 import { projectStatuses, projectTypes } from "./project-links.js";
 
 // Section headings for a new case study. The page title is already the h1, so these start at h2.
-export const projectCaseSkeleton = {
-  en: "## Problem\n\n## What I built\n\n## Outcome\n\n## How it works\n",
-  es: "## Problema\n\n## Qué construí\n\n## Resultado\n\n## Cómo funciona\n",
-};
+export const projectCaseSkeleton = "## Problem\n\n## What I built\n\n## Outcome\n\n## How it works\n";
 
 export const projectEditorMarkup = `
 <section id="project-editor" aria-label="Project" hidden>
@@ -14,7 +11,7 @@ export const projectEditorMarkup = `
       <label>Project status
         <select id="project-status">
           <option value="">No status</option>
-          ${Object.entries(projectStatuses).map(([status, names]) => `<option value="${status}">${names[1]}</option>`).join("")}
+          ${Object.entries(projectStatuses).map(([status, names]) => `<option value="${status}">${names}</option>`).join("")}
         </select>
       </label>
       <label>Role <input id="project-role" placeholder="Design and development" autocomplete="off"></label>
@@ -51,7 +48,7 @@ export const projectEditorMarkup = `
   <template id="project-row">
     <fieldset>
       <legend>Resource</legend>
-      <select aria-label="Type">${Object.entries(projectTypes).map(([type, names]) => `<option value="${type}">${names[1]}</option>`).join("")}</select>
+      <select aria-label="Type">${Object.entries(projectTypes).map(([type, names]) => `<option value="${type}">${names}</option>`).join("")}</select>
       <input aria-label="Link text" placeholder="Link text" autocomplete="off">
       <input aria-label="Destination" placeholder="https://… or /path/" autocomplete="off">
       <div class="project-row-actions">
@@ -118,7 +115,7 @@ export const projectEditorScript = "var PROJECT_STATUSES = " + JSON.stringify(pr
   "var PROJECT_CASE_SKELETON = " + JSON.stringify(projectCaseSkeleton) + ";\n" +
   String.raw`
 // hooks: { title(), summary(), tags(), bodyEmpty(), insert(markdown) } read the surrounding editor.
-function bindProjectEditor(onEdit, request, language, hooks) {
+function bindProjectEditor(onEdit, request, hooks) {
   const MAX_RESULTS = 4;
   const panel = document.querySelector("#project-editor");
   const rows = panel.querySelector("#project-rows");
@@ -132,16 +129,14 @@ function bindProjectEditor(onEdit, request, language, hooks) {
   const previewNote = panel.querySelector("#project-preview-note");
   const field = (name) => panel.querySelector("#project-" + name);
   const labelHints = {
-    demo: ["View the demo", "Ver la demo"],
-    code: ["Browse the repository", "Explorar el repositorio"],
-    writing: ["Read more", "Leer más"],
-    data: ["Explore the data", "Consultar los datos"],
+    demo: "View the demo",
+    code: "Browse the repository",
+    writing: "Read more",
+    data: "Explore the data",
   };
   let lastPreview = "";
   let lastEmpty = null;
 
-  const spanish = () => language() === "es";
-  const say = (es, en) => (spanish() ? es : en);
   const plain = (value) => (typeof value === "string" || typeof value === "number" ? String(value) : "");
   const known = (map, key) => Object.prototype.hasOwnProperty.call(map, key);
 
@@ -168,13 +163,13 @@ function bindProjectEditor(onEdit, request, language, hooks) {
 
   function refreshRow(row) {
     const type = row.querySelector("select").value;
-    if (known(labelHints, type)) row.querySelectorAll("input")[0].placeholder = labelHints[type][Number(spanish())];
+    if (known(labelHints, type)) row.querySelectorAll("input")[0].placeholder = labelHints[type];
   }
 
   function renumber() {
-    Array.from(rows.children).forEach((row, index) => { row.querySelector("legend").textContent = "Recurso " + (index + 1); });
+    Array.from(rows.children).forEach((row, index) => { row.querySelector("legend").textContent = "Resource " + (index + 1); });
     Array.from(highlightList.children).forEach((row, index) => {
-      row.querySelector("input").setAttribute("aria-label", "Resultado " + (index + 1));
+      row.querySelector("input").setAttribute("aria-label", "Result " + (index + 1));
     });
     highlightAdd.disabled = highlightList.children.length >= MAX_RESULTS;
   }
@@ -241,11 +236,11 @@ function bindProjectEditor(onEdit, request, language, hooks) {
     const links = fields.project_links.filter(validLink);
     const card = element("div", fields.featured ? "pv-card" : "pv-card is-compact");
 
-    if (state) card.append(element("span", "pv-badge pv-" + state, PROJECT_STATUSES[state][Number(spanish())]));
-    card.append(element("div", "pv-title", title || say("Untitled", "Untitled")));
+    if (state) card.append(element("span", "pv-badge pv-" + state, PROJECT_STATUSES[state]));
+    card.append(element("div", "pv-title", title || "Untitled"));
     const facts = [fields.role, fields.period, fields.org].filter(Boolean).join(" · ");
     if (facts) card.append(element("div", "pv-meta", facts));
-    card.append(element("div", summary ? "pv-blurb" : "pv-blurb pv-missing", summary || say("Sin resumen", "No summary")));
+    card.append(element("div", summary ? "pv-blurb" : "pv-blurb pv-missing", summary || "No summary"));
     if (fields.featured && fields.highlights.length) {
       const list = element("ul", "pv-highlights");
       fields.highlights.slice(0, 3).forEach((item) => list.append(element("li", "", item)));
@@ -260,7 +255,7 @@ function bindProjectEditor(onEdit, request, language, hooks) {
     }
     const actions = element("div", "pv-actions");
     if (links[0]) actions.append(element("span", "", links[0].label + " ↗"));
-    actions.append(element("span", "", (state === "private" ? say("Leer el caso", "Read the case study") : say("Ver proyecto", "View project")) + " →"));
+    actions.append(element("span", "", (state === "private" ? "Read the case study" : "View project") + " →"));
     card.append(actions);
     preview.replaceChildren(card);
     previewNote.textContent = fields.featured
@@ -273,7 +268,7 @@ function bindProjectEditor(onEdit, request, language, hooks) {
     const empty = hooks.bodyEmpty();
     if (empty !== lastEmpty) { lastEmpty = empty; caseButton.hidden = !empty; }
     const fields = read();
-    const key = JSON.stringify([fields, hooks.title(), hooks.summary(), hooks.tags(), language()]);
+    const key = JSON.stringify([fields, hooks.title(), hooks.summary(), hooks.tags()]);
     if (key === lastPreview) return;
     lastPreview = key;
     renderPreview(fields);
@@ -315,7 +310,7 @@ function bindProjectEditor(onEdit, request, language, hooks) {
   });
   highlightAdd.onclick = () => { const row = addHighlight(); if (row) row.querySelector("input").focus(); sync(); onEdit(); };
   panel.querySelector("#project-add").onclick = () => { add().querySelector("input").focus(); sync(); onEdit(); };
-  caseButton.onclick = () => hooks.insert(PROJECT_CASE_SKELETON[spanish() ? "es" : "en"]);
+  caseButton.onclick = () => hooks.insert(PROJECT_CASE_SKELETON);
   panel.querySelector("#writing-load").onclick = async () => {
     status.textContent = "Loading…";
     try {

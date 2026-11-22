@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { projectSource, renderMarkdown, renderMarkdownSummary } from "../src/lib/content-projector.mjs";
 
-test("renders inline and display math with accessible MathML in both locales", () => {
+test("renders inline and display math with accessible MathML for current and historical source routes", () => {
   for (const lang of ["en", "es"]) {
     const { documents: [document] } = projectSource({
       path: `content_${lang}/posts/2026/septiembre/technical.md`,
@@ -12,7 +12,6 @@ test("renders inline and display math with accessible MathML in both locales", (
     assert.match(document.bodyHtml, /class="katex-display"/);
     assert.match(document.bodyHtml, /<math xmlns=/);
     assert.match(document.bodyText, /x\^2/);
-    assert.equal(document.lang, lang);
   }
   assert.match(renderMarkdownSummary("Result $x^2$"), /class="katex"/);
 });

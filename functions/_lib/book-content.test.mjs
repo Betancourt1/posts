@@ -46,7 +46,7 @@ test("book Markdown derives progress, status, rating, summary, and tags", () => 
   assert.equal(frontMatter.rating, 4);
   assert.equal(frontMatter.summary, "By Ursula K. Le Guin · Reading · 4/5");
   assert.deepEqual(frontMatter.tags, ["book", "currently-reading", "fantasy"]);
-  assert.equal(frontMatter.translationKey, "book-a-wizard-of-earthsea");
+  assert.equal(Object.hasOwn(frontMatter, "translationKey"), false);
 });
 
 test("canonical books accept Spanish Markdown labels", () => {

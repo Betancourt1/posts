@@ -1,4 +1,3 @@
-export type Language = "en" | "es";
 
 export interface TagItem {
   label: string;
@@ -62,7 +61,6 @@ export interface ContentListItem {
   summaryHtml?: string | null;
   essay?: boolean;
   featured?: boolean;
-  contentLanguage?: string;
   tags?: TagItem[];
   section?: string;
   draft?: boolean;

@@ -17,6 +17,7 @@ import {
   UPLOAD_ROOT,
   contentPathToUrl,
   extensionOf,
+  legacySourcePrefix,
   normalizeRepoPath,
   safeContentPath,
   safeNotebookPath,
@@ -169,8 +170,8 @@ function commitMessage(action, path) {
 }
 
 function fallbackUrlForContent(path) {
-  const [root, section] = projectionSourcePath(path).split("/");
-  const prefix = root === "content_es" ? "/es" : "";
+  const [, section] = projectionSourcePath(path).split("/");
+  const prefix = legacySourcePrefix(path);
 
   return sitePathForStoredRoute(section ? `${prefix}/${section}/` : "/");
 }
@@ -266,12 +267,14 @@ function normalizePhotoFrontMatter(path, frontMatter) {
 export function photographyMirrorPath(path) {
   if (typeof path !== "string") return null;
   const requested = path.trim().replace(/^\/+/, "");
-  const normalized = projectionSourcePath(requested);
-  if (!/^content_(es|en)\/fotografia\/[^/]+\.md$/.test(normalized) || isNotebookIndex(normalized)) return null;
-  const mirror = normalized.startsWith("content_es/")
-    ? normalized.replace(/^content_es\//, "content_en/")
-    : normalized.replace(/^content_en\//, "content_es/");
-  return requested === normalized ? mirror : contentStoragePath(mirror);
+  const stored = contentStoragePath(requested);
+  if (!/^content\/fotografia\/[^/]+\.md$/.test(stored) || isNotebookIndex(stored)) return null;
+  const counterpart = stored.endsWith("--legacy.md")
+    ? stored.replace(/--legacy\.md$/, ".md")
+    : stored.replace(/\.md$/, "--legacy.md");
+  const original = projectionSourcePath(counterpart);
+  if (original === counterpart) return null;
+  return requested === stored ? counterpart : original;
 }
 
 async function deleteUploadPath(env, path) {
@@ -350,13 +353,11 @@ export async function listNotebooks(env) {
     const file = await readGitHubFile(env, entry.path);
     const { frontMatter } = splitMarkdown(file ? file.content : "");
     const [root, slug] = entry.path.split("/");
-    const lang = root === "content_es" ? "es" : "en";
     const path = `${root}/${slug}`;
 
     return {
       path,
       indexPath: entry.path,
-      lang,
       slug,
       title: notebookTitle(frontMatter, slug),
       description: frontMatter.description || frontMatter.summary || "",
@@ -377,7 +378,7 @@ export function notebookDestinations(notebooks) {
   const unique = new Map();
   for (const notebook of notebooks) {
     const key = canonicalNotebookSlug(notebook.slug);
-    if (!unique.has(key) || notebook.lang === "en") unique.set(key, notebook);
+    if (!unique.has(key) || !legacySourcePrefix(notebook.indexPath || notebook.path)) unique.set(key, notebook);
   }
   return [...unique.values()].sort((a, b) => a.title.localeCompare(b.title));
 }
@@ -756,7 +757,7 @@ export async function deletePage(env, payload) {
   }
 
   const deletedUrl = contentPathToUrl(path);
-  const retiredAlternate = projectionSourcePath(path).startsWith("content_es/") && RETIRED_ALTERNATE_MAIN_PATHS.includes(deletedUrl);
+  const retiredAlternate = legacySourcePrefix(path) && RETIRED_ALTERNATE_MAIN_PATHS.includes(deletedUrl);
   return {
     path,
     deletedUrl: retiredAlternate ? "" : deletedUrl,

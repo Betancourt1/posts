@@ -62,7 +62,7 @@ function sourceSql(projection) {
       source.path,
       source.blobSha,
       source.commitSha,
-      source.lang,
+      source.storageBucket,
       source.normalizedMarkdown,
       JSON.stringify(source.frontMatter),
       source.projectorVersion,
@@ -83,14 +83,14 @@ function sourceSql(projection) {
     ) VALUES (${[
       document.documentKey,
       source.path,
-      document.lang,
+      document.storageBucket,
       document.kind,
       document.section || "",
       document.title || "",
       document.date || null,
       document.summary || "",
       document.description || "",
-      document.translationKey || null,
+      document.catalogKey || null,
       document.bodyMarkdown || "",
       document.bodyText || "",
       document.bodyHtml || "",
@@ -111,12 +111,12 @@ function sourceSql(projection) {
 
     for (const [position, tag] of tags.entries()) {
       statements.push(
-        `INSERT INTO tags (lang, label, slug) VALUES (${quote(document.lang)}, ${quote(tag.label)}, ${quote(tag.slug)}) ON CONFLICT(lang, slug) DO UPDATE SET label = excluded.label;`,
+        `INSERT INTO tags (lang, label, slug) VALUES (${quote(document.storageBucket)}, ${quote(tag.label)}, ${quote(tag.slug)}) ON CONFLICT(lang, slug) DO UPDATE SET label = excluded.label;`,
         `INSERT INTO document_tags (document_id, tag_id, position)
           SELECT documents.id, tags.id, ${position}
           FROM documents, tags
           WHERE documents.document_key = ${quote(document.documentKey)}
-            AND tags.lang = ${quote(document.lang)}
+            AND tags.lang = ${quote(document.storageBucket)}
             AND tags.slug = ${quote(tag.slug)};`,
       );
     }
@@ -184,7 +184,7 @@ const statements = [
     AND target_document_id IS NULL
     AND target_path LIKE '/%'
     AND target_path NOT LIKE '/es/%'
-    AND source_document_id IN (SELECT id FROM documents WHERE lang = 'es');`,
+    AND source_document_id IN (SELECT document_id FROM routes WHERE kind = 'canonical' AND path GLOB '/es/*');`,
   "DELETE FROM tags WHERE id NOT IN (SELECT DISTINCT tag_id FROM document_tags);",
   `INSERT INTO sync_runs (commit_sha, trigger, status, finished_at)
     VALUES (${quote(commitSha)}, 'manual', 'complete', CURRENT_TIMESTAMP);`,

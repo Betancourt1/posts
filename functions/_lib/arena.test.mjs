@@ -505,7 +505,6 @@ test("syncArenaPage updates Image metadata without creating a Link or a second b
     metadata: {
       integration: "fbetancourt_blog",
       blog_path: existing.path,
-      language: "es",
       image_path: "/uploads/flor-1.jpg",
       image_index: 0,
     },

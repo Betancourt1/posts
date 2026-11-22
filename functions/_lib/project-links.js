@@ -1,24 +1,24 @@
 // The first resource is the action shown on the catalog card.
 export const projectTypes = {
-  demo: ["Demo", "Demo"],
-  code: ["Code", "Código"],
-  writing: ["Writing", "Lectura"],
-  data: ["Data", "Datos"],
+  demo: "Demo",
+  code: "Code",
+  writing: "Writing",
+  data: "Data",
 };
 
 export const projectStatuses = {
-  live: ["Live", "En línea"],
-  archived: ["Archived", "Archivado"],
-  private: ["Private", "Privado"],
-  research: ["Research", "Investigación"],
+  live: "Live",
+  archived: "Archived",
+  private: "Private",
+  research: "Research",
 };
 
 // Optional presentation fields. They are normalized on save and never required.
 export const projectOptionalFields = ["role", "period", "org", "status", "highlights", "order", "technologies"];
 const MAX_HIGHLIGHTS = 4;
 
-export function projectStatusLabel(status, spanish) {
-  return Object.hasOwn(projectStatuses, status) ? projectStatuses[status][Number(spanish)] : "";
+export function projectStatusLabel(status) {
+  return Object.hasOwn(projectStatuses, status) ? projectStatuses[status] : "";
 }
 
 export function validProjectLink(link) {
@@ -85,7 +85,7 @@ export function sortProjects(projects) {
 export function projectFields(payload) {
   const links = payload.project_links ?? [];
   if (!Array.isArray(links) || !links.every(validProjectLink)) {
-    throw new Error("Cada recurso necesita un tipo, un título y un enlace web o una ruta del sitio.");
+    throw new Error("Each resource needs a type, title, and web or site link.");
   }
   const fields = { project_links: links, featured: payload.featured === true };
 

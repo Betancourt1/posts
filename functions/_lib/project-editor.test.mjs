@@ -19,7 +19,7 @@ test("project panel keeps its ids and adds namespaced fields without duplicating
 });
 
 test("project editor is wired into the shared save, snapshot and draft lifecycle", () => {
-  assert.match(html, /bindProjectEditor\(markContentEdited, request, function \(\) \{[\s\S]{0,200}\}, \{\s*title: function/);
+  assert.match(html, /bindProjectEditor\(markContentEdited, request, \{\s*title: function/);
   assert.match(html, /function markContentEdited\(\) \{\s*saveFailed = false;\s*if \(isProject\(\)\) projectEditor\.sync\(\);/);
   assert.match(html, /projectEditor\.load\(Object\.assign\(projectEditor\.read\(\), stored\.project\)\)/);
   assert.match(html, /insert: function \(markdown\) \{ insertAtCursor\(activeTextArea\(\), markdown\); markContentEdited\(\); \}/);
@@ -34,8 +34,6 @@ test("project editor script builds its preview from text nodes only", () => {
 });
 
 test("case skeleton starts at h2 because the page title is the h1", () => {
-  for (const text of Object.values(projectCaseSkeleton)) {
-    assert.doesNotMatch(text, /^# /m);
-    assert.equal(text.match(/^## /gm).length, 4);
-  }
+  assert.doesNotMatch(projectCaseSkeleton, /^# /m);
+  assert.equal(projectCaseSkeleton.match(/^## /gm).length, 4);
 });

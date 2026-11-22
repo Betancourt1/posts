@@ -51,8 +51,7 @@
     setVisibility(!visible);
     try { localStorage.setItem("snails_visible", String(visible)); } catch (error) {}
   });
-  var lang = document.documentElement.lang.startsWith("es") ? "es" : "en";
-  var quotes = fetch("/api/snail-quotes?lang=" + lang)
+  var quotes = fetch("/api/snail-quotes")
     .then(function (response) { return response.ok ? response.json() : { quotes: [] }; })
     .then(function (data) { return Array.isArray(data.quotes) ? data.quotes : []; })
     .catch(function () { return []; });

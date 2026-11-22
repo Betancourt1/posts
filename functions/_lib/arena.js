@@ -1,4 +1,3 @@
-import { projectionSourcePath } from "./content-storage.js";
 const ARENA_API_BASE = "https://api.are.na/v3";
 const DEFAULT_TIMEOUT_MS = 12000;
 const PUBLIC_SITE_ORIGIN = "https://fbetancourt.work";
@@ -96,15 +95,10 @@ function pageTitle(page) {
   return String(page?.frontMatter?.title || "Sin titulo").trim() || "Sin titulo";
 }
 
-function pageLanguage(path) {
-  return projectionSourcePath(String(path || "")).startsWith("content_es/") ? "es" : "en";
-}
-
 function pageMetadata(page) {
   return {
     integration: "fbetancourt_blog",
     blog_path: String(page.path || ""),
-    language: pageLanguage(page.path),
   };
 }
 

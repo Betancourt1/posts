@@ -1,7 +1,7 @@
 import { contentStoragePath } from "../../../functions/_lib/content-storage.js";
 import { sitePathForStoredRoute } from "../../../functions/_lib/paths.js";
 import { renderMarkdown } from "./content-projector.mjs";
-import { catalogEntry } from "./catalog.mjs";
+import { catalogEntry, catalogOrder } from "./catalog.mjs";
 import { contentExcerpt } from "./content-excerpt.mjs";
 
 const SUPPORTED_BODY_TONE = /\{\{(?:green|blue|amber)\|[^{}\n]+\}\}/;
@@ -30,14 +30,13 @@ function documentColumns(alias, { body = false, tags = true } = {}) {
     ${alias}.id,
     ${alias}.document_key AS documentKey,
     ${alias}.source_path AS sourcePath,
-    ${alias}.lang,
     ${alias}.kind,
     ${alias}.section,
     ${alias}.title,
     ${alias}.date,
     ${alias}.summary,
     ${alias}.description,
-    ${alias}.translation_key AS translationKey,
+    ${alias}.translation_key AS catalogKey,
     ${body ? `${alias}.body_markdown AS bodyMarkdown,
     ${alias}.body_text AS bodyText,
     ${alias}.body_html AS bodyHtml,` : ""}
@@ -194,7 +193,7 @@ export async function resolveDocument(db, path, options = {}) {
 
 export async function documentTags(db, id) {
   const result = await db.prepare(`
-    SELECT tags.id, tags.lang, tags.label, tags.slug, document_tags.position
+    SELECT tags.id, tags.label, tags.slug, document_tags.position
     FROM document_tags
     JOIN tags ON tags.id = document_tags.tag_id
     WHERE document_tags.document_id = ?
@@ -202,38 +201,6 @@ export async function documentTags(db, id) {
   `).bind(documentId(id)).all();
 
   return result.results || [];
-}
-
-export async function translationPeer(db, id, options = {}) {
-  const { includeDrafts, includeHidden } = visibilityOptions(options);
-  const row = await db.prepare(`
-    SELECT
-      ${documentColumns("peer", { body: options.body === true, tags: options.tags !== false })},
-      canonical.path AS canonicalPath,
-      canonical.path AS path
-    FROM documents AS current
-    JOIN documents AS peer
-      ON peer.translation_key = current.translation_key
-     AND peer.lang <> current.lang
-    JOIN routes AS canonical
-      ON canonical.document_id = peer.id
-     AND canonical.kind = 'canonical'
-    WHERE current.id = ?
-      AND current.translation_key IS NOT NULL
-      AND current.translation_key <> ''
-      AND (? = 1 OR current.draft = 0)
-      AND (? = 1 OR peer.draft = 0)
-      AND (? = 1 OR peer.hidden = 0)
-    ORDER BY peer.generated, canonical.path
-    LIMIT 1
-  `).bind(
-    documentId(id),
-    includeDrafts,
-    includeDrafts,
-    includeHidden,
-  ).first();
-
-  return hydrateDocument(row);
 }
 
 export async function sectionItems(db, section, options = {}) {
@@ -545,7 +512,7 @@ export async function searchDocuments(db, query, limit = 20) {
 
   const result = await db.prepare(`
     WITH matches AS MATERIALIZED (
-      SELECT d.id, d.translation_key, d.generated, d.lang,
+      SELECT d.id, d.translation_key, d.generated,
         bm25(documents_fts, 8.0, 4.0, 1.0, 2.0) AS rank,
         snippet(documents_fts, 2, '', '', ' … ', 24) AS excerpt
       FROM documents_fts
@@ -567,8 +534,7 @@ export async function searchDocuments(db, query, limit = 20) {
     WHERE NOT EXISTS (
       SELECT 1 FROM matches AS preferred
       WHERE preferred.translation_key = matches.translation_key
-        AND (preferred.generated, preferred.lang, preferred.id)
-          < (matches.generated, matches.lang, matches.id)
+        AND (${catalogOrder("preferred")}) < (${catalogOrder("matches")})
     )
     ORDER BY matches.rank, d.date DESC, d.title COLLATE NOCASE, canonical.path
     LIMIT ?

@@ -14,7 +14,7 @@ import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { formatMarkdown, parseScalar, splitMarkdown } from "../functions/_lib/markdown.js";
 
-import { contentStoragePath, isNotebookIndex, projectionSourcePath } from "../functions/_lib/content-storage.js";
+import { contentStoragePath, isNotebookIndex } from "../functions/_lib/content-storage.js";
 import { contentPathToUrl } from "../functions/_lib/paths.js";
 
 const CONTENT_ROOTS = ["content"];
@@ -291,7 +291,6 @@ async function readContentEntry(filePath) {
   return {
     path: relative,
     url: contentPathToUrl(relative),
-    lang: projectionSourcePath(relative).startsWith("content_es/") ? "es" : "en",
     type,
     stem,
     title: String(frontMatter.title || stem.replace(/[-_]/g, " ")),
@@ -452,7 +451,6 @@ function contentRows(entries) {
       entry.draft ? "draft" : "pub",
       entry.hidden ? "hidden" : "",
     ].filter(Boolean).join(","),
-    lang: entry.lang,
     title: entry.title,
     path: entry.path,
     url: entry.url,
@@ -503,7 +501,6 @@ async function commandList(type, options) {
   printTable(rows, [
     { label: "tipo", value: (row) => row.type, max: 10 },
     { label: "estado", value: (row) => row.state || "pub", max: 14 },
-    { label: "lang", value: (row) => row.lang, max: 4 },
     { label: "titulo", value: (row) => row.title, max: 36 },
     { label: "ruta", value: (row) => row.path, max: 64 },
   ]);
@@ -1099,7 +1096,7 @@ function validateContent(entries, issues) {
       issues.push({ level: "warn", path: entry.path, message: "tags no es lista" });
     }
 
-    const titleKey = `${entry.lang}:${entry.title.toLowerCase()}`;
+    const titleKey = `${entry.url}:${entry.title.toLowerCase()}`;
     if (titleMap.has(titleKey) && entry.type !== "notebook") {
       issues.push({ level: "warn", path: entry.path, message: `titulo duplicado con ${titleMap.get(titleKey)}` });
     } else {

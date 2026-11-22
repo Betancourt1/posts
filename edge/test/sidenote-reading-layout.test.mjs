@@ -19,8 +19,8 @@ test("reading rail places the graph above notes without a header trigger", async
     readFile(cssPath, "utf8"),
   ]);
 
-  assert.match(layout, /hasSidenotes[\s\S]*?<div class="sidenote-sidebar">[\s\S]*?<KnowledgeGraph data=\{page\.graphData\} lang=\{lang\} variant="sidebar" \/>[\s\S]*?<div class="sidenote-rail"/);
-  assert.match(layout, /: <Sidebar lang=\{lang\}/);
+  assert.match(layout, /hasSidenotes[\s\S]*?<div class="sidenote-sidebar">[\s\S]*?<KnowledgeGraph data=\{page\.graphData\} variant="sidebar" \/>[\s\S]*?<div class="sidenote-rail"/);
+  assert.match(layout, /: <Sidebar/);
   assert.doesNotMatch(single, /data-sidenote-graph-open|post-context-button/);
   assert.doesNotMatch(layout, /sidenote-graph-dialog|variant="home"/);
   assert.doesNotMatch(layout, /utilityLink=/);

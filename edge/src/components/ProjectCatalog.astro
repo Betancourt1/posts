@@ -1,39 +1,36 @@
 ---
 import { projectMeta, sortProjects } from "../../../functions/_lib/project-links.js";
 import ProjectEntry from "./ProjectEntry.astro";
-import type { Language } from "./types";
 
 interface Props {
-  lang: Language;
   title: string;
   description?: string;
   projects: any[];
   authorMode: boolean;
   notebook: string;
 }
-const { lang, title, description, authorMode, notebook, projects } = Astro.props;
-const es = lang === "es";
+const { title, description, authorMode, notebook, projects } = Astro.props;
 const isFeatured = (project: any) => projectMeta(project.frontMatter).featured;
 const featured = sortProjects(projects.filter(isFeatured));
 const more = sortProjects(projects.filter((project) => !isFeatured(project)));
 const grouped = featured.length > 0 && more.length > 0;
 const groups: { id: string; heading: string; entries: any[]; compact: boolean }[] = [
-  { id: "featured", heading: es ? "Destacados" : "Featured", entries: featured, compact: false },
-  { id: "more", heading: es ? "Más trabajo" : "More work", entries: more, compact: true },
+  { id: "featured", heading: "Featured", entries: featured, compact: false },
+  { id: "more", heading: "More work", entries: more, compact: true },
 ].filter((group) => group.entries.length > 0);
 ---
 <header class="page-header">
   <h1>{title}</h1>
   {description && <p class="lead">{description}</p>}
-  {authorMode && <div class="project-actions"><button type="button" class="project-control" data-author-action="add-post" data-notebook={notebook}>{es ? "Nuevo proyecto" : "New project"}</button>
-    <button type="button" class="project-control" data-author-action="edit-notebook" data-source-path={notebook + "/_index.md"}>{es ? "Editar catálogo" : "Edit catalog"}</button></div>}
+  {authorMode && <div class="project-actions"><button type="button" class="project-control" data-author-action="add-post" data-notebook={notebook}>New project</button>
+    <button type="button" class="project-control" data-author-action="edit-notebook" data-source-path={notebook + "/_index.md"}>Edit catalog</button></div>}
 </header>
 <section class="project-catalog" aria-label={title}>
   {groups.map((group) => (
     <div class={"project-group project-group-" + group.id}>
       {grouped && <h2 class="project-group-title">{group.heading}</h2>}
       {group.entries.map((project) => (
-        <ProjectEntry lang={lang} project={project} authorMode={authorMode} compact={group.compact} headingLevel={grouped ? "h3" : "h2"} />
+        <ProjectEntry project={project} authorMode={authorMode} compact={group.compact} headingLevel={grouped ? "h3" : "h2"} />
       ))}
     </div>
   ))}

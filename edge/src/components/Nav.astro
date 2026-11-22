@@ -1,9 +1,8 @@
 ---
-import type { Language, NavItem } from "./types";
+import type { NavItem } from "./types";
 
 interface Props {
   items: NavItem[];
-  lang?: Language;
   activePath?: string;
   activeSection?: string;
   authorMode?: boolean;
@@ -11,14 +10,13 @@ interface Props {
 
 const {
   items,
-  lang = "en",
   activePath = Astro.url.pathname,
   activeSection = "",
   authorMode = false,
 } = Astro.props;
-const showLabel = lang === "es" ? "Mostrar notebooks" : "Show notebooks";
-const hideLabel = lang === "es" ? "Ocultar notebooks" : "Hide notebooks";
-const archivesPath = authorMode ? (lang === "es" ? "/admin/es/archives/" : "/admin/archives/") : (lang === "es" ? "/es/archives/" : "/archives/");
+const showLabel = "Show notebooks";
+const hideLabel = "Hide notebooks";
+const archivesPath = authorMode ? "/admin/archives/" : "/archives/";
 ---
 
 <nav
@@ -56,7 +54,7 @@ const archivesPath = authorMode ? (lang === "es" ? "/admin/es/archives/" : "/adm
         href={archivesPath}
         class:list={{ active: activePath === archivesPath }}
         aria-current={activePath === archivesPath ? "page" : undefined}
-      >{lang === "es" ? "Archivos" : "Archives"}</a>
+      >Archives</a>
     </li>
   </ul>
 </nav>

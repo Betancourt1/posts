@@ -401,63 +401,44 @@ test("new photography uses one source and existing mirrors remain editable", asy
     throw new Error(`Unhandled request: ${method} ${url}`);
   };
 
-  files.set("content_es/fotografia/_index.md", { content: "---\ntitle: Fotografía\n---", sha: "index-es" });
-  files.set("content_en/fotografia/_index.md", { content: "---\ntitle: Photography\n---", sha: "index-en" });
+  files.set("content/fotografia/_index.md", { content: "---\ntitle: Photography\n---", sha: "index" });
+  const current = "content/fotografia/mariposa.md";
+  const mirror = "content/fotografia/mariposa--legacy.md";
+  const oldEditorPath = "content_es/fotografia/mariposa.md";
 
   try {
-    // 1. Create post in Spanish photography
     const created = await createPost(env, {
-      notebook: "content_es/fotografia",
+      notebook: "content/fotografia",
       title: "Nueva Foto",
       date: "2026-09-03",
       image: "/uploads/photo.jpg",
       tags: "photography",
       body: "",
     });
-
-    assert.equal(created.path, "content_es/fotografia/nueva-foto.md");
+    assert.equal(created.path, "content/fotografia/nueva-foto.md");
     assert.ok(files.has(created.path));
-    assert.ok(!files.has("content_en/fotografia/nueva-foto.md"));
+    assert.equal(photographyMirrorPath(created.path), null);
 
-    // An existing legacy mirror keeps its established update and delete behavior.
-    files.set("content_en/fotografia/nueva-foto.md", { ...files.get(created.path) });
-
-    // 2. Save page updates both files
+    for (const path of [current, mirror]) files.set(path, { ...files.get(created.path) });
     const saved = await savePage(env, {
-      path: "content_es/fotografia/nueva-foto.md",
+      path: oldEditorPath,
       frontMatter: { title: "Foto Actualizada" },
       body: "Un comentario",
     });
-
     assert.equal(saved.changed, true);
-    assert.equal(
-      files.get("content_es/fotografia/nueva-foto.md").content,
-      files.get("content_en/fotografia/nueva-foto.md").content,
-    );
-    assert.match(files.get("content_en/fotografia/nueva-foto.md").content, /Foto Actualizada/);
+    assert.equal(saved.path, mirror);
+    assert.equal(files.get(current).content, files.get(mirror).content);
+    assert.match(files.get(current).content, /Foto Actualizada/);
 
-    // 3. Save front matter updates both files
-    await savePageFrontMatter(env, "content_es/fotografia/nueva-foto.md", {
-      arena_enabled: true,
-      arena_channel_id: "12345",
-    });
+    await savePageFrontMatter(env, oldEditorPath, { arena_enabled: true, arena_channel_id: "12345" });
+    assert.equal(files.get(current).content, files.get(mirror).content);
+    assert.match(files.get(current).content, /arena_channel_id: "12345"/);
 
-    assert.equal(
-      files.get("content_es/fotografia/nueva-foto.md").content,
-      files.get("content_en/fotografia/nueva-foto.md").content,
-    );
-    assert.match(files.get("content_en/fotografia/nueva-foto.md").content, /arena_channel_id: "12345"/);
-
-    // 4. Delete page removes both files
-    const deleted = await deletePage(env, {
-      path: "content_es/fotografia/nueva-foto.md",
-      deleteImages: false,
-    });
-
-    assert.equal(deleted.path, "content_es/fotografia/nueva-foto.md");
-    assert.equal(deleted.mirrorPath, "content_en/fotografia/nueva-foto.md");
-    assert.ok(!files.has("content_es/fotografia/nueva-foto.md"));
-    assert.ok(!files.has("content_en/fotografia/nueva-foto.md"));
+    const deleted = await deletePage(env, { path: oldEditorPath });
+    assert.equal(deleted.path, mirror);
+    assert.equal(deleted.mirrorPath, current);
+    assert.ok(!files.has(current));
+    assert.ok(!files.has(mirror));
   } finally {
     globalThis.fetch = originalFetch;
   }

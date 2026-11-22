@@ -1,37 +1,6 @@
 ---
-import type { Language } from "./types";
 
-interface Props { lang: Language }
-const { lang } = Astro.props;
-const strings = lang === "es" ? {
-  title: "Enlaces del CV",
-  intro: "Crea un enlace por CV y asígnalo a una vacante para ver las visitas que recibe.",
-  vacancy: "Vacante (opcional)",
-  private: "Solo visible en admin. Hasta 200 caracteres.",
-  unnamed: "Sin vacante asignada",
-  id: "ID del CV (opcional)",
-  hint: "Déjalo vacío para generar un ID aleatorio. Los enlaces no caducan.",
-  register: "Registrar ID",
-  working: "Registrando…",
-  registered: "ID registrado. Ya puedes copiar el enlace para tu CV.",
-  existing: "Este ID ya estaba registrado. Se conservó su vacante y estado.",
-  heading: "IDs registrados",
-  empty: "Todavía no hay IDs registrados.",
-  loading: "Cargando…",
-  active: "Activo",
-  disabled: "Deshabilitado",
-  neverExpires: "No caduca",
-  link: "Enlace del CV",
-  visits: "Visitas",
-  latest: "Última visita",
-  noVisits: "Sin visitas registradas",
-  copy: "Copiar enlace",
-  copied: "Enlace copiado.",
-  copyFailed: "Selecciona el enlace y cópialo manualmente.",
-  unavailable: "No se pudo acceder al registro. Comprueba tu sesión de administrador e inténtalo de nuevo.",
-  invalid: "Usa de 16 a 64 letras, dígitos, guiones o guiones bajos.",
-  invalidVacancy: "La vacante debe tener un máximo de 200 caracteres.",
-} : {
+const strings = {
   title: "CV links",
   intro: "Create one link per CV and assign it to a vacancy to see the visits it receives.",
   vacancy: "Vacancy (optional)",
@@ -62,7 +31,7 @@ const strings = lang === "es" ? {
 };
 ---
 
-<section class="cv-links" data-cv-links data-lang={lang} data-site-origin={Astro.site?.origin || Astro.url.origin} data-strings={JSON.stringify(strings)}>
+<section class="cv-links" data-cv-links data-site-origin={Astro.site?.origin || Astro.url.origin} data-strings={JSON.stringify(strings)}>
   <header class="page-header">
     <h1>{strings.title}</h1>
     <p class="lead">{strings.intro}</p>

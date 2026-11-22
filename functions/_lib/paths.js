@@ -25,6 +25,10 @@ export function storedRouteForSitePath(path) {
   return Object.keys(STORED_ROUTE_OVERRIDES).find((stored) => STORED_ROUTE_OVERRIDES[stored] === path);
 }
 
+export function legacySourcePrefix(path) {
+  return projectionSourcePath(path).startsWith("content_es/") ? "/es" : "";
+}
+
 export function legacyRouteForSitePath(path) {
   return "/es" + path.replace(/^\/books\//, "/libros/").replace(/^\/guestbook\//, "/visitas/");
 }
@@ -91,7 +95,7 @@ export function extensionOf(path) {
 export function contentPathToUrl(value) {
   const path = projectionSourcePath(safeContentPath(value));
   const root = path.split("/")[0];
-  const lang = root === "content_es" ? "es" : "en";
+  const prefix = legacySourcePrefix(path);
   let route = path.slice(root.length).replace(/\.md$/, "");
 
   route = route.replace(/\/index$/, "/").replace(/\/_index$/, "/");
@@ -99,7 +103,7 @@ export function contentPathToUrl(value) {
     route = `/${route}`;
   }
 
-  const url = `${lang === "es" ? "/es" : ""}${route}`.replace(/\/+/g, "/");
+  const url = `${prefix}${route}`.replace(/\/+/g, "/");
   return sitePathForStoredRoute(url.endsWith("/") ? url : `${url}/`);
 }
 

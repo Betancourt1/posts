@@ -1,37 +1,13 @@
 ---
-import type { Language } from "./types";
 
 interface Props {
   title: string;
   description?: string | null;
-  lang?: Language;
   entries?: { id: number; name: string; site: string | null; message: string; createdAt: string }[];
 }
 
-const { title, description = null, lang = "es", entries = [] } = Astro.props;
-const strings = lang === "es"
-  ? {
-      name: "nombre",
-      namePlaceholder: "tu nombre",
-      site: "sitio (opcional)",
-      sitePlaceholder: "https://…",
-      message: "postal",
-      messagePlaceholder: "escribe algo breve…",
-      send: "enviar ⏎",
-      charLimit: "máx 280",
-      errors: {
-        name_required: "escribe tu nombre",
-        name_too_long: "nombre demasiado largo",
-        message_required: "escribe un mensaje",
-        message_too_long: "máximo 280 caracteres",
-        site_too_long: "sitio demasiado largo",
-        site_invalid: "el sitio debe empezar por http(s)://",
-        rate_limited: "demasiadas postales seguidas, vuelve más tarde",
-        verification: "completa la verificación",
-        default: "no se pudo enviar, intenta de nuevo",
-      },
-    }
-  : {
+const { title, description = null, entries = [] } = Astro.props;
+const strings = {
       name: "name",
       namePlaceholder: "your name",
       site: "site (optional)",

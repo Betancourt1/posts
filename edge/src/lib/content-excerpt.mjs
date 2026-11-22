@@ -2,9 +2,7 @@ export function contentExcerpt(document) {
   const frontMatter = document.frontMatter || {};
   let text = document.summary || document.description || "";
   if (["books", "libros"].includes(document.section)) {
-    const status = document.lang === "es"
-      ? { "currently-reading": "Leyendo ahora", read: "Leído", "to-read": "Por leer" }
-      : { "currently-reading": "Now reading", read: "Read", "to-read": "Want to read" };
+    const status = { "currently-reading": "Now reading", read: "Read", "to-read": "Want to read" };
     return [frontMatter.book_author, status[frontMatter.book_status]].filter(Boolean).join(" · ");
   }
   if (!text) {

@@ -38,7 +38,7 @@
       row.querySelector("[data-cv-id]").textContent = entry.cv_id;
       row.querySelector("[data-cv-visits]").textContent = entry.visits;
       row.querySelector("[data-cv-latest]").textContent = entry.last_visited_at === null ? strings.noVisits
-        : new Intl.DateTimeFormat(root.dataset.lang, { dateStyle: "medium", timeStyle: "short" }).format(new Date(entry.last_visited_at * 1000));
+        : new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" }).format(new Date(entry.last_visited_at * 1000));
       const active = entry.enabled === 1;
       row.querySelector("[data-cv-state]").textContent = active ? strings.active : strings.disabled;
       const url = new URL("/about/", root.dataset.siteOrigin);

@@ -18,14 +18,14 @@ test("catalog groups featured projects first and keeps author controls", async (
   assert.match(entry, /meta\.links\[0\]/, "the first valid link stays the catalog action");
   assert.match(entry, /data-author-action="edit-post"/);
   assert.match(entry, /\(authorMode \? "\/admin" : ""\) \+ project\.path/);
-  assert.match(entry, /Leer el caso/);
+  assert.doesNotMatch(entry, /Leer el caso/);
   assert.match(entry, /Read the case study/);
   assert.match(entry, /project-badge-" \+ meta\.status/);
 });
 
 test("project page shows facts, highlights and the private note without raw HTML", async () => {
   const overview = await read("../src/components/ProjectOverview.astro");
-  for (const text of ["Rol", "Periodo", "Organización", "Tecnologías", "Trabajo privado"]) assert.ok(overview.includes(text), text);
+  assert.doesNotMatch(overview, /Organización|Trabajo privado/);
   for (const text of ["Role", "Period", "Organization", "Stack", "Private work"]) assert.ok(overview.includes(text), text);
   assert.match(overview, /data-author-action="edit-post"/);
   assert.match(overview, /meta\.status === "private"/);

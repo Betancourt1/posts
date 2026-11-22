@@ -79,7 +79,7 @@ test("admin writing lists include hidden drafts without changing public lists", 
   assert.doesNotMatch(publicPage, /targetLang|translationPath/);
   assert.match(types, /draft\?: boolean;/);
   assert.match(publicPage, /draft: document\.draft,[\s\S]*hidden: document\.hidden/);
-  assert.match(list, /authorMode && \(item\.draft \|\| item\.hidden\)[\s\S]*class="writing-index-status"[\s\S]*"Borrador" : "Draft"/);
+  assert.match(list, /authorMode && \(item\.draft \|\| item\.hidden\)[\s\S]*class="writing-index-status"[\s\S]*>Draft</);
   assert.equal(list.match(/class="writing-index-status"/g)?.length, 1);
   assert.match(css, /\.writing-index-status\s*\{[\s\S]*?border:\s*1px solid var\(--accent\);[\s\S]*?text-transform:\s*uppercase;/);
 });
@@ -130,7 +130,7 @@ test("single pages put tags last and reserve summaries for listings", async () =
   assert.doesNotMatch(header, /TagList|post-summary/);
   assert.doesNotMatch(single, /<p[^>]*post-summary/);
   assert.equal(single.match(/<TagList /g)?.length, 1);
-  assert.match(single, /tags\.length > 0 && \(\s*<footer class="post-footer">\s*<TagList tags=\{tags\} lang=\{lang\} \/>\s*<\/footer>\s*\)\}\s*<\/article>/);
+  assert.match(single, /tags\.length > 0 && \(\s*<footer class="post-footer">\s*<TagList tags=\{tags\} \/>\s*<\/footer>\s*\)\}\s*<\/article>/);
   assert.ok(single.indexOf('<footer class="post-footer">') > single.indexOf('class="backlinks-section"'));
   assert.match(list, /item\.summary && <p class="writing-index-summary">\{item\.summary\}<\/p>/);
   assert.match(list, /item\.summary && <p class="post-summary">\{item\.summary\}<\/p>/);
@@ -154,12 +154,12 @@ test("public and admin pages share the site shell and keep author controls", asy
   ]);
   assert.match(layout, /const bodyClass = \["public-site"/);
   assert.equal((layout.match(/<Nav items=\{navigation\}/g) || []).length, 1);
-  assert.match(layout, /<WanderingSnail lang=\{lang\} \/>/);
+  assert.match(layout, /<WanderingSnail \/>/);
   assert.doesNotMatch(layout, /!authorMode && <WanderingSnail|!authorMode && <button[^>]*search-toggle/);
   assert.match(layout, /data-author-action="add-notebook"/);
   assert.match(layout, /data-author-action="edit-home"/);
-  assert.match(layout, /\/admin\/es\/cv-links\//);
-  assert.match(nav, /authorMode \? \(lang === "es" \? "\/admin\/es\/archives\/"/);
+  assert.match(layout, /\/admin\/cv-links\//);
+  assert.match(nav, /authorMode \? "\/admin\/archives\/" : "\/archives\/"/);
   assert.doesNotMatch(publicPage, /authorMode && <header class="page-header">/);
 });
 
@@ -229,10 +229,10 @@ test("uses a pipette for grayscale and reveals search from the header", async ()
   assert.doesNotMatch(layout, /palette-off-icon|theme-icon-wrapper|sun-icon|moon-icon/);
   assert.match(css, /\.header-display-icon\s*\{[\s\S]*?width:\s*17px;[\s\S]*?height:\s*17px;/);
   assert.match(css, /\.sound-icon\s*\{[\s\S]*?width:\s*20px;[\s\S]*?height:\s*20px;/);
-  assert.match(css, /\.site-header-actions \.lang-toggle,\s*\.site-header-actions \.typo-toggle\s*\{[\s\S]*?font-size:\s*0\.82rem;[\s\S]*?line-height:\s*1;/);
+  assert.match(css, /\.site-header-actions \.typo-toggle\s*\{[\s\S]*?font-size:\s*0\.82rem;[\s\S]*?line-height:\s*1;/);
   assert.doesNotMatch(css, /\.theme-icon-wrapper|\.sun-icon|\.moon-icon/);
-  assert.match(layout, /data-label-enable=\{lang === "es" \? "Activar escala de grises" : "Enable grayscale"\}/);
-  assert.match(layout, /data-label-dark=\{lang === "es" \? "Cambiar a tema oscuro" : "Change to dark theme"\}/);
+  assert.match(layout, /data-label-enable="Enable grayscale"/);
+  assert.match(layout, /data-label-dark="Change to dark theme"/);
   assert.match(layout, /grayscaleToggle\.setAttribute\("aria-pressed", enabled \? "true" : "false"\)/);
   assert.match(layout, /themeToggle\.setAttribute\("title", label\)/);
   assert.doesNotMatch(css, /html\.grayscale-mode\s*\{[^}]*filter:/s);
@@ -247,7 +247,7 @@ test("uses a pipette for grayscale and reveals search from the header", async ()
   assert.match(layout, /class="search-toggle"[^>]*aria-expanded="false"/);
   assert.match(search, /panel.hidden = false/);
   assert.match(layout, /<input class="search-ui__search-input" id="site-search-input" type="search"/);
-  assert.match(layout, /placeholder=\{lang === "es" \? "buscar en el archivo" : "search the archive"\}/);
+  assert.match(layout, /placeholder="search the archive"/);
   assert.match(layout, /<svg class="search-command-icon"/);
   assert.match(layout, /<kbd class="search-kbd">Ctrl K<\/kbd>/);
   assert.match(layout, /<div class="search-ui__drawer" id="site-search-results" hidden>/);
@@ -262,7 +262,7 @@ test("uses a pipette for grayscale and reveals search from the header", async ()
   assert.doesNotMatch(css, /search-modal|body\.search-active/);
   assert.doesNotMatch(search, /setupModal|search-trigger|search-modal/);
   assert.match(search, /root\.dataset\.searchEndpoint \|\| "\/api\/search"/);
-  assert.match(search, /url\.searchParams\.set\("lang", lang\)/);
+  assert.doesNotMatch(search, /searchParams\.set\("lang"/);
   assert.match(search, /url\.searchParams\.set\("limit", "20"\)/);
   assert.match(search, /\(event\.ctrlKey \|\| event\.metaKey\).*event\.key\.toLowerCase\(\) === "k"/);
   assert.match(search, /event\.key === "Escape"[\s\S]*?clearSearch\(view, copy\)/);
@@ -279,7 +279,7 @@ test("keeps recorded interaction sounds opt-in and shared with admin", async () 
 
   assert.match(layout, /<button class="sound-toggle" id="sound-toggle"/);
   assert.doesNotMatch(layout, /!authorMode && \(\s*<button class="sound-toggle"/);
-  assert.match(layout, /aria-pressed="false"[\s\S]*?data-label-enable=\{lang === "es" \? "Activar sonidos" : "Enable sounds"\}/);
+  assert.match(layout, /aria-pressed="false"[\s\S]*?data-label-enable="Enable sounds"/);
   assert.match(layout, /<script is:inline src="\/js\/sound\.js" defer><\/script>/);
   assert.doesNotMatch(layout, /!authorMode && <script is:inline src="\/js\/sound\.js"/);
   assert.match(css, /\.theme-toggle,\s*\.grayscale-toggle,\s*\.sound-toggle,[\s\S]*?width:\s*40px;[\s\S]*?height:\s*40px;/);
@@ -309,24 +309,23 @@ test("keeps recorded interaction sounds opt-in and shared with admin", async () 
   assert.match(graph, /CustomEvent\("site-sound", \{ detail: \{ tone: "navigation" \} \}\)[\s\S]*?window\.location\.assign\(node\.url\)/);
 });
 
-test("keeps the Citas title in Spanish notebook navigation", async () => {
+test("links to Quotes from the single notebook navigation", async () => {
   const source = await readFile(publicPagePath, "utf8");
 
-  assert.match(source, /\["Citas", "\/es\/lit\/", "lit"\]/);
-  assert.doesNotMatch(source, /\["Lecturas", "\/es\/lit\/", "lit"\]/);
+  assert.doesNotMatch(source, /\/es\/lit\//);
   assert.match(source, /\["Quotes", "\/lit\/", "lit"\]/);
 });
 
-test("uses Projects in bilingual navigation and archives", async () => {
+test("uses Projects in navigation and archives", async () => {
   const [publicPage, archives] = await Promise.all([
     readFile(publicPagePath, "utf8"),
     readFile(archivesPath, "utf8"),
   ]);
 
-  assert.match(publicPage, /\["Proyectos", "\/es\/proyectos-profesionales\/", "proyectos-profesionales"\]/);
+  assert.doesNotMatch(publicPage, /\/es\/proyectos-profesionales\//);
   assert.match(publicPage, /\["Projects", "\/proyectos-profesionales\/", "proyectos-profesionales"\]/);
   assert.doesNotMatch(publicPage, /proyectos-academicos|Academic|Académico/);
-  assert.match(archives, /"proyectos-profesionales": lang === "es" \? "Proyectos" : "Projects"/);
+  assert.match(archives, /"proyectos-profesionales": "Projects"/);
   assert.doesNotMatch(archives, /proyectos-academicos|Academic|Académic/);
 });
 
@@ -387,8 +386,8 @@ test("renders selected writing before the graph and restores Recent below it", a
   assert.doesNotMatch(source, /Latest essay|Último ensayo|"Pinned"|"Fijado"/);
   const selected = source.slice(source.indexOf('{items.length > 0 && ('), source.indexOf('<KnowledgeGraph'));
   assert.doesNotMatch(selected, /archive-badge--\$\{item\.section\}/);
-  assert.match(source, /<KnowledgeGraph[\s\S]*?recentItems\.length > 0[\s\S]*?"Reciente" : "Recent"/);
-  assert.match(source, /"\/es\/archives\/" : "\/archives\/"/);
+  assert.match(source, /<KnowledgeGraph[\s\S]*?recentItems\.length > 0[\s\S]*?<h2>Recent<\/h2>/);
+  assert.match(source, /contentHref\("\/archives\/"\)/);
   assert.match(source, /recentItems\.map[\s\S]*?archive-badge--\$\{item\.section\}/);
   assert.match(source, /item\.section === "fotografia" && Boolean\(item\.thumbnail \|\| item\.image\)/);
   assert.match(source, /class="post-card-image"/);

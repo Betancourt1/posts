@@ -136,7 +136,7 @@ test("fallback insert tools share the block editor's insert templates", async ()
   assert.ok(html.includes("var INSERT_TEMPLATES = " + JSON.stringify(INSERT_TEMPLATES) + ";"));
   assert.match(html, /var text = insertTemplateText\(kind, \{ selected: selected/);
   assert.equal(insertTemplateText("code", { lang: "es" }), "```python\ndef square(x):\n    return x ** 2\n```");
-  assert.equal(insertTemplateText("code", { lang: "es", language: "sql" }), "```sql\nTu código aquí\n```");
+  assert.equal(insertTemplateText("code", { lang: "es", language: "sql" }), "```sql\nYour code here\n```");
   assert.equal(insertTemplateText("inline-math", { selected: "a+b" }), "$a+b$");
   assert.equal(insertTemplateText("image", { lang: "en", selected: "/x$&.svg" }), "![Describe the diagram](/x$&.svg)");
   assert.deepEqual(JSON.parse(insertTemplateText("interactive", { lang: "en", selected: 'a"b' }).split("\n")[1]), { src: 'a"b', title: "Explore the model", height: 480 });
@@ -194,9 +194,9 @@ test("text editor reuses Markdown mode for book templates", () => {
   assert.match(html, /var editorTemplate = params\.get\("template"\) \|\| "";/);
   assert.match(html, /editorTemplate === "book" \? "markdown" : readViewMode\(\)/);
   assert.match(html, /"\*\*Progress:\*\* 0%"/);
-  assert.match(html, /"\*\*Progreso:\*\* 0%"/);
+  assert.doesNotMatch(html, /"\*\*Progreso:\*\* 0%"/);
   assert.match(html, /bookBodyWithProgressSyntax/);
-  assert.match(html, /english \? "not set" : "sin registrar"/);
+  assert.match(html, /Progress\|Progreso/);
 });
 
 test("image editor uses one explicit save action and lightweight previews", () => {
