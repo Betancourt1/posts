@@ -1,6 +1,12 @@
 import { projectionSourcePath } from "./content-storage.js";
 
 const BOOK_PATH_PATTERN = /^content(?:_en)?\/books\/(?!_index\.md$)[^/]+\.md$/;
+const AUTHOR_LINE = /^\*\*(?:Author|Autor):\*\*[ \t]*(.*)$/mi;
+const PROGRESS_LINE = /^\*\*(?:Progress|Progreso):\*\*[ \t]*(.*)$/mi;
+const STATUS_LINE = /^\*\*(?:Status|Estado):\*\*[ \t]*(.*)$/mi;
+const RATING_LINE = /^\*\*(?:My rating|Mi calificación):\*\*[ \t]*(.*)$/mi;
+const RATING_LINE_WITH_BREAK = /^\*\*(?:My rating|Mi calificación):\*\*.*(?:\n|$)/mi;
+const REVIEW_SECTION = /^## (?:My review|Mi reseña)[ \t]*\n([\s\S]*?)(?=^#{1,2}[ \t]|(?![\s\S]))/m;
 const BOOK_TAGS = new Set([
   "book",
   "libro",
@@ -15,6 +21,62 @@ const BOOK_TAGS = new Set([
 
 export function isBookContentPath(path) {
   return BOOK_PATH_PATTERN.test(projectionSourcePath(String(path || "")));
+}
+
+export function readBookReading(frontMatter, body) {
+  return {
+    progress: String(frontMatter.book_progress ?? (frontMatter.book_status === "read" ? 100 : frontMatter.book_status === "to-read" ? 0 : "")),
+    rating: String(frontMatter.rating ?? ""),
+    review: body.match(REVIEW_SECTION)?.[1].trim() || "",
+  };
+}
+
+export function updateBookReading(frontMatter, body, reading) {
+  const previous = readBookReading(frontMatter, body);
+  const { progress = previous.progress, rating = previous.rating } = reading;
+  const review = String(reading.review ?? previous.review).replace(/\r\n/g, "\n").trim();
+  if (typeof progress !== "string" || !/^(?:100|[1-9]?\d)?$/.test(progress)) {
+    throw new Error("Progress must be a whole percentage between 0% and 100%.");
+  }
+  if (typeof rating !== "string" || !/^[1-5]?$/.test(rating)) {
+    throw new Error("The rating must be between 1 and 5.");
+  }
+
+  const sectionStart = body.search(/^##[ \t]/m);
+  const endOfHeader = sectionStart === -1 ? body.length : sectionStart;
+  let header = body.slice(0, endOfHeader);
+  let sections = body.slice(endOfHeader);
+
+  if (progress !== previous.progress) {
+    const line = `**Progress:** ${progress === "" ? "not set" : `${progress}%`}`;
+    const pattern = PROGRESS_LINE.test(header) ? PROGRESS_LINE : STATUS_LINE;
+    header = pattern.test(header) ? header.replace(pattern, line) : insertBookLine(header, AUTHOR_LINE, line);
+  }
+  if (rating !== previous.rating) {
+    const line = rating ? `**My rating:** ${rating}/5` : "";
+    if (RATING_LINE.test(header)) {
+      header = header.replace(rating ? RATING_LINE : RATING_LINE_WITH_BREAK, line);
+    } else if (line) {
+      const after = PROGRESS_LINE.test(header) ? PROGRESS_LINE : STATUS_LINE.test(header) ? STATUS_LINE : AUTHOR_LINE;
+      header = insertBookLine(header, after, line);
+    }
+    if (!rating) delete frontMatter.rating;
+  }
+  if (review !== previous.review) {
+    if (/^#{1,2}[ \t]/m.test(review)) {
+      throw new Error("Use level-three headings or smaller in the review.");
+    }
+    const section = review ? `## My review\n\n${review}\n\n` : "";
+    sections = REVIEW_SECTION.test(sections)
+      ? sections.replace(REVIEW_SECTION, () => section)
+      : `${sections.trimEnd()}${sections.trim() ? "\n\n" : ""}${section}`;
+    if (sections && header && !header.endsWith("\n\n")) header = `${header.trimEnd()}\n\n`;
+  }
+  return header + sections;
+}
+
+function insertBookLine(header, anchor, line) {
+  return anchor.test(header) ? header.replace(anchor, (match) => `${match}\n${line}`) : `${line}\n${header}`;
 }
 
 function statusFromProgress(progress) {
@@ -34,10 +96,10 @@ function normalizeTags(tags, status) {
 export function normalizeBookFrontMatter(path, frontMatter, body) {
   if (!isBookContentPath(path)) return frontMatter;
 
-  const markdown = String(body || "");
-  const authorMatch = markdown.match(/^\*\*(?:Author|Autor):\*\*\s*(.*?)\s*$/mi);
-  const progressMatch = markdown.match(/^\*\*(?:Progress|Progreso):\*\*\s*(.*?)\s*$/mi);
-  const ratingMatch = markdown.match(/^\*\*(?:My rating|Mi calificación):\*\*\s*(.*?)\s*$/mi);
+  const markdown = String(body || "").split(/^##[ \t]/m, 1)[0];
+  const authorMatch = markdown.match(AUTHOR_LINE);
+  const progressMatch = markdown.match(PROGRESS_LINE);
+  const ratingMatch = markdown.match(RATING_LINE);
 
   if (authorMatch?.[1]) {
     frontMatter.book_author = authorMatch[1].trim();
@@ -79,7 +141,7 @@ export function normalizeBookFrontMatter(path, frontMatter, body) {
     } else {
       const parsedRating = rawRating.match(/^([1-5])(?:\/5)?$/);
       if (!parsedRating) {
-        throw new Error("La calificación debe estar entre 1 y 5.");
+        throw new Error("The rating must be between 1 and 5.");
       }
       frontMatter.rating = Number(parsedRating[1]);
     }

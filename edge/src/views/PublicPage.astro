@@ -10,6 +10,7 @@ import Photography from "../components/Photography.astro";
 import ProjectCatalog from "../components/ProjectCatalog.astro";
 import ProjectOverview from "../components/ProjectOverview.astro";
 import Quotes from "../components/Quotes.astro";
+import ReadingForm from "../components/ReadingForm.astro";
 import Single from "../components/Single.astro";
 import TagList from "../components/TagList.astro";
 import Tags from "../components/Tags.astro";
@@ -19,6 +20,7 @@ import { removeLegacyLinkSpacing, renderMarkdownSummary } from "../lib/content-p
 import { adminPathForPublicRoute } from "../lib/public-page.mjs";
 import { contentExcerpt } from "../lib/content-excerpt.mjs";
 import type { ShellPage } from "../components/types";
+import { isBookContentPath } from "../../../functions/_lib/book-content.js";
 
 interface Props {
   model: any;
@@ -348,6 +350,7 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
       authorMode={authorMode}
       books={(model.items || []).map((book: any) => ({
         ...listItem(book),
+        sourcePath: book.sourcePath,
         author: book.frontMatter?.book_author,
         image: book.frontMatter?.image,
         imageAlt: book.frontMatter?.image_alt,
@@ -358,6 +361,11 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
       }))}
     />
   )}
+
+  {authorMode && (layout === "books" || (model.layout === "single" && isBookContentPath(page.sourcePath))) && (
+    <ReadingForm kind="book" />
+  )}
+  {authorMode && layout === "quotes" && <ReadingForm kind="quote" />}
 
   {model.layout === "photography" && (
     <Photography

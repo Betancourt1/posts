@@ -2664,7 +2664,7 @@ tr:nth-child(even) { background: var(--table-stripe); }
   font-size: 0.9rem;
 }
 
-button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.book-shelf-more-button):not(.typo-btn):not(.typo-btn-choice):not(.wandering-snail), .button:not(.graph-tool), a.button {
+button:not(.graph-tool):not(.nav-toggle):not(.author-action-button):not(.book-shelf-more-button):not(.typo-btn):not(.typo-btn-choice):not(.wandering-snail):not(.reading-update, .reading-form-editor), .button:not(.graph-tool), a.button {
   display: inline-block;
   border: 1px solid var(--line);
   border-radius: 0;
@@ -4096,6 +4096,111 @@ html.infra-mode .infra-raw-block {
 
 .author-form-actions--split {
   justify-content: space-between;
+}
+
+.reading-update {
+  margin-top: 0.2rem;
+  padding: 0;
+  min-height: 44px;
+  background: none;
+  color: var(--ink-dim);
+  border: 0;
+  font: inherit;
+  font-size: 0.78rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.reading-form-dialog {
+  width: min(33rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: clamp(1rem, 4vw, 1.5rem);
+  border: 1px solid var(--line);
+  border-radius: 0.625rem;
+  background: var(--bg);
+  color: var(--ink);
+  box-shadow: 0 0.75rem 1.5rem #0003, 0 1.5rem 4rem #0004;
+}
+
+.reading-form-dialog::backdrop {
+  background: #0009;
+}
+
+html:has(.reading-form-dialog[open]) {
+  overflow: hidden;
+}
+
+.reading-form-heading h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.reading-form-heading p {
+  margin: 0.25rem 0 0;
+  color: var(--ink-dim);
+}
+
+.reading-form-heading p:empty {
+  display: none;
+}
+
+.reading-form-fields {
+  display: grid;
+  gap: 0.85rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.reading-form-fields .author-body-editor {
+  min-height: 7rem;
+  padding: 0.55rem;
+}
+
+.reading-form-dialog :is(input:not([type="checkbox"]), select, textarea, .author-check) {
+  min-height: 44px;
+  font-size: 1rem;
+}
+
+.reading-form-status {
+  margin: 0;
+  font-size: 0.86rem;
+}
+
+.reading-form-status:empty {
+  position: absolute;
+  clip-path: inset(50%);
+}
+
+.reading-form-actions {
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reading-form-actions .reading-form-editor {
+  margin-inline-end: auto;
+  padding-inline-start: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-dim);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.reading-form-actions button[type] {
+  min-height: 44px;
+}
+
+.reading-form-actions button[type="submit"] {
+  font-weight: 700;
+}
+
+.reading-form-actions button:disabled {
+  opacity: 0.55;
+  cursor: default;
 }
 
 .author-form-actions button,

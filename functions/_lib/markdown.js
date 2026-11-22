@@ -145,7 +145,7 @@ export function splitMarkdown(text) {
 }
 
 function quoteYaml(value) {
-  return `"${String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+  return JSON.stringify(String(value));
 }
 
 function formatYamlValue(value, key) {

@@ -14,6 +14,7 @@ interface DisplayQuote extends QuoteRecord {
   date: string;
   tags: TagItem[];
   key: string;
+  draft: boolean;
   sizeClass: string;
   spanClass: string;
 }
@@ -44,6 +45,7 @@ const allQuotes = items
   .filter((item) => !item.hidden)
   .flatMap((item) => item.quotes.map((quote, index) => ({
     ...quote,
+    draft: item.draft === true,
     href: item.href,
     date: String(item.date || ""),
     tags: (item.tags || []).filter((tag) => !["cita", "quote"].includes(tag.label.toLowerCase())).slice(0, 2),
@@ -82,7 +84,7 @@ const quoteItems: DisplayQuote[] = [...selectedQuotes, ...remainingQuotes]
         <h1>{title}</h1>
         {authorMode && (
           <div class="author-inline-actions">
-            <button type="button" class="author-action-button" data-author-action="add-post" data-notebook={notebook} aria-label={addLabel} title={addLabel}>
+            <button type="button" class="author-action-button" data-reading-form-trigger={notebook} aria-haspopup="dialog" aria-label={addLabel} title={addLabel}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M12 12v6"></path><path d="M9 15h6"></path></svg>
             </button>
             <button type="button" class="author-action-button" data-author-action="edit-notebook" aria-label="Edit notebook" title="Edit notebook">
@@ -123,6 +125,7 @@ const quoteItems: DisplayQuote[] = [...selectedQuotes, ...remainingQuotes]
           <a class="quote-index-text" href={quote.href}>{quote.text}</a>
           <div class="quote-index-rule" aria-hidden="true"></div>
           <a class="quote-index-author" href={quote.href}>{quote.author}</a>
+          {authorMode && quote.draft && <span class="quote-index-tags">Draft</span>}
           {(quote.source || quote.year || quote.page) && (
             <p class="quote-index-source">
               {quote.source && <cite>{quote.source}</cite>}

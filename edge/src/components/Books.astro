@@ -75,8 +75,8 @@ const batchSize = 6;
       <section class="book-shelf" data-book-shelf aria-labelledby={`book-shelf-${group.status}`}>
         <div class="book-shelf-heading"><h2 id={`book-shelf-${group.status}`}>{group.label}</h2></div>
         <div class="book-shelf-list" id={`book-shelf-list-${group.status}`}>
-          {previewBooks.map((book) => <BookRow book={book} statusLabel={group.statusLabel} defaultFilled={group.filled} />)}
-          {remainingBooks.map((book) => <BookRow book={book} statusLabel={group.statusLabel} defaultFilled={group.filled} initiallyHidden />)}
+          {previewBooks.map((book) => <BookRow book={book} statusLabel={group.statusLabel} defaultFilled={group.filled} authorMode={authorMode} />)}
+          {remainingBooks.map((book) => <BookRow book={book} statusLabel={group.statusLabel} defaultFilled={group.filled} authorMode={authorMode} initiallyHidden />)}
         </div>
         {remainingBooks.length > 0 && (
           <button

@@ -123,7 +123,7 @@ test("savePage normalizes legacy Spanish photography tags to English", async () 
 test("quote metadata arrays survive Markdown formatting", () => {
   const quotes = [
     {
-      text: "Podemos saber más de lo que podemos decir.",
+      text: "Podemos saber más de lo que podemos decir.\n\nUna segunda línea con \"comillas\".",
       author: "Michael Polanyi",
       source: "The Tacit Dimension",
       year: "1966",
@@ -137,6 +137,36 @@ test("quote metadata arrays survive Markdown formatting", () => {
   const markdown = formatMarkdown({ title: "Citas", quotes }, "> Texto\n");
 
   assert.deepEqual(splitMarkdown(markdown).frontMatter.quotes, quotes);
+});
+
+test("creates one structured quote and safely retries the same save", async (context) => {
+  const path = "content/lit/test-quote.md";
+  let writtenContent;
+  const fetch = context.mock.method(globalThis, "fetch", async (url, options = {}) => {
+    if (options.method === "PUT") {
+      writtenContent = Buffer.from(JSON.parse(options.body).content, "base64").toString("utf8");
+      return jsonResponse(200, { commit: { sha: "new" } });
+    }
+    const filePath = new URL(url).pathname.split("/contents/").at(-1);
+    const content = filePath === path ? writtenContent : filePath === "content/lit/_index.md" ? "---\ntitle: Quotes\n---\n" : null;
+    return content
+      ? jsonResponse(200, { type: "file", path: filePath, sha: "sha", content: encoded(content) })
+      : jsonResponse(404, { message: "Not Found" });
+  });
+  const quote = { text: 'Primera línea.\n\n"Segunda línea".', author: "Autora", source: "Libro", year: "2026", page: "22–23" };
+  const payload = { notebook: "content/lit", slug: "test-quote", quote, draft: true, tags: "quote, literatura" };
+  const result = await createPost(env, { ...payload, notebook: "content_en/lit" });
+  const saved = splitMarkdown(writtenContent);
+
+  assert.equal(result.path, path);
+  assert.equal(result.changed, true);
+  assert.deepEqual(saved.frontMatter.quotes, [quote]);
+  assert.equal(saved.frontMatter.draft, true);
+  assert.equal(saved.frontMatter.hidden, undefined);
+  assert.deepEqual(saved.frontMatter.tags, ["quote", "literatura"]);
+  assert.match(saved.body, /— Autora/);
+  assert.equal((await createPost(env, payload)).changed, false);
+  assert.equal(fetch.mock.calls.filter(({ arguments: [, options] }) => options?.method === "PUT").length, 1);
 });
 
 test("deletePage returns the exact deleted URL separately from its fallback", async () => {

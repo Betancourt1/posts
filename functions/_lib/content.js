@@ -9,7 +9,7 @@ import {
   writeGitHubFile,
   writeGitHubFileBase64,
 } from "./github.js";
-import { normalizeBookFrontMatter } from "./book-content.js";
+import { isBookContentPath, normalizeBookFrontMatter, updateBookReading } from "./book-content.js";
 import { formatMarkdown, splitMarkdown, tagsFromValue } from "./markdown.js";
 import {
   CONTENT_ROOTS,
@@ -384,13 +384,24 @@ export function notebookDestinations(notebooks) {
 }
 
 export async function createPost(env, payload) {
-  const title = String(payload.title || "").trim();
+  let quote = null;
+  if (payload.quote != null) {
+    const { text, author, source, year, page } = payload.quote;
+    quote = Object.fromEntries(Object.entries({ text, author, source, year, page })
+      .map(([key, value]) => [key, typeof value === "string" ? value.trim() : ""])
+      .filter(([, value]) => value));
+    if (!quote.text || !quote.author) throw new Error("Quote text and author are required.");
+  }
+  const title = quote
+    ? [quote.author, quote.source].filter(Boolean).join(" — ")
+    : String(payload.title || "").trim();
 
   if (!title) {
     throw new Error("A title is required.");
   }
 
   const requestedNotebook = safeNotebookPath(payload.notebook || "content/posts");
+  if (quote && !/^content(?:_en|_es)?\/lit$/.test(requestedNotebook)) throw new Error("Invalid quotes notebook.");
   const indexFile = await readGitHubFile(env, `${requestedNotebook}/_index.md`);
   if (!indexFile) throw new Error("Invalid notebook.");
 
@@ -411,10 +422,10 @@ export async function createPost(env, payload) {
   const coverAlt = explicitImageAlt || images[0]?.alt || "";
   const isPhotoNotebook = notebook.endsWith("/fotografia");
   const isProjectNotebook = notebook.endsWith("/proyectos-profesionales");
-  const body = String(payload.body || (image || isProjectNotebook ? "" : `# ${title}\n`));
+  let body = String(payload.body || (image || isProjectNotebook ? "" : `# ${title}\n`));
   const existing = await readGitHubFile(env, path);
 
-  if (existing) {
+  if (existing && !quote) {
     throw new Error("A file already exists at this path.");
   }
 
@@ -425,6 +436,16 @@ export async function createPost(env, payload) {
     tags: tagsFromValue(payload.tags),
     summary: String(payload.summary || ""),
   };
+
+  if (quote) {
+    const attribution = [quote.author, quote.source, quote.year, quote.page && `p. ${quote.page}`]
+      .filter(Boolean).join(", ");
+    const plain = (value) => value.replace(/[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g, "\\$&");
+    body = `${quote.text.split(/\r?\n/).map((line) => `> ${plain(line)}`).join("\n")}\n\n— ${plain(attribution)}`;
+    frontMatter.tags = [...new Set(["quote", ...frontMatter.tags])];
+    frontMatter.quotes = [quote];
+    if (existing && !payload.date) frontMatter.date = splitMarkdown(existing.content).frontMatter.date || date;
+  }
 
   if (isWritingNotebook) {
     frontMatter.essay = payload.essay === true && payload.technical !== true;
@@ -471,9 +492,14 @@ export async function createPost(env, payload) {
   normalizeBookFrontMatter(path, frontMatter, body);
   normalizePhotoFrontMatter(path, frontMatter);
 
+  const content = formatMarkdown(frontMatter, body);
+  if (existing) {
+    if (content !== existing.content) throw new Error("A file already exists at this path.");
+    return { path, url: contentPathToUrl(path), changed: false, frontMatter };
+  }
   await writeGitHubFile(env, {
     path,
-    content: formatMarkdown(frontMatter, body),
+    content,
     message: commitMessage("Crea", path),
   });
 
@@ -559,16 +585,26 @@ export async function savePage(env, payload) {
 
   const path = current.path;
   const parsed = splitMarkdown(current.content);
+  const bookReading = payload.bookReading;
+  if (bookReading != null && (!isBookContentPath(path) || typeof bookReading !== "object")) {
+    throw new Error("Invalid book file.");
+  }
+  const patch = bookReading ? {} : payload.frontMatter || {};
   const frontMatter = {
     ...parsed.frontMatter,
-    ...(payload.frontMatter || {}),
+    ...patch,
   };
 
-  Object.entries(payload.frontMatter || {}).forEach(([key, value]) => {
+  Object.entries(patch).forEach(([key, value]) => {
     if (value === null) delete frontMatter[key];
   });
 
-  const body = String(payload.body || "");
+  const body = bookReading
+    ? updateBookReading(frontMatter, parsed.body, bookReading)
+    : String(payload.body || "");
+  if (bookReading && body === parsed.body && frontMatter.rating === parsed.frontMatter.rating) {
+    return { path, url: contentPathToUrl(path), changed: false, frontMatter };
+  }
   if (/^content(?:_en|_es)?\/proyectos-profesionales\//.test(path) && !isNotebookIndex(path)) {
     applyProjectFields(frontMatter);
   }

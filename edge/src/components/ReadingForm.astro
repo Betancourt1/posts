@@ -1,0 +1,74 @@
+---
+interface Props {
+  kind: "book" | "quote";
+}
+
+const { kind } = Astro.props;
+const book = kind === "book";
+const title = book ? "Update reading" : "New quote";
+const returnTo = book ? "/admin/books/" : "/admin/lit/";
+---
+
+<dialog class="reading-form-dialog" data-reading-form={kind} data-return-to={returnTo} aria-labelledby="reading-form-title">
+  <form class="author-form">
+    <header class="reading-form-heading">
+      <h2 id="reading-form-title">{title}</h2>
+      {book && <p data-book-title></p>}
+    </header>
+    <fieldset class="reading-form-fields" disabled={book}>
+      {book ? (
+        <>
+          <div class="author-grid">
+            <label class="author-field">
+              Progress (%)
+              <input name="progress" type="number" inputmode="numeric" min="0" max="100" step="1" placeholder="Not set" />
+            </label>
+            <label class="author-field">
+              Rating
+              <select name="rating">
+                <option value="">No rating</option>
+                {[1, 2, 3, 4, 5].map((rating) => <option value={rating}>{rating} / 5</option>)}
+              </select>
+            </label>
+          </div>
+          <label class="author-field">
+            My review
+            <textarea class="author-body-editor" name="review" rows="5"></textarea>
+          </label>
+        </>
+      ) : (
+        <>
+          <label class="author-field">
+            Quote text
+            <textarea class="author-body-editor" name="text" rows="5" required autofocus></textarea>
+          </label>
+          <div class="author-grid">
+            <label class="author-field">Author<input name="author" required /></label>
+            <label class="author-field">Work or source<input name="source" /></label>
+            <label class="author-field">Year<input name="year" /></label>
+            <label class="author-field">Page<input name="page" /></label>
+          </div>
+          <label class="author-field">
+            Tags (comma-separated)
+            <input name="tags" />
+          </label>
+          <label class="author-check">
+            <input name="draft" type="checkbox" />Save as draft
+          </label>
+        </>
+      )}
+    </fieldset>
+    <p class="reading-form-status" role="status" data-form-status></p>
+    <footer class="author-form-actions reading-form-actions">
+      {book && <button type="button" class="reading-form-editor" data-full-editor data-author-action="edit-post">Open full editor</button>}
+      <button type="button" data-form-cancel autofocus={book}>Cancel</button>
+      <button type="submit" disabled={book} data-draft-label="Save draft">
+        {book ? "Save changes" : "Publish quote"}
+      </button>
+    </footer>
+  </form>
+</dialog>
+
+<script>
+  import "../../client/reading-form/index.js";
+</script>

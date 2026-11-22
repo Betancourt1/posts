@@ -87,6 +87,7 @@ export interface QuoteItem extends ContentListItem {
 }
 
 export interface BookItem extends ContentListItem {
+  sourcePath?: string | null;
   author?: string | null;
   image?: string | null;
   imageAlt?: string | null;

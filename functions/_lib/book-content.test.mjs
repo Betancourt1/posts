@@ -2,12 +2,13 @@ import assert from "node:assert/strict";
 import { readdir } from "node:fs/promises";
 import test from "node:test";
 import { isNotebookIndex, projectionSourcePath } from "./content-storage.js";
-import { isBookContentPath, normalizeBookFrontMatter } from "./book-content.js";
+import { isBookContentPath, normalizeBookFrontMatter, readBookReading, updateBookReading } from "./book-content.js";
 
 test("book paths are limited to the canonical book section", () => {
   assert.equal(isBookContentPath("content_en/books/a-wizard-of-earthsea.md"), true);
   assert.equal(isBookContentPath("content_es/libros/un-mago-de-terramar.md"), false);
   assert.equal(isBookContentPath("content_es/posts/book.md"), false);
+  assert.equal(isBookContentPath("content/books/_index.md"), false);
 });
 
 test("Spanish book pages are generated instead of duplicated as Markdown", async () => {
@@ -18,6 +19,29 @@ test("Spanish book pages are generated instead of duplicated as Markdown", async
 
   assert.deepEqual(bookMarkdown, []);
   assert.equal(files.includes("_content.gotmpl"), true);
+});
+
+test("editing a legacy book review preserves catalog details and adjacent sections", () => {
+  const path = "content/books/legacy.md";
+  const metadata = { book_author: "Author", book_status: "read", rating: "4", tags: ["book", "read", "fiction"], draft: true };
+  const body = "**Author:** Author\n**Status:** Read\n**My rating:** 4/5\n**Publisher:** Press\n\n## My review\n\nBefore.\n\n## Notes\n\nKeep these.\n";
+  const review = "**Progress:** 40%\n\nAfter.";
+  const updated = updateBookReading(metadata, body, { review });
+  normalizeBookFrontMatter(path, metadata, updated);
+
+  assert.deepEqual(readBookReading(metadata, updated), { progress: "100", rating: "4", review });
+  assert.match(updated, /\*\*Status:\*\* Read/);
+  assert.match(updated, /\*\*Publisher:\*\* Press/);
+  assert.ok(updated.endsWith("## Notes\n\nKeep these.\n"));
+  assert.equal(metadata.draft, true);
+  assert.equal(metadata.book_progress, undefined);
+
+  const cleared = updateBookReading(metadata, updated, { progress: "", rating: "", review: "" });
+  normalizeBookFrontMatter(path, metadata, cleared);
+  assert.deepEqual(readBookReading(metadata, cleared), { progress: "", rating: "", review: "" });
+  assert.equal(metadata.book_status, "currently-reading");
+  assert.doesNotMatch(cleared, /My rating|My review/);
+  assert.ok(cleared.endsWith("## Notes\n\nKeep these.\n"));
 });
 
 test("book Markdown derives progress, status, rating, summary, and tags", () => {
