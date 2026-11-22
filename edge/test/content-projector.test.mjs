@@ -118,38 +118,7 @@ test("preserves nested photo metadata from a real source", async () => {
   assert.equal(document.searchable, true);
 });
 
-test("keeps visible bilingual inventories aligned while allowing local drafts", async () => {
-  async function relativeFiles(root, files) {
-    const projected = await Promise.all(files
-      .filter((file) => path.basename(file) !== "_index.md")
-      .map(async (file) => {
-        const sourcePath = path.relative(REPO_ROOT, file).split(path.sep).join("/");
-        const source = projectSource({
-          path: sourcePath,
-          rawMarkdown: await readFile(file, "utf8"),
-        });
-        if (source.documents.every((document) => document.draft || document.hidden)) return null;
-        return path.relative(root, file).split(path.sep).join("/");
-      }));
-    return projected.filter(Boolean).sort();
-  }
-
-  for (const section of ["posts", "lit", "fotografia"]) {
-    const spanishRoot = path.join(REPO_ROOT, "content_es", section);
-    const englishRoot = path.join(REPO_ROOT, "content_en", section);
-    const spanishFiles = await relativeFiles(spanishRoot, await markdownFiles(spanishRoot));
-    const englishFiles = await relativeFiles(englishRoot, await markdownFiles(englishRoot));
-
-    assert.deepEqual(englishFiles, spanishFiles, `${section} must expose the same entries`);
-    for (const relativePath of spanishFiles) {
-      assert.equal(
-        await readFile(path.join(englishRoot, relativePath), "utf8"),
-        await readFile(path.join(spanishRoot, relativePath), "utf8"),
-        `${section}/${relativePath} must remain the same in both languages`,
-      );
-    }
-  }
-
+test("keeps stable translation keys for legacy guestbook routes", async () => {
   const guestbookSources = [
     "content_en/guestbook/_index.md",
     "content_es/visitas/_index.md",

@@ -126,9 +126,10 @@ export const editorCoreClientScript = String.raw`(function (global) {
     var joiner = separator || "-";
     return String(value || "")
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/(\p{Script=Latin})\p{M}+/gu, "$1")
+      .normalize("NFC")
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, joiner)
+      .replace(/[^\p{L}\p{M}\p{N}]+/gu, joiner)
       .replace(new RegExp("^" + joiner + "+|" + joiner + "+$", "g"), "");
   }
 

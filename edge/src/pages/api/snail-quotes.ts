@@ -4,9 +4,8 @@ import { sectionItems } from "../../lib/content-queries.mjs";
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ url }) => {
-  const lang = url.searchParams.get("lang") === "es" ? "es" : "en";
-  const items = await sectionItems(env.DB, lang, "lit");
+export const GET: APIRoute = async () => {
+  const items = await sectionItems(env.DB, "lit");
   const quotes = items.flatMap((item: any) =>
     (Array.isArray(item.frontMatter?.quotes) ? item.frontMatter.quotes : [])
       .filter((quote: any) => typeof quote.text === "string" && quote.text.trim()

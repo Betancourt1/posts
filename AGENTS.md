@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-The production site is the bilingual Astro SSR runtime in `edge/`, deployed as a Cloudflare Worker. English Markdown lives in `content_en/` and is served from `/`; Spanish Markdown lives in `content_es/` and is served from `/es/`. GitHub is the canonical content store, D1 is the runtime projection used by Astro, and R2 stores production media served from `/uploads/*`.
+The production site is the Astro SSR runtime in `edge/`, deployed as a Cloudflare Worker. It has one English interface and one content catalog. The legacy `content_en/` and `content_es/` paths, including existing public URLs, remain valid for content written in any language. New blogs and notebooks use the canonical `content_en/` tree. GitHub is the canonical content store, D1 is the runtime projection used by Astro, and R2 stores production media served from `/uploads/*`.
 
 Production routes, layouts, views, components, and server libraries live in `edge/src/`; production client scripts live in `edge/client/`. Shared static sources live in `static/` and are copied into the edge build by `edge/scripts/prepare-public.mjs`. Shared editor handlers and services live in `functions/` and are adapted by the Astro routes under `/admin/`. D1 migrations live in `edge/db/migrations/`; seed and media utilities live in `edge/scripts/`.
 

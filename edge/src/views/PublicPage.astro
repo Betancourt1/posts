@@ -18,7 +18,7 @@ import SiteLayout from "../layouts/SiteLayout.astro";
 import { removeLegacyLinkSpacing, renderMarkdownSummary } from "../lib/content-projector.mjs";
 import { adminPathForPublicRoute } from "../lib/public-page.mjs";
 import { contentExcerpt } from "../lib/content-excerpt.mjs";
-import type { Language, ShellPage } from "../components/types";
+import type { ShellPage } from "../components/types";
 
 interface Props {
   model: any;
@@ -34,15 +34,15 @@ function contentHref(path: string) {
   return authorMode ? adminPathForPublicRoute(path) : path;
 }
 
-function tagHref(slug: string, targetLang: Language = lang) {
-  return contentHref(`${targetLang === "es" ? "/es" : ""}/tags/${slug}/`);
+function tagHref(slug: string) {
+  return contentHref(`/tags/${slug}/`);
 }
 
-function tagsFor(document: any, targetLang: Language = lang) {
+function tagsFor(document: any) {
   return (document.tags || []).map((tag: any) => ({
     label: tag.label,
     slug: tag.slug,
-    href: tagHref(tag.slug, targetLang),
+    href: tagHref(tag.slug),
   }));
 }
 
@@ -57,7 +57,6 @@ function photoImages(value: unknown) {
 }
 
 function listItem(document: any) {
-  const itemLang = document.lang === "es" || document.lang === "en" ? document.lang : lang;
   const gallery = photoImages(document.frontMatter?.images);
   const first = gallery[0];
   return {
@@ -65,8 +64,7 @@ function listItem(document: any) {
     href: contentHref(document.path),
     date: document.date,
     summary: contentExcerpt(document),
-    contentLanguage: document.frontMatter?.content_language || document.lang,
-    tags: tagsFor(document, itemLang),
+    tags: tagsFor(document),
     section: document.section,
     draft: document.draft,
     hidden: document.hidden,
@@ -134,15 +132,15 @@ function bookReview(markdown: string) {
   return match?.[1]?.trim() || null;
 }
 
-function badgeLabel(section: string, targetLang: Language) {
+function badgeLabel(section: string) {
   const labels: Record<string, string> = {
-    posts: targetLang === "es" ? "escrito" : "post",
-    "proyectos-profesionales": targetLang === "es" ? "proyecto" : "project",
+    posts: "post",
+    "proyectos-profesionales": "project",
     zettelkasten: "zettel",
-    lit: targetLang === "es" ? "cita" : "quote",
-    fotografia: targetLang === "es" ? "foto" : "photo",
-    books: targetLang === "es" ? "libro" : "book",
-    libros: targetLang === "es" ? "libro" : "book",
+    lit: "quote",
+    fotografia: "photo",
+    books: "book",
+    libros: "book",
   };
   return labels[section] || section;
 }
@@ -192,7 +190,6 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
   lang={lang}
   currentPath={contentHref(model.path)}
   activeSection={page.section === "posts" && frontMatter.technical === true ? "proyectos-profesionales" : page.section}
-  translationPath={contentHref(model.translationPath || (lang === "es" ? "/" : "/es/"))}
   navigation={navigation}
   archiveMonths={model.archiveMonths || []}
   title={title}
@@ -271,7 +268,7 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
                     <div class="post-card-meta">{displayDate(item.date)}</div>
                     {item.section && (
                       <span class={`archive-badge archive-badge--${item.section}`}>
-                        {badgeLabel(item.section, lang)}
+                        {badgeLabel(item.section)}
                       </span>
                     )}
                   </div>

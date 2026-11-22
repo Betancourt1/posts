@@ -7,64 +7,64 @@ export const projectCaseSkeleton = {
 };
 
 export const projectEditorMarkup = `
-<section id="project-editor" aria-label="Proyecto" hidden>
+<section id="project-editor" aria-label="Project" hidden>
   <fieldset class="project-group">
-    <legend>Presentación</legend>
+    <legend>Presentation</legend>
     <div class="project-grid">
-      <label>Estado del proyecto
+      <label>Project status
         <select id="project-status">
-          <option value="">Sin estado</option>
+          <option value="">No status</option>
           ${Object.entries(projectStatuses).map(([status, names]) => `<option value="${status}">${names[1]}</option>`).join("")}
         </select>
       </label>
-      <label>Rol <input id="project-role" placeholder="Diseño y desarrollo" autocomplete="off"></label>
-      <label>Periodo <input id="project-period" placeholder="2025–2026" autocomplete="off"></label>
-      <label>Organización <input id="project-org" placeholder="Empresa o contexto" autocomplete="off"></label>
-      <label>Orden <input id="project-order" type="number" step="1" placeholder="1" inputmode="numeric"></label>
-      <label class="project-check"><input type="checkbox" id="project-featured"> Destacar en el catálogo</label>
+      <label>Role <input id="project-role" placeholder="Design and development" autocomplete="off"></label>
+      <label>Period <input id="project-period" placeholder="2025–2026" autocomplete="off"></label>
+      <label>Organization <input id="project-org" placeholder="Company or context" autocomplete="off"></label>
+      <label>Order <input id="project-order" type="number" step="1" placeholder="1" inputmode="numeric"></label>
+      <label class="project-check"><input type="checkbox" id="project-featured"> Feature in the catalog</label>
     </div>
     <label>Stack <input id="project-stack" placeholder="Python, SQL, Dagster" autocomplete="off"></label>
-    <small>Separa las tecnologías con comas.</small>
+    <small>Separate technologies with commas.</small>
     <div class="project-results">
-      <span id="project-results-label">Resultados (hasta 4)</span>
+      <span id="project-results-label">Results (up to 4)</span>
       <div id="project-highlights" role="group" aria-labelledby="project-results-label"></div>
-      <button type="button" id="project-highlight-add">Añadir resultado</button>
+      <button type="button" id="project-highlight-add">Add result</button>
     </div>
   </fieldset>
   <fieldset class="project-group">
-    <legend>Recursos</legend>
-    <p>El primer enlace aparece en el catálogo. Puedes guardar un proyecto sin enlaces.</p>
+    <legend>Resources</legend>
+    <p>The first link appears in the catalog. You can save a project without links.</p>
     <div id="project-rows"></div>
     <div class="project-tools">
-      <button type="button" id="project-add">Añadir enlace</button>
-      <button type="button" id="writing-load">Elegir del Blog</button>
-      <select id="writing-select" aria-label="Publicación del Blog" hidden></select>
+      <button type="button" id="project-add">Add link</button>
+      <button type="button" id="writing-load">Choose from Blog</button>
+      <select id="writing-select" aria-label="Blog post" hidden></select>
     </div>
     <small role="status" id="writing-status"></small>
   </fieldset>
   <fieldset class="project-group">
-    <legend>Vista previa de la tarjeta</legend>
+    <legend>Card preview</legend>
     <small id="project-preview-note"></small>
     <div id="project-preview" aria-hidden="true"></div>
   </fieldset>
-  <button type="button" id="project-template" hidden>Insertar estructura del caso</button>
+  <button type="button" id="project-template" hidden>Insert case study outline</button>
   <template id="project-row">
     <fieldset>
-      <legend>Recurso</legend>
-      <select aria-label="Tipo">${Object.entries(projectTypes).map(([type, names]) => `<option value="${type}">${names[1]}</option>`).join("")}</select>
-      <input aria-label="Texto del enlace" placeholder="Texto del enlace" autocomplete="off">
-      <input aria-label="Destino" placeholder="https://… o /ruta/" autocomplete="off">
+      <legend>Resource</legend>
+      <select aria-label="Type">${Object.entries(projectTypes).map(([type, names]) => `<option value="${type}">${names[1]}</option>`).join("")}</select>
+      <input aria-label="Link text" placeholder="Link text" autocomplete="off">
+      <input aria-label="Destination" placeholder="https://… or /path/" autocomplete="off">
       <div class="project-row-actions">
-        <button type="button" data-move="up" aria-label="Subir recurso">↑</button>
-        <button type="button" data-move="down" aria-label="Bajar recurso">↓</button>
-        <button type="button" data-remove>Quitar</button>
+        <button type="button" data-move="up" aria-label="Upload resource">↑</button>
+        <button type="button" data-move="down" aria-label="Download resource">↓</button>
+        <button type="button" data-remove>Remove</button>
       </div>
     </fieldset>
   </template>
   <template id="project-highlight-row">
     <div class="project-highlight">
-      <input aria-label="Resultado" placeholder="Un resultado concreto" autocomplete="off">
-      <button type="button" data-remove aria-label="Quitar resultado">Quitar</button>
+      <input aria-label="Result" placeholder="A concrete result" autocomplete="off">
+      <button type="button" data-remove aria-label="Remove result">Remove</button>
     </div>
   </template>
 </section>`;
@@ -242,7 +242,7 @@ function bindProjectEditor(onEdit, request, language, hooks) {
     const card = element("div", fields.featured ? "pv-card" : "pv-card is-compact");
 
     if (state) card.append(element("span", "pv-badge pv-" + state, PROJECT_STATUSES[state][Number(spanish())]));
-    card.append(element("div", "pv-title", title || say("Sin título", "Untitled")));
+    card.append(element("div", "pv-title", title || say("Untitled", "Untitled")));
     const facts = [fields.role, fields.period, fields.org].filter(Boolean).join(" · ");
     if (facts) card.append(element("div", "pv-meta", facts));
     card.append(element("div", summary ? "pv-blurb" : "pv-blurb pv-missing", summary || say("Sin resumen", "No summary")));
@@ -264,8 +264,8 @@ function bindProjectEditor(onEdit, request, language, hooks) {
     card.append(actions);
     preview.replaceChildren(card);
     previewNote.textContent = fields.featured
-      ? "Así se verá como proyecto destacado."
-      : "Así se verá como entrada compacta; los resultados solo aparecen en destacados.";
+      ? "Preview as a featured project."
+      : "Preview as a compact entry. Results appear on featured projects.";
   }
 
   function sync() {
@@ -317,17 +317,15 @@ function bindProjectEditor(onEdit, request, language, hooks) {
   panel.querySelector("#project-add").onclick = () => { add().querySelector("input").focus(); sync(); onEdit(); };
   caseButton.onclick = () => hooks.insert(PROJECT_CASE_SKELETON[spanish() ? "es" : "en"]);
   panel.querySelector("#writing-load").onclick = async () => {
-    const lang = language();
-    status.textContent = "Cargando…";
+    status.textContent = "Loading…";
     try {
-      const { writings } = await request("/api/project-writings?lang=" + lang);
-      if (lang !== language()) return;
-      picker.replaceChildren(new Option("Selecciona una publicación", ""));
+      const { writings } = await request("/api/project-writings");
+      picker.replaceChildren(new Option("Select a post", ""));
       for (const post of writings) picker.add(new Option(post.title, post.path));
-      status.textContent = writings.length ? "" : "No hay publicaciones en este idioma.";
+      status.textContent = writings.length ? "" : "No blog posts available.";
       picker.hidden = !writings.length;
       if (writings.length) picker.focus();
-    } catch { status.textContent = "No se pudo cargar el Blog. Vuelve a intentarlo."; }
+    } catch { status.textContent = "Unable to load Blog posts. Try again."; }
   };
   picker.onchange = () => {
     if (!picker.value) return;

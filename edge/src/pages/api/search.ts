@@ -7,9 +7,8 @@ export const prerender = false;
 
 export const GET: APIRoute = async ({ url }) => {
   const query = String(url.searchParams.get("q") || "").trim().slice(0, 160);
-  const lang = url.searchParams.get("lang") === "es" ? "es" : "en";
   const limit = Math.min(30, Math.max(1, Number(url.searchParams.get("limit")) || 20));
-  const documents = query ? await searchDocuments(env.DB, query, lang, limit) : [];
+  const documents = query ? await searchDocuments(env.DB, query, limit) : [];
   const results = documents.map((document: any) => ({
     path: document.path,
     title: document.title,

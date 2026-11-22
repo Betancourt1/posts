@@ -3,7 +3,7 @@ export const imageEditorController = Object.freeze({
   notebook: false,
   arenaEligible: true,
   requiresImage: true,
-  settingsTitle: "Propiedades",
-  deleteLabel: "Eliminar publicación",
+  settingsTitle: "Properties",
+  deleteLabel: "Delete post",
   deleteEndpoint: "/api/delete-page",
 });

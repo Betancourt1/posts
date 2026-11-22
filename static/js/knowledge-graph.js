@@ -545,7 +545,7 @@
       if (!labelsButton) {
         return;
       }
-      var label = state.forceLabels ? "Etiquetas: todo" : "Etiquetas: auto";
+      var label = state.forceLabels ? "Labels: all" : "Labels: auto";
       labelsButton.setAttribute("aria-pressed", state.forceLabels ? "true" : "false");
       labelsButton.setAttribute("aria-label", label);
       labelsButton.setAttribute("title", label);

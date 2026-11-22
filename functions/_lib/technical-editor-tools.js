@@ -133,63 +133,63 @@ export const technicalEditorStyles = `
 `;
 
 export const technicalInsertMarkup = `
-  <div class="technical-insert-bar" id="technical-tools" role="group" aria-label="Insertar contenido" aria-describedby="insert-help" hidden>
+  <div class="technical-insert-bar" id="technical-tools" role="group" aria-label="Insert content" aria-describedby="insert-help" hidden>
     <div class="technical-insert-header">
-      <p id="insert-help">Inserta en el cursor o usa el texto seleccionado.</p>
-      <button type="button" id="insert-more" aria-expanded="false" aria-controls="insert-extra" aria-label="Mostrar más opciones" title="Mostrar más opciones">${INSERT_ICONS.more}<span class="insert-label">Más opciones</span></button>
+      <p id="insert-help">Insert at the cursor or use the selected text.</p>
+      <button type="button" id="insert-more" aria-expanded="false" aria-controls="insert-extra" aria-label="Show more options" title="Show more options">${INSERT_ICONS.more}<span class="insert-label">More options</span></button>
     </div>
     <div class="technical-insert-actions">
       <div class="insert-primary">
-        ${insertButton('id="toolbar-image"', 'Subir imagen', INSERT_ICONS.image)}
-        ${insertButton('id="toolbar-sidenote"', 'Nota al margen', INSERT_ICONS.sidenote)}
-        ${insertButton('data-technical-insert="inline-math"', 'Fórmula en línea', INSERT_ICONS.inlineMath)}
-        ${insertButton('data-technical-insert="mermaid"', 'Diagrama Mermaid', INSERT_ICONS.mermaid)}
-        <div class="insert-code" role="group" aria-label="Bloque de código y lenguaje">
-          ${insertButton('data-technical-insert="code"', 'Bloque de código', INSERT_ICONS.codeBlock)}
-          <select id="technical-code-language" aria-label="Lenguaje del bloque de código" title="Lenguaje del bloque de código">
-            <option value="python">Python</option><option value="javascript">JavaScript</option><option value="typescript">TypeScript</option><option value="sql">SQL</option><option value="bash">Bash</option><option value="json">JSON</option><option value="yaml">YAML</option><option value="rust">Rust</option><option value="go">Go</option><option value="plaintext">Texto</option>
+        ${insertButton('id="toolbar-image"', 'Upload image', INSERT_ICONS.image)}
+        ${insertButton('id="toolbar-sidenote"', 'Sidenote', INSERT_ICONS.sidenote)}
+        ${insertButton('data-technical-insert="inline-math"', 'Inline formula', INSERT_ICONS.inlineMath)}
+        ${insertButton('data-technical-insert="mermaid"', 'Mermaid diagram', INSERT_ICONS.mermaid)}
+        <div class="insert-code" role="group" aria-label="Code block and language">
+          ${insertButton('data-technical-insert="code"', 'Code block', INSERT_ICONS.codeBlock)}
+          <select id="technical-code-language" aria-label="Code block language" title="Code block language">
+            <option value="python">Python</option><option value="javascript">JavaScript</option><option value="typescript">TypeScript</option><option value="sql">SQL</option><option value="bash">Bash</option><option value="json">JSON</option><option value="yaml">YAML</option><option value="rust">Rust</option><option value="go">Go</option><option value="plaintext">Text</option>
           </select>
         </div>
       </div>
       <div id="insert-extra" hidden>
         <div class="insert-category" role="group" aria-labelledby="insert-color-title">
-          <h3 id="insert-color-title">Color del texto</h3>
+          <h3 id="insert-color-title">Text color</h3>
           <div class="insert-category-actions">
-            ${insertButton('data-sidenote-tone="green"', 'Texto verde', INSERT_ICONS.color)}
-            ${insertButton('data-sidenote-tone="blue"', 'Texto azul', INSERT_ICONS.color)}
-            ${insertButton('data-sidenote-tone="amber"', 'Texto ámbar', INSERT_ICONS.color)}
+            ${insertButton('data-sidenote-tone="green"', 'Green text', INSERT_ICONS.color)}
+            ${insertButton('data-sidenote-tone="blue"', 'Blue text', INSERT_ICONS.color)}
+            ${insertButton('data-sidenote-tone="amber"', 'Amber text', INSERT_ICONS.color)}
           </div>
         </div>
         <div class="insert-category" role="group" aria-labelledby="insert-math-title">
-          <h3 id="insert-math-title">Matemáticas</h3>
-          <div class="insert-category-actions">${insertButton('data-technical-insert="display-math"', 'Ecuación', INSERT_ICONS.displayMath)}</div>
+          <h3 id="insert-math-title">Math</h3>
+          <div class="insert-category-actions">${insertButton('data-technical-insert="display-math"', 'Equation', INSERT_ICONS.displayMath)}</div>
         </div>
         <div class="insert-category" role="group" aria-labelledby="insert-media-title">
           <h3 id="insert-media-title">Multimedia</h3>
           <div class="insert-category-actions">
-            ${insertButton('data-technical-insert="image"', 'Diagrama SVG', INSERT_ICONS.svg)}
-            ${insertButton('data-technical-insert="video"', 'Animación / video', INSERT_ICONS.video)}
-            ${insertButton('data-technical-insert="interactive"', 'Visual interactivo', INSERT_ICONS.interactive)}
+            ${insertButton('data-technical-insert="image"', 'SVG diagram', INSERT_ICONS.svg)}
+            ${insertButton('data-technical-insert="video"', 'Animation / video', INSERT_ICONS.video)}
+            ${insertButton('data-technical-insert="interactive"', 'Interactive visual', INSERT_ICONS.interactive)}
           </div>
         </div>
       </div>
     </div>
-    <details class="technical-insert-guide"><summary>Guía rápida</summary><ul>
-      <li>LaTeX: <code>$x^2$</code> en línea; <code>$$</code> en líneas separadas para ecuaciones.</li>
-      <li>Código y Mermaid: edita el contenido entre las cercas. Cambia el lenguaje en la primera línea.</li>
-      <li>SVG: usa el botón de imagen para subirlo, o cambia la URL del ejemplo.</li>
-      <li>Video e interactivos: reemplaza la URL del ejemplo por la de tu archivo.</li>
-      <li>Interactivos: conserva un título descriptivo y controles de teclado accesibles.</li>
+    <details class="technical-insert-guide"><summary>Quick guide</summary><ul>
+      <li>LaTeX: <code>$x^2$</code> for inline math; <code>$$</code> on separate lines for equations.</li>
+      <li>Code and Mermaid: edit the content between the fences. Change the language on the first line.</li>
+      <li>SVG: upload it using the image button, or change the example URL.</li>
+      <li>Video and interactive content: replace the example URL with your file's URL.</li>
+      <li>Interactive content: use a descriptive title and accessible keyboard controls.</li>
     </ul></details>
   </div>
 `;
 
 export const technicalEditorMarkup = `
   <dialog class="technical-dialog technical-dialog--preview" id="technical-preview" aria-labelledby="technical-preview-title">
-    <header><h2 id="technical-preview-title">Vista previa sin guardar</h2><button type="button" class="technical-close" data-close-technical="technical-preview" aria-label="Cerrar vista previa">&times;</button></header>
-    <p id="technical-preview-status" role="status">Preparando vista previa…</p>
-    <button type="button" id="technical-preview-retry" hidden>Reintentar vista previa</button>
-    <iframe id="technical-preview-frame" title="Vista previa del artículo" sandbox="allow-scripts allow-same-origin" hidden></iframe>
+    <header><h2 id="technical-preview-title">Unsaved preview</h2><button type="button" class="technical-close" data-close-technical="technical-preview" aria-label="Close preview">&times;</button></header>
+    <p id="technical-preview-status" role="status">Preparing preview…</p>
+    <button type="button" id="technical-preview-retry" hidden>Retry preview</button>
+    <iframe id="technical-preview-frame" title="Article preview" sandbox="allow-scripts allow-same-origin" hidden></iframe>
   </dialog>
 `;
 
@@ -240,9 +240,9 @@ export const technicalEditorScript = String.raw`
           var expanded = extra.hidden;
           extra.hidden = !expanded;
           more.setAttribute("aria-expanded", String(expanded));
-          more.setAttribute("aria-label", expanded ? "Mostrar menos opciones" : "Mostrar más opciones");
-          more.title = expanded ? "Mostrar menos opciones" : "Mostrar más opciones";
-          more.querySelector(".insert-label").textContent = expanded ? "Menos opciones" : "Más opciones";
+          more.setAttribute("aria-label", expanded ? "Show fewer options" : "Show more options");
+          more.title = expanded ? "Show fewer options" : "Show more options";
+          more.querySelector(".insert-label").textContent = expanded ? "Fewer options" : "More options";
           if (expanded && extra.getBoundingClientRect().bottom > technicalTools.getBoundingClientRect().bottom) {
             var header = technicalTools.querySelector(".technical-insert-header");
             technicalTools.scrollTop += extra.getBoundingClientRect().top - technicalTools.getBoundingClientRect().top - header.getBoundingClientRect().height - 8;
@@ -283,9 +283,9 @@ export const technicalEditorScript = String.raw`
         technicalTools.scrollTop = 0;
         var more = document.getElementById("insert-more");
         more.setAttribute("aria-expanded", "false");
-        more.setAttribute("aria-label", "Mostrar más opciones");
-        more.title = "Mostrar más opciones";
-        more.querySelector(".insert-label").textContent = "Más opciones";
+        more.setAttribute("aria-label", "Show more options");
+        more.title = "Show more options";
+        more.querySelector(".insert-label").textContent = "More options";
         technicalTools.querySelector("details").open = false;
         document.getElementById("toolbar-technical").setAttribute("aria-expanded", "false");
         document.body.classList.remove("insert-tools-open");
@@ -604,11 +604,11 @@ export const technicalEditorScript = String.raw`
         if (!els.title.value.trim() && !body.trim()) {
           inlinePreview.ready = false;
           syncPreviewPane();
-          setInlinePreviewStatus("Escribe un título o contenido para ver la vista previa.");
+          setInlinePreviewStatus("Write a title or some content to see a preview.");
           return;
         }
         var frameTop = keepScroll && inlinePreview.ready ? readPreviewFrameScroll() : null;
-        setInlinePreviewStatus(inlinePreview.ready ? "" : "Preparando vista previa…");
+        setInlinePreviewStatus(inlinePreview.ready ? "" : "Preparing preview…");
         var payload = previewPayload(body);
         var snapshot = JSON.stringify(payload);
         postJson("/api/preview", payload).then(function (result) {
@@ -634,7 +634,7 @@ export const technicalEditorScript = String.raw`
           previewBuffer.srcdoc = result.html;
         }).catch(function (error) {
           if (requestId !== inlinePreview.request || !inlinePreview.open || !previewSnapshotIsCurrent(snapshot)) return;
-          setInlinePreviewStatus("No se pudo preparar la vista previa: " + error.message, true);
+          setInlinePreviewStatus("Unable to prepare the preview: " + error.message, true);
           previewRetry.hidden = false;
         });
       }
@@ -650,12 +650,12 @@ export const technicalEditorScript = String.raw`
         technicalRetry.hidden = true;
         technicalFrame.hidden = true;
         technicalStatus.hidden = false;
-        technicalStatus.textContent = "Preparando vista previa…";
+        technicalStatus.textContent = "Preparing preview…";
         if (!technicalPreview.open) technicalPreview.showModal();
         syncSheetLock();
         var requestId = ++technicalPreviewRequest;
         if (!els.title.value.trim() && !els.body.value.trim()) {
-          technicalStatus.textContent = "Escribe un título o contenido para ver la vista previa.";
+          technicalStatus.textContent = "Write a title or some content to see a preview.";
           return;
         }
         postJson("/api/preview", previewPayload(technicalPreviewSource === null ? editorBodyValue() : technicalPreviewSource)).then(function (result) {
@@ -665,7 +665,7 @@ export const technicalEditorScript = String.raw`
           technicalStatus.hidden = true;
         }).catch(function (error) {
           if (requestId !== technicalPreviewRequest || !technicalPreview.open) return;
-          technicalStatus.textContent = "No se pudo preparar la vista previa: " + error.message;
+          technicalStatus.textContent = "Unable to prepare the preview: " + error.message;
           technicalRetry.hidden = false;
         });
       }

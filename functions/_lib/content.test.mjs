@@ -313,7 +313,7 @@ test("deleteNotebook removes a large notebook in one GitHub commit", async () =>
   }
 });
 
-test("listNotebooks reuses its short-lived repository cache", async () => {
+test("listNotebooks uses one notebook per section and reuses its repository cache", async () => {
   const originalFetch = globalThis.fetch;
   let treeReads = 0;
   invalidateNotebooksCache();
@@ -323,14 +323,19 @@ test("listNotebooks reuses its short-lived repository cache", async () => {
     if (url.includes("/git/commits/")) return jsonResponse(200, { tree: { sha: "tree" } });
     if (url.includes("/git/trees/")) {
       treeReads += 1;
-      return jsonResponse(200, { tree: [{ type: "blob", path: "content_es/notebook/_index.md" }] });
+      return jsonResponse(200, { tree: [
+        { type: "blob", path: "content_es/notebook/_index.md" },
+        { type: "blob", path: "content_en/notebook/_index.md" },
+        { type: "blob", path: "content_es/zettelkasten/_index.md" },
+      ] });
     }
-    if (url.includes("/contents/content_es/notebook/_index.md")) {
+    const contents = String(url).match(/\/contents\/(content_(?:en|es)\/(?:notebook|zettelkasten)\/_index.md)/);
+    if (contents) {
       return jsonResponse(200, {
         type: "file",
-        path: "content_es/notebook/_index.md",
+        path: contents[1],
         sha: "index",
-        content: encoded(formatMarkdown({ title: "Notebook" }, "")),
+        content: encoded(formatMarkdown({ title: contents[1].includes("zettelkasten") ? "Zettelkasten" : "Notebook" }, "")),
       });
     }
     throw new Error(`Unexpected request: ${url}`);
@@ -339,7 +344,7 @@ test("listNotebooks reuses its short-lived repository cache", async () => {
   try {
     const first = await listNotebooks(env);
     const second = await listNotebooks(env);
-    assert.equal(first[0].title, "Notebook");
+    assert.deepEqual(first.map(notebook => notebook.path), ["content_en/notebook", "content_es/zettelkasten"]);
     assert.deepEqual(second, first);
     assert.equal(treeReads, 1);
   } finally {
@@ -356,7 +361,7 @@ test("photographyMirrorPath maps between English and Spanish photography posts b
   assert.equal(photographyMirrorPath("content_es/posts/2026/julio/post.md"), null);
 });
 
-test("createPost, savePage, savePageFrontMatter, and deletePage automatically mirror photography posts", async () => {
+test("new photography uses one source and existing mirrors remain editable", async () => {
   const originalFetch = globalThis.fetch;
   const files = new Map();
 
@@ -408,13 +413,11 @@ test("createPost, savePage, savePageFrontMatter, and deletePage automatically mi
     });
 
     assert.equal(created.path, "content_es/fotografia/nueva-foto.md");
-    assert.equal(created.mirrorPath, "content_en/fotografia/nueva-foto.md");
-    assert.ok(files.has("content_es/fotografia/nueva-foto.md"));
-    assert.ok(files.has("content_en/fotografia/nueva-foto.md"));
-    assert.equal(
-      files.get("content_es/fotografia/nueva-foto.md").content,
-      files.get("content_en/fotografia/nueva-foto.md").content,
-    );
+    assert.ok(files.has(created.path));
+    assert.ok(!files.has("content_en/fotografia/nueva-foto.md"));
+
+    // An existing legacy mirror keeps its established update and delete behavior.
+    files.set("content_en/fotografia/nueva-foto.md", { ...files.get(created.path) });
 
     // 2. Save page updates both files
     const saved = await savePage(env, {
@@ -473,6 +476,11 @@ test("writing type survives creation and edits without changing paths", async ()
     return jsonResponse(200, { commit: { sha: "new" } });
   };
   try {
+    const japanese = await createPost(env, {
+      title: "日本語の題名", date: "2026-09-18", body: "本文は元の日本語のままです。",
+    });
+    assert.equal(japanese.path, "content_en/posts/2026/septiembre/日本語の題名.md");
+    assert.equal(splitMarkdown(files.get(japanese.path)).body.trim(), "本文は元の日本語のままです。");
     for (const lang of ["en", "es"]) {
       for (const essay of [true, false, undefined]) {
         const created = await createPost(env, {

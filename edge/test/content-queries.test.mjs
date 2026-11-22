@@ -263,7 +263,7 @@ test("normalizes request routes without changing file-like paths", () => {
   assert.equal(normalizeRoute("/%C3%A9tica"), "/ética/");
 });
 
-test("home selects one local essay plus shared pins, with published translations preferred", async (t) => {
+test("one catalog shares the latest essay and pins across legacy source folders", async (t) => {
   const { db, miniflare } = await testDatabase();
   t.after(() => miniflare.dispose());
   await replaceProjectedSource(db, projectSource({ path: "content_es/_index.md", rawMarkdown: "---\ntitle: Inicio\n---\n", blobSha: "home-es", commitSha: "fixture", projectorVersion: "1" }), null);
@@ -293,35 +293,35 @@ test("home selects one local essay plus shared pins, with published translations
   await put("es", "draft-pin", "date: 2026-09-21");
   await db.prepare("UPDATE documents SET draft = 1 WHERE lang = 'en' AND title = 'draft-pin'").run();
 
-  for (const lang of ["en", "es"]) {
-    const listing = { includeLanguageFallback: true };
-    const projects = await sectionItems(db, lang, "proyectos-profesionales", listing);
-    const blog = await sectionItems(db, lang, "posts", listing);
-    const articlePath = lang === "es" ? "/es/posts/technical/" : "/posts/technical/";
-    assert.ok(projects.some(item => item.path === articlePath));
-    assert.ok(blog.every(item => item.frontMatter.technical !== true));
-    assert.ok(blog.some(item => item.title === "latest-essay"));
-    const selected = await homePosts(db, lang);
-    const selectedPaths = lang === "es"
-      ? ["/es/posts/spanish-latest/", "/es/posts/latest-essay/", "/es/posts/spanish-tie-pin/", "/es/posts/older-pin/"]
-      : ["/posts/latest-essay/", "/posts/tie-pin/", "/posts/older-pin/"];
-    selectedPaths.push("/posts/untranslated-pin/", "/posts/hidden-translation/");
-    assert.deepEqual(selected.map((item) => item.path), selectedPaths);
-    assert.equal(selected[0].latestEssay, 1);
-    const home = await loadPublicPage(db, lang === "es" ? "/es/" : "/", { includeDrafts: true, includeHidden: true });
-    assert.deepEqual(home.items.map((item) => item.path), selectedPaths);
-    const publicHome = await loadPublicPage(db, lang === "es" ? "/es/" : "/");
-    const recent = await recentPosts(db, lang, { limit: 10 });
-    assert.equal(publicHome.recentItems.length, 10);
-    assert.deepEqual(publicHome.recentItems.map((item) => item.id), recent.map((item) => item.id));
-    assert.ok(publicHome.recentItems.every((item) => !item.draft && !item.hidden));
-    if (lang === "en") assert.ok(home.recentItems.some((item) => item.draft || item.hidden));
-    assert.deepEqual(publicHome.items.map((item) => item.path), selectedPaths);
-  }
+  const projects = await sectionItems(db, "proyectos-profesionales");
+  const blog = await sectionItems(db, "posts");
+  assert.ok(projects.some(item => item.path === "/posts/technical/"));
+  assert.ok(blog.every(item => item.frontMatter.technical !== true));
+  assert.ok(blog.some(item => item.path === "/es/posts/spanish-latest/"));
+
+  const paths = [
+    "/es/posts/spanish-latest/", "/posts/latest-essay/", "/posts/tie-pin/",
+    "/posts/older-pin/", "/posts/untranslated-pin/", "/posts/hidden-translation/",
+  ];
+  const selected = await homePosts(db);
+  assert.deepEqual(selected.map(item => item.path), paths);
+  assert.equal(selected[0].latestEssay, 1);
+  const home = await loadPublicPage(db, "/");
+  const authorHome = await loadPublicPage(db, "/", { includeDrafts: true, includeHidden: true });
+  assert.deepEqual(home.items.map(item => item.path), paths);
+  assert.deepEqual(authorHome.items.map(item => item.path), paths);
+  assert.deepEqual(home.recentItems.map(item => item.id), (await recentPosts(db)).map(item => item.id));
+  assert.equal(home.recentItems.length, 10);
+  assert.ok(home.recentItems.every(item => !item.draft && !item.hidden));
+  assert.ok(authorHome.recentItems.some(item => item.draft || item.hidden));
+  assert.deepEqual(await loadPublicPage(db, "/es/"), { redirect: "/" });
+  assert.deepEqual(await loadPublicPage(db, "/es/posts/latest-essay/"), { redirect: "/posts/latest-essay/" });
+  assert.deepEqual(await loadPublicPage(db, "/es/tags/ethics/"), { redirect: "/tags/ethics/" });
+  assert.equal((await loadPublicPage(db, "/es/posts/spanish-latest/")).lang, "en");
+
   await put("en", "older-pin", "date: 2020-01-01\npinned: false");
-  for (const lang of ["en", "es"]) {
-    assert.ok((await homePosts(db, lang)).every((item) => item.title !== "older-pin"));
-  }
+  await put("en", "tie-pin", "date: 2020-01-01\ntranslationKey: shared-tie-pin\npinned: false");
+  assert.ok((await homePosts(db)).every(item => !["older-pin", "tie-pin"].includes(item.title)));
   assert.equal((await resolveDocument(db, "/posts/older-pin/")).bodyMarkdown.trim(), "Unchanged article body.");
 });
 
@@ -389,7 +389,7 @@ test("reads the projected public site through the real D1 API", async (t) => {
   });
 
   await t.test("builds section, navigation, archive, and taxonomy lists", async () => {
-    const section = await sectionItems(db, "en", "posts");
+    const section = await sectionItems(db, "posts");
     assert.deepEqual(section.map((document) => document.title), [
       "Ethical Data",
       "Destination",
@@ -398,10 +398,10 @@ test("reads the projected public site through the real D1 API", async (t) => {
     assert.equal(section[0].frontMatter.translationKey, "ethical-data");
     assert.equal(section[0].tags[0].slug, "ethics");
 
-    const sectionWithBody = await sectionItems(db, "en", "posts", { body: true });
+    const sectionWithBody = await sectionItems(db, "posts", { body: true });
     assert.match(sectionWithBody[0].bodyMarkdown, /Ethical systems need care/);
 
-    const navigation = await navSections(db, "en");
+    const navigation = await navSections(db);
     assert.deepEqual(navigation.map((document) => document.title), [
       "Books",
       "Guestbook",
@@ -410,75 +410,60 @@ test("reads the projected public site through the real D1 API", async (t) => {
     ]);
     assert.deepEqual(Object.keys(navigation[0]).sort(), ["path", "section", "title"]);
     assert.deepEqual(
-      (await navSections(db, "en", { includeDrafts: true })).map(({ title }) => title),
+      (await navSections(db, { includeDrafts: true })).map(({ title }) => title),
       ["Books", "Draft only", "Guestbook", "Home", "Writing"],
     );
     assert.deepEqual(
-      (await navSections(db, "en", { includeHidden: true })).map(({ title }) => title),
+      (await navSections(db, { includeHidden: true })).map(({ title }) => title),
       ["Books", "Guestbook", "Hidden only", "Home", "Writing"],
     );
     assert.deepEqual(
-      (await navSections(db, "en", { includeDrafts: true, includeHidden: true }))
+      (await navSections(db, { includeDrafts: true, includeHidden: true }))
         .map(({ title }) => title),
       ["Books", "Draft only", "Guestbook", "Hidden only", "Home", "Writing", "Zettelkasten"],
     );
 
-    const archives = await archiveItems(db, "en");
+    const archives = await archiveItems(db);
     assert.deepEqual(
       archives.map(({ title, year }) => [title, year]),
-      [["Ethical Data", "2026"], ["Destination", "2026"]],
+      [["Solo en español", "2026"], ["Ethical Data", "2026"], ["Destination", "2026"]],
     );
     assert.deepEqual(
-      (await archiveItems(db, "en", { tags: false })).map((document) => document.tags),
-      [[], []],
+      (await archiveItems(db, { tags: false })).map((document) => document.tags),
+      [[], [], []],
     );
-    assert.deepEqual(await archiveMonthCounts(db, "en"), [
-      { key: "2026-07", count: 2 },
-    ]);
-    assert.deepEqual(await archiveMonthCounts(db, "es"), [
-      { key: "2026-07", count: 2 },
-    ]);
+    assert.deepEqual(await archiveMonthCounts(db), [{ key: "2026-07", count: 3 }]);
     assert.deepEqual(
-      await archiveMonthCounts(db, "en", { includeDrafts: true, includeHidden: true }),
-      [{ key: "2026-07", count: 4 }],
+      await archiveMonthCounts(db, { includeDrafts: true, includeHidden: true }),
+      [{ key: "2026-07", count: 6 }],
     );
-    assert.ok((await navSections(db, "en", { tags: false }))
+    assert.ok((await navSections(db, { tags: false }))
       .every((document) => !Object.hasOwn(document, "tags")));
-    assert.equal(archives[0].frontMatter.translationKey, "ethical-data");
-    assert.deepEqual(archives[0].tags.map(({ label }) => label), ["ethics", "book"]);
+    assert.equal(archives[1].frontMatter.translationKey, "ethical-data");
+    assert.deepEqual(archives[1].tags.map(({ label }) => label), ["ethics", "book"]);
 
-    for (const lang of ["en", "es"]) {
-      for (const options of [
-        {},
-        { includeDrafts: true },
-        { includeHidden: true },
-        { includeDrafts: true, includeHidden: true },
-      ]) {
-        assert.deepEqual(
-          await archiveMonthCounts(db, lang, options),
-          archiveMonths(await archiveItems(db, lang, options)),
-          `${lang} archive counts must preserve ${JSON.stringify(options)} visibility`,
-        );
-      }
+    for (const options of [
+      {}, { includeDrafts: true }, { includeHidden: true }, { includeDrafts: true, includeHidden: true },
+    ]) {
+      assert.deepEqual(await archiveMonthCounts(db, options), archiveMonths(await archiveItems(db, options)));
     }
 
-    const tags = await tagIndex(db, "en");
+    const tags = await tagIndex(db);
     assert.equal(tags.find((tag) => tag.slug === "ethics").count, 1);
     assert.equal(tags.find((tag) => tag.slug === "knowledge").count, 1);
     assert.deepEqual(
-      (await tagResults(db, "en", "ethics")).map((document) => document.path),
+      (await tagResults(db, "ethics")).map((document) => document.path),
       ["/posts/ethical-data/"],
     );
-    const recent = await recentPosts(db, "en", { limit: 10 });
+    const recent = await recentPosts(db, { limit: 10 });
     assert.deepEqual(recent.map((document) => document.title), [
+      "Solo en español",
       "Ethical Data",
       "Destination",
     ]);
 
-    for (const lang of ["en", "es"]) {
-      const projects = await sectionItems(db, lang, "proyectos-profesionales", { includeLanguageFallback: true });
-      assert.deepEqual(projects.map(item => item.path), ["/es/posts/solo-espanol/"]);
-    }
+    const projects = await sectionItems(db, "proyectos-profesionales");
+    assert.deepEqual(projects.map(item => item.path), ["/es/posts/solo-espanol/"]);
     const publicEnglishWriting = await loadPublicPage(db, "/posts/");
     assert.deepEqual(publicEnglishWriting.items.map((document) => document.title), [
       "Ethical Data",
@@ -488,25 +473,13 @@ test("reads the projected public site through the real D1 API", async (t) => {
       "/posts/ethical-data/",
       "/posts/target/",
     ]);
-    const publicSpanishWriting = await loadPublicPage(db, "/es/posts/");
-    assert.deepEqual(publicSpanishWriting.items.map((document) => document.title), [
-      "Datos éticos",
-      "Destination",
-    ]);
-    assert.deepEqual(publicSpanishWriting.items.map((document) => document.path), [
-      "/es/posts/datos-eticos/",
-      "/posts/target/",
-    ]);
-
-    for (const page of [publicEnglishWriting, publicSpanishWriting]) {
-      assert.deepEqual(page.items.map((document) => document.frontMatter.essay), [true, undefined]);
-      assert.deepEqual(page.items.map((document) => document.frontMatter.technical), [undefined, undefined]);
-    }
-
-    const adminOptions = {
-      includeDrafts: true,
-      includeHiddenListItems: true,
-    };
+    assert.deepEqual(await loadPublicPage(db, "/es/posts/"), { redirect: "/posts/" });
+    assert.deepEqual(await loadPublicPage(db, "/es/visitas/"), { redirect: "/guestbook/" });
+    const legacyArticle = await loadPublicPage(db, "/es/posts/datos-eticos/");
+    assert.equal(legacyArticle.lang, "en");
+    assert.equal(legacyArticle.title, "Datos éticos");
+    assert.match(legacyArticle.page.bodyMarkdown, /La ética de datos/);
+    const adminOptions = { includeDrafts: true, includeHiddenListItems: true };
     const adminEnglishWriting = await loadPublicPage(db, "/posts/", adminOptions);
     assert.deepEqual(adminEnglishWriting.items.map((document) => document.title), [
       "Borrador solo en español",
@@ -518,21 +491,8 @@ test("reads the projected public site through the real D1 API", async (t) => {
     assert.equal(adminEnglishWriting.items[0].path, "/es/posts/borrador-solo-espanol/");
     assert.equal(adminEnglishWriting.items[0].lang, "es");
 
-    const adminSpanishWriting = await loadPublicPage(db, "/es/posts/", adminOptions);
-    assert.deepEqual(adminSpanishWriting.items.map((document) => document.title), [
-      "Borrador solo en español",
-      "Draft link",
-      "Hidden link",
-      "Datos éticos",
-      "Destination",
-    ]);
-    assert.equal(adminSpanishWriting.items[1].path, "/posts/draft-link/");
-    assert.equal(adminSpanishWriting.items[1].lang, "en");
-    assert.equal(
-      new Set(adminSpanishWriting.items.map((document) => document.translationKey)).size,
-      adminSpanishWriting.items.length,
-      "translation pairs must appear only once",
-    );
+    assert.deepEqual(await loadPublicPage(db, "/es/posts/", adminOptions), { redirect: "/posts/" });
+    assert.equal(new Set(adminEnglishWriting.items.map(item => item.translationKey)).size, adminEnglishWriting.items.length);
     assert.deepEqual(
       (await loadPublicPage(db, "/", { includeHiddenListItems: true })).items,
       (await loadPublicPage(db, "/")).items,
@@ -545,8 +505,8 @@ test("reads the projected public site through the real D1 API", async (t) => {
     );
 
     assert.deepEqual(
-      (await tagResults(db, "es", "ethics")).map((document) => document.title),
-      ["Datos éticos"],
+      (await tagResults(db, "solo-es")).map((document) => document.title),
+      ["Solo en español"],
     );
   });
 
@@ -557,19 +517,21 @@ test("reads the projected public site through the real D1 API", async (t) => {
     assert.equal(inbound[0].linkLabel, "Target");
     assert.equal(inbound[0].path, "/posts/ethical-data/");
 
-    const englishSearch = await searchDocuments(db, "ethic", "en", 5);
+    const englishSearch = await searchDocuments(db, "ethic", 5);
     assert.deepEqual(englishSearch.map((document) => document.title), ["Ethical Data"]);
     assert.equal(englishSearch[0].path, "/posts/ethical-data/");
     assert.match(englishSearch[0].excerpt, /Ethical systems/);
-    assert.deepEqual(await searchDocuments(db, "!!!", "en"), []);
+    assert.deepEqual(await searchDocuments(db, "!!!"), []);
     assert.deepEqual(
-      (await searchDocuments(db, "etica", "es")).map((document) => document.title),
-      ["Datos éticos"],
-      "unicode61 removes diacritics for matching",
+      (await searchDocuments(db, "espanol")).map((document) => document.title),
+      ["Solo en español"],
+      "the shared search includes original-language content",
     );
+    assert.deepEqual((await searchDocuments(db, "etica")).map(item => item.title), ["Datos éticos"]);
 
-    const graph = await graphRows(db, "en");
-    assert.deepEqual(graph.map((document) => document.title), ["Destination", "Ethical Data"]);
+
+    const graph = await graphRows(db);
+    assert.deepEqual(graph.map((document) => document.title), ["Destination", "Ethical Data", "Solo en español"]);
     assert.deepEqual(
       graph.find((document) => document.title === "Ethical Data").tags,
       [{ label: "ethics", slug: "ethics", path: "/tags/ethics/" }],
@@ -581,10 +543,11 @@ test("reads the projected public site through the real D1 API", async (t) => {
       "generic note tags are omitted from the graph",
     );
 
-    const infrastructure = await infrastructureRows(db, "en");
+    const infrastructure = await infrastructureRows(db);
     assert.deepEqual(infrastructure.map((document) => document.title), [
       "Destination",
       "Ethical Data",
+      "Solo en español",
     ]);
     assert.match(
       infrastructure.find((document) => document.title === "Ethical Data").bodyMarkdown,
@@ -615,15 +578,14 @@ test("reads the projected public site through the real D1 API", async (t) => {
       assert.equal(trace.queries.filter(fullArchiveQuery).length, 0, `${label} should not hydrate archives`);
     }
 
-    for (const route of ["/archives/", "/es/archives/"]) {
-      const trace = tracedDatabase(db);
-      const archivePage = await loadPublicPage(trace.db, route);
-      assert.ok(archivePage, `${route} should load`);
-      assert.equal(trace.queries.filter(aggregateQuery).length, 0);
-      assert.equal(trace.queries.filter(fullArchiveQuery).length, 1);
-      assert.deepEqual(archivePage.archiveMonths, archiveMonths(archivePage.items));
-      assert.deepEqual(archivePage.items.flatMap((item) => item.tags), []);
-    }
+    const trace = tracedDatabase(db);
+    const archivePage = await loadPublicPage(trace.db, "/archives/");
+    assert.ok(archivePage);
+    assert.equal(trace.queries.filter(aggregateQuery).length, 0);
+    assert.equal(trace.queries.filter(fullArchiveQuery).length, 1);
+    assert.deepEqual(archivePage.archiveMonths, archiveMonths(archivePage.items));
+    assert.deepEqual(archivePage.items.flatMap(item => item.tags), []);
+    assert.deepEqual(await loadPublicPage(db, "/es/archives/"), { redirect: "/archives/" });
   });
 
   await t.test("repairs stale colored bodies while preserving the no-tone fast path", async () => {
@@ -659,7 +621,7 @@ test("reads the projected public site through the real D1 API", async (t) => {
     assert.match(repaired.bodyText, /Styled visible, strong, and code/);
     assert.doesNotMatch(repaired.bodyText, /STALE|\{\{(?:green|blue|amber)\|/);
 
-    const bodyItems = await sectionItems(db, "en", "posts", {
+    const bodyItems = await sectionItems(db, "posts", {
       body: true,
       includeHidden: true,
     });
@@ -724,13 +686,13 @@ Undated fixture.
 
   for (const options of [{}, { limit: 5 }, { limit: 1000 }, { limit: 5000 }]) {
     assert.deepEqual(
-      await archiveMonthCounts(db, "en", options),
-      archiveMonths(await archiveItems(db, "en", options)),
+      await archiveMonthCounts(db, options),
+      archiveMonths(await archiveItems(db, options)),
       `aggregate must match capped archive input for ${JSON.stringify(options)}`,
     );
   }
 
-  const months = await archiveMonthCounts(db, "en");
+  const months = await archiveMonthCounts(db);
   assert.equal(months.length, 12);
   assert.deepEqual(months, [...months].sort((left, right) => right.key.localeCompare(left.key)));
   assert.ok(months.every(({ key }) => /^\d{4}-\d{2}$/.test(key)));

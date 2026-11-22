@@ -61,6 +61,7 @@ export function invalidateNotebooksCache() {
   notebookCache = { key: "", expiresAt: 0, notebooks: [] };
 }
 const PROTECTED_NOTEBOOKS = new Set(["content_es/posts", "content_en/posts"]);
+const LEGACY_NOTEBOOK_SLUGS = { libros: "books", visitas: "guestbook" };
 
 function startsWithBytes(bytes, expected) {
   return expected.every((byte, index) => bytes[index] === byte);
@@ -123,13 +124,13 @@ function ensureDate(value) {
   const date = value || dateInMexico();
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    throw new Error("La fecha debe usar formato YYYY-MM-DD.");
+    throw new Error("Use YYYY-MM-DD for the date.");
   }
 
   const [, month, day] = date.split("-").map(Number);
 
   if (month < 1 || month > 12 || day < 1 || day > 31) {
-    throw new Error("La fecha debe tener mes y dia validos.");
+    throw new Error("Enter a valid month and day.");
   }
 
   return date;
@@ -138,9 +139,10 @@ function ensureDate(value) {
 function slugify(value, separator = "-") {
   return String(value || "")
     .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
+    .replace(/(\p{Script=Latin})\p{M}+/gu, "$1")
+    .normalize("NFC")
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, separator)
+    .replace(/[^\p{L}\p{M}\p{N}]+/gu, separator)
     .replace(new RegExp(`${separator}+`, "g"), separator)
     .replace(new RegExp(`^${separator}|${separator}$`, "g"), "");
 }
@@ -149,7 +151,7 @@ function ensureSlug(value, separator = "-") {
   const slug = slugify(value, separator);
 
   if (!slug) {
-    throw new Error("No se pudo generar un slug.");
+    throw new Error("Unable to generate a URL slug.");
   }
 
   return slug;
@@ -174,7 +176,7 @@ function uploadPathFromValue(value) {
   let raw = String(value || "").trim();
 
   if (!raw) {
-    throw new Error("Ruta de imagen requerida.");
+    throw new Error("An image path is required.");
   }
 
   try {
@@ -182,7 +184,7 @@ function uploadPathFromValue(value) {
       raw = new URL(raw).pathname;
     }
   } catch {
-    throw new Error("Ruta de imagen invalida.");
+    throw new Error("Invalid image path.");
   }
 
   raw = raw.replace(/^\/admin(?=\/uploads\/)/, "");
@@ -312,7 +314,7 @@ export async function readPage(env, path) {
   const file = await readGitHubFile(env, safePath);
 
   if (!file) {
-    throw new Error("El archivo no existe.");
+    throw new Error("The file does not exist.");
   }
 
   const { frontMatter, body } = splitMarkdown(file.content);
@@ -357,7 +359,12 @@ export async function listNotebooks(env) {
     };
   }));
 
-  const sorted = notebooks.sort((a, b) => (a.lang === b.lang ? a.title.localeCompare(b.title) : (a.lang === "es" ? -1 : 1)));
+  const unique = new Map();
+  for (const notebook of notebooks) {
+    const key = canonicalNotebookSlug(notebook.slug);
+    if (!unique.has(key) || notebook.lang === "en") unique.set(key, notebook);
+  }
+  const sorted = [...unique.values()].sort((a, b) => a.title.localeCompare(b.title));
   notebookCache = {
     key: cacheKey,
     expiresAt: Date.now() + NOTEBOOK_CACHE_TTL_MS,
@@ -370,14 +377,14 @@ export async function createPost(env, payload) {
   const title = String(payload.title || "").trim();
 
   if (!title) {
-    throw new Error("La pagina necesita titulo.");
+    throw new Error("A title is required.");
   }
 
-  const notebook = safeNotebookPath(payload.notebook || "content_es/posts");
+  const notebook = safeNotebookPath(payload.notebook || "content_en/posts");
   const indexFile = await readGitHubFile(env, `${notebook}/_index.md`);
 
   if (!indexFile) {
-    throw new Error("Notebook invalido.");
+    throw new Error("Invalid notebook.");
   }
 
   const isWritingNotebook = notebook.endsWith("/posts");
@@ -400,7 +407,7 @@ export async function createPost(env, payload) {
   const existing = await readGitHubFile(env, path);
 
   if (existing) {
-    throw new Error("Ya existe un archivo con esa ruta.");
+    throw new Error("A file already exists at this path.");
   }
 
   const frontMatter = {
@@ -462,23 +469,11 @@ export async function createPost(env, payload) {
     message: commitMessage("Crea", path),
   });
 
-  const mirrorPath = photographyMirrorPath(path);
-  if (mirrorPath) {
-    const mirrorExisting = await readGitHubFile(env, mirrorPath);
-    await writeGitHubFile(env, {
-      path: mirrorPath,
-      content: formatMarkdown(frontMatter, body),
-      message: commitMessage("Crea", mirrorPath),
-      sha: mirrorExisting?.sha,
-    });
-  }
-
   return {
     path,
     url: contentPathToUrl(path),
     changed: true,
     frontMatter,
-    mirrorPath: mirrorPath || null,
   };
 }
 
@@ -501,21 +496,26 @@ function imageItemsFromPayload(value) {
     .filter(Boolean);
 }
 
+function canonicalNotebookSlug(slug) {
+  return Object.hasOwn(LEGACY_NOTEBOOK_SLUGS, slug) ? LEGACY_NOTEBOOK_SLUGS[slug] : slug;
+}
+
 export async function createNotebook(env, payload) {
-  const lang = payload.lang === "en" ? "en" : "es";
-  const root = lang === "en" ? "content_en" : "content_es";
   const title = String(payload.title || "").trim();
 
   if (!title) {
-    throw new Error("El notebook necesita titulo.");
+    throw new Error("A notebook title is required.");
   }
 
-  const slug = ensureSlug(payload.slug || title);
-  const path = `${root}/${slug}/_index.md`;
-  const existing = await readGitHubFile(env, path);
+  const slug = canonicalNotebookSlug(ensureSlug(payload.slug || title));
+  const legacySlug = Object.keys(LEGACY_NOTEBOOK_SLUGS).find((key) => LEGACY_NOTEBOOK_SLUGS[key] === slug);
+  const path = `content_en/${slug}/_index.md`;
+  const existing = await readGitHubFile(env, path)
+    || await readGitHubFile(env, `content_es/${slug}/_index.md`)
+    || (legacySlug && await readGitHubFile(env, `content_es/${legacySlug}/_index.md`));
 
   if (existing) {
-    throw new Error("Ya existe un notebook con esa ruta.");
+    throw new Error("A notebook already exists at this path.");
   }
 
   const frontMatter = {
@@ -545,7 +545,7 @@ export async function savePage(env, payload) {
   const current = await readGitHubFile(env, path);
 
   if (!current) {
-    throw new Error("El archivo no existe.");
+    throw new Error("The file does not exist.");
   }
 
   const parsed = splitMarkdown(current.content);
@@ -607,12 +607,6 @@ export async function savePage(env, payload) {
           sha: mirrorCurrent.sha,
         });
       }
-    } else {
-      await writeGitHubFile(env, {
-        path: mirrorPath,
-        content,
-        message: commitMessage("Crea", mirrorPath),
-      });
     }
   }
 
@@ -631,7 +625,7 @@ export async function savePageFrontMatter(env, pathValue, patch) {
   const current = await readGitHubFile(env, path);
 
   if (!current) {
-    throw new Error("El archivo no existe.");
+    throw new Error("The file does not exist.");
   }
 
   const parsed = splitMarkdown(current.content);
@@ -714,13 +708,13 @@ export async function deletePage(env, payload) {
   const path = safeContentPath(payload.path);
 
   if (path.endsWith("/_index.md")) {
-    throw new Error("Usa borrar notebook para eliminar una pagina indice.");
+    throw new Error("Use Delete notebook to remove its index page.");
   }
 
   const current = await readGitHubFile(env, path);
 
   if (!current) {
-    throw new Error("El archivo no existe.");
+    throw new Error("The file does not exist.");
   }
 
   const parsed = splitMarkdown(current.content);
@@ -764,7 +758,7 @@ export async function deleteNotebook(env, payload) {
   const notebook = safeNotebookPath(payload.path);
 
   if (PROTECTED_NOTEBOOKS.has(notebook)) {
-    throw new Error("Este notebook base no se borra desde el editor.");
+    throw new Error("This notebook cannot be deleted from the editor.");
   }
 
   const snapshot = await readRepositorySnapshot(env);
@@ -773,7 +767,7 @@ export async function deleteNotebook(env, payload) {
     .sort((a, b) => b.path.localeCompare(a.path));
 
   if (!files.length) {
-    throw new Error("Notebook vacio o inexistente.");
+    throw new Error("The notebook is empty or does not exist.");
   }
 
   const imagePaths = new Set();
@@ -827,7 +821,7 @@ export async function uploadImage(env, payload) {
   const match = String(payload.data || "").match(/^data:([^;]+);base64,([A-Za-z0-9+/=\s]+)$/);
 
   if (!name || !match) {
-    throw new Error("Imagen invalida.");
+    throw new Error("Invalid image.");
   }
 
   const mime = match[1];
@@ -836,13 +830,13 @@ export async function uploadImage(env, payload) {
   const expectedMime = IMAGE_MIME_BY_EXTENSION.get(extension);
 
   if (!expectedMime || expectedMime !== mime) {
-    throw new Error("Formato de imagen no permitido.");
+    throw new Error("Unsupported image format.");
   }
 
   const approxBytes = Math.floor((base64.length * 3) / 4);
 
   if (approxBytes > MAX_UPLOAD_BYTES) {
-    throw new Error("La imagen es demasiado grande.");
+    throw new Error("The image is too large.");
   }
   assertImageSignature(extension, base64);
 

@@ -4,6 +4,6 @@ export const notebookEditorController = Object.freeze({
   arenaEligible: false,
   requiresImage: false,
   settingsTitle: "Notebook",
-  deleteLabel: "Eliminar notebook",
+  deleteLabel: "Delete notebook",
   deleteEndpoint: "/api/delete-notebook",
 });

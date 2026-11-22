@@ -122,7 +122,7 @@ try {
       assert.equal(await page.locator(".block-selection-toolbar").isVisible(), false);
       await fill(page, "Before SELECTED after\n\nSecond paragraph.\n\nThird paragraph.");
       await select(page, 7, 15);
-      await page.locator(`.block-selection-toolbar button[aria-label="${lang === "es" ? "Negrita" : "Bold"}"]`).click();
+      await page.locator(`.block-selection-toolbar button[aria-label="Bold"]`).click();
       assert.equal((await inspect(page)).doc.split("\n")[0], "Before **SELECTED** after");
       const beforeToggle = await inspect(page);
       await toggleRaw(page, width);
@@ -136,7 +136,7 @@ try {
       await page.screenshot({ path: `${evidence}/${lang}-${width}-selection.png` });
       // Colors are inline in the selection toolbar; no modal and no collapse control.
       assert.equal(await page.locator(".block-selection-toolbar .block-tone").count(), 3);
-      assert.equal(await page.locator(`.block-selection-toolbar [aria-label="${lang === "es" ? "Ocultar formato" : "Hide formatting"}"]`).count(), 0);
+      assert.equal(await page.locator(`.block-selection-toolbar [aria-label="Hide formatting"]`).count(), 0);
       await page.locator('.block-selection-toolbar .block-tone[data-tone="blue"]').click();
       assert.equal(await page.locator(".block-menu[open]").count(), 0, "color applies without opening a menu");
       assert.ok((await inspect(page)).doc.startsWith("Before **{{blue|SELECTED}}** after"));
@@ -147,10 +147,10 @@ try {
       if (width > 900) {
         assert.equal(await page.locator(".block-menu").evaluate(node => node.classList.contains("is-popover") && !node.matches(":modal")), true, "desktop block menu is an anchored popover");
       } else assert.equal(await page.locator(".block-menu").evaluate(node => node.matches(":modal")), true, "mobile block menu stays a sheet");
-      await page.getByRole("button", { name: lang === "es" ? "Mover arriba" : "Move up", exact: true }).click();
+      await page.getByRole("button", { name: "Move up", exact: true }).click();
       assert.ok((await inspect(page)).doc.startsWith("Second paragraph.\n\nBefore"));
       assert.equal(await page.locator(".block-menu[open]").count(), 1, "moving keeps the block menu open");
-      assert.equal(await page.getByRole("button", { name: lang === "es" ? "Mover arriba" : "Move up", exact: true }).isDisabled(), true);
+      assert.equal(await page.getByRole("button", { name: "Move up", exact: true }).isDisabled(), true);
       await page.keyboard.press("Escape");
       assert.equal(await page.locator(".block-menu[open]").count(), 0);
       await page.keyboard.press("ControlOrMeta+z");
@@ -161,7 +161,7 @@ try {
       assert.equal((await inspect(page)).head, 3, "the caret travels with the moved block");
       await page.keyboard.press("Alt+ArrowDown");
       assert.equal((await inspect(page)).doc, beforeToggle.doc, "Alt+Down moves it back");
-      for (const action of [lang === "es" ? "Duplicar" : "Duplicate", lang === "es" ? "Eliminar bloque" : "Delete block"]) {
+      for (const action of ["Duplicate", "Delete block"]) {
         await select(page, (await inspect(page)).doc.indexOf("Second"));
         await openBlock(page, width);
         await page.getByRole("button", { name: action, exact: true }).click();
@@ -182,7 +182,7 @@ try {
       assert.equal(await page.evaluate(() => document.activeElement.classList.contains("cm-content")), true, "slash list keeps focus in the editor");
       assert.equal(await page.locator(".block-slash .block-group-title").count(), 3, "slash items are grouped");
       await page.keyboard.type("code");
-      assert.equal((await page.locator('.block-slash-option[aria-selected="true"]').textContent()).trim(), lang === "es" ? "Bloque de código" : "Code block");
+      assert.equal((await page.locator('.block-slash-option[aria-selected="true"]').textContent()).trim(), "Code block");
       await page.keyboard.press("Enter");
       assert.equal(await page.locator(".block-slash").isVisible(), false);
       assert.ok((await inspect(page)).doc.startsWith("```python"), "slash trigger is replaced: " + JSON.stringify(await inspect(page)));
@@ -218,7 +218,7 @@ try {
       }
       // Margin notes and verbatim blocks: definitions keep single blank-line spacing, and
       // inserts inside fenced/math content continue right after the block.
-      const noteText = lang === "es" ? "Nota al margen." : "Margin note.";
+      const noteText = "Margin note.";
       const insertNoteFromMenu = async () => {
         await openInsertMenu(page);
         await page.locator(".block-search").fill("note");
@@ -250,7 +250,7 @@ try {
       await page.keyboard.type("/heading");
       await page.locator(".block-slash").waitFor();
       await page.keyboard.press("Enter");
-      const heading = `## ${lang === "es" ? "Encabezado" : "Heading"}`;
+      const heading = `## Heading`;
       assert.equal((await inspect(page)).doc, `$$\na\n\n$$\n\n${heading}\n\n`, "slash heading at the last math block continues after it");
       assert.equal((await inspect(page)).head, (await inspect(page)).doc.indexOf(heading) + heading.length, "redirected slash block leaves the caret after the inserted text");
       await page.keyboard.press("ControlOrMeta+z");
@@ -270,7 +270,7 @@ try {
       await openInsertMenu(page);
       await page.locator(".block-search").fill("heading");
       await page.locator(".block-command-list button:visible").first().click();
-      assert.equal((await inspect(page)).doc, `Line one\n\n## ${lang === "es" ? "Encabezado" : "Heading"}\n\nLine two`, "block inserts reuse a single following newline");
+      assert.equal((await inspect(page)).doc, `Line one\n\n## Heading\n\nLine two`, "block inserts reuse a single following newline");
       await page.keyboard.press("ControlOrMeta+z");
       await fill(page, "Before.\n\n```python\nx = 1\n```\n\nAfter.");
       await select(page, 9, 9 + "```python\nx = 1\n```".length);
@@ -280,15 +280,15 @@ try {
       assert.equal((await inspect(page)).doc, "Before.\n\n```python\ndef square(x):\n    return x ** 2\n```\n\nAfter.", "an exact fence selection is replaced by a fresh block, not nested");
       await fill(page, '![Original](/fixture.png "Caption")');
       await select(page, 4); await openBlock(page, width);
-      await page.getByRole("button", { name: lang === "es" ? "Editar imagen" : "Edit image", exact: true }).click();
+      await page.getByRole("button", { name: "Edit image", exact: true }).click();
       await page.locator(".block-field input").nth(1).fill("Accessible description");
-      await page.getByRole("button", { name: lang === "es" ? "Aplicar" : "Apply", exact: true }).click();
+      await page.getByRole("button", { name: "Apply", exact: true }).click();
       assert.equal((await inspect(page)).doc, '![Accessible description](</fixture.png> "Caption")');
       // Uploads use the existing endpoint and insert at the remembered body selection.
       await page.route('**/api/upload-image', route => route.fulfill({ contentType: 'application/json', body: JSON.stringify({ url: '/fixture.png', markdown: '![Uploaded](/fixture.png)' }) }));
       await fill(page, "Before image after"); await select(page, 7, 12);
       await page.keyboard.press("ControlOrMeta+Shift+Enter");
-      const [chooser] = await Promise.all([page.waitForEvent("filechooser"), page.getByRole("button", { name: lang === "es" ? "Subir imagen" : "Upload image", exact: true }).click()]);
+      const [chooser] = await Promise.all([page.waitForEvent("filechooser"), page.getByRole("button", { name: "Upload image", exact: true }).click()]);
       await chooser.setFiles({ name: "sample.png", mimeType: "image/png", buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "base64") });
       await page.waitForFunction(() => document.querySelector("#body").value.includes("![Uploaded]"));
       assert.match((await inspect(page)).doc, /^Before [\s\S]*!\[Uploaded\]\(\/fixture.png\)[\s\S]* after$/);

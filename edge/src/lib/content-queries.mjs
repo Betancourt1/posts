@@ -1,4 +1,5 @@
 import { renderMarkdown } from "./content-projector.mjs";
+import { catalogEntry } from "./catalog.mjs";
 import { contentExcerpt } from "./content-excerpt.mjs";
 
 const SUPPORTED_BODY_TONE = /\{\{(?:green|blue|amber)\|[^{}\n]+\}\}/;
@@ -104,14 +105,6 @@ function hydrateDocuments(result) {
   return (result.results || []).map(hydrateDocument);
 }
 
-function language(value) {
-  const normalized = String(value || "").trim().toLowerCase();
-  if (normalized !== "en" && normalized !== "es") {
-    throw new TypeError(`Unsupported content language: ${value}`);
-  }
-  return normalized;
-}
-
 function positiveLimit(value, fallback, maximum = 1000) {
   const number = Number(value ?? fallback);
   if (!Number.isFinite(number)) return fallback;
@@ -209,7 +202,7 @@ export async function translationPeer(db, id, options = {}) {
   const { includeDrafts, includeHidden } = visibilityOptions(options);
   const row = await db.prepare(`
     SELECT
-      ${documentColumns("peer", { tags: options.tags !== false })},
+      ${documentColumns("peer", { body: options.body === true, tags: options.tags !== false })},
       canonical.path AS canonicalPath,
       canonical.path AS path
     FROM documents AS current
@@ -237,93 +230,39 @@ export async function translationPeer(db, id, options = {}) {
   return hydrateDocument(row);
 }
 
-export async function sectionItems(db, lang, section, options = {}) {
+export async function sectionItems(db, section, options = {}) {
   const { includeDrafts, includeHidden } = visibilityOptions(options);
-  const includeBody = options.body === true;
-  const limit = positiveLimit(options.limit, 500);
-  const selectedLanguage = language(lang);
-
-  if (options.includeLanguageFallback) {
-    const technicalPost = "d.section = 'posts' AND COALESCE(json_extract(d.frontmatter_json, '$.technical'), 0) = 1";
-    const sectionFilter = section === "proyectos-profesionales"
-      ? `(d.section = ? OR (${technicalPost}))`
-      : section === "posts" ? `d.section = ? AND NOT (${technicalPost})` : "d.section = ?";
-    const result = await db.prepare(`
-      WITH ranked AS (
-        SELECT
-          d.id,
-          canonical.path,
-          ROW_NUMBER() OVER (
-            PARTITION BY COALESCE(NULLIF(d.translation_key, ''), d.document_key)
-            ORDER BY
-              CASE WHEN d.lang = ? THEN 0 ELSE 1 END,
-              d.generated ASC,
-              canonical.path ASC,
-              d.id ASC
-          ) AS language_rank
-        FROM documents AS d
-        JOIN routes AS canonical
-          ON canonical.document_id = d.id
-         AND canonical.kind = 'canonical'
-        WHERE ${sectionFilter}
-          AND d.kind = 'page'
-          AND (? = 1 OR d.draft = 0)
-          AND (? = 1 OR d.hidden = 0)
-      )
-      SELECT
-        ${documentColumns("d", { body: includeBody })},
-        ranked.path AS path
-      FROM ranked
-      JOIN documents AS d ON d.id = ranked.id
-      WHERE ranked.language_rank = 1
-      ORDER BY
-        CASE WHEN d.date IS NULL OR d.date = '' THEN 1 ELSE 0 END,
-        d.date DESC,
-        d.title COLLATE NOCASE DESC,
-        ranked.path DESC
-      LIMIT ?
-    `).bind(
-      selectedLanguage,
-      String(section || "").trim(),
-      includeDrafts,
-      includeHidden,
-      limit,
-    ).all();
-
-    return hydrateDocuments(result);
-  }
-
+  const key = String(section || "").trim();
+  const alternate = key === "books" ? "libros" : key;
+  const technical = "d.section = 'posts' AND COALESCE(json_extract(d.frontmatter_json, '$.technical'), 0) = 1";
+  const filter = key === "proyectos-profesionales"
+    ? `(d.section IN (?, ?) OR (${technical}))`
+    : key === "posts" ? `d.section IN (?, ?) AND NOT (${technical})` : "d.section IN (?, ?)";
   const result = await db.prepare(`
     SELECT
-      ${documentColumns("d", { body: includeBody })},
+      ${documentColumns("d", { body: options.body === true, tags: options.tags !== false })},
       canonical.path AS path
     FROM documents AS d
     JOIN routes AS canonical
       ON canonical.document_id = d.id
      AND canonical.kind = 'canonical'
-    WHERE d.lang = ?
-      AND d.section = ?
+    WHERE ${filter}
       AND d.kind = 'page'
       AND (? = 1 OR d.draft = 0)
       AND (? = 1 OR d.hidden = 0)
+      AND ${catalogEntry()}
     ORDER BY
       CASE WHEN d.date IS NULL OR d.date = '' THEN 1 ELSE 0 END,
       d.date DESC,
       d.title COLLATE NOCASE DESC,
       canonical.path DESC
     LIMIT ?
-  `).bind(
-    selectedLanguage,
-    String(section || "").trim(),
-    includeDrafts,
-    includeHidden,
-    limit,
-  ).all();
+  `).bind(key, alternate, includeDrafts, includeHidden, positiveLimit(options.limit, 500)).all();
 
   return hydrateDocuments(result);
 }
 
-export async function navSections(db, lang, options = {}) {
+export async function navSections(db, options = {}) {
   const { includeDrafts, includeHidden } = visibilityOptions(options);
   const result = await db.prepare(`
     SELECT
@@ -334,7 +273,7 @@ export async function navSections(db, lang, options = {}) {
     JOIN routes AS canonical
       ON canonical.document_id = d.id
      AND canonical.kind = 'canonical'
-    WHERE d.lang = ?
+    WHERE ${catalogEntry()}
       AND (
         d.kind = 'section'
         OR (
@@ -346,12 +285,12 @@ export async function navSections(db, lang, options = {}) {
       AND (? = 1 OR d.draft = 0)
       AND (? = 1 OR d.hidden = 0)
     ORDER BY d.title COLLATE NOCASE, canonical.path
-  `).bind(language(lang), includeDrafts, includeHidden).all();
+  `).bind(includeDrafts, includeHidden).all();
 
   return result.results || [];
 }
 
-export async function archiveItems(db, lang, options = {}) {
+export async function archiveItems(db, options = {}) {
   const { includeDrafts, includeHidden } = visibilityOptions(options);
   const limit = positiveLimit(options.limit, 1000);
   const result = await db.prepare(`
@@ -366,7 +305,7 @@ export async function archiveItems(db, lang, options = {}) {
     JOIN routes AS canonical
       ON canonical.document_id = d.id
      AND canonical.kind = 'canonical'
-    WHERE d.lang = ?
+    WHERE ${catalogEntry()}
       AND d.kind = 'page'
       AND d.section <> ''
       AND d.section <> 'about'
@@ -378,12 +317,12 @@ export async function archiveItems(db, lang, options = {}) {
       d.title COLLATE NOCASE DESC,
       canonical.path DESC
     LIMIT ?
-  `).bind(language(lang), includeDrafts, includeHidden, limit).all();
+  `).bind(includeDrafts, includeHidden, limit).all();
 
   return hydrateDocuments(result);
 }
 
-export async function archiveMonthCounts(db, lang, options = {}) {
+export async function archiveMonthCounts(db, options = {}) {
   const { includeDrafts, includeHidden } = visibilityOptions(options);
   const limit = positiveLimit(options.limit, 1000);
   const result = await db.prepare(`
@@ -393,7 +332,7 @@ export async function archiveMonthCounts(db, lang, options = {}) {
       JOIN routes AS canonical
         ON canonical.document_id = d.id
        AND canonical.kind = 'canonical'
-      WHERE d.lang = ?
+      WHERE ${catalogEntry()}
         AND d.kind = 'page'
         AND d.section <> ''
         AND d.section <> 'about'
@@ -412,7 +351,7 @@ export async function archiveMonthCounts(db, lang, options = {}) {
     GROUP BY month
     ORDER BY month DESC
     LIMIT 12
-  `).bind(language(lang), includeDrafts, includeHidden, limit).all();
+  `).bind(includeDrafts, includeHidden, limit).all();
 
   return (result.results || []).map(({ key, count }) => ({
     key,
@@ -420,43 +359,39 @@ export async function archiveMonthCounts(db, lang, options = {}) {
   }));
 }
 
-export async function homePosts(db, lang) {
+export async function homePosts(db) {
   const result = await db.prepare(`
     WITH published AS (
-      SELECT d.id, d.lang, d.date, d.generated, canonical.path,
-        COALESCE(NULLIF(d.translation_key, ''), d.document_key) AS articleKey,
-        json_extract(d.frontmatter_json, '$.pinned') AS pinned,
-        json_extract(d.frontmatter_json, '$.essay') AS essay,
-        json_extract(d.frontmatter_json, '$.technical') AS technical
+      SELECT d.id, d.date, canonical.path, d.translation_key, d.frontmatter_json
       FROM documents AS d
       JOIN routes AS canonical ON canonical.document_id = d.id AND canonical.kind = 'canonical'
       WHERE d.kind = 'page' AND d.section = 'posts'
         AND d.draft = 0 AND d.hidden = 0
+        AND ${catalogEntry()}
     ), latest AS (
       SELECT id FROM published
-      WHERE lang = ?1 AND essay = 1 AND COALESCE(technical, 0) <> 1
+      WHERE json_extract(frontmatter_json, '$.essay') = 1
+        AND COALESCE(json_extract(frontmatter_json, '$.technical'), 0) <> 1
       ORDER BY date DESC, path DESC LIMIT 1
-    ), selected AS (
-      SELECT published.id, published.path, latest.id IS NOT NULL AS latestEssay,
-        ROW_NUMBER() OVER (
-          PARTITION BY articleKey
-          ORDER BY latest.id IS NULL, published.lang <> ?1, generated, path, published.id
-        ) AS languageRank
-      FROM published
-      LEFT JOIN latest ON latest.id = published.id
-      WHERE latest.id IS NOT NULL
-        OR articleKey IN (SELECT articleKey FROM published WHERE pinned = 1)
     )
-    SELECT ${documentColumns("d", { body: true })}, selected.path, selected.latestEssay
-    FROM selected
-    JOIN documents AS d ON d.id = selected.id
-    WHERE selected.languageRank = 1
-    ORDER BY selected.latestEssay DESC, d.date DESC, selected.path DESC
-  `).bind(language(lang)).all();
+    SELECT ${documentColumns("d", { body: true })}, published.path,
+      published.id IN (SELECT id FROM latest) AS latestEssay
+    FROM published
+    JOIN documents AS d ON d.id = published.id
+    WHERE published.id IN (SELECT id FROM latest)
+      OR COALESCE(json_extract(published.frontmatter_json, '$.pinned'), EXISTS (
+        SELECT 1 FROM documents AS previous
+        WHERE previous.translation_key = published.translation_key
+          AND previous.kind = 'page' AND previous.section = 'posts'
+          AND previous.draft = 0 AND previous.hidden = 0
+          AND json_extract(previous.frontmatter_json, '$.pinned') = 1
+      )) = 1
+    ORDER BY latestEssay DESC, published.date DESC, published.path DESC
+  `).all();
   return hydrateDocuments(result);
 }
 
-export async function recentPosts(db, lang, options = {}) {
+export async function recentPosts(db, options = {}) {
   const { includeDrafts, includeHidden } = visibilityOptions(options);
   const limit = positiveLimit(options.limit, 10);
   const result = await db.prepare(`
@@ -467,7 +402,7 @@ export async function recentPosts(db, lang, options = {}) {
     JOIN routes AS canonical
       ON canonical.document_id = d.id
      AND canonical.kind = 'canonical'
-    WHERE d.lang = ?
+    WHERE ${catalogEntry()}
       AND d.kind = 'page'
       AND d.section <> ''
       AND d.section NOT IN ('about', 'cv')
@@ -479,30 +414,30 @@ export async function recentPosts(db, lang, options = {}) {
       d.title COLLATE NOCASE DESC,
       canonical.path DESC
     LIMIT ?
-  `).bind(language(lang), includeDrafts, includeHidden, limit).all();
+  `).bind(includeDrafts, includeHidden, limit).all();
 
   return hydrateDocuments(result);
 }
 
-export async function tagIndex(db, lang, options = {}) {
+export async function tagIndex(db, options = {}) {
   const { includeDrafts, includeHidden } = visibilityOptions(options);
   const result = await db.prepare(`
-    SELECT tags.id, tags.lang, tags.label, tags.slug, COUNT(*) AS count
+    SELECT MIN(tags.id) AS id, MIN(tags.label) AS label, tags.slug, COUNT(*) AS count
     FROM tags
     JOIN document_tags ON document_tags.tag_id = tags.id
     JOIN documents AS d ON d.id = document_tags.document_id
-    WHERE tags.lang = ?
+    WHERE ${catalogEntry()}
       AND d.kind = 'page'
       AND (? = 1 OR d.draft = 0)
       AND (? = 1 OR d.hidden = 0)
-    GROUP BY tags.id, tags.lang, tags.label, tags.slug
+    GROUP BY tags.slug
     ORDER BY tags.label COLLATE NOCASE, tags.slug
-  `).bind(language(lang), includeDrafts, includeHidden).all();
+  `).bind(includeDrafts, includeHidden).all();
 
   return result.results || [];
 }
 
-export async function tagResults(db, lang, slug, options = {}) {
+export async function tagResults(db, slug, options = {}) {
   const { includeDrafts, includeHidden } = visibilityOptions(options);
   const limit = positiveLimit(options.limit, 500);
   let normalizedSlug = String(slug || "").trim();
@@ -525,8 +460,8 @@ export async function tagResults(db, lang, slug, options = {}) {
     JOIN routes AS canonical
       ON canonical.document_id = d.id
      AND canonical.kind = 'canonical'
-    WHERE selected_tag.lang = ?
-      AND selected_tag.slug = ?
+    WHERE selected_tag.slug = ?
+      AND ${catalogEntry()}
       AND d.kind = 'page'
       AND (? = 1 OR d.draft = 0)
       AND (? = 1 OR d.hidden = 0)
@@ -537,7 +472,6 @@ export async function tagResults(db, lang, slug, options = {}) {
       canonical.path DESC
     LIMIT ?
   `).bind(
-    language(lang),
     normalizedSlug,
     includeDrafts,
     includeHidden,
@@ -572,7 +506,7 @@ export async function backlinks(db, id, options = {}) {
      AND canonical.kind = 'canonical'
     WHERE target.id = ?
       AND source.id <> target.id
-      AND source.lang = target.lang
+      AND ${catalogEntry("source")}
       AND (? = 1 OR source.draft = 0)
       AND (? = 1 OR source.hidden = 0)
     ORDER BY
@@ -599,29 +533,40 @@ function ftsQuery(value) {
   return terms.map((term) => `"${term}"*`).join(" AND ");
 }
 
-export async function searchDocuments(db, query, lang, limit = 20) {
+export async function searchDocuments(db, query, limit = 20) {
   const match = ftsQuery(query);
   if (!match) return [];
 
   const result = await db.prepare(`
+    WITH matches AS MATERIALIZED (
+      SELECT d.id, d.translation_key, d.generated, d.lang,
+        bm25(documents_fts, 8.0, 4.0, 1.0, 2.0) AS rank,
+        snippet(documents_fts, 2, '', '', ' … ', 24) AS excerpt
+      FROM documents_fts
+      JOIN documents AS d ON d.id = documents_fts.rowid
+      WHERE documents_fts MATCH ?
+        AND d.searchable = 1 AND d.draft = 0 AND d.hidden = 0
+        AND (d.generated = 0 OR ${catalogEntry()})
+    )
     SELECT
       ${documentColumns("d")},
       canonical.path AS path,
-      bm25(documents_fts, 8.0, 4.0, 1.0, 2.0) AS rank,
-      snippet(documents_fts, 2, '', '', ' … ', 24) AS excerpt
-    FROM documents_fts
-    JOIN documents AS d ON d.id = documents_fts.rowid
+      matches.rank,
+      matches.excerpt
+    FROM matches
+    JOIN documents AS d ON d.id = matches.id
     JOIN routes AS canonical
       ON canonical.document_id = d.id
      AND canonical.kind = 'canonical'
-    WHERE documents_fts MATCH ?
-      AND d.lang = ?
-      AND d.searchable = 1
-      AND d.draft = 0
-      AND d.hidden = 0
-    ORDER BY rank, d.date DESC, d.title COLLATE NOCASE, canonical.path
+    WHERE NOT EXISTS (
+      SELECT 1 FROM matches AS preferred
+      WHERE preferred.translation_key = matches.translation_key
+        AND (preferred.generated, preferred.lang, preferred.id)
+          < (matches.generated, matches.lang, matches.id)
+    )
+    ORDER BY matches.rank, d.date DESC, d.title COLLATE NOCASE, canonical.path
     LIMIT ?
-  `).bind(match, language(lang), positiveLimit(limit, 20, 100)).all();
+  `).bind(match, positiveLimit(limit, 20, 100)).all();
 
   return hydrateDocuments(result).map((document) => ({
     ...document,
@@ -631,12 +576,7 @@ export async function searchDocuments(db, query, lang, limit = 20) {
   }));
 }
 
-function tagPath(lang, slug) {
-  return lang === "es" ? `/es/tags/${slug}/` : `/tags/${slug}/`;
-}
-
-export async function graphRows(db, lang) {
-  const normalizedLanguage = language(lang);
+export async function graphRows(db) {
   const result = await db.prepare(`
     SELECT
       d.id AS documentId,
@@ -651,17 +591,17 @@ export async function graphRows(db, lang) {
      AND canonical.kind = 'canonical'
     JOIN document_tags ON document_tags.document_id = d.id
     JOIN tags ON tags.id = document_tags.tag_id
-    WHERE d.lang = ?
+    WHERE ${catalogEntry()}
       AND d.kind = 'page'
       AND d.draft = 0
       AND d.hidden = 0
     ORDER BY d.title COLLATE NOCASE, canonical.path, document_tags.position
-  `).bind(normalizedLanguage).all();
+  `).all();
 
   const documents = new Map();
   for (const row of result.results || []) {
     const label = String(row.tagLabel || "");
-    if (GRAPH_IGNORED_TAGS.has(label.toLocaleLowerCase(normalizedLanguage))) continue;
+    if (GRAPH_IGNORED_TAGS.has(label.toLowerCase())) continue;
 
     if (!documents.has(row.documentId)) {
       documents.set(row.documentId, {
@@ -674,14 +614,14 @@ export async function graphRows(db, lang) {
     documents.get(row.documentId).tags.push({
       label,
       slug: row.tagSlug,
-      path: tagPath(normalizedLanguage, row.tagSlug),
+      path: `/tags/${row.tagSlug}/`,
     });
   }
 
   return [...documents.values()];
 }
 
-export async function infrastructureRows(db, lang) {
+export async function infrastructureRows(db) {
   const result = await db.prepare(`
     SELECT
       ${documentColumns("d", { body: true })},
@@ -690,12 +630,12 @@ export async function infrastructureRows(db, lang) {
     JOIN routes AS canonical
       ON canonical.document_id = d.id
      AND canonical.kind = 'canonical'
-    WHERE d.lang = ?
+    WHERE ${catalogEntry()}
       AND d.kind = 'page'
       AND d.draft = 0
       AND d.hidden = 0
     ORDER BY d.section COLLATE NOCASE, d.title COLLATE NOCASE, canonical.path
-  `).bind(language(lang)).all();
+  `).all();
 
   return hydrateDocuments(result);
 }

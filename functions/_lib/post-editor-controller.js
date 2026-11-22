@@ -3,7 +3,7 @@ export const postEditorController = Object.freeze({
   notebook: false,
   arenaEligible: true,
   requiresImage: false,
-  settingsTitle: "Propiedades",
-  deleteLabel: "Eliminar post",
+  settingsTitle: "Properties",
+  deleteLabel: "Delete post",
   deleteEndpoint: "/api/delete-page",
 });

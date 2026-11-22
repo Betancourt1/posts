@@ -18,7 +18,6 @@ interface Props {
   lang: Language;
   currentPath: string;
   activeSection?: string;
-  translationPath?: string | null;
   navigation: NavItem[];
   archiveMonths?: ArchiveMonth[];
   title: string;
@@ -39,7 +38,6 @@ const {
   lang,
   currentPath,
   activeSection = page.section,
-  translationPath = lang === "es" ? "/" : "/es/",
   navigation,
   archiveMonths = [],
   title,
@@ -79,8 +77,6 @@ const updatedLabel = updatedDate
   ? `${updatedDate.slice(8, 10)}/${updatedDate.slice(5, 7)}/${updatedDate.slice(0, 4)}`
   : "";
 const infrastructureTree = page.infrastructureTree || { type: "dir", name: "/", children: [] };
-const languageTitle = lang === "es" ? "Switch to English" : "Cambiar a Español";
-const otherLanguage = lang === "es" ? "EN" : "ES";
 const homePath = authorMode
   ? (lang === "es" ? "/admin/es/" : "/admin/")
   : (lang === "es" ? "/es/" : "/");
@@ -168,7 +164,6 @@ const archivesPath = authorMode
             <a class="author-menu-link" href={lang === "es" ? "/admin/es/cv-links/" : "/admin/cv-links/"}>{lang === "es" ? "Enlaces del CV" : "CV links"}</a>
           </div>
         </details>}
-        {translationPath && <a class="lang-toggle" href={translationPath} title={languageTitle}>{otherLanguage}</a>}
         <div class="typo-container">
           <button class="typo-toggle" id="typo-toggle" type="button" aria-label={lang === "es" ? "Ajustes de texto" : "Text settings"} title={lang === "es" ? "Ajustes de texto" : "Text settings"}>Aa</button>
           <div class="typo-dropdown" id="typo-dropdown">

@@ -21,15 +21,15 @@
     toast: document.getElementById("author-toast"),
   };
   var actionFeedback = {
-    "add-notebook": "Nuevo notebook",
-    "add-post": "Abriendo editor",
-    "add-image-post": "Abriendo imagen",
-    "edit-home": "Abriendo inicio",
-    "edit-notebook": "Abriendo notebook",
-    "edit-post": "Abriendo post",
-    "create-notebook-channel": "Sincronizando Are.na",
-    "delete-post": "Preparando eliminación",
-    "delete-notebook": "Preparando eliminación",
+    "add-notebook": "New notebook",
+    "add-post": "Opening editor",
+    "add-image-post": "Opening image editor",
+    "edit-home": "Opening homepage",
+    "edit-notebook": "Opening notebook",
+    "edit-post": "Opening post",
+    "create-notebook-channel": "Syncing Are.na",
+    "delete-post": "Preparing to delete",
+    "delete-notebook": "Preparing to delete",
   };
 
   bind();
@@ -121,7 +121,7 @@
         return openDeleteNotebookForm(button);
       }
 
-      toast("Acción de autor desconocida.");
+      toast("Unknown author action.");
       return false;
     }).then(function (keepBusy) {
       if (!keepBusy && clearBusy) {
@@ -149,7 +149,7 @@
       patch = { draft: true, hidden: true };
     }
     if (!path || !patch) {
-      return Promise.reject(new Error("Acción de proyecto desconocida."));
+      return Promise.reject(new Error("Unknown project action."));
     }
     if (button.dataset.confirm && !window.confirm(button.dataset.confirm)) {
       return Promise.resolve();
@@ -159,14 +159,14 @@
     button.setAttribute("aria-busy", "true");
     return request("/api/page?path=" + encodeURIComponent(path)).then(function (page) {
       if (typeof page.body !== "string") {
-        throw new Error("No se pudo leer el contenido; no se guardó nada.");
+        throw new Error("Unable to read the content. No changes were saved.");
       }
       return postJson("/api/save-page", { path: path, frontMatter: patch, body: page.body });
     }).then(function () {
       window.location.reload();
     }).catch(function (error) {
       if (/projection/i.test(error.message)) {
-        error.message += " El archivo sí se guardó en GitHub; recarga la página.";
+        error.message += " The file was saved to GitHub. Reload the page.";
       }
       throw error;
     });
@@ -182,7 +182,7 @@
       })
       .catch(function () {
         setStatus("offline", false);
-        toast("La API del autor no está disponible.");
+        toast("The author API is unavailable.");
       });
   }
 
@@ -192,7 +192,7 @@
         return {};
       }).then(function (payload) {
         if (!response.ok || payload.error) {
-          throw new Error(payload.error || "Error de la API del autor.");
+          throw new Error(payload.error || "Author API error.");
         }
 
         return payload;
@@ -354,15 +354,14 @@
   }
 
   function openNotebookForm() {
-    openModal("Agregar notebook", [
+    openModal("Add notebook", [
       '<form class="author-form" id="author-notebook-form">',
-      label("Idioma", '<select name="lang"><option value="es">Español</option><option value="en">Inglés</option></select>'),
-      label("Título", '<input name="title" type="text" required />'),
-      label("Ruta", '<input name="slug" type="text" />'),
-      label("Descripción", '<input name="description" type="text" />'),
-      checkbox("draft", "Borrador", true),
-      checkbox("hidden", "Oculto", false),
-      '<div class="author-form-actions"><button type="submit">Crear notebook</button></div>',
+      label("Title", '<input name="title" type="text" required />'),
+      label("Path", '<input name="slug" type="text" />'),
+      label("Description", '<input name="description" type="text" />'),
+      checkbox("draft", "Draft", true),
+      checkbox("hidden", "Hidden", false),
+      '<div class="author-form-actions"><button type="submit">Create notebook</button></div>',
       "</form>",
     ].join(""));
 
@@ -373,16 +372,15 @@
     bindSlug(titleInput, slugInput, "-");
     form.addEventListener("submit", function (event) {
       event.preventDefault();
-      var clearBusy = setSubmitBusy(form, "Creando...");
+      var clearBusy = setSubmitBusy(form, "Creating...");
       postJson("/api/create-notebook", {
-        lang: form.elements.lang.value,
         title: titleInput.value,
         slug: slugInput.value,
         description: form.elements.description.value,
         draft: form.elements.draft.checked,
         hidden: form.elements.hidden.checked,
       }).then(function (result) {
-        toast("Notebook creado.");
+        toast("Notebook created.");
         closeModal();
         loadNotebooks();
         openWhenReady(result.url);
@@ -399,7 +397,7 @@
       ? trigger.dataset.notebook
       : state.currentNotebook
         ? state.currentNotebook.path
-        : "content_es/posts";
+        : "content_en/posts";
 
     openEditor({
       mode: "new",
@@ -415,7 +413,7 @@
       ? trigger.dataset.notebook
       : state.currentNotebook
         ? state.currentNotebook.path
-        : "content_es/posts";
+        : "content_en/posts";
 
     openImageEditor({
       notebook: notebook,
@@ -433,7 +431,7 @@
     }
 
     if (!notebook) {
-      toast("No se encontró el notebook actual.");
+      toast("The current notebook was not found.");
       return false;
     }
 
@@ -449,12 +447,12 @@
     var path = trigger && trigger.dataset.sourcePath ? trigger.dataset.sourcePath : state.currentPath;
 
     if (!path) {
-      toast("Esta página no tiene archivo fuente.");
+      toast("This page has no source file.");
       return false;
     }
 
     if (path.endsWith("_index.md")) {
-      toast("Esta es una página de notebook. Usa Editar notebook.");
+      toast("Use Edit notebook to edit this notebook.");
       return false;
     }
 
@@ -471,12 +469,12 @@
     var path = trigger && trigger.dataset.sourcePath ? trigger.dataset.sourcePath : state.currentPath;
 
     if (!path) {
-      toast("Esta página no tiene archivo fuente.");
+      toast("This page has no source file.");
       return false;
     }
 
     if (path.endsWith("_index.md")) {
-      toast("Esta es una página de notebook. Usa Eliminar notebook.");
+      toast("Use Delete notebook to delete this notebook.");
       return false;
     }
 
@@ -488,7 +486,7 @@
         path: payload.path,
         title: frontMatter.title || payload.path,
         label: "post",
-        imageCopy: "Borrar también las imágenes adjuntas a este post.",
+        imageCopy: "Also delete images attached to this post.",
       });
     });
   }
@@ -506,7 +504,7 @@
     }
 
     if (!notebook) {
-      toast("No se encontró el notebook actual.");
+      toast("The current notebook was not found.");
       return false;
     }
 
@@ -518,21 +516,21 @@
         path: notebook.path,
         title: frontMatter.title || notebook.path,
         label: "notebook",
-        imageCopy: "Borrar también las imágenes referenciadas por sus páginas.",
+        imageCopy: "Also delete images referenced by its pages.",
       });
     });
   }
 
   function openDeleteForm(options) {
-    openModal("Eliminar " + options.label, [
+    openModal("Delete " + options.label, [
       '<form class="author-form author-delete-form" id="author-delete-form">',
-      '<p class="author-delete-copy">Vas a eliminar <strong>' + escapeHtml(options.title) + '</strong>.</p>',
+      '<p class="author-delete-copy">You are about to delete <strong>' + escapeHtml(options.title) + '</strong>.</p>',
       '<p class="author-path">' + escapeHtml(options.path) + '</p>',
       checkbox("deleteImages", options.imageCopy, false),
-      label("Confirmacion", '<input name="confirm" type="text" autocomplete="off" placeholder="Escribe BORRAR" required />'),
+      label("Confirmation", '<input name="confirm" type="text" autocomplete="off" placeholder="Type DELETE" required />'),
       '<div class="author-form-actions author-form-actions--split">',
-      '<button type="button" id="author-delete-cancel">Cancelar</button>',
-      '<button type="submit" class="author-danger-button">Eliminar</button>',
+      '<button type="button" id="author-delete-cancel">Cancel</button>',
+      '<button type="submit" class="author-danger-button">Delete</button>',
       '</div>',
       "</form>",
     ].join(""));
@@ -543,17 +541,17 @@
     cancel.addEventListener("click", closeModal);
     form.addEventListener("submit", function (event) {
       event.preventDefault();
-      if (form.elements.confirm.value.trim() !== "BORRAR") {
-        toast("Escribe BORRAR para confirmar.");
+      if (form.elements.confirm.value.trim() !== "DELETE") {
+        toast("Type DELETE to confirm.");
         return;
       }
 
-      var clearBusy = setSubmitBusy(form, "Eliminando...");
+      var clearBusy = setSubmitBusy(form, "Deleting...");
       postJson(options.endpoint, {
         path: options.path,
         deleteImages: form.elements.deleteImages.checked,
       }).then(function (result) {
-        toast("Eliminado.");
+        toast("Deleted.");
         closeModal();
         window.location.href = contentUrl(result.url || fallbackContentUrl());
       }).catch(function (error) {
@@ -603,21 +601,21 @@
 
   function createNotebookChannel() {
     if (!state.currentPath || !state.currentPath.endsWith("/_index.md")) {
-      throw new Error("No se encontró la ruta de este notebook.");
+      throw new Error("This notebook has no path.");
     }
-    if (!window.confirm("Se creará o actualizará un channel de Are.na con las publicaciones públicas de este notebook. ¿Continuar?")) {
+    if (!window.confirm("Create or update an Are.na channel with this notebook’s published posts?")) {
       return false;
     }
 
-    toast("Sincronizando notebook con Are.na...");
+    toast("Syncing notebook to Are.na...");
     return postJson("/api/create-notebook-channel", { path: state.currentPath }).then(function (result) {
       var channel = result.channel || {};
       var failures = Array.isArray(result.failures) ? result.failures.length : 0;
-      var message = String(result.synced || 0) + "/" + String(result.total || 0) + " publicaciones sincronizadas";
+      var message = String(result.synced || 0) + "/" + String(result.total || 0) + " posts synced";
       if (failures) {
-        message += "; " + failures + " necesitan reintento";
+        message += "; " + failures + " need a retry";
       }
-      toast(message + (channel.title ? " en " + channel.title + "." : "."));
+      toast(message + (channel.title ? " to " + channel.title + "." : "."));
       return false;
     });
   }
@@ -683,7 +681,7 @@
   }
 
   function fallbackContentUrl() {
-    return root.dataset.lang === "es" ? "/es/" : "/";
+    return "/";
   }
 
   function label(text, control) {
@@ -708,9 +706,10 @@
   function slugify(value, separator) {
     return String(value || "")
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/(\p{Script=Latin})\p{M}+/gu, "$1")
+      .normalize("NFC")
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, separator)
+      .replace(/[^\p{L}\p{M}\p{N}]+/gu, separator)
       .replace(new RegExp(separator + "+", "g"), separator)
       .replace(new RegExp("^" + separator + "|" + separator + "$", "g"), "");
   }

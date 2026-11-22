@@ -5,13 +5,12 @@ import { infrastructureRows } from "../../lib/content-queries.mjs";
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ url }) => {
-  const lang = url.searchParams.get("lang") === "es" ? "es" : "en";
-  const documents = await infrastructureRows(env.DB, lang);
+export const GET: APIRoute = async () => {
+  const documents = await infrastructureRows(env.DB);
   const sections = new Map<string, Array<Record<string, unknown>>>();
 
   for (const document of documents) {
-    const section = document.section || (lang === "es" ? "páginas" : "pages");
+    const section = document.section || "pages";
     if (!sections.has(section)) sections.set(section, []);
     sections.get(section)?.push({
       type: "file",

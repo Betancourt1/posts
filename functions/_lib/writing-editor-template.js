@@ -44,7 +44,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
     return `${ASSET_ORIGIN}/${String(assetPath).replace(/^\/+/, "")}`;
   }
   const html = `<!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -1914,223 +1914,223 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
   <div class="editor-notice" id="editor-notice" role="status" aria-live="polite" hidden></div>
   <header class="topbar">
     <div class="brand">
-      <button type="button" class="back-button" id="back" aria-label="Volver">${ICONS.back}</button>
+      <button type="button" class="back-button" id="back" aria-label="Back">${ICONS.back}</button>
       <span class="editor-identity">
-        <span class="editor-brand"><strong>betancourt</strong><small>aquí escribo cosas</small></span>
-        <span class="saved-pill" id="saved-pill" data-state="loading" role="status" aria-live="polite">Cargando</span>
+        <span class="editor-brand"><strong>betancourt</strong><small>where I write</small></span>
+        <span class="saved-pill" id="saved-pill" data-state="loading" role="status" aria-live="polite">Loading</span>
       </span>
       <span class="status" id="status">Loading</span>
     </div>
     <div class="top-actions">
-      <button type="button" class="load-retry" id="retry-load" aria-label="Reintentar carga" title="Reintentar carga" hidden>${ICONS.redo}</button>
-      <button type="button" class="save-retry" id="save-retry" aria-label="Reintentar guardado" title="Reintentar guardado" hidden>${ICONS.retry}</button>
-      <div class="view-switch" id="view-switch" role="group" aria-label="Vista">
-        <button type="button" id="view-render" data-view="render" aria-pressed="true" title="Escribir (Ctrl+Alt+P cambia de vista)">${VIEW_ICONS.render}<span>Escribir</span></button>
-        <button type="button" id="view-markdown" data-view="markdown" aria-pressed="false" title="Markdown sin formato">${VIEW_ICONS.markdown}<span>Markdown</span></button>
-        <button type="button" id="view-preview" data-view="preview" aria-pressed="false" aria-controls="preview-pane" title="Vista previa">${VIEW_ICONS.preview}<span>Vista previa</span></button>
+      <button type="button" class="load-retry" id="retry-load" aria-label="Retry loading" title="Retry loading" hidden>${ICONS.redo}</button>
+      <button type="button" class="save-retry" id="save-retry" aria-label="Retry saving" title="Retry saving" hidden>${ICONS.retry}</button>
+      <div class="view-switch" id="view-switch" role="group" aria-label="View">
+        <button type="button" id="view-render" data-view="render" aria-pressed="true" title="Write (Ctrl+Alt+P switches view)">${VIEW_ICONS.render}<span>Write</span></button>
+        <button type="button" id="view-markdown" data-view="markdown" aria-pressed="false" title="Plain Markdown">${VIEW_ICONS.markdown}<span>Markdown</span></button>
+        <button type="button" id="view-preview" data-view="preview" aria-pressed="false" aria-controls="preview-pane" title="Preview">${VIEW_ICONS.preview}<span>Preview</span></button>
       </div>
       <div class="topbar-menu-wrap view-menu-wrap">
-        <button type="button" class="view-menu-button" id="view-menu-button" aria-haspopup="menu" aria-expanded="false" aria-controls="view-menu" aria-label="Vista: Escribir" title="Vista y edición">${VIEW_ICONS.render}</button>
-        <div class="topbar-menu view-menu" id="view-menu" role="menu" aria-label="Vista y edición" hidden>
-          <button type="button" role="menuitemradio" data-view="render" aria-checked="true">${VIEW_ICONS.render}<span>Escribir</span></button>
+        <button type="button" class="view-menu-button" id="view-menu-button" aria-haspopup="menu" aria-expanded="false" aria-controls="view-menu" aria-label="View: Write" title="View and editing">${VIEW_ICONS.render}</button>
+        <div class="topbar-menu view-menu" id="view-menu" role="menu" aria-label="View and editing" hidden>
+          <button type="button" role="menuitemradio" data-view="render" aria-checked="true">${VIEW_ICONS.render}<span>Write</span></button>
           <button type="button" role="menuitemradio" data-view="markdown" aria-checked="false">${VIEW_ICONS.markdown}<span>Markdown</span></button>
-          <button type="button" role="menuitemradio" data-view="preview" aria-checked="false">${VIEW_ICONS.preview}<span>Vista previa</span></button>
+          <button type="button" role="menuitemradio" data-view="preview" aria-checked="false">${VIEW_ICONS.preview}<span>Preview</span></button>
           <span class="topbar-menu-separator" role="separator"></span>
-          <button type="button" role="menuitem" data-view-action="undo">${ICONS.undo}<span>Deshacer</span></button>
-          <button type="button" role="menuitem" data-view-action="redo">${ICONS.redo}<span>Rehacer</span></button>
+          <button type="button" role="menuitem" data-view-action="undo">${ICONS.undo}<span>Undo</span></button>
+          <button type="button" role="menuitem" data-view-action="redo">${ICONS.redo}<span>Redo</span></button>
         </div>
       </div>
-      <button type="button" class="mobile-settings-button" id="top-settings-button" aria-controls="settings" aria-expanded="false" aria-label="Configuración">...</button>
+      <button type="button" class="mobile-settings-button" id="top-settings-button" aria-controls="settings" aria-expanded="false" aria-label="Settings">...</button>
       <div class="topbar-menu-wrap save-group">
-        <button type="button" class="primary" id="save" disabled><span class="save-label-desktop">Guardar</span><span class="save-label-mobile">Guardar</span></button>
-        <button type="button" class="save-visibility" id="save-visibility" data-visibility="draft" aria-haspopup="menu" aria-expanded="false" aria-controls="visibility-menu" aria-label="Visibilidad: Borrador" title="Visibilidad al guardar"><span class="save-visibility-icon">${ICONS.eyeOff}</span><span class="save-visibility-label" id="save-visibility-label">Borrador</span>${ICONS.chevron}</button>
-        <div class="topbar-menu visibility-menu" id="visibility-menu" role="menu" aria-label="Visibilidad al guardar" hidden>
-          <button type="button" role="menuitemradio" data-visibility="draft" aria-checked="true">${ICONS.eyeOff}<span><strong>Borrador</strong><small>Solo visible en el editor</small></span></button>
-          <button type="button" role="menuitemradio" data-visibility="public" aria-checked="false">${ICONS.eye}<span><strong>Público</strong><small>Aparece en el sitio al guardar</small></span></button>
+        <button type="button" class="primary" id="save" disabled><span class="save-label-desktop">Save</span><span class="save-label-mobile">Save</span></button>
+        <button type="button" class="save-visibility" id="save-visibility" data-visibility="draft" aria-haspopup="menu" aria-expanded="false" aria-controls="visibility-menu" aria-label="Visibility: Draft" title="Visibility when saved"><span class="save-visibility-icon">${ICONS.eyeOff}</span><span class="save-visibility-label" id="save-visibility-label">Draft</span>${ICONS.chevron}</button>
+        <div class="topbar-menu visibility-menu" id="visibility-menu" role="menu" aria-label="Visibility when saved" hidden>
+          <button type="button" role="menuitemradio" data-visibility="draft" aria-checked="true">${ICONS.eyeOff}<span><strong>Draft</strong><small>Visible only in the editor</small></span></button>
+          <button type="button" role="menuitemradio" data-visibility="public" aria-checked="false">${ICONS.eye}<span><strong>Public</strong><small>Appears on the site when saved</small></span></button>
         </div>
       </div>
     </div>
   </header>
-  <nav class="formatbar" aria-label="Formato">
+  <nav class="formatbar" aria-label="Formatting">
     <div class="formatbar-inner">
-      <span class="toolbar-group" aria-label="Historial">
-        <button type="button" data-format="undo" title="Deshacer" aria-label="Deshacer">${ICONS.undo}</button>
-        <button type="button" data-format="redo" title="Rehacer" aria-label="Rehacer">${ICONS.redo}</button>
+      <span class="toolbar-group" aria-label="History">
+        <button type="button" data-format="undo" title="Undo" aria-label="Undo">${ICONS.undo}</button>
+        <button type="button" data-format="redo" title="Redo" aria-label="Redo">${ICONS.redo}</button>
       </span>
       <span class="divider"></span>
-      <span class="toolbar-group" aria-label="Formato en línea">
-        <button type="button" data-format="bold" title="Negrita" aria-label="Negrita">${ICONS.bold}</button>
-        <button type="button" data-format="italic" title="Cursiva" aria-label="Cursiva">${ICONS.italic}</button>
+      <span class="toolbar-group" aria-label="Inline formatting">
+        <button type="button" data-format="bold" title="Bold" aria-label="Bold">${ICONS.bold}</button>
+        <button type="button" data-format="italic" title="Italic" aria-label="Italic">${ICONS.italic}</button>
       </span>
       <span class="divider" id="insert-divider-before"></span>
-      <span class="toolbar-group" id="insert-toolbar-group" aria-label="Insertar">
-        <button type="button" id="toolbar-technical" aria-controls="technical-tools" aria-expanded="false" aria-label="Insertar contenido" title="Insertar contenido">${ICONS.insert}<span class="insert-label">Insertar</span></button>
+      <span class="toolbar-group" id="insert-toolbar-group" aria-label="Insert">
+        <button type="button" id="toolbar-technical" aria-controls="technical-tools" aria-expanded="false" aria-label="Insert content" title="Insert content">${ICONS.insert}<span class="insert-label">Insert</span></button>
       </span>
 
-      <button type="button" id="format-more" aria-controls="secondary-format" aria-expanded="false" aria-label="Mostrar más formato" title="Mostrar más formato">${ICONS.more}<span class="format-more-label">Más</span></button>
+      <button type="button" id="format-more" aria-controls="secondary-format" aria-expanded="false" aria-label="Show more formatting" title="Show more formatting">${ICONS.more}<span class="format-more-label">More</span></button>
       <div class="secondary-format" id="secondary-format">
       <span class="divider" id="insert-divider-after"></span>
-      <span class="toolbar-group" aria-label="Más formato">
-        <button type="button" data-format="strike" title="Tachado" aria-label="Tachado">${ICONS.strike}<span class="format-label">Tachado</span></button>
-        <button type="button" data-format="code" title="Código en línea" aria-label="Código en línea">${ICONS.code}<span class="format-label">Código</span></button>
-        <button type="button" data-format="link" title="Enlace" aria-label="Enlace">${ICONS.link}<span class="format-label">Enlace</span></button>
+      <span class="toolbar-group" aria-label="More formatting">
+        <button type="button" data-format="strike" title="Strikethrough" aria-label="Strikethrough">${ICONS.strike}<span class="format-label">Strikethrough</span></button>
+        <button type="button" data-format="code" title="Inline code" aria-label="Inline code">${ICONS.code}<span class="format-label">Code</span></button>
+        <button type="button" data-format="link" title="Link" aria-label="Link">${ICONS.link}<span class="format-label">Link</span></button>
       </span>
       <span class="divider"></span>
-      <span class="toolbar-group" aria-label="Bloques">
-        <button type="button" data-format="heading" title="Encabezado" aria-label="Encabezado">${ICONS.heading}<span class="format-label">Encabezado</span></button>
-        <button type="button" data-format="quote" title="Cita" aria-label="Cita">${ICONS.quote}<span class="format-label">Cita</span></button>
-        <button type="button" data-format="ul" title="Lista con viñetas" aria-label="Lista con viñetas">${ICONS.list}<span class="format-label">Viñetas</span></button>
-        <button type="button" data-format="ol" title="Lista numerada" aria-label="Lista numerada">${ICONS.orderedList}<span class="format-label">Numerada</span></button>
+      <span class="toolbar-group" aria-label="Blocks">
+        <button type="button" data-format="heading" title="Heading" aria-label="Heading">${ICONS.heading}<span class="format-label">Heading</span></button>
+        <button type="button" data-format="quote" title="Quote" aria-label="Quote">${ICONS.quote}<span class="format-label">Quote</span></button>
+        <button type="button" data-format="ul" title="Bulleted list" aria-label="Bulleted list">${ICONS.list}<span class="format-label">Bullets</span></button>
+        <button type="button" data-format="ol" title="Numbered list" aria-label="Numbered list">${ICONS.orderedList}<span class="format-label">Numbered</span></button>
       </span>
       </div>
     </div>
     ${technicalInsertMarkup}
   </nav>
-  <button type="button" class="settings-backdrop" id="settings-backdrop" aria-label="Cerrar configuración" hidden></button>
-  <button type="button" class="arena-details-backdrop" id="arena-details-backdrop" aria-label="Cerrar detalle de Are.na" hidden></button>
+  <button type="button" class="settings-backdrop" id="settings-backdrop" aria-label="Close settings" hidden></button>
+  <button type="button" class="arena-details-backdrop" id="arena-details-backdrop" aria-label="Close Are.na details" hidden></button>
   <main class="shell">
     <section class="writer">
       <article class="paper">
         <div class="draft-restore" id="draft-restore" hidden>
-          <span id="draft-restore-text">Hay un borrador sin guardar.</span>
-          <button type="button" class="draft-restore-accept" id="draft-restore-accept">Restaurar</button>
-          <button type="button" class="draft-restore-discard" id="draft-restore-discard">Descartar</button>
+          <span id="draft-restore-text">There is an unsaved draft.</span>
+          <button type="button" class="draft-restore-accept" id="draft-restore-accept">Restore</button>
+          <button type="button" class="draft-restore-discard" id="draft-restore-discard">Discard</button>
         </div>
-        <textarea class="title-input" id="title" rows="2" placeholder="Título (obligatorio)"></textarea>
-        <input class="subtitle-input" id="summary" type="text" placeholder="Agregar un subtítulo…" />
+        <textarea class="title-input" id="title" rows="2" placeholder="Title (required)"></textarea>
+        <input class="subtitle-input" id="summary" type="text" placeholder="Add a subtitle…" />
         ${projectEditorMarkup}
-        <textarea class="body-input" id="body" placeholder="Comienza a escribir un artículo…"></textarea>
-        <textarea class="markdown-input" id="markdown-canvas" aria-label="Markdown del documento" spellcheck="false" hidden></textarea>
+        <textarea class="body-input" id="body" placeholder="Start writing an article…"></textarea>
+        <textarea class="markdown-input" id="markdown-canvas" aria-label="Document Markdown" spellcheck="false" hidden></textarea>
       </article>
-      <section class="preview-pane" id="preview-pane" aria-label="Vista previa" hidden>
+      <section class="preview-pane" id="preview-pane" aria-label="Preview" hidden>
         <div class="preview-toolbar">
-          <div class="preview-format" role="group" aria-label="Formato de la vista previa">
-            <button type="button" id="preview-rendered" data-preview-format="rendered" aria-pressed="true">Renderizado</button>
+          <div class="preview-format" role="group" aria-label="Preview format">
+            <button type="button" id="preview-rendered" data-preview-format="rendered" aria-pressed="true">Rendered</button>
             <button type="button" id="preview-html" data-preview-format="html" aria-pressed="false">HTML</button>
           </div>
           <span class="preview-status" id="preview-status" role="status" aria-live="polite"></span>
-          <button type="button" class="preview-retry" id="preview-retry" hidden>Reintentar</button>
-          <button type="button" class="preview-split" id="preview-split" aria-pressed="false" title="Editar y ver la vista previa lado a lado">${ICONS.columns}<span>Lado a lado</span></button>
+          <button type="button" class="preview-retry" id="preview-retry" hidden>Retry</button>
+          <button type="button" class="preview-split" id="preview-split" aria-pressed="false" title="Edit and preview side by side">${ICONS.columns}<span>Split view</span></button>
         </div>
         <div class="preview-frame-stack" id="preview-frame-stack">
-          <iframe class="preview-frame" id="preview-frame" title="Vista previa del artículo" sandbox="allow-scripts allow-same-origin"></iframe>
-          <iframe class="preview-frame preview-frame-buffer" id="preview-frame-buffer" title="Vista previa del artículo" sandbox="allow-scripts allow-same-origin"></iframe>
+          <iframe class="preview-frame" id="preview-frame" title="Article preview" sandbox="allow-scripts allow-same-origin"></iframe>
+          <iframe class="preview-frame preview-frame-buffer" id="preview-frame-buffer" title="Article preview" sandbox="allow-scripts allow-same-origin"></iframe>
         </div>
-        <pre class="preview-html-source" id="preview-html-source" aria-label="HTML renderizado" tabindex="0" hidden><code></code></pre>
+        <pre class="preview-html-source" id="preview-html-source" aria-label="Rendered HTML" tabindex="0" hidden><code></code></pre>
       </section>
     </section>
   </main>
   <aside class="settings" id="settings" hidden>
       <div class="settings-header">
-        <h2 id="settings-title">Propiedades</h2>
+        <h2 id="settings-title">Properties</h2>
         <div class="settings-header-actions">
-          <button type="button" class="settings-close" id="settings-close" aria-label="Cerrar configuración">&times;</button>
+          <button type="button" class="settings-close" id="settings-close" aria-label="Close settings">&times;</button>
         </div>
       </div>
       <section class="settings-group" id="settings-group-publication" aria-labelledby="settings-group-publication-title">
-      <h3 class="settings-group-title" id="settings-group-publication-title">Publicación</h3>
+      <h3 class="settings-group-title" id="settings-group-publication-title">Publication</h3>
       <label class="field" id="notebook-field">
-        <span>Destino</span>
+        <span>Destination</span>
         <select id="notebook"></select>
       </label>
       <label class="field slug-field" id="slug-field" hidden>
-        <span>Ruta</span>
+        <span>Path</span>
         <span class="slug-control">
           <input id="slug" type="text" readonly />
-          <button type="button" class="slug-copy" id="copy-slug" aria-label="Copiar ruta" title="Copiar ruta" hidden>${ICONS.copy}</button>
+          <button type="button" class="slug-copy" id="copy-slug" aria-label="Copy path" title="Copy path" hidden>${ICONS.copy}</button>
         </span>
       </label>
       <label class="field">
-        <span>Fecha</span>
+        <span>Date</span>
         <input id="date" type="date" />
       </label>
       <section class="publication-section" id="publication-section">
-        <h3>Estado</h3>
-        <p class="publication-message" id="publication-visibility">Sin publicar</p>
-        <p class="publication-message" id="publication-message" role="status">Guarda cuando quieras conservar los cambios.</p>
-        <a class="publication-link" id="publication-link" href="#" target="_blank" rel="noopener" hidden>Abrir publicación ↗</a>
+        <h3>Status</h3>
+        <p class="publication-message" id="publication-visibility">Unpublished</p>
+        <p class="publication-message" id="publication-message" role="status">Save when you are ready to keep your changes.</p>
+        <a class="publication-link" id="publication-link" href="#" target="_blank" rel="noopener" hidden>Open post ↗</a>
       </section>
       </section>
       <section class="settings-group" id="settings-group-metadata" aria-labelledby="settings-group-metadata-title">
-      <h3 class="settings-group-title" id="settings-group-metadata-title">Metadatos</h3>
+      <h3 class="settings-group-title" id="settings-group-metadata-title">Metadata</h3>
       <label class="field" id="tags-field">
-        <span>Etiquetas</span>
+        <span>Tags</span>
         <input id="tags" type="text" placeholder="essays, politics" />
       </label>
       <label class="field" id="writing-type-field" hidden>
-        <span>Tipo de escrito</span>
+        <span>Writing type</span>
         <select id="writing-type">
-          <option value="personal">Post breve y personal</option>
-          <option value="essay">Ensayo</option>
-          <option value="technical">Escrito técnico</option>
+          <option value="personal">Short personal post</option>
+          <option value="essay">Essay</option>
+          <option value="technical">Technical post</option>
         </select>
       </label>
       <label class="check" id="pinned-field" hidden>
-        <span class="check-label">Fijar en inicio</span>
+        <span class="check-label">Pin to homepage</span>
         <input id="pinned" type="checkbox" />
       </label>
       <div class="photo-fields" id="photo-fields" hidden>
         <label class="field">
-          <span>Imagen</span>
+          <span>Image</span>
           <input id="image" type="text" placeholder="/uploads/2026/07/photo.jpg" />
         </label>
-        <button type="button" class="image-delete-button" id="delete-image" hidden>${ICONS.trash}<span>Eliminar imagen</span></button>
+        <button type="button" class="image-delete-button" id="delete-image" hidden>${ICONS.trash}<span>Delete image</span></button>
         <img class="photo-preview" id="photo-preview" alt="" />
       </div>
       <label class="field" id="image-alt-field">
-        <span>Texto alt</span>
-        <input id="image-alt" type="text" placeholder="Describe la imagen" />
+        <span>Alt text</span>
+        <input id="image-alt" type="text" placeholder="Describe the image" />
       </label>
       <label class="field" id="caption-field">
-        <span>Pie</span>
-        <input id="caption" type="text" placeholder="Pie opcional" />
+        <span>Caption</span>
+        <input id="caption" type="text" placeholder="Optional caption" />
       </label>
       </section>
       <details class="settings-group settings-advanced" id="settings-advanced">
-      <summary class="settings-group-title"><span>Avanzado</span><span class="advanced-arena-badge" id="advanced-arena-badge" data-state="disabled" hidden>Are.na</span></summary>
+      <summary class="settings-group-title"><span>Advanced</span><span class="advanced-arena-badge" id="advanced-arena-badge" data-state="disabled" hidden>Are.na</span></summary>
       <label class="field">
-        <span>Tamaño del texto</span>
+        <span>Text size</span>
         <select id="editor-font-size">
-          <option value="small">Pequeño</option>
-          <option value="medium">Mediano</option>
-          <option value="large">Grande</option>
+          <option value="small">Small</option>
+          <option value="medium">Medium</option>
+          <option value="large">Large</option>
         </select>
       </label>
 
       <section class="notebook-channel-section" id="notebook-channel-section" hidden>
         <h3>Are.na</h3>
-        <button type="button" class="notebook-channel-action" id="create-notebook-channel">Crear channel desde notebook</button>
-        <p class="notebook-channel-status" id="notebook-channel-status">Sincroniza las publicaciones públicas y visibles sin duplicarlas.</p>
-        <a class="notebook-channel-link" id="notebook-channel-link" href="#" target="_blank" rel="noopener" hidden>Abrir channel ↗</a>
+        <button type="button" class="notebook-channel-action" id="create-notebook-channel">Create channel from notebook</button>
+        <p class="notebook-channel-status" id="notebook-channel-status">Sync visible published posts without creating duplicates.</p>
+        <a class="notebook-channel-link" id="notebook-channel-link" href="#" target="_blank" rel="noopener" hidden>Open channel ↗</a>
       </section>
       <section class="arena-section" id="arena-section">
         <div class="arena-section-header">
           <h3>Are.na</h3>
-          <button type="button" class="arena-status-chip" id="arena-status-chip" data-state="disabled" aria-haspopup="dialog" aria-controls="arena-details" title="Ver detalle de la copia en Are.na"><span id="arena-status-label">Copia desactivada</span></button>
+          <button type="button" class="arena-status-chip" id="arena-status-chip" data-state="disabled" aria-haspopup="dialog" aria-controls="arena-details" title="View Are.na copy details"><span id="arena-status-label">Copying disabled</span></button>
         </div>
         <label class="check arena-toggle">
-          <span class="check-label">Copiar a Are.na</span>
+          <span class="check-label">Copy to Are.na</span>
           <input id="arena-enabled" type="checkbox" disabled />
         </label>
         <label class="arena-channel-field" id="arena-channel-field" hidden>
-          <span>Canal</span>
+          <span>Channel</span>
           <select id="arena-channel" disabled>
-            <option value="">Cargando canales...</option>
+            <option value="">Loading channels...</option>
           </select>
         </label>
-        <p class="arena-helper" id="arena-helper">Al publicar, se copiarán el título y el cuerpo Markdown completo.</p>
-        <p class="arena-content-meta" id="arena-content-meta">Bloque de texto</p>
-        <p class="arena-state-message" id="arena-state-message" aria-live="polite">Activa la copia para mantener este texto en Are.na.</p>
+        <p class="arena-helper" id="arena-helper">Publishing copies the title and full Markdown body.</p>
+        <p class="arena-content-meta" id="arena-content-meta">Text block</p>
+        <p class="arena-state-message" id="arena-state-message" aria-live="polite">Enable copying to keep this text on Are.na.</p>
         <p class="arena-last-synced" id="arena-last-synced"></p>
-        <button type="button" class="arena-retry" id="arena-retry" hidden>Reintentar</button>
+        <button type="button" class="arena-retry" id="arena-retry" hidden>Retry</button>
       </section>
       <div class="danger-zone" id="danger-zone" hidden>
-        <h3>Peligro</h3>
+        <h3>Danger zone</h3>
         <label class="check">
-          <span class="check-label">Eliminar imágenes adjuntas</span>
+          <span class="check-label">Delete attached images</span>
           <input id="delete-attached-images" type="checkbox" />
         </label>
-        <button type="button" class="danger-button" id="delete-page">${ICONS.trash}<span>Eliminar</span></button>
+        <button type="button" class="danger-button" id="delete-page">${ICONS.trash}<span>Delete</span></button>
       </div>
       </details>
       <div class="utility">
@@ -2142,21 +2142,21 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
     </aside>
     <aside class="arena-details" id="arena-details" role="dialog" aria-modal="true" aria-labelledby="arena-details-title" hidden>
       <div class="arena-details-header">
-        <h2 id="arena-details-title">Copia en Are.na</h2>
-        <button type="button" class="arena-details-close" id="arena-details-close" aria-label="Cerrar detalle de Are.na">&times;</button>
+        <h2 id="arena-details-title">Copy on Are.na</h2>
+        <button type="button" class="arena-details-close" id="arena-details-close" aria-label="Close Are.na details">&times;</button>
       </div>
       <div class="arena-preview">
-        <span class="arena-preview-type" id="arena-preview-type">Bloque de texto · Markdown completo</span>
-        <h3 id="arena-preview-title">Sin titulo</h3>
+        <span class="arena-preview-type" id="arena-preview-type">Text block · Full Markdown</span>
+        <h3 id="arena-preview-title">Untitled</h3>
         <p class="arena-preview-excerpt" id="arena-preview-excerpt"></p>
         <p class="arena-preview-meta" id="arena-preview-meta"></p>
       </div>
       <div class="arena-details-meta">
         <p class="arena-state-message" id="arena-details-state" aria-live="polite"></p>
-        <p class="arena-source">Canal: <strong id="arena-details-channel">Sin elegir</strong></p>
-        <p class="arena-source">Fuente original: fbetancourt.work</p>
-        <a class="arena-block-link" id="arena-block-link" href="#" target="_blank" rel="noopener" hidden>Abrir bloque de texto en Are.na ↗</a>
-        <button type="button" class="arena-details-retry" id="arena-details-retry" hidden>Reintentar</button>
+        <p class="arena-source">Channel: <strong id="arena-details-channel">None selected</strong></p>
+        <p class="arena-source">Original source: fbetancourt.work</p>
+        <a class="arena-block-link" id="arena-block-link" href="#" target="_blank" rel="noopener" hidden>Open text block on Are.na ↗</a>
+        <button type="button" class="arena-details-retry" id="arena-details-retry" hidden>Retry</button>
       </div>
   </aside>
   ${technicalEditorMarkup}
@@ -2183,13 +2183,13 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       var today = editorCore.today;
       var waitForPublicState = editorCore.waitForPublicState;
       var sourcePath = params.get("path") || "";
-      var preferredNotebook = params.get("notebook") || "";
+      var preferredNotebook = params.get("notebook") || "content_en/posts";
       var frontMatter = {};
       var savedUrl = "";
       var slugTouched = false;
       var editorSizeStorageKey = "authorEditorFontSize";
       var viewModeStorageKey = "authorEditorViewMode";
-      var notebookCacheStorageKey = "authorNotebooksCacheV1";
+      var notebookCacheStorageKey = "authorNotebooksCacheV2";
       var draftStorageKey = "authorWritingDraftV1";
       var draftMaxAgeMs = 24 * 60 * 60 * 1000;
       var draftSaveTimer = 0;
@@ -2334,7 +2334,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       ${projectEditorScript}
       var projectEditor = bindProjectEditor(markContentEdited, request, function () {
-        return (sourcePath || els.notebook.value).startsWith("content_es/") ? "es" : "en";
+        return "en";
       }, {
         title: function () { return els.title.value; },
         summary: function () { return els.summary.value; },
@@ -2365,7 +2365,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         saveFailed = false;
         els.save.disabled = true;
         els.retryLoad.hidden = true;
-        setSavePill("loading", "Cargando");
+        setSavePill("loading", "Loading");
         setStatus("Loading");
         var notebooksPromise = loadNotebooks();
         var contentPromise;
@@ -2405,7 +2405,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           parent: els.paper,
           value: loadedBodySource === null ? els.body.value : loadedBodySource,
           raw: activeViewMode === "markdown",
-          language: function () { return (sourcePath || els.notebook.value).indexOf("content_es/") === 0 ? "es" : "en"; },
+          language: function () { return "en"; },
           onChange: function (value) { els.body.value = value; markContentEdited(); },
           onUpload: function () { els.imageFile.click(); },
           onPreview: function (value) { closeSettings(); previewTechnicalContent(value); },
@@ -2576,9 +2576,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         document.body.classList.remove("format-tools-open");
         var more = document.getElementById("format-more");
         more.setAttribute("aria-expanded", "false");
-        more.setAttribute("aria-label", "Mostrar más formato");
-        more.title = "Mostrar más formato";
-        more.querySelector(".format-more-label").textContent = "Más";
+        more.setAttribute("aria-label", "Show more formatting");
+        more.title = "Show more formatting";
+        more.querySelector(".format-more-label").textContent = "More";
         formatSelection = null;
       }
 
@@ -2594,8 +2594,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           formatSelection = { target: target, start: target.selectionStart, end: target.selectionEnd };
           document.body.classList.add("format-tools-open");
           more.setAttribute("aria-expanded", "true");
-          more.setAttribute("aria-label", "Mostrar menos formato");
-          more.title = "Mostrar menos formato";
+          more.setAttribute("aria-label", "Show less formatting");
+          more.title = "Show less formatting";
           more.querySelector(".format-more-label").textContent = "Menos";
         });
         ["pointerdown", "focusin"].forEach(function (type) {
@@ -2644,11 +2644,14 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function renderNotebookOptions(notebooks) {
         els.notebook.innerHTML = "";
+        var selectedPath = notebooks.some(function (notebook) { return notebook.path === preferredNotebook; })
+          ? preferredNotebook
+          : preferredNotebook.replace("content_es/", "content_en/");
         notebooks.forEach(function (notebook) {
           var option = document.createElement("option");
           option.value = notebook.path;
-          option.textContent = notebook.title + " (" + notebook.lang + ")";
-          if (notebook.path === preferredNotebook) option.selected = true;
+          option.textContent = notebook.title;
+          if (notebook.path === selectedPath) option.selected = true;
           els.notebook.appendChild(option);
         });
       }
@@ -2662,7 +2665,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
           var placeholderOption = document.createElement("option");
           placeholderOption.value = "";
-          placeholderOption.textContent = "Elige un canal";
+          placeholderOption.textContent = "Choose a channel";
           els.arenaChannel.appendChild(placeholderOption);
 
           arenaChannels.forEach(function (channel) {
@@ -2687,7 +2690,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
             els.arenaChannel.innerHTML = "";
             var emptyOption = document.createElement("option");
             emptyOption.value = "";
-            emptyOption.textContent = "No hay canales disponibles";
+            emptyOption.textContent = "No channels available";
             els.arenaChannel.appendChild(emptyOption);
             els.arenaChannel.disabled = true;
             els.arenaEnabled.disabled = true;
@@ -2736,7 +2739,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         }
         selectFallbackArenaChannel();
         if (!els.arenaChannel.value) {
-          setArenaState({ state: "error", error: "Elige un canal de Are.na." });
+          setArenaState({ state: "error", error: "Choose a channel de Are.na." });
           return;
         }
         setArenaState({ state: "pending", error: "" });
@@ -2805,7 +2808,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         var channel = arenaChannels.find(function (item) { return String(item.id) === id; });
         if (channel) return channel.title;
         var option = els.arenaChannel.options[els.arenaChannel.selectedIndex];
-        return option ? option.textContent : "Sin elegir";
+        return option ? option.textContent : "None selected";
       }
 
       function arenaContentPreview() {
@@ -2834,7 +2837,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         if (!value) return "";
         var date = new Date(value);
         if (Number.isNaN(date.getTime())) return "";
-        return date.toLocaleString("es-MX", {
+        return date.toLocaleString("en-US", {
           timeZone: "America/Mexico_City",
           day: "2-digit",
           month: "short",
@@ -2849,44 +2852,44 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.arenaChannelField.hidden = !els.arenaEnabled.checked;
         var photo = isPhotoEditor();
         var hasMappedBlock = hasArenaMapping();
-        var imageLabel = preview.imageCount === 1 ? "1 imagen" : preview.imageCount + " imágenes";
+        var imageLabel = preview.imageCount === 1 ? "1 image" : preview.imageCount + " images";
         var blogSaved = Boolean(sourcePath && savedSnapshot && currentSaveSnapshot() === savedSnapshot && !saveInProgress && !saveFailed);
         var state = arenaState.state || "disabled";
         var labels = {
-          disabled: "Copia desactivada",
-          unavailable: "No disponible",
-          paused: "Copia pausada",
-          checking: "Comprobando",
-          pending: "Copia pendiente",
-          syncing: "Copiando",
-          synced: "Copia actualizada",
-          error: "Error de Are.na",
+          disabled: "Copying disabled",
+          unavailable: "Unavailable",
+          paused: "Copying paused",
+          checking: "Checking",
+          pending: "Copy pending",
+          syncing: "Copying",
+          synced: "Copy updated",
+          error: "Are.na error",
         };
         var messages = {
           disabled: hasMappedBlock
-            ? (blogSaved ? "El bloque se conserva en Are.na, fuera del canal." : "Guarda para retirar la copia del canal.")
-            : (photo ? "Activa la copia para mantener estas imágenes en Are.na." : "Activa la copia para mantener este texto en Are.na."),
-          unavailable: arenaState.error || "Are.na no está disponible.",
+            ? (blogSaved ? "The block remains on Are.na outside the channel." : "Save to remove the copy from the channel.")
+            : (photo ? "Enable copying to keep these images on Are.na." : "Enable copying to keep this text on Are.na."),
+          unavailable: arenaState.error || "Are.na is unavailable.",
           paused: hasMappedBlock
-            ? (blogSaved ? "El borrador no aparece en el canal de Are.na." : "Guarda para retirar el borrador del canal.")
-            : "Los borradores no se copian a Are.na.",
-          checking: photo ? "Comprobando las imágenes en Are.na." : "Comprobando el bloque de texto en Are.na.",
+            ? (blogSaved ? "The draft does not appear in the Are.na channel." : "Save to remove the draft from the channel.")
+            : "Drafts are not copied to Are.na.",
+          checking: photo ? "Checking images on Are.na." : "Checking the text block on Are.na.",
           pending: arenaState.error || (!blogSaved
-            ? (photo ? "Publica para copiar las imágenes." : "Publica para copiar el contenido completo.")
+            ? (photo ? "Publish to copy the images." : "Publish to copy the full content.")
             : (hasMappedBlock
-              ? (photo ? "Are.na está procesando las imágenes." : "Are.na está procesando el bloque de texto.")
-              : (photo ? "Publica para copiar las imágenes." : "Publica para copiar el contenido completo."))),
-          syncing: photo ? "Copiando las imágenes guardadas a Are.na." : "Copiando el Markdown guardado a Are.na.",
-          synced: photo ? "Las imágenes coinciden con el blog." : "El bloque de texto coincide con el blog.",
-          error: arenaState.error || "No se pudo actualizar Are.na.",
+              ? (photo ? "Are.na is processing the images." : "Are.na is processing the text block.")
+              : (photo ? "Publish to copy the images." : "Publish to copy the full content."))),
+          syncing: photo ? "Copying saved images to Are.na." : "Copying saved Markdown to Are.na.",
+          synced: photo ? "Images match the blog." : "The text block matches the blog.",
+          error: arenaState.error || "Unable to update Are.na.",
         };
 
         els.arenaHelper.textContent = photo
-          ? "Al publicar, cada imagen se copiará con su título, texto alt y pie."
-          : "Al publicar, se copiarán el título y el cuerpo Markdown completo.";
+          ? "Publishing copies each image with its title, alt text, and caption."
+          : "Publishing copies the title and full Markdown body.";
         els.arenaContentMeta.textContent = photo
           ? imageLabel + " · pie · alt"
-          : "Bloque de texto · " + preview.characters.toLocaleString("es-MX") + " caracteres";
+          : "Text block · " + preview.characters.toLocaleString("en-US") + " characters";
         els.arenaStatusChip.dataset.state = state;
         els.arenaStatusLabel.textContent = labels[state] || labels.disabled;
         els.advancedArenaBadge.dataset.state = state;
@@ -2894,24 +2897,24 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.advancedArenaBadge.hidden = !isArenaEligible() || !(els.arenaEnabled.checked || hasMappedBlock || state === "error");
         els.arenaStateMessage.textContent = messages[state] || messages.disabled;
         els.arenaLastSynced.textContent = arenaState.lastSyncedAt
-          ? "Última copia: " + formatArenaDate(arenaState.lastSyncedAt)
+          ? "Last copied: " + formatArenaDate(arenaState.lastSyncedAt)
           : "";
         els.arenaRetry.hidden = state !== "error";
         els.arenaDetailsRetry.hidden = state !== "error";
 
-        els.arenaPreviewTitle.textContent = els.title.value.trim() || "Sin título";
-        els.arenaPreviewType.textContent = photo ? "Bloque de imagen · archivo completo" : "Bloque de texto · Markdown completo";
-        els.arenaPreviewExcerpt.textContent = preview.excerpt || (photo ? "El texto alt y el pie aparecerán aquí." : "El texto guardado aparecerá aquí.");
+        els.arenaPreviewTitle.textContent = els.title.value.trim() || "Untitled";
+        els.arenaPreviewType.textContent = photo ? "Image block · Full file" : "Text block · Full Markdown";
+        els.arenaPreviewExcerpt.textContent = preview.excerpt || (photo ? "Alt text and caption appear here." : "Saved text appears here.");
         els.arenaPreviewMeta.textContent = photo
-          ? imageLabel + " · título · pie · alt"
-          : preview.characters.toLocaleString("es-MX") + " caracteres · " + preview.minutes + " min de lectura";
+          ? imageLabel + " · title · caption · alt"
+          : preview.characters.toLocaleString("en-US") + " characters · " + preview.minutes + " min read";
         els.arenaDetailsState.textContent = messages[state] || messages.disabled;
         els.arenaDetailsChannel.textContent = currentArenaChannelTitle();
         els.arenaBlockLink.hidden = !arenaState.blockUrl;
         if (arenaState.blockUrl) {
           els.arenaBlockLink.href = arenaState.blockUrl;
         }
-        els.arenaBlockLink.textContent = photo ? "Abrir imagen en Are.na ↗" : "Abrir bloque de texto en Are.na ↗";
+        els.arenaBlockLink.textContent = photo ? "Open image on Are.na ↗" : "Open text block on Are.na ↗";
       }
 
       function openArenaDetails() {
@@ -3029,7 +3032,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         saveInProgress = false;
         saveFailed = false;
         setStatus(isBookEditor() ? "New book" : "New post");
-        setPublicationState("idle", "Guarda cuando quieras conservar los cambios.");
+        setPublicationState("idle", "Save when you are ready to keep your changes.");
         resetBodyHistory();
         syncSavedState();
         syncPhotoEditor();
@@ -3099,8 +3102,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           syncEditorKind();
           syncDeleteControls();
           setPublicationState(frontMatter.draft === true ? "draft" : "saved", frontMatter.draft === true
-            ? "Este contenido sigue como borrador."
-            : "Los cambios coinciden con la versión guardada.");
+            ? "This content is still a draft."
+            : "Changes match the saved version.");
           resizeEditorFields();
           syncMarkdownFromFields();
           offerDraftRestore();
@@ -3123,7 +3126,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           : (mode === "edit" ? notebookPathForContent(sourcePath) : els.notebook.value);
         els.save.disabled = true;
         setStatus("Saving");
-        setPublicationState("saving", "Guardando cambios en GitHub.");
+        setPublicationState("saving", "Saving changes to GitHub.");
 
         var action = mode === "edit" ? saveExisting() : createPost();
 
@@ -3140,7 +3143,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           savedSnapshot = currentSaveSnapshot();
           clearStoredDraft();
           setStatus("Saved");
-          setPublicationState("saved", result.changed === false ? "Sin cambios nuevos; el estado persistido coincide." : "Guardado en GitHub.");
+          setPublicationState("saved", result.changed === false ? "The saved version already matches." : "Saved to GitHub.");
           syncDeleteControls();
           if (isArenaEligible() && (els.arenaEnabled.checked || hasArenaMapping())) {
             return syncArenaAfterSave();
@@ -3274,18 +3277,18 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         var expectedDraft = !els.hidden.checked;
         var expectedHidden = !els.hidden.checked;
         if ((persisted.draft === true) !== expectedDraft) {
-          throw new Error("GitHub guardó el archivo, pero el estado de publicación no coincide.");
+          throw new Error("GitHub saved the file, but the publication status differs.");
         }
         if ((persisted.hidden === true) !== expectedHidden) {
-          throw new Error("GitHub guardó el archivo, pero la visibilidad no coincide.");
+          throw new Error("GitHub saved the file, but the visibility differs.");
         }
       }
 
       function createNotebookChannel() {
         if (!editorController.notebook || !sourcePath) return;
         els.createNotebookChannel.disabled = true;
-        els.createNotebookChannel.textContent = "Sincronizando notebook…";
-        els.notebookChannelStatus.textContent = "Creando o reutilizando el channel y copiando publicaciones públicas.";
+        els.createNotebookChannel.textContent = "Syncing notebook…";
+        els.notebookChannelStatus.textContent = "Preparing the channel and copying published posts.";
 
         postJson("/api/create-notebook-channel", { path: sourcePath }).then(function (result) {
           var channel = result.channel || {};
@@ -3293,9 +3296,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           if (channel.slug) frontMatter.arena_channel_slug = channel.slug;
           if (channel.url) frontMatter.arena_channel_url = channel.url;
           els.notebookChannelStatus.textContent = result.failures && result.failures.length
-            ? result.synced + "/" + result.total + " publicaciones sincronizadas; " + result.failures.length + " necesitan reintento."
-            : result.synced + "/" + result.total + " publicaciones sincronizadas.";
-          els.createNotebookChannel.textContent = "Sincronizar notebook con Are.na";
+            ? result.synced + "/" + result.total + " posts synced; " + result.failures.length + " need a retry."
+            : result.synced + "/" + result.total + " posts synced.";
+          els.createNotebookChannel.textContent = "Sync notebook to Are.na";
           els.notebookChannelLink.hidden = !channel.url;
           if (channel.url) els.notebookChannelLink.href = channel.url;
         }).catch(function (error) {
@@ -3314,9 +3317,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       function verifyDeletedPublication(result) {
         if (!result || !result.deletedUrl) return Promise.resolve(result);
         var publicUrl = editorCore.publicContentUrl(result.deletedUrl);
-        setPublicationState("deploying", "Eliminado en GitHub. Esperando el 404 de la URL exacta.");
+        setPublicationState("deploying", "Deleted from GitHub. Waiting for the public URL to return 404.");
         return waitForPublicState(publicUrl, { exists: false }).then(function () {
-          setPublicationState("public", "La URL exacta ya responde 404 en el dominio principal.");
+          setPublicationState("public", "The public URL now returns 404.");
           return result;
         });
       }
@@ -3333,7 +3336,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         reader.onerror = function () {
           if (blockEditor) blockEditor.cancelUpload();
           els.imageFile.value = "";
-          setStatus("No se pudo leer la imagen. Inténtalo de nuevo.", true);
+          setStatus("Unable to read the image. Try again.", true);
         };
         reader.onload = function () {
           var alt = els.imageAlt.value || els.title.value || file.name.replace(/\\.[^.]+$/, "");
@@ -3353,12 +3356,12 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
               }
               updatePhotoPreview();
               markContentEdited();
-              setStatus("Imagen principal asignada " + result.url);
+              setStatus("Cover image set to " + result.url);
               return;
             }
 
               insertAtCursor(activeTextArea(), result.markdown + "\\n");
-              setStatus("Imagen añadida " + result.url);
+              setStatus("Image added " + result.url);
           }).catch(function (error) {
             if (blockEditor) blockEditor.cancelUpload();
             setStatus(error.message, true);
@@ -3399,14 +3402,14 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         var nextCursor = cursor + reference.length;
         target.focus({ preventScroll: true });
         target.selectionStart = target.selectionEnd = nextCursor;
-        setStatus("Ejemplo de nota al margen insertado");
+        setStatus("Example sidenote inserted");
       }
 
       function insertSidenoteTone(tone) {
         if (!["green", "blue", "amber"].includes(tone)) return;
         restoreInsertSelection();
         wrapSelection("{{" + tone + "|", "}}");
-        setStatus("Color de nota insertado");
+        setStatus("Note color inserted");
       }
 
       function insertAtCursor(textarea, text) {
@@ -3492,7 +3495,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           wrapSelection("[", "](https://)");
           return;
         }
-        setStatus("Usa Markdown para " + format);
+        setStatus("Use Markdown for " + format);
       }
 
       function wrapSelection(before, after) {
@@ -3630,7 +3633,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.writer.setAttribute("aria-hidden", String(open));
         els.formatbar.setAttribute("aria-hidden", String(open));
         els.topSettingsButton.setAttribute("aria-expanded", String(open));
-        els.topSettingsButton.setAttribute("aria-label", open ? "Cerrar configuración" : "Configuración");
+        els.topSettingsButton.setAttribute("aria-label", open ? "Close settings" : "Settings");
         syncSheetLock();
       }
 
@@ -3720,7 +3723,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         var previewOpen = inlinePreview.open;
         var splitActive = previewOpen && isPreviewSplitActive();
         var current = previewOpen ? "preview" : activeViewMode;
-        var names = { render: "Escribir", markdown: "Markdown", preview: "Vista previa" };
+        var names = { render: "Write", markdown: "Markdown", preview: "Preview" };
         var icons = { render: '${VIEW_ICONS.render}', markdown: '${VIEW_ICONS.markdown}', preview: '${VIEW_ICONS.preview}' };
         document.body.classList.toggle("view-preview", previewOpen);
         document.body.classList.toggle("preview-split-active", splitActive);
@@ -4186,7 +4189,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       function markContentEdited() {
         saveFailed = false;
         if (isProject()) projectEditor.sync();
-        setPublicationState("idle", "Los cambios se aplicarán al guardar.");
+        setPublicationState("idle", "Changes take effect when you save.");
         if (els.arenaEnabled.checked && arenaState.state !== "unavailable" && arenaState.state !== "syncing") {
           arenaState = Object.assign({}, arenaState, { state: "pending", error: "" });
         }
@@ -4222,16 +4225,16 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       function syncSavedState() {
         syncSaveButtonLabel();
         els.saveRetry.hidden = !(saveFailed && savedSnapshot && !saveInProgress);
-        els.publicationVisibility.textContent = !savedSnapshot ? "Cargando estado…" : sourcePath
-          ? "Estado guardado: " + (frontMatter.draft === true || frontMatter.hidden === true ? "borrador" : "público")
-          : "Sin publicar";
+        els.publicationVisibility.textContent = !savedSnapshot ? "Loading status…" : sourcePath
+          ? "Saved status: " + (frontMatter.draft === true || frontMatter.hidden === true ? "draft" : "public")
+          : "Unpublished";
         if (!savedSnapshot && !saveFailed) {
-          setSavePill("loading", "Cargando");
+          setSavePill("loading", "Loading");
           syncArenaUi();
           return;
         }
         if (saveInProgress) {
-          setSavePill("saving", "Guardando");
+          setSavePill("saving", "Saving");
           syncArenaUi();
           return;
         }
@@ -4241,16 +4244,16 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           return;
         }
         if (savedSnapshot && currentSaveSnapshot() === savedSnapshot) {
-          setSavePill(sourcePath ? "saved" : "unsaved", sourcePath ? "Guardado" : "Sin guardar");
+          setSavePill(sourcePath ? "saved" : "unsaved", sourcePath ? "Saved" : "Unsaved");
           if (!saveFailed && els.publicationMessage.dataset.state === "idle") {
             els.publicationMessage.textContent = sourcePath
-              ? "Los cambios coinciden con la versión guardada."
-              : "Guarda cuando quieras conservar los cambios.";
+              ? "Changes match the saved version."
+              : "Save when you are ready to keep your changes.";
           }
           syncArenaUi();
           return;
         }
-        setSavePill("unsaved", currentSaveSnapshot() === localDraftSnapshot ? "Copia local · sin guardar" : "Sin guardar");
+        setSavePill("unsaved", currentSaveSnapshot() === localDraftSnapshot ? "Local copy · unsaved" : "Unsaved");
         syncArenaUi();
       }
 
@@ -4261,21 +4264,21 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function syncSaveButtonLabel() {
         // The action label stays stable; visibility is chosen in the adjacent control.
-        var visibility = els.hidden.checked ? "Público" : "Borrador";
-        var label = "Guardar · " + visibility;
+        var visibility = els.hidden.checked ? "Public" : "Draft";
+        var label = "Save · " + visibility;
         syncVisibilityControl();
         if (label === lastSaveLabel) return;
         lastSaveLabel = label;
-        els.save.querySelector(".save-label-desktop").textContent = "Guardar";
-        els.save.querySelector(".save-label-mobile").textContent = "Guardar";
+        els.save.querySelector(".save-label-desktop").textContent = "Save";
+        els.save.querySelector(".save-label-mobile").textContent = "Save";
         els.save.setAttribute("aria-label", label);
       }
 
       function syncVisibilityControl() {
         var visible = els.hidden.checked;
         els.saveVisibility.dataset.visibility = visible ? "public" : "draft";
-        els.saveVisibilityLabel.textContent = visible ? "Público" : "Borrador";
-        els.saveVisibility.setAttribute("aria-label", "Visibilidad: " + (visible ? "Público" : "Borrador"));
+        els.saveVisibilityLabel.textContent = visible ? "Public" : "Draft";
+        els.saveVisibility.setAttribute("aria-label", "Visibility: " + (visible ? "Public" : "Draft"));
         els.saveVisibility.querySelector(".save-visibility-icon").innerHTML = visible ? '${ICONS.eye}' : '${ICONS.eyeOff}';
         Array.from(els.visibilityMenu.querySelectorAll("[data-visibility]")).forEach(function (item) {
           item.setAttribute("aria-checked", String(item.dataset.visibility === (visible ? "public" : "draft")));
@@ -4342,7 +4345,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       function confirmDiscardChanges() {
         if (allowExit || saveInProgress || !savedSnapshot) return true;
         if (currentSaveSnapshot() === savedSnapshot) return true;
-        return window.confirm("Hay cambios sin guardar. ¿Quieres salir y descartarlos?");
+        return window.confirm("Discard your unsaved changes and leave?");
       }
 
       function collectDraftState() {
@@ -4421,7 +4424,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         if (isProject() && stored.project && JSON.stringify(stored.project) !== JSON.stringify(current.project)) differs = true;
         if (!differs) return;
         var minutes = Math.max(1, Math.round((Date.now() - stored.savedAt) / 60000));
-        els.draftRestoreText.textContent = "Borrador sin guardar de hace " + minutes + " min. ¿Restaurarlo?";
+        els.draftRestoreText.textContent = "Unsaved draft from " + minutes + " min ago. Restore it?";
         els.draftRestore.hidden = false;
       }
 
@@ -4474,7 +4477,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           return true;
         }
 
-        setStatus("Agrega un título para generar la ruta.", true);
+        setStatus("Add a title to generate the path.", true);
         closeSettings();
         focusEditorStart();
         return false;
@@ -4520,15 +4523,15 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function syncPhotoEditor() {
         projectEditor.show(isProject());
-        els.summary.placeholder = isProject() ? "Descripción breve para el catálogo" : "Agregar un subtítulo…";
-        els.body.placeholder = isProject() ? "Caso del proyecto (opcional)" : "Comienza a escribir un artículo…";
+        els.summary.placeholder = isProject() ? "Short catalog description" : "Add a subtitle…";
+        els.body.placeholder = isProject() ? "Project case study (optional)" : "Start writing an article…";
         els.writingTypeField.hidden = !isWritingPost();
         els.pinnedField.hidden = !isWritingPost();
         var photo = isPhotoEditor();
         els.photoFields.hidden = !photo;
         els.imageAltField.hidden = !photo;
         els.captionField.hidden = !photo;
-        if (photo && mode === "new" && els.notebook.value === "content_es/fotografia" && !els.tags.value.trim()) {
+        if (photo && mode === "new" && els.notebook.value.endsWith("/fotografia") && !els.tags.value.trim()) {
           els.tags.value = "photography";
         }
         updatePhotoPreview();
@@ -4553,7 +4556,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       function syncEditorKind() {
         var notebook = editorController.notebook;
         var home = isHomeEditor();
-        els.settingsTitle.textContent = home ? "Página de inicio" : editorController.settingsTitle;
+        els.settingsTitle.textContent = home ? "Homepage" : editorController.settingsTitle;
         els.notebookChannelSection.hidden = !notebook || home;
         els.tagsField.hidden = notebook;
         els.imageAltField.hidden = true;
@@ -4570,7 +4573,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           els.notebookChannelLink.hidden = !channelUrl;
           if (channelUrl) els.notebookChannelLink.href = channelUrl;
           if (frontMatter.arena_channel_id) {
-            els.createNotebookChannel.textContent = "Sincronizar notebook con Are.na";
+            els.createNotebookChannel.textContent = "Sync notebook to Are.na";
             els.notebookChannelStatus.textContent = "Channel configurado. Reintentar no duplica publicaciones.";
           }
         }
@@ -4634,13 +4637,13 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       function copyRoute() {
         var value = els.slug.value.trim();
         if (!value) {
-          setStatus("Ruta vacía");
+          setStatus("Path is empty");
           return;
         }
 
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(value).then(function () {
-            setStatus("Ruta copiada");
+            setStatus("Path copied");
           }).catch(function () {
             copyRouteWithSelection(value);
           });
@@ -4655,9 +4658,9 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         els.slug.select();
         try {
           document.execCommand("copy");
-          setStatus("Ruta copiada");
+          setStatus("Path copied");
         } catch (error) {
-          window.prompt("Copia la ruta", value);
+          window.prompt("Copy the path", value);
         }
         els.slug.blur();
       }
@@ -4692,15 +4695,15 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         if (mode !== "edit" || !sourcePath || isHomeEditor()) return;
         pulseButton(els.deletePage);
         var label = editorController.notebook ? "notebook" : "post";
-        var confirmation = window.prompt("Escribe BORRAR para eliminar este " + label + ".");
-        if (confirmation !== "BORRAR") {
-          setStatus("Eliminación cancelada.");
+        var confirmation = window.prompt("Type DELETE to delete this " + label + ".");
+        if (confirmation !== "DELETE") {
+          setStatus("Deletion canceled.");
           return;
         }
 
         var endpoint = editorController.deleteEndpoint;
         var path = editorController.notebook ? notebookPathFromSource() : sourcePath;
-        var clearBusy = setDeleteButtonBusy("Eliminando...");
+        var clearBusy = setDeleteButtonBusy("Deleting...");
         var deletionCommitted = false;
         els.deletePage.disabled = true;
         setStatus("Deleting");
@@ -4712,12 +4715,12 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           clearStoredDraft();
           return verifyDeletedPublication(result);
         }).then(function (result) {
-          var target = result.url || "/es/";
+          var target = result.url || "/";
           allowExit = true;
           window.location.assign(siteOrigin + target);
         }).catch(function (error) {
           if (deletionCommitted) {
-            setPublicationState("pending", "El archivo ya fue eliminado de GitHub, pero la URL publica sigue actualizandose.");
+            setPublicationState("pending", "The file has been deleted from GitHub. The public URL is still updating.");
             setStatus(error.message, true);
             return;
           }
@@ -4728,7 +4731,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           els.deletePage.disabled = deletionCommitted;
           if (deletionCommitted) {
             var labelNode = els.deletePage.querySelector("span");
-            if (labelNode) labelNode.textContent = "Eliminado en GitHub";
+            if (labelNode) labelNode.textContent = "Deleted from GitHub";
           }
         });
       }
@@ -4736,7 +4739,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       function deleteCurrentImage() {
         var image = els.image.value.trim();
         if (!isUploadUrl(image)) return;
-        if (!window.confirm("Eliminar el archivo de imagen del repositorio?")) {
+        if (!window.confirm("Delete the image file from the repository?")) {
           return;
         }
         els.deleteImage.disabled = true;
@@ -4749,7 +4752,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           els.caption.value = "";
           updatePhotoPreview();
           markContentEdited();
-          setStatus("Imagen eliminada");
+          setStatus("Image deleted");
         }).catch(function (error) {
           setStatus(error.message, true);
         }).finally(function () {

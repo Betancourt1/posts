@@ -7,8 +7,7 @@ import { graphPostPayload } from "../../lib/graph-payload.mjs";
 export const prerender = false;
 
 export const GET: APIRoute = async ({ url }) => {
-  const lang = url.searchParams.get("lang") === "es" ? "es" : "en";
-  const documents = await graphRows(env.DB, lang);
+  const documents = await graphRows(env.DB);
   if (url.searchParams.get("format") === "posts") {
     return Response.json(graphPostPayload(documents), {
       headers: { "cache-control": "public, max-age=300" },

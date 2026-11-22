@@ -7,7 +7,6 @@ import {
   adminPathForPublicRoute,
   archiveMonths,
   layoutForDocument,
-  languageForRoute,
   publicPathForAdminRoute,
   syntheticRoute,
 } from "../src/lib/public-page.mjs";
@@ -76,8 +75,8 @@ test("admin writing lists include hidden drafts without changing public lists", 
   assert.match(list, /for \(const item of displayItems\)/);
   assert.match(list, /\{displayItems\.map\(\(item\) => \(/);
   assert.match(publicPage, /<List[\s\S]*authorMode=\{authorMode\}/);
-  assert.match(publicPage, /tagsFor\(document, itemLang\)/);
-  assert.match(publicPage, /targetLang === "es" \? "\/es" : ""/);
+  assert.match(publicPage, /tagsFor\(document\)/);
+  assert.doesNotMatch(publicPage, /targetLang|translationPath/);
   assert.match(types, /draft\?: boolean;/);
   assert.match(publicPage, /draft: document\.draft,[\s\S]*hidden: document\.hidden/);
   assert.match(list, /authorMode && \(item\.draft \|\| item\.hidden\)[\s\S]*class="writing-index-status"[\s\S]*"Borrador" : "Draft"/);
@@ -85,25 +84,21 @@ test("admin writing lists include hidden drafts without changing public lists", 
   assert.match(css, /\.writing-index-status\s*\{[\s\S]*?border:\s*1px solid var\(--accent\);[\s\S]*?text-transform:\s*uppercase;/);
 });
 
-test("recognizes localized tag routes without swallowing normal pages", () => {
+test("recognizes canonical tag routes without swallowing legacy paths", () => {
   assert.deepEqual(syntheticRoute("/tags/"), {
     kind: "tags",
-    lang: "en",
     slug: null,
     path: "/tags/",
   });
-  assert.deepEqual(syntheticRoute("/es/tags/%C3%A9tica"), {
+  assert.deepEqual(syntheticRoute("/tags/%C3%A9tica"), {
     kind: "tag",
-    lang: "es",
     slug: "ética",
-    path: "/es/tags/ética/",
+    path: "/tags/ética/",
   });
   assert.equal(syntheticRoute("/es/posts/"), null);
 });
 
-test("derives language and recent archive counts from runtime rows", () => {
-  assert.equal(languageForRoute("/"), "en");
-  assert.equal(languageForRoute("/es/posts/example/"), "es");
+test("derives recent archive counts from runtime rows", () => {
   assert.deepEqual(
     archiveMonths([
       { date: "2026-07-14" },
@@ -121,8 +116,8 @@ test("derives language and recent archive counts from runtime rows", () => {
 test("loads compact archive months except when the archive page already has its rows", async () => {
   const source = await readFile(new URL("../src/lib/public-page.mjs", import.meta.url), "utf8");
 
-  assert.match(source, /archives !== null[\s\S]*?archiveMonths\(archives\)[\s\S]*?archiveMonthCounts\(db, lang, options\)/);
-  assert.match(source, /archiveItems\(db, document\.lang, \{ \.\.\.options, tags: false \}\)/);
+  assert.match(source, /archives !== null[\s\S]*?archiveMonths\(archives\)[\s\S]*?archiveMonthCounts\(db, options\)/);
+  assert.match(source, /archiveItems\(db, \{ \.\.\.options, tags: false \}\)/);
 });
 
 test("single pages put tags last and reserve summaries for listings", async () => {

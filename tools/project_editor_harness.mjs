@@ -71,7 +71,7 @@ async function routes(req, res, url) {
 
 async function waitForEditor(page) {
   await page.locator("#saved-pill").waitFor({ state: "attached" });
-  await page.waitForFunction(() => !/Cargando|Guardando/.test(document.querySelector("#saved-pill")?.textContent || ""));
+  await page.waitForFunction(() => !/Loading|Saving/.test(document.querySelector("#saved-pill")?.textContent || ""));
 }
 
 const bodyText = (page, blockEditor) => blockEditor ? page.locator(".cm-content").innerText() : page.locator("#body").inputValue();
@@ -171,7 +171,7 @@ async function newCase(browser, origin, savedRequests, { blockEditor, viewport }
       assert.equal(await page.locator("#project-editor").isVisible(), true);
       assert.equal(await page.locator("#project-template").isVisible(), true);
       await page.locator("#project-template").click();
-      const heading = lang === "es" ? "## Problema" : "## Problem";
+      const heading = "## Problem";
       // The block editor may hide Markdown markers, so the visible check is on the heading text; the saved body is checked below.
       assert.match(await bodyText(page, blockEditor), new RegExp(heading.slice(3)));
       assert.equal(await page.locator("#project-template").isVisible(), false, "the skeleton is offered only while the body is empty");
@@ -183,7 +183,7 @@ async function newCase(browser, origin, savedRequests, { blockEditor, viewport }
       const type = row.locator("select");
       await href.fill("https://github.com/example/replay");
       assert.equal(await type.inputValue(), "code");
-      assert.equal(await row.locator("input").first().getAttribute("placeholder"), lang === "es" ? "Explorar el repositorio" : "Browse the repository");
+      assert.equal(await row.locator("input").first().getAttribute("placeholder"), "Browse the repository");
       await href.fill("https://example.github.io/replay/");
       assert.equal(await type.inputValue(), "demo");
       await href.fill("https://example.org/trips.csv");
@@ -219,8 +219,8 @@ async function newCase(browser, origin, savedRequests, { blockEditor, viewport }
       }
       assert.equal(await page.locator("#project-highlight-add").isDisabled(), true, "at most four results");
       const preview = (await page.locator("#project-preview").innerText()).replace(/\s+/g, " ");
-      assert.match(preview, lang === "es" ? /PRIVADO/i : /PRIVATE/i);
-      assert.match(preview, lang === "es" ? /Leer el caso →/ : /Read the case study →/);
+      assert.match(preview, /PRIVATE/i);
+      assert.match(preview, /Read the case study →/);
       assert.doesNotMatch(preview, /Resultado 4/, "the card lists three results");
       await page.locator("#project-featured").check();
       assert.match(await page.locator("#project-preview").innerText(), /Resultado 3/);
@@ -299,7 +299,7 @@ async function catalogCase(browser, origin, viewport) {
     catalogState.page = { path: projectPath, frontMatter: {} };
     await page.locator("#feature").click();
     await page.locator("#author-toast").waitFor({ state: "visible" });
-    assert.match(await toast(), /No se pudo leer el contenido/);
+    assert.match(await toast(), /Unable to read the content/);
     assert.equal(await page.locator("#feature").isDisabled(), false);
     assert.deepEqual(catalogRequests, []);
     catalogState.page = original;
@@ -308,7 +308,7 @@ async function catalogCase(browser, origin, viewport) {
     await page.route("**/h/api/save-page", (route) => route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ error: "GitHub was updated, but the live content projection failed.", projectionFailed: true }) }));
     await page.locator("#feature").click();
     await page.waitForFunction(() => /GitHub/.test(document.querySelector("#author-toast")?.textContent || ""));
-    assert.match(await toast(), /sí se guardó en GitHub/);
+    assert.match(await toast(), /The file was saved to GitHub/);
     assert.equal(await page.locator("#feature").isDisabled(), false);
     assert.deepEqual(errors, []);
   } finally {

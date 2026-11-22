@@ -297,7 +297,7 @@ async function waitForEditor(page) {
   await page.locator("#saved-pill, #save-state").first().waitFor({ state: "attached" });
   await page.waitForFunction(() => {
     const status = document.querySelector("#saved-pill, #save-state");
-    return status && !/Cargando|Guardando/.test(status.textContent || "");
+    return status && !/Loading|Saving/.test(status.textContent || "");
   });
 }
 
@@ -734,7 +734,7 @@ async function assertEditorContract(page, fixture) {
 
   if (expectedKind === "notebook") {
     await assert.doesNotReject(() => page.locator("#settings-title").waitFor({ state: "visible" }));
-    assert.equal(await page.locator("#settings-title").textContent(), fixture.home ? "Página de inicio" : "Notebook");
+    assert.equal(await page.locator("#settings-title").textContent(), fixture.home ? "Homepage" : "Notebook");
     assert.equal(await page.locator("#settings-group-metadata").isVisible(), false, "empty metadata group is hidden for notebooks");
     await openAdvancedSettings(page);
     assert.equal(await page.locator("#notebook-channel-section").isVisible(), !fixture.home);
@@ -748,7 +748,7 @@ async function assertEditorContract(page, fixture) {
   }
 
   if (expectedKind === "post") {
-    assert.equal(await page.locator("#settings-title").textContent(), "Propiedades");
+    assert.equal(await page.locator("#settings-title").textContent(), "Properties");
     assert.equal(await page.locator("#body").isVisible(), true);
     assert.equal(await page.locator("#settings-group-publication").isVisible(), true);
     assert.equal(await page.locator("#settings-group-metadata").isVisible(), true);
@@ -813,8 +813,8 @@ async function runCase(browser, origin, fixture, viewport, savedRequests) {
       const publish = page.locator(fixture.expectedKind === "image" ? "#mobile-publish" : "#save");
       await publish.waitFor({ state: "visible" });
       if (fixture.expectedKind !== "image") {
-        assert.equal(await page.locator("#save .save-label-mobile").textContent(), "Guardar");
-        assert.match(await publish.getAttribute("aria-label"), /^Guardar · (Borrador|Público)$/);
+        assert.equal(await page.locator("#save .save-label-mobile").textContent(), "Save");
+        assert.match(await publish.getAttribute("aria-label"), /^Save · (Draft|Public)$/);
         assert.equal(await page.locator("#save-visibility").isVisible(), true);
       }
       await Promise.all([
@@ -852,19 +852,19 @@ async function runDraftRestoreCase(browser, origin) {
     });
     await page.goto(`${origin}/editor?${query}`, { waitUntil: "domcontentloaded" });
     await waitForEditor(page);
-    assert.equal(await page.locator("#save .save-label-desktop").textContent(), "Guardar");
-    assert.equal(await page.locator("#save .save-label-mobile").textContent(), "Guardar");
+    assert.equal(await page.locator("#save .save-label-desktop").textContent(), "Save");
+    assert.equal(await page.locator("#save .save-label-mobile").textContent(), "Save");
     // The fixture is public (hidden: false → #hidden checked), so the save label states it.
-    assert.equal(await page.locator("#save").getAttribute("aria-label"), "Guardar · Público");
+    assert.equal(await page.locator("#save").getAttribute("aria-label"), "Save · Public");
     assert.equal(await page.locator("#save-retry").isVisible(), false);
     await page.waitForFunction(() => !document.querySelector('#arena-channel').disabled);
     // The saved pill is the single save status; the Are.na progress row is gone.
     assert.equal(await page.locator('#arena-blog-step, #arena-copy-step').count(), 0);
-    assert.equal(await page.locator('#saved-pill').textContent(), 'Guardado', 'inactive channel initialization must not dirty the document');
+    assert.equal(await page.locator('#saved-pill').textContent(), 'Saved', 'inactive channel initialization must not dirty the document');
 
     await page.locator("#body").fill("Contenido determinista para el arnés.\n\nTexto añadido para el autoguardado.");
     await page.waitForFunction(() => Boolean(localStorage.getItem("authorWritingDraftV1")));
-    assert.equal(await page.locator('#saved-pill').textContent(), 'Copia local · sin guardar');
+    assert.equal(await page.locator('#saved-pill').textContent(), 'Local copy · unsaved');
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await waitForEditor(page);
@@ -887,7 +887,7 @@ async function runDraftRestoreCase(browser, origin) {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.locator("#draft-restore-accept").click();
     assert.match(await page.locator("#body").inputValue(), /Texto añadido para el autoguardado/);
-    assert.equal(await page.locator("#saved-pill").textContent(), "Sin guardar");
+    assert.equal(await page.locator("#saved-pill").textContent(), "Unsaved");
 
     await page.locator("#body").fill("Contenido determinista para el arnés.\n\nTexto descartable.");
     await page.waitForFunction(() => String(JSON.parse(localStorage.getItem("authorWritingDraftV1") || "{}").body || "").includes("descartable"));
@@ -917,7 +917,7 @@ async function runUnavailableDraftStorageCase(browser, origin) {
     await waitForEditor(page);
     await page.locator('#body').fill('This draft cannot be stored locally.');
     await page.waitForTimeout(1000);
-    assert.equal(await page.locator('#saved-pill').textContent(), 'Sin guardar');
+    assert.equal(await page.locator('#saved-pill').textContent(), 'Unsaved');
     assert.equal(await page.locator('#saved-pill').isVisible(), true);
     assert.equal(await page.evaluate(() => localStorage.getItem('authorWritingDraftV1')), null);
   } finally { await context.close(); }
@@ -966,7 +966,7 @@ async function runGrayscalePropertiesCase(browser, origin) {
     assert.equal(await coordinateClick(page, "#settings-advanced > summary"), "settings-advanced");
     assert.equal(await page.locator("#settings-advanced").evaluate(el => el.open), true);
     assert.equal(await page.locator("#settings").isVisible(), true);
-    assert.equal(await page.locator("label.field:has(#editor-font-size) > span").textContent(), "Tamaño del texto");
+    assert.equal(await page.locator("label.field:has(#editor-font-size) > span").textContent(), "Text size");
     await page.locator("#editor-font-size").scrollIntoViewIfNeeded();
     const previousSize = await page.locator("#editor-font-size").inputValue();
     assert.equal(await coordinateClick(page, "#editor-font-size"), "editor-font-size");
@@ -985,8 +985,8 @@ async function runGrayscalePropertiesCase(browser, origin) {
     await page.locator("#visibility-menu").waitFor({ state: "hidden" });
     assert.equal(await page.locator("#hidden").isChecked(), !previousVisibility);
     assert.equal(await page.locator(`#visibility-menu [data-visibility="${nextVisibility}"]`).getAttribute("aria-checked"), "true");
-    assert.equal(await page.locator("#save").getAttribute("aria-label"), `Guardar · ${previousVisibility ? "Borrador" : "Público"}`);
-    assert.equal(await page.locator("#save .save-label-mobile").textContent(), "Guardar");
+    assert.equal(await page.locator("#save").getAttribute("aria-label"), `Save · ${previousVisibility ? "Draft" : "Public"}`);
+    assert.equal(await page.locator("#save .save-label-mobile").textContent(), "Save");
     assert.equal(await page.locator("#settings").isVisible(), true);
 
     assert.equal(await coordinateClick(page, "#settings-close"), "settings-close");
@@ -1002,7 +1002,7 @@ async function runGrayscalePropertiesCase(browser, origin) {
     assert.equal(await page.locator("#arena-details-button, #arena-inline-details").count(), 0);
     await page.locator("#top-settings-button").click();
     await openAdvancedSettings(page);
-    assert.equal(await page.locator("#arena-status-label").textContent(), "Copia desactivada");
+    assert.equal(await page.locator("#arena-status-label").textContent(), "Copying disabled");
     await page.locator("#arena-status-chip").scrollIntoViewIfNeeded();
     assert.equal(await coordinateClick(page, "#arena-status-chip"), "arena-status-label");
     await page.locator("#settings").waitFor({ state: "hidden" });
@@ -1040,7 +1040,7 @@ async function runPinCase(browser, origin, viewport, savedRequests) {
       await page.locator("#top-settings-button").click();
       assert.equal(await page.locator("#pinned").isChecked(), true);
       await page.locator("#pinned").uncheck();
-      assert.equal(await page.locator("#saved-pill").textContent(), "Sin guardar");
+      assert.equal(await page.locator("#saved-pill").textContent(), "Unsaved");
       await page.waitForFunction(() => JSON.parse(localStorage.getItem("authorWritingDraftV1") || "null")?.pinned === false);
       await page.reload();
       await waitForEditor(page);
@@ -1091,7 +1091,7 @@ async function runWritingTypeCase(browser, origin, viewport, savedRequests) {
           assert.equal(await page.locator("#writing-type").inputValue(), originalType);
           await page.locator("#writing-type").selectOption(value);
           if (value !== originalType) {
-            assert.equal(await page.locator("#saved-pill").textContent(), "Sin guardar");
+            assert.equal(await page.locator("#saved-pill").textContent(), "Unsaved");
             await page.waitForFunction((technical) => JSON.parse(localStorage.getItem("authorWritingDraftV1") || "null")?.technical === technical, value === "technical");
             await page.reload();
             await waitForEditor(page);

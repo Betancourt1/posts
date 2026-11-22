@@ -45,6 +45,8 @@ test("EditorCore shares deterministic text helpers", () => {
   const core = loadCore();
   assert.equal(core.slugify("Árbol y Flor", "-"), "arbol-y-flor");
   assert.equal(core.slugify("Árbol y Flor", "_"), "arbol_y_flor");
+  assert.equal(core.slugify("日本語の題名", "_"), "日本語の題名");
+  assert.equal(core.slugify("हिन्दी लेख", "_"), "हिन्दी_लेख");
   assert.deepEqual(Array.from(core.splitTags("#photo, macro nature")), ["photo", "macro", "nature"]);
 });
 
