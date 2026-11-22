@@ -47,12 +47,15 @@ test("blog previews include the automatic outline for new and saved drafts witho
   for (const lang of ["en", "es"]) {
     for (const sourcePath of [null, `content_${lang}/posts/2026/septiembre/draft.md`]) {
       const response = await onRequestPost({ request: request({
-        title: "Draft", lang, section: "posts", sourcePath, frontMatter: { draft: true },
-        body: "## One section\n\nA short draft.",
+        title: "日本語の題名", section: "posts", sourcePath, frontMatter: { draft: true },
+        body: "## One section\n\n本文です。 مرحبًا.",
       }) });
       const { html, bodyHtml } = await response.json();
       assert.match(html, /class="article-outline" data-min-headings="1" data-preview="true"/);
-      assert.ok(html.includes(lang === "es" ? "En este artículo" : "In this article"));
+      assert.match(html, /<html lang="en"/);
+      assert.match(html, /In this article/);
+      assert.match(html, /<h1>日本語の題名<\/h1>/);
+      assert.ok(bodyHtml.includes("本文です。 مرحبًا."));
       assert.match(html, /src="https:\/\/example.com\/js\/article-outline.js"/);
       assert.doesNotMatch(bodyHtml, /article-outline/);
       assert.equal(response.headers.get("cache-control"), "no-store");

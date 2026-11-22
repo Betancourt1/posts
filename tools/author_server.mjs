@@ -16,7 +16,7 @@ import {
   syncArenaPage,
 } from "../functions/_lib/arena.js";
 import { normalizeBookFrontMatter } from "../functions/_lib/book-content.js";
-import { photographyMirrorPath } from "../functions/_lib/content.js";
+import { notebookDestinations, photographyMirrorPath, slugify } from "../functions/_lib/content.js";
 import { imageEditorHtml } from "../functions/_lib/image-editor-template.js";
 import { editorCoreClientScript } from "../functions/_lib/editor-core-client.js";
 import { resolveEditorPath } from "../functions/_lib/editor-routing.js";
@@ -238,16 +238,6 @@ function ensureDate(value) {
   return date;
 }
 
-function slugify(value, separator = "-") {
-  return String(value || "")
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, separator)
-    .replace(new RegExp(`${separator}+`, "g"), separator)
-    .replace(new RegExp(`^${separator}|${separator}$`, "g"), "");
-}
-
 function ensureSlug(value, separator = "-") {
   const slug = slugify(value, separator);
 
@@ -413,7 +403,7 @@ function listNotebooks() {
     }
   }
 
-  return notebooks.sort((a, b) => (a.lang === b.lang ? a.title.localeCompare(b.title) : (a.lang === "es" ? -1 : 1)));
+  return notebookDestinations(notebooks);
 }
 
 function writeContentFile(relativePath, frontMatter, body, overwrite = false) {
@@ -464,7 +454,7 @@ function createPost(payload) {
     throw new Error("La pagina necesita titulo.");
   }
 
-  const notebook = safeContentPath(payload.notebook);
+  const notebook = safeContentPath(payload.notebook || "content_en/posts");
   const notebookIndex = path.join(notebook.absolutePath, "_index.md");
 
   if (!existsSync(notebook.absolutePath) || !existsSync(notebookIndex)) {

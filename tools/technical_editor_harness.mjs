@@ -156,11 +156,11 @@ try {
             assert.equal(await target.inputValue(), text, `${kind} body redo`);
           }
         }
-        // Without a selection, samples come from the shared locale-aware insert templates.
+        // Without a selection, samples use the English editor templates for either source path.
         for (const [kind, expected] of [
-          ['image', lang === 'en' ? '![Describe the diagram](/visuals/diagram.svg)' : '![Describe el diagrama](/visuals/diagram.svg)'],
+          ['image', '![Describe the diagram](/visuals/diagram.svg)'],
           ['code', '```python\ndef square(x):\n    return x ** 2\n```'],
-          ['code-js', lang === 'en' ? '```javascript\nYour code here\n```' : '```javascript\nTu código aquí\n```'],
+          ['code-js', '```javascript\nYour code here\n```'],
         ]) {
           const prefix = markdown ? '# Technical editor test\n\n' : '';
           await target.fill(prefix + 'Before');

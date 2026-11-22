@@ -138,7 +138,7 @@ function ensureDate(value) {
   return date;
 }
 
-function slugify(value, separator = "-") {
+export function slugify(value, separator = "-") {
   return String(value || "")
     .normalize("NFD")
     .replace(/(\p{Script=Latin})\p{M}+/gu, "$1")
@@ -361,18 +361,22 @@ export async function listNotebooks(env) {
     };
   }));
 
+  const destinations = notebookDestinations(notebooks);
+  notebookCache = {
+    key: cacheKey,
+    expiresAt: Date.now() + NOTEBOOK_CACHE_TTL_MS,
+    notebooks: destinations,
+  };
+  return destinations;
+}
+
+export function notebookDestinations(notebooks) {
   const unique = new Map();
   for (const notebook of notebooks) {
     const key = canonicalNotebookSlug(notebook.slug);
     if (!unique.has(key) || notebook.lang === "en") unique.set(key, notebook);
   }
-  const sorted = [...unique.values()].sort((a, b) => a.title.localeCompare(b.title));
-  notebookCache = {
-    key: cacheKey,
-    expiresAt: Date.now() + NOTEBOOK_CACHE_TTL_MS,
-    notebooks: sorted,
-  };
-  return sorted;
+  return [...unique.values()].sort((a, b) => a.title.localeCompare(b.title));
 }
 
 export async function createPost(env, payload) {

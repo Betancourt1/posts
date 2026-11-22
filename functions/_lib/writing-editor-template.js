@@ -2644,14 +2644,14 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function renderNotebookOptions(notebooks) {
         els.notebook.innerHTML = "";
-        var selectedPath = notebooks.some(function (notebook) { return notebook.path === preferredNotebook; })
-          ? preferredNotebook
-          : preferredNotebook.replace("content_es/", "content_en/");
+        var preferredUrl = editorCore.adminNotebookUrl(preferredNotebook);
+        var selectedNotebook = notebooks.find(function (notebook) { return notebook.path === preferredNotebook; })
+          || notebooks.find(function (notebook) { return editorCore.adminNotebookUrl(notebook.path) === preferredUrl; });
         notebooks.forEach(function (notebook) {
           var option = document.createElement("option");
           option.value = notebook.path;
           option.textContent = notebook.title;
-          if (notebook.path === selectedPath) option.selected = true;
+          if (notebook === selectedNotebook) option.selected = true;
           els.notebook.appendChild(option);
         });
       }
@@ -4408,7 +4408,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function draftMatchesEditor(stored) {
         if (stored.mode === "edit") return mode === "edit" && stored.sourcePath === sourcePath;
-        return mode === "new" && stored.notebook === els.notebook.value;
+        return mode === "new" && stored.notebook && els.notebook.value
+          && editorCore.adminNotebookUrl(stored.notebook) === editorCore.adminNotebookUrl(els.notebook.value);
       }
 
       function offerDraftRestore() {

@@ -142,6 +142,18 @@ test("fallback insert tools share the block editor's insert templates", async ()
   assert.deepEqual(JSON.parse(insertTemplateText("interactive", { lang: "en", selected: 'a"b' }).split("\n")[1]), { src: 'a"b', title: "Explore the model", height: 480 });
 });
 
+test("the post editor creates and previews writing without a language field", () => {
+  const html = postEditorHtml();
+  assert.match(html, /<html lang="en">/);
+  assert.match(html, /<span>Destination<\/span>\s*<select id="notebook">/);
+  assert.match(html, /aria-label="Code block language"/);
+  assert.doesNotMatch(html, /<select[^>]*(?:id|name)="(?:lang|language)"/);
+  for (const name of ["createPost", "previewPayload"]) {
+    const output = html.split(`function ${name}(`)[1].split("\n      function ")[0];
+    assert.doesNotMatch(output, /\b(?:lang|language):/);
+  }
+});
+
 test("new text posts start hidden until visibility is explicitly enabled", () => {
   const html = postEditorHtml();
 

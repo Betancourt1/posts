@@ -297,9 +297,8 @@ export const technicalEditorScript = String.raw`
         var start = technicalSelection.start;
         var end = technicalSelection.end;
         var selected = target.value.slice(start, end);
-        var english = (sourcePath || els.notebook.value).indexOf("content_en/") === 0;
         var language = document.getElementById("technical-code-language").value;
-        var text = insertTemplateText(kind, { selected: selected, lang: english ? "en" : "es", language: language });
+        var text = insertTemplateText(kind, { selected: selected, language: language });
         if (!text) return;
         if (kind === "inline-math") {
           if (start && !/\s$/.test(target.value.slice(0, start))) text = " " + text;
@@ -333,10 +332,9 @@ export const technicalEditorScript = String.raw`
       function insertTemplateText(kind, options) {
         var template = INSERT_TEMPLATES[kind];
         if (!template) return "";
-        var lang = options.lang === "es" ? "es" : "en";
         var language = options.language || "python";
-        var pattern = typeof template.pattern === "string" ? template.pattern : template.pattern[lang];
-        var content = options.selected || (template.languageSamples && template.languageSamples[language]) || template.sample[lang];
+        var pattern = typeof template.pattern === "string" ? template.pattern : template.pattern.en;
+        var content = options.selected || (template.languageSamples && template.languageSamples[language]) || template.sample.en;
         if (template.json) content = JSON.stringify(content).slice(1, -1);
         return pattern.replace("%l", function () { return language; }).replace("%s", function () { return content; });
       }
@@ -348,7 +346,6 @@ export const technicalEditorScript = String.raw`
           sourcePath: sourcePath,
           section: editorController.notebook ? "" : (sourcePath || els.notebook.value).split("/")[1],
           frontMatter: frontMatter,
-          lang: (sourcePath || els.notebook.value).indexOf("content_es/") === 0 ? "es" : "en",
           theme: theme,
         };
       }
