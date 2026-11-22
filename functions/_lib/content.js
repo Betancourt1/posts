@@ -9,7 +9,7 @@ import {
   writeGitHubFile,
   writeGitHubFileBase64,
 } from "./github.js";
-import { isBookContentPath, normalizeBookFrontMatter, updateBookReading } from "./book-content.js";
+import { createBookBody, isBookContentPath, normalizeBookFrontMatter, updateBookReading } from "./book-content.js";
 import { formatMarkdown, splitMarkdown, tagsFromValue } from "./markdown.js";
 import {
   CONTENT_ROOTS,
@@ -402,6 +402,10 @@ export async function createPost(env, payload) {
 
   const requestedNotebook = safeNotebookPath(payload.notebook || "content/posts");
   if (quote && !/^content(?:_en|_es)?\/lit$/.test(requestedNotebook)) throw new Error("Invalid quotes notebook.");
+  const book = payload.book ?? null;
+  if (book !== null && (typeof book !== "object" || !/^content(?:_en)?\/books$/.test(requestedNotebook))) {
+    throw new Error("Invalid books notebook.");
+  }
   const indexFile = await readGitHubFile(env, `${requestedNotebook}/_index.md`);
   if (!indexFile) throw new Error("Invalid notebook.");
 
@@ -423,9 +427,10 @@ export async function createPost(env, payload) {
   const isPhotoNotebook = notebook.endsWith("/fotografia");
   const isProjectNotebook = notebook.endsWith("/proyectos-profesionales");
   let body = String(payload.body || (image || isProjectNotebook ? "" : `# ${title}\n`));
+  if (book) body = createBookBody(book);
   const existing = await readGitHubFile(env, path);
 
-  if (existing && !quote) {
+  if (existing && !quote && !book) {
     throw new Error("A file already exists at this path.");
   }
 
@@ -444,8 +449,8 @@ export async function createPost(env, payload) {
     body = `${quote.text.split(/\r?\n/).map((line) => `> ${plain(line)}`).join("\n")}\n\n— ${plain(attribution)}`;
     frontMatter.tags = [...new Set(["quote", ...frontMatter.tags])];
     frontMatter.quotes = [quote];
-    if (existing && !payload.date) frontMatter.date = splitMarkdown(existing.content).frontMatter.date || date;
   }
+  if (existing && !payload.date) frontMatter.date = splitMarkdown(existing.content).frontMatter.date || date;
 
   if (isWritingNotebook) {
     frontMatter.essay = payload.essay === true && payload.technical !== true;

@@ -1,7 +1,6 @@
 import { readBookReading } from "../../../functions/_lib/book-content.js";
 
-const dialog = document.querySelector("[data-reading-form]");
-if (dialog) bindReadingForm(dialog);
+document.querySelectorAll("[data-reading-form]").forEach(bindReadingForm);
 
 function bindReadingForm(dialog) {
   const form = dialog.querySelector("form");
@@ -10,12 +9,13 @@ function bindReadingForm(dialog) {
   const submit = form.querySelector("[type=submit]");
   const status = form.querySelector("[data-form-status]");
   const fullEditor = form.querySelector("[data-full-editor]");
-  const isBook = dialog.dataset.readingForm === "book";
-  const publishLabel = submit.textContent.trim();
+  const updating = dialog.dataset.readingForm === "book";
+  const newBook = dialog.dataset.readingForm === "new-book";
+  const draftOption = form.elements.draft;
   let target;
   let initialReading;
   let quoteSlug;
-  let pendingQuote;
+  let pendingCreation;
   let load;
   let saving = false;
 
@@ -34,23 +34,29 @@ function bindReadingForm(dialog) {
     return result;
   }
 
-  document.querySelectorAll("[data-reading-form-trigger]").forEach((trigger) => {
-    trigger.addEventListener("click", async () => {
-      target = trigger.dataset.readingFormTrigger;
-      form.reset();
-      submit.textContent = publishLabel;
-      fields.disabled = submit.disabled = isBook;
-      status.textContent = isBook ? "Loading book…" : "";
+  function syncSubmitLabel() {
+    if (draftOption) submit.textContent = draftOption.checked ? "Save draft" : submit.dataset.publishLabel;
+  }
 
-      if (isBook) {
+  const triggers = newBook ? "[data-new-book-form-trigger]" : "[data-reading-form-trigger]";
+  document.querySelectorAll(triggers).forEach((trigger) => {
+    trigger.addEventListener("click", async () => {
+      target = trigger.dataset.newBookFormTrigger || trigger.dataset.readingFormTrigger;
+      form.reset();
+      syncSubmitLabel();
+      fields.disabled = submit.disabled = updating;
+      status.textContent = updating ? "Loading book…" : "";
+
+      if (updating) {
         form.querySelector("[data-book-title]").textContent = "";
         fullEditor.dataset.sourcePath = target;
       } else {
-        quoteSlug = `quote-${crypto.randomUUID()}`;
-        pendingQuote = null;
+        pendingCreation = null;
+        if (newBook) fullEditor.dataset.notebook = target;
+        else quoteSlug = `quote-${crypto.randomUUID()}`;
       }
       dialog.showModal();
-      if (!isBook) return;
+      if (!updating) return;
 
       load = new AbortController();
       const { signal } = load;
@@ -77,19 +83,21 @@ function bindReadingForm(dialog) {
     if (saving) event.preventDefault();
     else load?.abort();
   });
-  form.elements.draft?.addEventListener("change", (event) => {
-    submit.textContent = event.target.checked ? submit.dataset.draftLabel : publishLabel;
-  });
+  draftOption?.addEventListener("change", syncSubmitLabel);
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (submit.disabled) return;
-    const data = pendingQuote || Object.fromEntries(new FormData(form));
-    if (isBook && data.progress !== "") data.progress = String(form.elements.progress.valueAsNumber);
-    if (!isBook && (!data.text.trim() || !data.author.trim())) {
-      status.textContent = "Enter the quote text and author.";
-      form.elements[data.text.trim() ? "author" : "text"].focus();
-      return;
+    const data = pendingCreation || Object.fromEntries(new FormData(form));
+    if (data.progress) data.progress = String(form.elements.progress.valueAsNumber);
+    if (!updating) {
+      const required = newBook ? ["title", "author"] : ["text", "author"];
+      const missing = required.find((name) => !data[name].trim());
+      if (missing) {
+        status.textContent = newBook ? "Enter the book title and author." : "Enter the quote text and author.";
+        form.elements[missing].focus();
+        return;
+      }
     }
 
     saving = fields.disabled = submit.disabled = cancel.disabled = true;
@@ -97,7 +105,7 @@ function bindReadingForm(dialog) {
     status.textContent = "Saving…";
     let bookReading;
     try {
-      if (isBook) {
+      if (updating) {
         bookReading = Object.fromEntries(Object.entries(data).filter(([key, value]) => value !== initialReading[key]));
         const result = await request("save-page", { path: target, bookReading });
         Object.assign(initialReading, bookReading);
@@ -107,20 +115,23 @@ function bindReadingForm(dialog) {
           const { arena } = await request("sync-arena", { path: target });
           if (arena.error) throw new Error(arena.error);
         }
+      } else if (newBook) {
+        const { title, image, draft, ...book } = data;
+        await request("create-post", { notebook: target, title, image, draft: Boolean(draft), book });
       } else {
         const { tags, draft, ...quote } = data;
         await request("create-post", { notebook: target, slug: quoteSlug, tags, draft: Boolean(draft), quote });
       }
       window.location.assign(dialog.dataset.returnTo);
     } catch (error) {
-      if (error.saved && isBook) Object.assign(initialReading, bookReading);
-      if (error.saved && !isBook) {
-        pendingQuote = data;
+      if (error.saved && updating) Object.assign(initialReading, bookReading);
+      if (error.saved && !updating) {
+        pendingCreation = data;
         submit.textContent = "Retry";
       }
       status.textContent = error.message;
       saving = submit.disabled = cancel.disabled = false;
-      fields.disabled = Boolean(pendingQuote);
+      fields.disabled = Boolean(pendingCreation);
       if (fullEditor) fullEditor.disabled = false;
       submit.focus();
     }

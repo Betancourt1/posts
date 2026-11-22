@@ -139,6 +139,46 @@ test("quote metadata arrays survive Markdown formatting", () => {
   assert.deepEqual(splitMarkdown(markdown).frontMatter.quotes, quotes);
 });
 
+test("creates a book draft from form fields and retries without duplicating it", async (context) => {
+  const path = "content/books/form-book.md";
+  let writtenContent;
+  const fetch = context.mock.method(globalThis, "fetch", async (url, options = {}) => {
+    if (options.method === "PUT") {
+      writtenContent = Buffer.from(JSON.parse(options.body).content, "base64").toString("utf8");
+      return jsonResponse(200, { commit: { sha: "new" } });
+    }
+    const filePath = new URL(url).pathname.split("/contents/").at(-1);
+    const content = filePath === path ? writtenContent : "---\ntitle: Books\n---\n";
+    return content
+      ? jsonResponse(200, { type: "file", path: filePath, sha: "sha", content: encoded(content) })
+      : jsonResponse(404, { message: "Not Found" });
+  });
+  const payload = {
+    notebook: "content/books",
+    title: "Form book",
+    image: "https://example.com/cover.jpg",
+    draft: true,
+    book: { author: "Test Author", progress: "25", rating: "4", review: "Good explanations." },
+  };
+  const result = await createPost(env, payload);
+  const saved = splitMarkdown(writtenContent);
+
+  assert.equal(result.path, path);
+  assert.equal(result.changed, true);
+  assert.equal(saved.frontMatter.draft, true);
+  assert.equal(saved.frontMatter.hidden, undefined);
+  assert.equal(saved.frontMatter.book_author, "Test Author");
+  assert.equal(saved.frontMatter.book_progress, "25");
+  assert.equal(saved.frontMatter.rating, "4");
+  assert.equal(saved.frontMatter.image, payload.image);
+  assert.equal(saved.frontMatter.image_alt, "Form book");
+  assert.deepEqual(saved.frontMatter.tags, ["book", "currently-reading"]);
+  assert.match(saved.body, /## My review\n\nGood explanations./);
+  assert.equal((await createPost(env, payload)).changed, false);
+  await assert.rejects(() => createPost(env, { ...payload, book: { ...payload.book, progress: "50" } }), /already exists/);
+  assert.equal(fetch.mock.calls.filter(({ arguments: [, options] }) => options?.method === "PUT").length, 1);
+});
+
 test("creates one structured quote and safely retries the same save", async (context) => {
   const path = "content/lit/test-quote.md";
   let writtenContent;

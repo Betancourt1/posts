@@ -365,6 +365,7 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
   {authorMode && (layout === "books" || (model.layout === "single" && isBookContentPath(page.sourcePath))) && (
     <ReadingForm kind="book" />
   )}
+  {authorMode && layout === "books" && <ReadingForm kind="new-book" />}
   {authorMode && layout === "quotes" && <ReadingForm kind="quote" />}
 
   {model.layout === "photography" && (

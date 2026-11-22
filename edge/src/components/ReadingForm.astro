@@ -1,27 +1,37 @@
 ---
 interface Props {
-  kind: "book" | "quote";
+  kind: "book" | "new-book" | "quote";
 }
 
 const { kind } = Astro.props;
-const book = kind === "book";
-const title = book ? "Update reading" : "New quote";
+const updating = kind === "book";
+const newBook = kind === "new-book";
+const book = kind !== "quote";
+const title = updating ? "Update reading" : newBook ? "New book" : "New quote";
+const titleId = `reading-form-title-${kind}`;
+const publish = book ? "Publish book" : "Publish quote";
 const returnTo = book ? "/admin/books/" : "/admin/lit/";
 ---
 
-<dialog class="reading-form-dialog" data-reading-form={kind} data-return-to={returnTo} aria-labelledby="reading-form-title">
+<dialog class="reading-form-dialog" data-reading-form={kind} data-return-to={returnTo} aria-labelledby={titleId}>
   <form class="author-form">
     <header class="reading-form-heading">
-      <h2 id="reading-form-title">{title}</h2>
-      {book && <p data-book-title></p>}
+      <h2 id={titleId}>{title}</h2>
+      {updating && <p data-book-title></p>}
     </header>
-    <fieldset class="reading-form-fields" disabled={book}>
+    <fieldset class="reading-form-fields" disabled={updating}>
+      {newBook && (
+        <>
+          <label class="author-field">Title<input name="title" required autofocus /></label>
+          <label class="author-field">Author<input name="author" required /></label>
+        </>
+      )}
       {book ? (
         <>
           <div class="author-grid">
             <label class="author-field">
               Progress (%)
-              <input name="progress" type="number" inputmode="numeric" min="0" max="100" step="1" placeholder="Not set" />
+              <input name="progress" type="number" inputmode="numeric" min="0" max="100" step="1" value={newBook ? "0" : undefined} placeholder="Not set" />
             </label>
             <label class="author-field">
               Rating
@@ -35,6 +45,9 @@ const returnTo = book ? "/admin/books/" : "/admin/lit/";
             My review
             <textarea class="author-body-editor" name="review" rows="5"></textarea>
           </label>
+          {newBook && (
+            <label class="author-field">Cover image URL<input name="image" type="url" /></label>
+          )}
         </>
       ) : (
         <>
@@ -52,18 +65,24 @@ const returnTo = book ? "/admin/books/" : "/admin/lit/";
             Tags (comma-separated)
             <input name="tags" />
           </label>
-          <label class="author-check">
-            <input name="draft" type="checkbox" />Save as draft
-          </label>
         </>
+      )}
+      {!updating && (
+        <label class="author-check">
+          <input name="draft" type="checkbox" checked={newBook} />Save as draft
+        </label>
       )}
     </fieldset>
     <p class="reading-form-status" role="status" data-form-status></p>
     <footer class="author-form-actions reading-form-actions">
-      {book && <button type="button" class="reading-form-editor" data-full-editor data-author-action="edit-post">Open full editor</button>}
-      <button type="button" data-form-cancel autofocus={book}>Cancel</button>
-      <button type="submit" disabled={book} data-draft-label="Save draft">
-        {book ? "Save changes" : "Publish quote"}
+      {book && (
+        <button type="button" class="reading-form-editor" data-full-editor data-author-action={newBook ? "add-post" : "edit-post"} data-editor-template={newBook ? "book" : undefined}>
+          Open full editor
+        </button>
+      )}
+      <button type="button" data-form-cancel autofocus={updating}>Cancel</button>
+      <button type="submit" disabled={updating} data-publish-label={publish}>
+        {updating ? "Save changes" : newBook ? "Save draft" : publish}
       </button>
     </footer>
   </form>

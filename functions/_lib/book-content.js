@@ -31,6 +31,12 @@ export function readBookReading(frontMatter, body) {
   };
 }
 
+export function createBookBody({ author, ...reading }) {
+  const name = typeof author === "string" ? author.trim() : "";
+  if (!name || /[\r\n]/.test(name)) throw new Error("A book author is required.");
+  return updateBookReading({}, `**Author:** ${name}\n**Progress:** not set\n`, reading);
+}
+
 export function updateBookReading(frontMatter, body, reading) {
   const previous = readBookReading(frontMatter, body);
   const { progress = previous.progress, rating = previous.rating } = reading;

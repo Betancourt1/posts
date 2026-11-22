@@ -41,6 +41,7 @@ const opinion = book.review ? plainExcerpt(book.review) : "";
     <div class="book-identity">
       <h3><a href={book.href}>{book.title}</a></h3>
       {book.author && <p>{book.author}</p>}
+      {authorMode && book.draft && <p>Draft</p>}
     </div>
   </div>
   <div class="book-progress">
