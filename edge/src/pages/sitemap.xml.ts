@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
+import { sitePathForStoredRoute } from "../../../functions/_lib/paths.js";
 import { catalogEntry } from "../lib/catalog.mjs";
 
 export const prerender = false;
@@ -37,7 +38,7 @@ export const GET: APIRoute = async ({ request }) => {
   const origin = configuredOrigin || new URL(request.url).origin;
   const rows = [
     ...documents.results.map((row: Record<string, unknown>) => ({
-      path: String(row.path),
+      path: sitePathForStoredRoute(String(row.path)),
       updatedAt: row.updated_at ? String(row.updated_at) : null,
     })),
     { path: "/tags/", updatedAt: null },

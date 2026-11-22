@@ -1,5 +1,10 @@
+import { sitePathForStoredRoute, STORED_ROUTE_OVERRIDES } from "./paths.js";
+
 export const editorCoreClientScript = String.raw`(function (global) {
   "use strict";
+
+  const STORED_ROUTE_OVERRIDES = ${JSON.stringify(STORED_ROUTE_OVERRIDES)};
+  ${sitePathForStoredRoute.toString()}
 
   function cleanBase(value) {
     return String(value || "").replace(/\/+$/, "");
@@ -33,7 +38,9 @@ export const editorCoreClientScript = String.raw`(function (global) {
     var path = String(notebookPath || "")
       .replace(/^content_es/, "/es")
       .replace(/^content_en/, "");
-    return base + "/" + path.replace(/^\/+|\/+$/g, "") + "/";
+    var storedPath = "/" + path.replace(/^\/+|\/+$/g, "");
+    if (!storedPath.endsWith("/")) storedPath += "/";
+    return base + sitePathForStoredRoute(storedPath);
   }
 
   function publicContentUrl(siteOrigin, contentUrl) {
@@ -185,6 +192,7 @@ export const editorCoreClientScript = String.raw`(function (global) {
       publicContentUrl: function (url) { return publicContentUrl(siteOrigin, url); },
       publicSiteOrigin: function () { return publicSiteOrigin(siteOrigin); },
       request: request,
+      sitePathForStoredRoute: sitePathForStoredRoute,
       slugify: slugify,
       splitTags: splitTags,
       today: today,

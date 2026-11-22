@@ -4782,7 +4782,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         route = route.replace(/\\/index$/, "/").replace(/\\/_index$/, "/");
         if (route.charAt(0) !== "/") route = "/" + route;
         var url = (lang === "es" ? "/es" : "") + route;
-        return url.charAt(url.length - 1) === "/" ? url : url + "/";
+        return editorCore.sitePathForStoredRoute(url.endsWith("/") ? url : url + "/");
       }
     })();
   </script>

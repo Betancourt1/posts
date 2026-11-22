@@ -818,7 +818,7 @@ async function runCase(browser, origin, fixture, viewport, savedRequests) {
         assert.equal(await page.locator("#save-visibility").isVisible(), true);
       }
       await Promise.all([
-        page.waitForURL(fixture.home ? /\/admin\/es\/$/ : /\/admin\/es\/(fotografia|posts)\/$/, { timeout: 10000 }),
+        page.waitForURL(fixture.home ? /\/admin\/$/ : /\/admin\/(fotografia|posts)\/$/, { timeout: 10000 }),
         publish.click(),
       ]);
       assert.equal(savedRequests.length, before + 1);

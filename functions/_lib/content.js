@@ -19,6 +19,7 @@ import {
   safeContentPath,
   safeNotebookPath,
   safeUploadPath,
+  sitePathForStoredRoute,
   uploadPathToUrl,
 } from "./paths.js";
 
@@ -169,7 +170,7 @@ function fallbackUrlForContent(path) {
   const [root, section] = path.split("/");
   const prefix = root === "content_es" ? "/es" : "";
 
-  return section ? `${prefix}/${section}/` : `${prefix || "/"}`;
+  return sitePathForStoredRoute(section ? `${prefix}/${section}/` : "/");
 }
 
 function uploadPathFromValue(value) {
@@ -812,7 +813,7 @@ export async function deleteNotebook(env, payload) {
     deletedUrl: contentPathToUrl(`${notebook}/_index.md`),
     deletedFiles: files.map((entry) => entry.path),
     deletedImages,
-    url: notebook.startsWith("content_es/") ? "/es/" : "/",
+    url: "/",
   };
 }
 

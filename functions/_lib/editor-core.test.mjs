@@ -36,9 +36,16 @@ test("EditorCore owns content navigation rules", () => {
   assert.equal(core.notebookPathForContent("content_es/fotografia/mariposa.md"), "content_es/fotografia");
   assert.equal(
     core.adminNotebookUrl("https://example.com/admin", "content_es/fotografia"),
-    "https://example.com/admin/es/fotografia/",
+    "https://example.com/admin/fotografia/",
   );
   assert.equal(core.publicContentUrl("https://example.com/admin", "/es/fotografia/mariposa/"), "https://example.com/es/fotografia/mariposa/");
+});
+
+test("EditorCore keeps the colliding draft and published paths distinct", () => {
+  const editor = loadCore().create({});
+  const path = "/posts/2025/noviembre/conversatorio/";
+  assert.equal(editor.sitePathForStoredRoute(path), path + "alternate/");
+  assert.equal(editor.sitePathForStoredRoute("/es" + path), path);
 });
 
 test("EditorCore shares deterministic text helpers", () => {

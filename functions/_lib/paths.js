@@ -1,6 +1,29 @@
 export const CONTENT_ROOTS = ["content_es", "content_en"];
 export const UPLOAD_ROOT = "static/uploads";
 
+const CONVERSATORIO = "/posts/2025/noviembre/conversatorio/";
+export const STORED_ROUTE_OVERRIDES = Object.freeze({
+  [CONVERSATORIO]: CONVERSATORIO + "alternate/",
+  ["/es" + CONVERSATORIO]: CONVERSATORIO,
+  "/es/about/": "/about/alternate/",
+  "/es/posts/2026/septiembre/tecno_fatalismo/": "/posts/2026/septiembre/tecno_fatalismo/alternate/",
+  "/es/proyectos-profesionales/mibici_junio_2026/": "/proyectos-profesionales/mibici_junio_2026/alternate/",
+});
+
+export function sitePathForStoredRoute(path) {
+  if (Object.hasOwn(STORED_ROUTE_OVERRIDES, path)) return STORED_ROUTE_OVERRIDES[path];
+  if (!path?.startsWith("/es/")) return path;
+  return path.slice(3).replace(/^\/libros\//, "/books/").replace(/^\/visitas\//, "/guestbook/");
+}
+
+export function storedRouteForSitePath(path) {
+  return Object.keys(STORED_ROUTE_OVERRIDES).find((stored) => STORED_ROUTE_OVERRIDES[stored] === path);
+}
+
+export function legacyRouteForSitePath(path) {
+  return "/es" + path.replace(/^\/books\//, "/libros/").replace(/^\/guestbook\//, "/visitas/");
+}
+
 const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"]);
 
 export function normalizeRepoPath(value) {
@@ -72,7 +95,7 @@ export function contentPathToUrl(value) {
   }
 
   const url = `${lang === "es" ? "/es" : ""}${route}`.replace(/\/+/g, "/");
-  return url.endsWith("/") ? url : `${url}/`;
+  return sitePathForStoredRoute(url.endsWith("/") ? url : `${url}/`);
 }
 
 export function uploadPathToUrl(path) {

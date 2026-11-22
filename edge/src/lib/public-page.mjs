@@ -1,3 +1,4 @@
+import { legacyRouteForSitePath, sitePathForStoredRoute, storedRouteForSitePath } from "../../../functions/_lib/paths.js";
 import {
   archiveMonthCounts,
   archiveItems,
@@ -133,19 +134,23 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
   const synthetic = syntheticRoute(path);
   if (synthetic) return syntheticPage(db, synthetic, options);
 
-  const document = await resolveDocument(db, path, { ...options, tags: false });
+  const readOptions = { ...options, tags: false };
+  const storedPath = storedRouteForSitePath(path);
+  const document = await resolveDocument(db, storedPath || path, readOptions)
+    || (!storedPath && !path.startsWith("/es/")
+      ? await resolveDocument(db, legacyRouteForSitePath(path), readOptions)
+      : null);
   if (!document) return null;
 
+  let canonicalPath = sitePathForStoredRoute(document.canonicalPath);
   if (document.lang === "es" && !document.draft && !document.hidden) {
     const peer = await translationPeer(db, document.id, { body: true, tags: false });
     if (peer?.kind === document.kind && equivalentArticle(document, peer)) {
-      return { redirect: peer.canonicalPath };
+      canonicalPath = sitePathForStoredRoute(peer.canonicalPath);
     }
   }
 
-  if (document.routeKind === "alias") {
-    return { redirect: document.canonicalPath };
-  }
+  if (path !== canonicalPath) return { redirect: canonicalPath };
 
   const layout = layoutForDocument(document);
   const tagsPromise = documentTags(db, document.id);
@@ -191,7 +196,7 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
     title: document.title,
     description: document.description || document.summary,
     layout,
-    page: { ...document, tags, layout },
+    page: { ...document, path: canonicalPath, canonicalPath, tags, layout },
     items: archives || items,
     recentItems,
     backlinks: linkedFrom,

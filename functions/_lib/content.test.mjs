@@ -160,8 +160,8 @@ test("deletePage returns the exact deleted URL separately from its fallback", as
       path: "content_es/posts/2026/julio/temporal.md",
       deleteImages: false,
     });
-    assert.equal(result.deletedUrl, "/es/posts/2026/julio/temporal/");
-    assert.equal(result.url, "/es/posts/");
+    assert.equal(result.deletedUrl, "/posts/2026/julio/temporal/");
+    assert.equal(result.url, "/posts/");
   } finally {
     globalThis.fetch = originalFetch;
   }

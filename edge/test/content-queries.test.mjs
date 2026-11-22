@@ -297,10 +297,10 @@ test("one catalog shares the latest essay and pins across legacy source folders"
   const blog = await sectionItems(db, "posts");
   assert.ok(projects.some(item => item.path === "/posts/technical/"));
   assert.ok(blog.every(item => item.frontMatter.technical !== true));
-  assert.ok(blog.some(item => item.path === "/es/posts/spanish-latest/"));
+  assert.ok(blog.some(item => item.path === "/posts/spanish-latest/"));
 
   const paths = [
-    "/es/posts/spanish-latest/", "/posts/latest-essay/", "/posts/tie-pin/",
+    "/posts/spanish-latest/", "/posts/latest-essay/", "/posts/tie-pin/",
     "/posts/older-pin/", "/posts/untranslated-pin/", "/posts/hidden-translation/",
   ];
   const selected = await homePosts(db);
@@ -317,12 +317,47 @@ test("one catalog shares the latest essay and pins across legacy source folders"
   assert.deepEqual(await loadPublicPage(db, "/es/"), { redirect: "/" });
   assert.deepEqual(await loadPublicPage(db, "/es/posts/latest-essay/"), { redirect: "/posts/latest-essay/" });
   assert.deepEqual(await loadPublicPage(db, "/es/tags/ethics/"), { redirect: "/tags/ethics/" });
-  assert.equal((await loadPublicPage(db, "/es/posts/spanish-latest/")).lang, "en");
+  assert.deepEqual(await loadPublicPage(db, "/es/posts/spanish-latest/"), { redirect: "/posts/spanish-latest/" });
+  assert.equal((await loadPublicPage(db, "/posts/spanish-latest/")).lang, "en");
 
   await put("en", "older-pin", "date: 2020-01-01\npinned: false");
   await put("en", "tie-pin", "date: 2020-01-01\ntranslationKey: shared-tie-pin\npinned: false");
   assert.ok((await homePosts(db)).every(item => !["older-pin", "tie-pin"].includes(item.title)));
   assert.equal((await resolveDocument(db, "/posts/older-pin/")).bodyMarkdown.trim(), "Unchanged article body.");
+});
+
+test("published legacy pages and colliding drafts have different canonical URLs", async (t) => {
+  const { db, miniflare } = await testDatabase();
+  t.after(() => miniflare.dispose());
+  const entries = [
+    ["content_es/posts/2025/noviembre/conversatorio.md", "Un conversatorio", "", "Conversatorio publicado."],
+    ["content_en/posts/2025/noviembre/conversatorio.md", "Private version", "draft: true\nhidden: true\n", "Work in progress."],
+    ["content_es/about/index.md", "Sobre mí", "", "Una biografía alternativa."],
+    ["content_en/about/index.md", "About", "", "English biography."],
+  ];
+  for (const [path, title, flags, body] of entries) {
+    await replaceProjectedSource(db, projectSource({
+      path, rawMarkdown: `---\ntitle: ${title}\n${flags}---\n${body}`,
+      blobSha: path, commitSha: "fixture", projectorVersion: "1",
+    }), null);
+  }
+
+  const path = "/posts/2025/noviembre/conversatorio/";
+  const alternate = path + "alternate/";
+  const author = { includeDrafts: true };
+  assert.deepEqual(await loadPublicPage(db, "/es" + path), { redirect: path });
+  for (const options of [{}, author]) {
+    const page = await loadPublicPage(db, path, options);
+    assert.equal(page.path, path);
+    assert.equal(page.page.canonicalPath, path);
+    assert.equal(page.page.bodyMarkdown.trim(), "Conversatorio publicado.");
+  }
+  assert.equal(await loadPublicPage(db, alternate), null);
+  assert.equal((await loadPublicPage(db, alternate, author)).title, "Private version");
+  assert.deepEqual(await loadPublicPage(db, "/es/about/"), { redirect: "/about/alternate/" });
+  assert.equal((await loadPublicPage(db, "/about/")).title, "About");
+  assert.equal((await loadPublicPage(db, "/about/alternate/")).title, "Sobre mí");
+  assert.deepEqual((await searchDocuments(db, "conversatorio")).map(item => item.path), [path]);
 });
 
 test("reads the projected public site through the real D1 API", async (t) => {
@@ -463,7 +498,7 @@ test("reads the projected public site through the real D1 API", async (t) => {
     ]);
 
     const projects = await sectionItems(db, "proyectos-profesionales");
-    assert.deepEqual(projects.map(item => item.path), ["/es/posts/solo-espanol/"]);
+    assert.deepEqual(projects.map(item => item.path), ["/posts/solo-espanol/"]);
     const publicEnglishWriting = await loadPublicPage(db, "/posts/");
     assert.deepEqual(publicEnglishWriting.items.map((document) => document.title), [
       "Ethical Data",
@@ -475,7 +510,8 @@ test("reads the projected public site through the real D1 API", async (t) => {
     ]);
     assert.deepEqual(await loadPublicPage(db, "/es/posts/"), { redirect: "/posts/" });
     assert.deepEqual(await loadPublicPage(db, "/es/visitas/"), { redirect: "/guestbook/" });
-    const legacyArticle = await loadPublicPage(db, "/es/posts/datos-eticos/");
+    assert.deepEqual(await loadPublicPage(db, "/es/posts/datos-eticos/"), { redirect: "/posts/datos-eticos/" });
+    const legacyArticle = await loadPublicPage(db, "/posts/datos-eticos/");
     assert.equal(legacyArticle.lang, "en");
     assert.equal(legacyArticle.title, "Datos éticos");
     assert.match(legacyArticle.page.bodyMarkdown, /La ética de datos/);
@@ -488,7 +524,7 @@ test("reads the projected public site through the real D1 API", async (t) => {
       "Ethical Data",
       "Destination",
     ]);
-    assert.equal(adminEnglishWriting.items[0].path, "/es/posts/borrador-solo-espanol/");
+    assert.equal(adminEnglishWriting.items[0].path, "/posts/borrador-solo-espanol/");
     assert.equal(adminEnglishWriting.items[0].lang, "es");
 
     assert.deepEqual(await loadPublicPage(db, "/es/posts/", adminOptions), { redirect: "/posts/" });
@@ -527,7 +563,7 @@ test("reads the projected public site through the real D1 API", async (t) => {
       ["Solo en español"],
       "the shared search includes original-language content",
     );
-    assert.deepEqual((await searchDocuments(db, "etica")).map(item => item.title), ["Datos éticos"]);
+    assert.deepEqual((await searchDocuments(db, "etica")).map(item => item.path), ["/posts/datos-eticos/"]);
 
 
     const graph = await graphRows(db);
@@ -562,7 +598,7 @@ test("reads the projected public site through the real D1 API", async (t) => {
 
     for (const [label, load] of [
       ["normal page", (tracedDb) => loadPublicPage(tracedDb, "/posts/ethical-data/")],
-      ["Spanish page", (tracedDb) => loadPublicPage(tracedDb, "/es/posts/datos-eticos/")],
+      ["original-language page", (tracedDb) => loadPublicPage(tracedDb, "/posts/datos-eticos/")],
       ["admin draft page", (tracedDb) => loadPublicPage(
         tracedDb,
         "/posts/draft-link/",

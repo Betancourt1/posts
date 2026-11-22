@@ -1,3 +1,4 @@
+import { sitePathForStoredRoute } from "../../../functions/_lib/paths.js";
 import { renderMarkdown } from "./content-projector.mjs";
 import { catalogEntry } from "./catalog.mjs";
 import { contentExcerpt } from "./content-excerpt.mjs";
@@ -102,7 +103,10 @@ function hydrateDocument(row) {
 }
 
 function hydrateDocuments(result) {
-  return (result.results || []).map(hydrateDocument);
+  return (result.results || []).map((row) => hydrateDocument({
+    ...row,
+    path: sitePathForStoredRoute(row.path),
+  }));
 }
 
 function positiveLimit(value, fallback, maximum = 1000) {
@@ -287,7 +291,7 @@ export async function navSections(db, options = {}) {
     ORDER BY d.title COLLATE NOCASE, canonical.path
   `).bind(includeDrafts, includeHidden).all();
 
-  return result.results || [];
+  return (result.results || []).map((row) => ({ ...row, path: sitePathForStoredRoute(row.path) }));
 }
 
 export async function archiveItems(db, options = {}) {
@@ -607,7 +611,7 @@ export async function graphRows(db) {
       documents.set(row.documentId, {
         documentId: row.documentId,
         title: row.title,
-        path: row.path,
+        path: sitePathForStoredRoute(row.path),
         tags: [],
       });
     }
