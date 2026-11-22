@@ -1,8 +1,10 @@
 import { readdir, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
+import { isNotebookIndex } from "../../functions/_lib/content-storage.js";
+
 const MIN_COVER_SIZE = 100;
-const booksPath = new URL("../../content_en/books/", import.meta.url);
+const booksPath = new URL("../../content/books/", import.meta.url);
 
 export function hasUsableCoverDimensions(metadata) {
   return metadata.width >= MIN_COVER_SIZE && metadata.height >= MIN_COVER_SIZE;
@@ -42,7 +44,7 @@ async function verifyCover(name) {
 }
 
 async function main() {
-  const names = (await readdir(booksPath)).filter((name) => name.endsWith(".md") && name !== "_index.md");
+  const names = (await readdir(booksPath)).filter((name) => name.endsWith(".md") && !isNotebookIndex(`content/books/${name}`));
   const failures = (await Promise.all(names.map(verifyCover))).filter(Boolean);
 
   if (failures.length) {

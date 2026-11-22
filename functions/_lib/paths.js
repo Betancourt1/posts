@@ -1,4 +1,6 @@
-export const CONTENT_ROOTS = ["content_es", "content_en"];
+import { projectionSourcePath } from "./content-storage.js";
+
+export const CONTENT_ROOTS = ["content", "content_es", "content_en"];
 export const UPLOAD_ROOT = "static/uploads";
 
 const CONVERSATORIO = "/posts/2025/noviembre/conversatorio/";
@@ -87,9 +89,9 @@ export function extensionOf(path) {
 }
 
 export function contentPathToUrl(value) {
-  const path = safeContentPath(value);
-  const lang = path.startsWith("content_es/") ? "es" : "en";
-  const root = lang === "es" ? "content_es" : "content_en";
+  const path = projectionSourcePath(safeContentPath(value));
+  const root = path.split("/")[0];
+  const lang = root === "content_es" ? "es" : "en";
   let route = path.slice(root.length).replace(/\.md$/, "");
 
   route = route.replace(/\/index$/, "/").replace(/\/_index$/, "/");

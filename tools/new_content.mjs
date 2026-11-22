@@ -2,6 +2,7 @@
 
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { slugify } from "../functions/_lib/content.js";
 
 const MONTHS_ES = [
   "enero",
@@ -24,12 +25,12 @@ function printHelp() {
   console.log(`Uso:
   npm run new:post -- "Titulo del texto" [--date YYYY-MM-DD] [--slug mi_texto] [--hidden] [--publish] [--dry-run]
   npm run new:zettel -- "Idea concreta" [--slug idea-concreta] [--hidden] [--publish] [--dry-run]
-  npm run new:page -- "Nombre de pagina" --lang es|en [--section proyectos-profesionales] [--slug nombre] [--hidden] [--publish] [--dry-run]
+  npm run new:page -- "Nombre de pagina" [--section proyectos-profesionales] [--slug nombre] [--hidden] [--publish] [--dry-run]
 
 Ejemplos:
   npm run new:post -- "La politica como identidad"
   npm run new:zettel -- "Capital cultural como secuestro de clase"
-  npm run new:page -- "Nuevo proyecto" --lang es --section proyectos-profesionales`);
+  npm run new:page -- "Nuevo proyecto" --section proyectos-profesionales`);
 }
 
 function parseArgs(argv) {
@@ -69,16 +70,6 @@ function dateInMexico() {
 
   const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
   return `${values.year}-${values.month}-${values.day}`;
-}
-
-function slugify(value, separator) {
-  return value
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, separator)
-    .replace(new RegExp(`${separator}+`, "g"), separator)
-    .replace(new RegExp(`^${separator}|${separator}$`, "g"), "");
 }
 
 function quoteYaml(value) {
@@ -155,7 +146,7 @@ function postDraft(title, options) {
   const [year, month] = date.split("-");
   const slug = ensureSlug(options.slug || slugify(title, "_"));
   const filePath = path.join(
-    "content_es",
+    "content",
     "posts",
     year,
     MONTHS_ES[Number(month) - 1],
@@ -174,7 +165,7 @@ function postDraft(title, options) {
 function zettelDraft(title, options) {
   const date = ensureDate(options.date);
   const slug = ensureSlug(options.slug || slugify(title, "-"));
-  const filePath = path.join("content_es", "zettelkasten", `${slug}.md`);
+  const filePath = path.join("content", "zettelkasten", `${slug}.md`);
   const body = [
     frontMatter(buildDraftFields(title, date, options, { tags: ["zettelkasten"], summary: "" })),
     "",
@@ -192,18 +183,11 @@ function zettelDraft(title, options) {
 }
 
 function pageDraft(title, options) {
-  const lang = options.lang || "es";
-
-  if (!["es", "en"].includes(lang)) {
-    throw new Error("--lang debe ser es o en.");
-  }
-
   const date = ensureDate(options.date);
   const slug = ensureSlug(options.slug || slugify(title, "-"));
-  const root = lang === "es" ? "content_es" : "content_en";
   const filePath = options.section
-    ? path.join(root, options.section, `${slug}.md`)
-    : path.join(root, slug, "index.md");
+    ? path.join("content", options.section, `${slug}.md`)
+    : path.join("content", slug, "index.md");
   const body = [
     frontMatter(buildDraftFields(title, date, options, { description: "", tags: [] })),
     "",

@@ -1,4 +1,6 @@
-const BOOK_PATH_PATTERN = /^content_en\/books\/[^/]+\.md$/;
+import { projectionSourcePath } from "./content-storage.js";
+
+const BOOK_PATH_PATTERN = /^content(?:_en)?\/books\/(?!_index\.md$)[^/]+\.md$/;
 const BOOK_TAGS = new Set([
   "book",
   "libro",
@@ -12,7 +14,7 @@ const BOOK_TAGS = new Set([
 ]);
 
 export function isBookContentPath(path) {
-  return BOOK_PATH_PATTERN.test(String(path || ""));
+  return BOOK_PATH_PATTERN.test(projectionSourcePath(String(path || "")));
 }
 
 function statusFromProgress(progress) {

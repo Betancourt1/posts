@@ -3,9 +3,10 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import YAML from "yaml";
+import { isNotebookIndex, projectionSourcePath } from "../../functions/_lib/content-storage.js";
 
 const edgeRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
-const quotesRoot = join(edgeRoot, "..", "content_es", "lit");
+const quotesRoot = join(edgeRoot, "..", "content", "lit");
 const write = process.argv.includes("--write");
 
 const authorOverrides = {
@@ -186,7 +187,10 @@ function validateQuotes(file, quotes, blocks) {
 }
 
 const files = (await readdir(quotesRoot))
-  .filter((file) => file.endsWith(".md") && file !== "_index.md")
+  .filter((file) => {
+    const path = `content/lit/${file}`;
+    return file.endsWith(".md") && !isNotebookIndex(path) && projectionSourcePath(path).startsWith("content_es/");
+  })
   .sort();
 
 let changed = 0;
@@ -203,8 +207,9 @@ for (const file of files) {
   if (!blocks.length) throw new TypeError(`${file}: no blockquotes found`);
 
   const existingQuotes = Array.isArray(frontMatter.quotes) ? frontMatter.quotes : [];
+  const sourceName = projectionSourcePath(`content/lit/${file}`).split("/").at(-1);
   const completeQuotes = blocks.map((block, index) => quoteRecord(
-    file,
+    sourceName,
     block,
     frontMatter,
     existingQuotes[index],

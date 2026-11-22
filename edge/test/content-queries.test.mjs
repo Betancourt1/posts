@@ -132,7 +132,7 @@ Hidden navigation section.
 `],
     [
       "content_en/guestbook/_index.md",
-      await readFile(new URL("../../content_en/guestbook/_index.md", import.meta.url), "utf8"),
+      await readFile(new URL("../../content/guestbook/_index.md", import.meta.url), "utf8"),
     ],
     ["content_es/posts/_index.md", `---
 title: Escritos
@@ -142,7 +142,7 @@ Escritos en español.
 `],
     [
       "content_es/visitas/_index.md",
-      await readFile(new URL("../../content_es/visitas/_index.md", import.meta.url), "utf8"),
+      await readFile(new URL("../../content/guestbook/_index--legacy.md", import.meta.url), "utf8"),
     ],
     ["content_en/posts/ethical-data.md", `---
 title: Ethical Data
@@ -330,8 +330,8 @@ test("published legacy pages and colliding drafts have different canonical URLs"
   const { db, miniflare } = await testDatabase();
   t.after(() => miniflare.dispose());
   const entries = [
-    ["content_es/posts/2025/noviembre/conversatorio.md", "Un conversatorio", "", "Conversatorio publicado."],
-    ["content_en/posts/2025/noviembre/conversatorio.md", "Private version", "draft: true\nhidden: true\n", "Work in progress."],
+    ["content/posts/2025/noviembre/conversatorio.md", "Un conversatorio", "", "Conversatorio publicado."],
+    ["content/posts/2025/noviembre/conversatorio--draft.md", "Private version", "draft: true\nhidden: true\n", "Work in progress."],
     ["content_es/about/index.md", "Sobre mí", "", "Una biografía alternativa."],
     ["content_en/about/index.md", "About", "", "English biography."],
   ];
@@ -350,10 +350,14 @@ test("published legacy pages and colliding drafts have different canonical URLs"
     const page = await loadPublicPage(db, path, options);
     assert.equal(page.path, path);
     assert.equal(page.page.canonicalPath, path);
+    assert.equal(page.page.sourcePath, "content/posts/2025/noviembre/conversatorio.md");
     assert.equal(page.page.bodyMarkdown.trim(), "Conversatorio publicado.");
   }
   assert.equal(await loadPublicPage(db, alternate), null);
-  assert.equal((await loadPublicPage(db, alternate, author)).title, "Private version");
+  const draft = await loadPublicPage(db, alternate, author);
+  assert.equal(draft.title, "Private version");
+  assert.equal(draft.page.sourcePath, "content/posts/2025/noviembre/conversatorio--draft.md");
+  assert.equal(await loadPublicPage(db, path.replace(/\/$/, "--draft/")), null);
   assert.deepEqual(await loadPublicPage(db, "/es/about/"), { redirect: "/about/" });
   assert.equal((await loadPublicPage(db, "/about/")).title, "About");
   for (const mainPath of [

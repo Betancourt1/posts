@@ -357,8 +357,8 @@ test("listNotebooks uses one notebook per section and reuses its repository cach
 });
 
 test("photographyMirrorPath maps between English and Spanish photography posts but ignores index and other sections", () => {
-  assert.equal(photographyMirrorPath("content_es/fotografia/mariposa.md"), "content_en/fotografia/mariposa.md");
-  assert.equal(photographyMirrorPath("content_en/fotografia/spider.md"), "content_es/fotografia/spider.md");
+  assert.equal(photographyMirrorPath("content/fotografia/mariposa--legacy.md"), "content/fotografia/mariposa.md");
+  assert.equal(photographyMirrorPath("content/fotografia/spider.md"), "content/fotografia/spider--legacy.md");
   assert.equal(photographyMirrorPath("content_es/fotografia/_index.md"), null);
   assert.equal(photographyMirrorPath("content_en/fotografia/_index.md"), null);
   assert.equal(photographyMirrorPath("content_es/posts/2026/julio/post.md"), null);
@@ -482,7 +482,7 @@ test("writing type survives creation and edits without changing paths", async ()
     const japanese = await createPost(env, {
       title: "日本語の題名", date: "2026-09-18", body: "本文は元の日本語のままです。",
     });
-    assert.equal(japanese.path, "content_en/posts/2026/septiembre/日本語の題名.md");
+    assert.equal(japanese.path, "content/posts/2026/septiembre/日本語の題名.md");
     assert.equal(splitMarkdown(files.get(japanese.path)).body.trim(), "本文は元の日本語のままです。");
     for (const lang of ["en", "es"]) {
       for (const essay of [true, false, undefined]) {

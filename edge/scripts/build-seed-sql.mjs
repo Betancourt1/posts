@@ -4,6 +4,7 @@ import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { projectionSourcePath } from "../../functions/_lib/content-storage.js";
 import { expectedSeedCounts } from "./seed-counts.mjs";
 import { projectSource } from "../src/lib/content-projector.mjs";
 import { uniqueTagRecords } from "../src/lib/tag-slug.mjs";
@@ -132,18 +133,19 @@ function sourceSql(projection) {
   return statements;
 }
 
-const files = (
-  await Promise.all([
-    markdownPaths(join(repositoryRoot, "content_en")),
-    markdownPaths(join(repositoryRoot, "content_es")),
-  ])
-).flat().sort();
+const files = (await markdownPaths(join(repositoryRoot, "content")))
+  .map((filePath) => relative(repositoryRoot, filePath).replaceAll("\\", "/"))
+  .sort((a, b) => {
+    const left = projectionSourcePath(a);
+    const right = projectionSourcePath(b);
+    return left < right ? -1 : left > right ? 1 : 0;
+  });
 const sources = [];
 
 for (const filePath of files) {
-  const rawMarkdown = await readFile(filePath, "utf8");
+  const rawMarkdown = await readFile(join(repositoryRoot, filePath), "utf8");
   sources.push(projectSource({
-    path: relative(repositoryRoot, filePath).split("\\").join("/"),
+    path: filePath,
     rawMarkdown,
     blobSha: gitBlobSha(rawMarkdown),
     commitSha,

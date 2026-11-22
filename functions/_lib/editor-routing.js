@@ -1,3 +1,5 @@
+import { isNotebookIndex } from "./content-storage.js";
+
 const EDITOR_KINDS = new Set(["notebook", "post", "image"]);
 
 export function normalizeEditorKind(kind) {
@@ -10,14 +12,14 @@ export function contentEditorKind({ path = "", kind = "", format = "" } = {}) {
   const contentPath = String(path || "").trim();
   const requestedKind = normalizeEditorKind(kind);
 
-  if (contentPath.endsWith("/_index.md") || requestedKind === "notebook") {
+  if (isNotebookIndex(contentPath) || requestedKind === "notebook") {
     return "notebook";
   }
 
   if (
     requestedKind === "image" ||
     String(format || "").trim().toLowerCase() === "image" ||
-    /^content_(es|en)\/fotografia\/.+\.md$/.test(contentPath)
+    /^content(?:_es|_en)?\/fotografia\/.+\.md$/.test(contentPath)
   ) {
     return "image";
   }

@@ -1,6 +1,6 @@
 # fbetancourt.work
 
-Sitio personal bilingue servido por Astro SSR como Cloudflare Worker. Los archivos Markdown en Git son la fuente canonica del contenido; D1 mantiene la proyeccion consultable que usa el runtime y R2 almacena los medios publicados.
+Sitio personal con interfaz en inglés servido por Astro SSR como Cloudflare Worker. Los archivos Markdown en Git son la fuente canonica del contenido; D1 mantiene la proyeccion consultable que usa el runtime y R2 almacena los medios publicados.
 
 ## Estructura del proyecto
 
@@ -11,8 +11,7 @@ Sitio personal bilingue servido por Astro SSR como Cloudflare Worker. Los archiv
   - `client/`: comportamiento que se ejecuta en el navegador.
   - `db/migrations/`: esquema de la proyeccion D1.
   - `scripts/`: preparacion de assets, seed de D1 y sincronizacion de medios.
-- `content_en/`: Markdown en ingles, servido desde `/`.
-- `content_es/`: Markdown en espanol, servido desde `/es/`.
+- `content/`: Markdown en cualquier idioma, organizado por sección.
   - `posts/<anio>/<mes>/`: escritos.
   - `zettelkasten/`: notas publicables.
   - `lit/`: lecturas y citas.
@@ -24,7 +23,7 @@ Sitio personal bilingue servido por Astro SSR como Cloudflare Worker. Los archiv
 
 ## Flujo del contenido
 
-1. `content_en/` y `content_es/` guardan el Markdown canonico en GitHub.
+1. `content/` guarda el Markdown canónico en GitHub. Las rutas anteriores siguen resolviéndose.
 2. El seed, el webhook de GitHub o una mutacion del editor proyectan el Markdown a D1.
 3. Las rutas Astro consultan D1 y renderizan HTML en el Worker.
 4. La busqueda, el grafo, los tags, backlinks y archivos usan esa misma proyeccion.
@@ -70,7 +69,7 @@ Desde la raiz del repositorio:
 # Crear contenido sin recordar rutas internas
 npm run new:post -- "Titulo del texto"
 npm run new:zettel -- "Idea concreta"
-npm run new:page -- "Nombre de la pagina" --lang es
+npm run new:page -- "Nombre de la pagina"
 
 # Revisar contratos de editores y contenido
 npm test

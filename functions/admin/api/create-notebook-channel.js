@@ -5,16 +5,17 @@ import {
   createArenaChannel,
   syncArenaPage,
 } from "../../_lib/arena.js";
+import { isNotebookIndex, projectionSourcePath } from "../../_lib/content-storage.js";
 import { readPage, savePageFrontMatter } from "../../_lib/content.js";
 import { readRepositoryTree } from "../../_lib/github.js";
 import { errorResponse, jsonResponse, readJson } from "../../_lib/http.js";
 
 function notebookPathFromIndex(path) {
   const value = String(path || "").trim();
-  if (!/^content_(es|en)\/[^/]+\/_index\.md$/.test(value)) {
+  if (!/^content(?:_es|_en)?\/[^/]+\/_index\.md$/.test(projectionSourcePath(value))) {
     throw new Error("Ruta de notebook invalida.");
   }
-  return value.replace(/\/_index\.md$/, "");
+  return value.slice(0, value.lastIndexOf("/"));
 }
 
 function publicPageUrl(page, publicOrigin) {
@@ -34,8 +35,8 @@ export async function onRequestPost({ env, request }) {
   try {
     const payload = await readJson(request);
     const indexPath = String(payload.path || "");
-    const notebookPath = notebookPathFromIndex(indexPath);
     const notebook = await readPage(env, indexPath);
+    const notebookPath = notebookPathFromIndex(notebook.path);
     const token = arenaTokenFromEnv(env);
     const publicOrigin = String(env.PUBLIC_SITE_ORIGIN || "https://fbetancourt.work").replace(/\/+$/, "");
     const imageOrigin = arenaImageOriginFromEnv(env, publicOrigin);
@@ -54,7 +55,7 @@ export async function onRequestPost({ env, request }) {
         metadata: {
           integration: "fbetancourt_blog",
           notebook_path: notebookPath,
-          language: notebookPath.startsWith("content_en/") ? "en" : "es",
+          language: projectionSourcePath(notebook.path).startsWith("content_es/") ? "es" : "en",
         },
       });
       channelId = channel.id;
@@ -69,7 +70,7 @@ export async function onRequestPost({ env, request }) {
     const paths = tree
       .filter((entry) => entry.type === "blob")
       .map((entry) => entry.path)
-      .filter((path) => path.startsWith(`${notebookPath}/`) && path.endsWith(".md") && !path.endsWith("/_index.md"));
+      .filter((path) => path.startsWith(`${notebookPath}/`) && path.endsWith(".md") && !isNotebookIndex(path));
     const pages = await Promise.all(paths.map((path) => readPage(env, path)));
     const publishable = pages.filter((page) => page.frontMatter.draft !== true && page.frontMatter.hidden !== true);
     const results = [];

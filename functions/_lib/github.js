@@ -1,3 +1,5 @@
+import { contentStoragePath, projectionSourcePath } from "./content-storage.js";
+
 function requireEnv(env, name) {
   const value = String(env[name] || "").trim();
 
@@ -64,6 +66,14 @@ function repoPath(env, suffix) {
 }
 
 export async function readGitHubFile(env, filePath) {
+  const current = await readExactGitHubFile(env, filePath);
+  if (current) return current;
+  const storage = contentStoragePath(filePath);
+  const alternate = storage === filePath ? projectionSourcePath(filePath) : storage;
+  return alternate === filePath ? null : readExactGitHubFile(env, alternate);
+}
+
+async function readExactGitHubFile(env, filePath) {
   const { branch } = githubConfig(env);
   const encodedPath = filePath.split("/").map(encodeURIComponent).join("/");
 
@@ -78,7 +88,7 @@ export async function readGitHubFile(env, filePath) {
     }
 
     return {
-      path: payload.path,
+      path: filePath,
       sha: payload.sha,
       content: decodeBase64Utf8(payload.content),
     };

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readdir } from "node:fs/promises";
 import test from "node:test";
+import { isNotebookIndex, projectionSourcePath } from "./content-storage.js";
 import { isBookContentPath, normalizeBookFrontMatter } from "./book-content.js";
 
 test("book paths are limited to the canonical book section", () => {
@@ -10,8 +11,10 @@ test("book paths are limited to the canonical book section", () => {
 });
 
 test("Spanish book pages are generated instead of duplicated as Markdown", async () => {
-  const files = await readdir("content_es/libros");
-  const bookMarkdown = files.filter((file) => file.endsWith(".md") && file !== "_index.md");
+  const files = await readdir("content/books");
+  const bookMarkdown = files.map((file) => `content/books/${file}`).filter((path) =>
+    path.endsWith(".md") && !isNotebookIndex(path) && projectionSourcePath(path).startsWith("content_es/"),
+  );
 
   assert.deepEqual(bookMarkdown, []);
   assert.equal(files.includes("_content.gotmpl"), true);

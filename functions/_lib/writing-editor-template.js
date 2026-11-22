@@ -2183,7 +2183,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       var today = editorCore.today;
       var waitForPublicState = editorCore.waitForPublicState;
       var sourcePath = params.get("path") || "";
-      var preferredNotebook = params.get("notebook") || "content_en/posts";
+      var sourceIdentity = sourcePath;
+      var preferredNotebook = params.get("notebook") || "content/posts";
       var frontMatter = {};
       var savedUrl = "";
       var slugTouched = false;
@@ -2936,12 +2937,12 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function isBookEditor() {
-        return editorTemplate === "book" || /^content_(?:en\\/books|es\\/libros)\\//.test(sourcePath);
+        return editorTemplate === "book" || /^content(?:_en)?\\/books\\/|^content_es\\/libros\\//.test(sourceIdentity);
       }
 
       function isEnglishBook() {
-        var contentPath = sourcePath || preferredNotebook || els.notebook.value;
-        return contentPath.indexOf("content_en/books") === 0;
+        var contentPath = sourceIdentity || preferredNotebook || els.notebook.value;
+        return /^content(?:_en)?\\/books(?:\\/|$)/.test(contentPath);
       }
 
       function bookTemplateBody() {
@@ -3045,12 +3046,14 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function loadExisting() {
         return request("/api/page?path=" + encodeURIComponent(sourcePath)).then(function (payload) {
+          sourcePath = payload.path || sourcePath;
+          sourceIdentity = payload.sourceIdentity || sourcePath;
           frontMatter = payload.frontMatter || {};
           if (isProject()) projectEditor.load(frontMatter);
           savedUrl = payload.url || "";
           els.notebookField.hidden = true;
           els.title.value = frontMatter.title || "";
-          els.slug.value = routeFromPath(payload.path || sourcePath);
+          els.slug.value = savedUrl || routeFromPath(sourcePath);
           syncRouteControls(true);
           els.date.value = frontMatter.date || today();
           els.tags.value = (frontMatter.tags || []).join(", ");
@@ -3122,7 +3125,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         selectFallbackArenaChannel();
         syncGeneratedSlug();
         publicationRedirectNotebook = editorController.notebook
-          ? (sourcePath ? sourcePath.replace(/\\/_index\\.md$/, "") : els.notebook.value)
+          ? (sourcePath ? sourcePath.slice(0, sourcePath.lastIndexOf("/")) : els.notebook.value)
           : (mode === "edit" ? notebookPathForContent(sourcePath) : els.notebook.value);
         els.save.disabled = true;
         setStatus("Saving");
@@ -3138,7 +3141,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
           els.path.textContent = sourcePath;
           mode = "edit";
           els.notebookField.hidden = true;
-          els.slug.value = routeFromPath(sourcePath);
+          els.slug.value = savedUrl || routeFromPath(sourcePath);
           syncRouteControls(true);
           savedSnapshot = currentSaveSnapshot();
           clearStoredDraft();
@@ -4407,7 +4410,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function draftMatchesEditor(stored) {
-        if (stored.mode === "edit") return mode === "edit" && stored.sourcePath === sourcePath;
+        if (stored.mode === "edit") return mode === "edit"
+          && (stored.sourcePath === sourcePath || stored.sourcePath === sourceIdentity);
         return mode === "new" && stored.notebook && els.notebook.value
           && editorCore.adminNotebookUrl(stored.notebook) === editorCore.adminNotebookUrl(els.notebook.value);
       }
@@ -4486,13 +4490,12 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
 
       function isProject() {
         var notebook = mode === "edit" ? notebookPathForContent(sourcePath) : els.notebook.value;
-        return editorController.kind === "post" && /^(content_en|content_es)\\/proyectos-profesionales$/.test(notebook);
+        return editorController.kind === "post" && /^content(?:_en|_es)?\\/proyectos-profesionales$/.test(notebook);
       }
 
       function isWritingPost() {
         var notebook = mode === "edit" ? sourcePath.split("/").slice(0, 2).join("/") : els.notebook.value;
-        return !editorController.notebook && !sourcePath.endsWith("/_index.md") &&
-          (notebook === "content_en/posts" || notebook === "content_es/posts");
+        return !editorController.notebook && /^content(?:_en|_es)?\\/posts$/.test(notebook);
       }
 
       function isPhotoEditor() {
@@ -4502,7 +4505,7 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
         if (mode === "edit") {
           return postFormat === "image" ||
             Boolean(frontMatter.image) ||
-            sourcePath.startsWith("content_es/fotografia/");
+            /^content(?:_en|_es)?\\/fotografia\\//.test(sourcePath);
         }
         return postFormat === "image" ||
           els.notebook.value.endsWith("/fotografia") ||
@@ -4681,11 +4684,11 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function notebookPathFromSource() {
-        return sourcePath.replace(/\\/_index\\.md$/, "");
+        return sourcePath.slice(0, sourcePath.lastIndexOf("/"));
       }
 
       function isHomeEditor() {
-        return /^content_(es|en)\\/_index\\.md$/.test(sourcePath);
+        return /^content(?:_es|_en)?\\/_index\\.md$/.test(sourceIdentity);
       }
 
       function routeFromPath(relativePath) {
@@ -4777,8 +4780,8 @@ export function writingEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase =
       }
 
       function contentPathToUrl(relativePath) {
-        var lang = relativePath.indexOf("content_es/") === 0 ? "es" : "en";
-        var root = lang === "es" ? "content_es" : "content_en";
+        var root = relativePath.split("/")[0];
+        var lang = root === "content_es" ? "es" : "en";
         var route = relativePath.slice(root.length).replace(/\\.md$/, "");
         route = route.replace(/\\/index$/, "/").replace(/\\/_index$/, "/");
         if (route.charAt(0) !== "/") route = "/" + route;

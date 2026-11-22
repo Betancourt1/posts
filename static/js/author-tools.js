@@ -397,7 +397,7 @@
       ? trigger.dataset.notebook
       : state.currentNotebook
         ? state.currentNotebook.path
-        : "content_en/posts";
+        : "content/posts";
 
     openEditor({
       mode: "new",
@@ -413,7 +413,7 @@
       ? trigger.dataset.notebook
       : state.currentNotebook
         ? state.currentNotebook.path
-        : "content_en/posts";
+        : "content/posts";
 
     openImageEditor({
       notebook: notebook,
@@ -460,7 +460,7 @@
       mode: "edit",
       kind: "post",
       path: path,
-      template: /^content_(?:en\/books|es\/libros)\//.test(path) ? "book" : "",
+      template: /^content(?:_en)?\/books\/|^content_es\/libros\//.test(path) ? "book" : "",
     });
     return true;
   }

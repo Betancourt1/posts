@@ -14,7 +14,10 @@ import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { formatMarkdown, parseScalar, splitMarkdown } from "../functions/_lib/markdown.js";
 
-const CONTENT_ROOTS = ["content_es", "content_en"];
+import { contentStoragePath, isNotebookIndex, projectionSourcePath } from "../functions/_lib/content-storage.js";
+import { contentPathToUrl } from "../functions/_lib/paths.js";
+
+const CONTENT_ROOTS = ["content"];
 const UPLOAD_ROOT = "static/uploads";
 const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"]);
 const TIME_ZONE = "America/Mexico_City";
@@ -79,8 +82,7 @@ function findRepoRoot(start) {
     if (
       existsSync(path.join(current, "package.json")) &&
       existsSync(path.join(current, "edge", "package.json")) &&
-      existsSync(path.join(current, "content_es")) &&
-      existsSync(path.join(current, "content_en"))
+      existsSync(path.join(current, "content"))
     ) {
       return current;
     }
@@ -226,7 +228,7 @@ function relativePath(filePath) {
 }
 
 function normalizeContentPath(value) {
-  const relative = relativePath(String(value || "").trim());
+  const relative = contentStoragePath(relativePath(String(value || "").trim()));
   const allowed = CONTENT_ROOTS.some((root) => relative.startsWith(`${root}/`));
 
   if (!allowed || !relative.endsWith(".md")) {
@@ -267,28 +269,13 @@ function normalizeUploadPath(value) {
   return relative;
 }
 
-function contentPathToUrl(filePath) {
-  const safePath = normalizeContentPath(filePath);
-  const lang = safePath.startsWith("content_es/") ? "es" : "en";
-  const root = lang === "es" ? "content_es" : "content_en";
-  let route = safePath.slice(root.length).replace(/\.md$/, "");
-
-  route = route.replace(/\/index$/, "/").replace(/\/_index$/, "/");
-  if (!route.startsWith("/")) {
-    route = `/${route}`;
-  }
-
-  const url = `${lang === "es" ? "/es" : ""}${route}`.replace(/\/+/g, "/");
-  return url.endsWith("/") ? url : `${url}/`;
-}
-
 function uploadPathToUrl(filePath) {
   return `/${normalizeUploadPath(filePath).replace(/^static\//, "")}`;
 }
 
 function classifyContent(filePath) {
-  if (filePath.endsWith("/_index.md")) return "notebook";
-  if (filePath.startsWith("content_es/fotografia/") || filePath.startsWith("content_en/fotografia/")) return "photo";
+  if (isNotebookIndex(filePath)) return "notebook";
+  if (filePath.startsWith("content/fotografia/")) return "photo";
   if (filePath.includes("/posts/")) return "post";
   if (filePath.includes("/zettelkasten/")) return "zettel";
   return "page";
@@ -304,7 +291,7 @@ async function readContentEntry(filePath) {
   return {
     path: relative,
     url: contentPathToUrl(relative),
-    lang: relative.startsWith("content_es/") ? "es" : "en",
+    lang: projectionSourcePath(relative).startsWith("content_es/") ? "es" : "en",
     type,
     stem,
     title: String(frontMatter.title || stem.replace(/[-_]/g, " ")),
@@ -735,7 +722,7 @@ async function commandNewPhoto(args, options) {
 
   const date = ensureDate(options.date);
   const slug = slugify(options.slug || title, "-");
-  const filePath = path.join("content_es", "fotografia", `${slug}.md`);
+  const filePath = path.join("content", "fotografia", `${slug}.md`);
 
   if (existsSync(filePath)) {
     throw new Error(`Ya existe: ${filePath}`);

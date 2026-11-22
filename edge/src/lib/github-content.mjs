@@ -1,3 +1,5 @@
+import { isMarkdownSource, projectionSourcePath } from "../../../functions/_lib/content-storage.js";
+
 function required(env, name) {
   const value = String(env[name] || "").trim();
   if (!value) throw new Error(`${name} is not configured.`);
@@ -61,9 +63,9 @@ export async function readContentTree(env) {
 
   return {
     commitSha,
-    entries: (tree.tree || []).filter(
-      (entry) => entry.type === "blob" && /^content_(?:en|es)\/.+\.md$/.test(entry.path),
-    ),
+    entries: (tree.tree || [])
+      .filter((entry) => entry.type === "blob" && isMarkdownSource(entry.path))
+      .map((entry) => ({ ...entry, path: projectionSourcePath(entry.path) })),
   };
 }
 

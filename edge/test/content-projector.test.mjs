@@ -1,3 +1,4 @@
+import { contentStoragePath } from "../../functions/_lib/content-storage.js";
 import { expectedSeedCounts } from "../scripts/seed-counts.mjs";
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
@@ -16,7 +17,7 @@ import {
 const REPO_ROOT = fileURLToPath(new URL("../../", import.meta.url));
 
 async function fixture(relativePath) {
-  return readFile(path.join(REPO_ROOT, relativePath), "utf8");
+  return readFile(path.join(REPO_ROOT, contentStoragePath(relativePath)), "utf8");
 }
 
 async function markdownFiles(directory) {
@@ -429,8 +430,7 @@ test("generates the canonical English book as a matching Spanish document", asyn
 });
 
 test("projects the complete repository with the migration count contract", async () => {
-  const roots = ["content_en", "content_es"].map((root) => path.join(REPO_ROOT, root));
-  const files = (await Promise.all(roots.map(markdownFiles))).flat().sort();
+  const files = (await markdownFiles(path.join(REPO_ROOT, "content"))).sort();
   const projections = await Promise.all(
     files.map(async (absolutePath) => {
       const relativePath = path.relative(REPO_ROOT, absolutePath).split(path.sep).join("/");
@@ -452,17 +452,15 @@ test("projects the complete repository with the migration count contract", async
   }, expectedSeedCounts(projections));
 });
 
-test("project metadata survives opening and saving the catalog's English and Spanish sources", async () => {
+test("project metadata survives opening and saving the catalog sources", async () => {
   const { splitMarkdown, formatMarkdown } = await import("../../functions/_lib/markdown.js");
-  for (const lang of ["en", "es"]) {
-    const folder = path.join(REPO_ROOT, "content_" + lang, "proyectos-profesionales");
-    for (const file of await markdownFiles(folder)) {
-      const rawMarkdown = await readFile(file, "utf8");
-      const relativePath = path.relative(REPO_ROOT, file);
-      const document = projectSource({ path: relativePath, rawMarkdown }).documents[0];
-      const edited = splitMarkdown(rawMarkdown);
-      const after = projectSource({ path: relativePath, rawMarkdown: formatMarkdown(edited.frontMatter, edited.body) }).documents[0];
-      assert.deepEqual(after.frontMatter, document.frontMatter, relativePath);
-    }
+  const folder = path.join(REPO_ROOT, "content", "proyectos-profesionales");
+  for (const file of await markdownFiles(folder)) {
+    const rawMarkdown = await readFile(file, "utf8");
+    const relativePath = path.relative(REPO_ROOT, file);
+    const document = projectSource({ path: relativePath, rawMarkdown }).documents[0];
+    const edited = splitMarkdown(rawMarkdown);
+    const after = projectSource({ path: relativePath, rawMarkdown: formatMarkdown(edited.frontMatter, edited.body) }).documents[0];
+    assert.deepEqual(after.frontMatter, document.frontMatter, relativePath);
   }
 });

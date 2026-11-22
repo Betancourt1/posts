@@ -3,7 +3,10 @@ import { Marked, Renderer, Lexer, walkTokens } from "marked";
 import markedKatex from "marked-katex-extension";
 import { renderTechnicalCode } from "./technical-markdown.mjs";
 
+import { projectionSourcePath } from "../../../functions/_lib/content-storage.js";
+
 const CONTENT_ROOTS = {
+  content: "en",
   content_en: "en",
   content_es: "es",
 };
@@ -298,7 +301,7 @@ function normalizePagePath(value, lang) {
 }
 
 function sourceParts(sourcePath) {
-  const normalizedPath = normalizeContentPath(sourcePath);
+  const normalizedPath = projectionSourcePath(normalizeContentPath(sourcePath));
   const [root, ...relativeParts] = normalizedPath.split("/");
   const filename = relativeParts.at(-1);
   const stem = filename.slice(0, -3);
@@ -578,7 +581,7 @@ function createDocument({
 }
 
 function isCanonicalEnglishBook(sourcePath) {
-  return /^content_en\/books\/[^/]+\.md$/.test(sourcePath) &&
+  return /^content(?:_en)?\/books\/[^/]+\.md$/.test(sourcePath) &&
     !sourcePath.endsWith("/_index.md");
 }
 
@@ -611,7 +614,7 @@ export function projectSource({
   commitSha = null,
   projectorVersion = "1",
 }) {
-  const sourcePath = normalizeContentPath(path);
+  const sourcePath = projectionSourcePath(normalizeContentPath(path));
   const { lang } = sourceParts(sourcePath);
   const parsed = parseMarkdown(rawMarkdown);
   const canonicalPath = routeForSource(sourcePath, parsed.frontMatter);

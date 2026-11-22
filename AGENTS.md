@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-The production site is the Astro SSR runtime in `edge/`, deployed as a Cloudflare Worker. It has one English interface and one content catalog. The legacy `content_en/` and `content_es/` paths, including existing public URLs, remain valid for content written in any language. New blogs and notebooks use the canonical `content_en/` tree. GitHub is the canonical content store, D1 is the runtime projection used by Astro, and R2 stores production media served from `/uploads/*`.
+The production site is the Astro SSR runtime in `edge/`, deployed as a Cloudflare Worker. It has one English interface and one content catalog. Markdown in any language lives under `content/`, grouped by section. Existing public URLs and old editor links resolve through the migration mapping. GitHub is the canonical content store, D1 is the runtime projection used by Astro, and R2 stores production media served from `/uploads/*`.
 
 Production routes, layouts, views, components, and server libraries live in `edge/src/`; production client scripts live in `edge/client/`. Shared static sources live in `static/` and are copied into the edge build by `edge/scripts/prepare-public.mjs`. Shared editor handlers and services live in `functions/` and are adapted by the Astro routes under `/admin/`. D1 migrations live in `edge/db/migrations/`; seed and media utilities live in `edge/scripts/`.
 
@@ -23,7 +23,7 @@ Run production commands from `edge/`. Run root commands only for the shared edit
 
 ## Coding Style & Naming Conventions
 
-Use UTF-8 Markdown with concise front matter and clear tags. Keep filenames lowercase with underscores, for example `politica_como_identidad.md`. Preserve the existing content hierarchy by language, section, year, and month. Prefer `hidden: true` in front matter for pages that should not appear in listings, search, archives, infrastructure mode, or the knowledge graph; `no_post*` filenames remain supported as a legacy convention.
+Use UTF-8 Markdown with concise front matter and clear tags. Keep filenames lowercase with underscores, for example `politica_como_identidad.md`. Preserve the content hierarchy by section, year, and month. Prefer `hidden: true` in front matter for pages that should not appear in listings, search, archives, infrastructure mode, or the knowledge graph; `no_post*` filenames remain supported as a legacy convention.
 
 Keep Astro, HTML, JavaScript, and CSS indentation consistent; 2 spaces is preferred. Reuse existing layouts, components, and helpers instead of duplicating rendering logic. Keep custom styles in `static/css/site.css`. Keep browser behavior in `edge/client/` or the appropriate existing shared `static/js/` module.
 

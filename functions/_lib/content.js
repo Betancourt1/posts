@@ -1,3 +1,4 @@
+import { contentStoragePath, isNotebookIndex, mergedNotebookPath, projectionSourcePath } from "./content-storage.js";
 import { applyProjectFields, projectFields } from "./project-links.js";
 import {
   deleteGitHubFile,
@@ -62,7 +63,7 @@ function notebookCacheKey(env = {}) {
 export function invalidateNotebooksCache() {
   notebookCache = { key: "", expiresAt: 0, notebooks: [] };
 }
-const PROTECTED_NOTEBOOKS = new Set(["content_es/posts", "content_en/posts"]);
+const PROTECTED_NOTEBOOKS = new Set(["content/posts", "content_es/posts", "content_en/posts"]);
 const LEGACY_NOTEBOOK_SLUGS = { libros: "books", visitas: "guestbook" };
 
 function startsWithBytes(bytes, expected) {
@@ -168,7 +169,7 @@ function commitMessage(action, path) {
 }
 
 function fallbackUrlForContent(path) {
-  const [root, section] = path.split("/");
+  const [root, section] = projectionSourcePath(path).split("/");
   const prefix = root === "content_es" ? "/es" : "";
 
   return sitePathForStoredRoute(section ? `${prefix}/${section}/` : "/");
@@ -231,7 +232,7 @@ function collectUploadReferences(frontMatter, body) {
 }
 
 function normalizePhotoFrontMatter(path, frontMatter) {
-  if (!path.startsWith("content_es/fotografia/") && !path.startsWith("content_en/fotografia/")) {
+  if (!/^content(?:_en|_es)?\/fotografia\//.test(path)) {
     return;
   }
 
@@ -264,14 +265,13 @@ function normalizePhotoFrontMatter(path, frontMatter) {
 
 export function photographyMirrorPath(path) {
   if (typeof path !== "string") return null;
-  const normalized = path.trim().replace(/^\/+/, "");
-  if (/^content_es\/fotografia\/[^/]+\.md$/.test(normalized) && !normalized.endsWith("/_index.md")) {
-    return normalized.replace(/^content_es\/fotografia\//, "content_en/fotografia/");
-  }
-  if (/^content_en\/fotografia\/[^/]+\.md$/.test(normalized) && !normalized.endsWith("/_index.md")) {
-    return normalized.replace(/^content_en\/fotografia\//, "content_es/fotografia/");
-  }
-  return null;
+  const requested = path.trim().replace(/^\/+/, "");
+  const normalized = projectionSourcePath(requested);
+  if (!/^content_(es|en)\/fotografia\/[^/]+\.md$/.test(normalized) || isNotebookIndex(normalized)) return null;
+  const mirror = normalized.startsWith("content_es/")
+    ? normalized.replace(/^content_es\//, "content_en/")
+    : normalized.replace(/^content_en\//, "content_es/");
+  return requested === normalized ? mirror : contentStoragePath(mirror);
 }
 
 async function deleteUploadPath(env, path) {
@@ -304,8 +304,9 @@ async function projectedNotebookMarkdown(env, notebook) {
   if (!env.DB?.prepare) return new Map();
 
   const result = await env.DB
-    .prepare("SELECT path, raw_markdown FROM sources WHERE path LIKE ?")
-    .bind(`${notebook}/%`)
+    .prepare("SELECT path, raw_markdown FROM sources WHERE path LIKE ? OR path LIKE ? OR path LIKE ?")
+    .bind(`${notebook}/%`, `${projectionSourcePath(`${notebook}/_index.md`).replace(/\/_index\.md$/, "")}/%`,
+      `${projectionSourcePath(`${notebook}/_index--legacy.md`).replace(/\/_index(?:--legacy)?\.md$/, "")}/%`)
     .all();
 
   return new Map((result.results || []).map((row) => [row.path, row.raw_markdown]));
@@ -320,12 +321,14 @@ export async function readPage(env, path) {
   }
 
   const { frontMatter, body } = splitMarkdown(file.content);
+  const sourceIdentity = projectionSourcePath(file.path);
 
   return {
-    path: safePath,
+    path: file.path,
+    ...(sourceIdentity !== file.path ? { sourceIdentity } : {}),
     frontMatter,
     body,
-    url: contentPathToUrl(safePath),
+    url: contentPathToUrl(file.path),
   };
 }
 
@@ -338,7 +341,7 @@ export async function listNotebooks(env) {
   const tree = await readRepositoryTree(env);
   const ignored = new Set(["archives", "tags"]);
   const indexFiles = tree
-    .filter((entry) => entry.type === "blob" && /^content_(es|en)\/[^/]+\/_index\.md$/.test(entry.path))
+    .filter((entry) => entry.type === "blob" && /^content(?:_en|_es)?\/[^/]+\/_index\.md$/.test(entry.path))
     .filter((entry) => {
       const slug = entry.path.split("/")[1];
       return !ignored.has(slug);
@@ -386,13 +389,11 @@ export async function createPost(env, payload) {
     throw new Error("A title is required.");
   }
 
-  const notebook = safeNotebookPath(payload.notebook || "content_en/posts");
-  const indexFile = await readGitHubFile(env, `${notebook}/_index.md`);
+  const requestedNotebook = safeNotebookPath(payload.notebook || "content/posts");
+  const indexFile = await readGitHubFile(env, `${requestedNotebook}/_index.md`);
+  if (!indexFile) throw new Error("Invalid notebook.");
 
-  if (!indexFile) {
-    throw new Error("Invalid notebook.");
-  }
-
+  const notebook = indexFile.path.split("/").slice(0, -1).join("/");
   const isWritingNotebook = notebook.endsWith("/posts");
   const separator = isWritingNotebook ? "_" : "-";
   const slug = ensureSlug(payload.slug || title, separator);
@@ -515,7 +516,9 @@ export async function createNotebook(env, payload) {
 
   const slug = canonicalNotebookSlug(ensureSlug(payload.slug || title));
   const legacySlug = Object.keys(LEGACY_NOTEBOOK_SLUGS).find((key) => LEGACY_NOTEBOOK_SLUGS[key] === slug);
-  const path = `content_en/${slug}/_index.md`;
+  const home = await readGitHubFile(env, "content/_index.md");
+  const root = home?.path.startsWith("content/") ? "content" : "content_en";
+  const path = `${root}/${slug}/_index.md`;
   const existing = await readGitHubFile(env, path)
     || await readGitHubFile(env, `content_es/${slug}/_index.md`)
     || (legacySlug && await readGitHubFile(env, `content_es/${legacySlug}/_index.md`));
@@ -547,13 +550,13 @@ export async function createNotebook(env, payload) {
 }
 
 export async function savePage(env, payload) {
-  const path = safeContentPath(payload.path);
-  const current = await readGitHubFile(env, path);
+  const current = await readGitHubFile(env, safeContentPath(payload.path));
 
   if (!current) {
     throw new Error("The file does not exist.");
   }
 
+  const path = current.path;
   const parsed = splitMarkdown(current.content);
   const frontMatter = {
     ...parsed.frontMatter,
@@ -565,7 +568,7 @@ export async function savePage(env, payload) {
   });
 
   const body = String(payload.body || "");
-  if (/^content_(?:en|es)\/proyectos-profesionales\/(?!_index\.md$)/.test(path)) {
+  if (/^content(?:_en|_es)?\/proyectos-profesionales\//.test(path) && !isNotebookIndex(path)) {
     applyProjectFields(frontMatter);
   }
   normalizeBookFrontMatter(path, frontMatter, body);
@@ -589,7 +592,7 @@ export async function savePage(env, payload) {
     sha: current.sha,
   });
 
-  if (path.endsWith("/_index.md")) invalidateNotebooksCache();
+  if (isNotebookIndex(path)) invalidateNotebooksCache();
 
   const mirrorPath = photographyMirrorPath(path);
   if (mirrorPath) {
@@ -607,9 +610,9 @@ export async function savePage(env, payload) {
       const mirrorContent = formatMarkdown(mirrorFrontMatter, body);
       if (mirrorContent !== mirrorCurrent.content) {
         await writeGitHubFile(env, {
-          path: mirrorPath,
+          path: mirrorCurrent.path,
           content: mirrorContent,
-          message: commitMessage("Edita", mirrorPath),
+          message: commitMessage("Edita", mirrorCurrent.path),
           sha: mirrorCurrent.sha,
         });
       }
@@ -627,13 +630,13 @@ export async function savePage(env, payload) {
 }
 
 export async function savePageFrontMatter(env, pathValue, patch) {
-  const path = safeContentPath(pathValue);
-  const current = await readGitHubFile(env, path);
+  const current = await readGitHubFile(env, safeContentPath(pathValue));
 
   if (!current) {
     throw new Error("The file does not exist.");
   }
 
+  const path = current.path;
   const parsed = splitMarkdown(current.content);
   const frontMatter = {
     ...parsed.frontMatter,
@@ -663,7 +666,7 @@ export async function savePageFrontMatter(env, pathValue, patch) {
     sha: current.sha,
   });
 
-  if (path.endsWith("/_index.md")) invalidateNotebooksCache();
+  if (isNotebookIndex(path)) invalidateNotebooksCache();
 
   const mirrorPath = photographyMirrorPath(path);
   if (mirrorPath) {
@@ -681,9 +684,9 @@ export async function savePageFrontMatter(env, pathValue, patch) {
       const mirrorContent = formatMarkdown(mirrorFrontMatter, mirrorParsed.body);
       if (mirrorContent !== mirrorCurrent.content) {
         await writeGitHubFile(env, {
-          path: mirrorPath,
+          path: mirrorCurrent.path,
           content: mirrorContent,
-          message: commitMessage("Edita", mirrorPath),
+          message: commitMessage("Edita", mirrorCurrent.path),
           sha: mirrorCurrent.sha,
         });
       }
@@ -711,18 +714,19 @@ export async function deleteImage(env, payload) {
 }
 
 export async function deletePage(env, payload) {
-  const path = safeContentPath(payload.path);
+  const requestedPath = safeContentPath(payload.path);
 
-  if (path.endsWith("/_index.md")) {
+  if (isNotebookIndex(requestedPath)) {
     throw new Error("Use Delete notebook to remove its index page.");
   }
 
-  const current = await readGitHubFile(env, path);
+  const current = await readGitHubFile(env, requestedPath);
 
   if (!current) {
     throw new Error("The file does not exist.");
   }
 
+  const path = current.path;
   const parsed = splitMarkdown(current.content);
   const imagePaths = payload.deleteImages ? collectUploadReferences(parsed.frontMatter, parsed.body) : [];
   const deletedImages = [];
@@ -738,8 +742,8 @@ export async function deletePage(env, payload) {
     const mirrorCurrent = await readGitHubFile(env, mirrorPath);
     if (mirrorCurrent) {
       await deleteGitHubFile(env, {
-        path: mirrorPath,
-        message: commitMessage("Elimina", mirrorPath),
+        path: mirrorCurrent.path,
+        message: commitMessage("Elimina", mirrorCurrent.path),
         sha: mirrorCurrent.sha,
       });
     }
@@ -752,7 +756,7 @@ export async function deletePage(env, payload) {
   }
 
   const deletedUrl = contentPathToUrl(path);
-  const retiredAlternate = path.startsWith("content_es/") && RETIRED_ALTERNATE_MAIN_PATHS.includes(deletedUrl);
+  const retiredAlternate = projectionSourcePath(path).startsWith("content_es/") && RETIRED_ALTERNATE_MAIN_PATHS.includes(deletedUrl);
   return {
     path,
     deletedUrl: retiredAlternate ? "" : deletedUrl,
@@ -763,13 +767,18 @@ export async function deletePage(env, payload) {
 }
 
 export async function deleteNotebook(env, payload) {
-  const notebook = safeNotebookPath(payload.path);
+  const requestedNotebook = safeNotebookPath(payload.path);
 
-  if (PROTECTED_NOTEBOOKS.has(notebook)) {
+  if (PROTECTED_NOTEBOOKS.has(requestedNotebook)) {
     throw new Error("This notebook cannot be deleted from the editor.");
   }
 
   const snapshot = await readRepositorySnapshot(env);
+  const mergedNotebook = mergedNotebookPath(requestedNotebook);
+  const legacyNotebook = projectionSourcePath(`${requestedNotebook}/_index.md`).replace(/\/_index\.md$/, "");
+  const notebook = [mergedNotebook, requestedNotebook, legacyNotebook].find((candidate) =>
+    snapshot.tree.some((entry) => entry.type === "blob" && entry.path.startsWith(`${candidate}/`)),
+  ) || requestedNotebook;
   const files = snapshot.tree
     .filter((entry) => entry.type === "blob" && entry.path.startsWith(`${notebook}/`))
     .sort((a, b) => b.path.localeCompare(a.path));
@@ -785,7 +794,7 @@ export async function deleteNotebook(env, payload) {
 
     for (const entry of files) {
       if (!entry.path.endsWith(".md")) continue;
-      let markdown = projectedMarkdown.get(entry.path);
+      let markdown = projectedMarkdown.get(projectionSourcePath(entry.path));
 
       if (markdown === undefined) {
         const current = await readGitHubFile(env, entry.path);

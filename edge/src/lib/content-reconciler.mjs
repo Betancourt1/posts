@@ -91,6 +91,9 @@ export async function reconcileContent(env, options = {}) {
 
     for (let pass = 1; pass <= MAX_HEAD_PASSES; pass += 1) {
       const existing = await sourceStates(env.DB);
+      if (!tree.entries.length && existing.size) {
+        throw new Error("Refusing to replace the content projection with an empty repository inventory.");
+      }
       const currentPaths = new Set(tree.entries.map((entry) => entry.path));
       const changedEntries = tree.entries.filter((entry) => {
         const state = existing.get(entry.path);

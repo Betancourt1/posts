@@ -1475,7 +1475,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
         <div class="notebook-rail" id="notebook-rail"></div>
         <p class="rail-destination">
           <strong>Current destination</strong>
-          <span id="notebook-path">content_en/fotografia</span>
+          <span id="notebook-path">content/fotografia</span>
         </p>
       </div>
     </nav>
@@ -1694,7 +1694,7 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       var today = editorCore.today;
       var params = new URLSearchParams(window.location.search);
       var sourcePath = params.get("path") || "";
-      var preferredNotebook = params.get("notebook") || sourcePath.replace(/\\/[^/]+$/, "") || "content_en/fotografia";
+      var preferredNotebook = params.get("notebook") || sourcePath.replace(/\\/[^/]+$/, "") || "content/fotografia";
       var theme = params.get("theme") === "light" ? "light" : "dark";
       var grayscale = params.get("grayscale") === "true";
       var images = [];
@@ -2083,10 +2083,11 @@ export function imageEditorHtml({ siteOrigin = "", assetOrigin = "", apiBase = "
       }
 
       function renderNotebooks(notebooks) {
-        var selectedPath = els.notebook.value || preferredNotebook;
-        if (!notebooks.some(function (notebook) { return notebook.path === selectedPath; })) {
-          selectedPath = selectedPath.replace("content_es/", "content_en/");
-        }
+        var requested = els.notebook.value || preferredNotebook;
+        var preferredUrl = editorCore.adminNotebookUrl(requested);
+        var selected = notebooks.find(function (notebook) { return notebook.path === requested; })
+          || notebooks.find(function (notebook) { return editorCore.adminNotebookUrl(notebook.path) === preferredUrl; });
+        var selectedPath = selected && selected.path;
         els.notebook.innerHTML = "";
         notebooks.forEach(function (notebook) {
           var option = document.createElement("option");

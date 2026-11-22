@@ -16,6 +16,8 @@ import {
   syncArenaPage,
 } from "../functions/_lib/arena.js";
 import { normalizeBookFrontMatter } from "../functions/_lib/book-content.js";
+import { contentStoragePath, isNotebookIndex, mergedNotebookPath, projectionSourcePath } from "../functions/_lib/content-storage.js";
+import { CONTENT_ROOTS, contentPathToUrl, sitePathForStoredRoute } from "../functions/_lib/paths.js";
 import { notebookDestinations, photographyMirrorPath, slugify } from "../functions/_lib/content.js";
 import { imageEditorHtml } from "../functions/_lib/image-editor-template.js";
 import { editorCoreClientScript } from "../functions/_lib/editor-core-client.js";
@@ -40,7 +42,7 @@ const AUTHOR_ORIGINS = new Set([
   `http://localhost:${SITE_PORT}`,
 ]);
 const REPO_ROOT = process.cwd();
-const CONTENT_ROOTS = ["content_es", "content_en"];
+const contentRoot = existsSync(path.join(REPO_ROOT, "content")) ? "content" : "content_en";
 const UPLOAD_ROOT = "static/uploads";
 const MAX_JSON_BYTES = 18 * 1024 * 1024;
 const MAX_UPLOAD_BYTES = 12 * 1024 * 1024;
@@ -59,7 +61,7 @@ const MONTHS_ES = [
   "noviembre",
   "diciembre",
 ];
-const PROTECTED_NOTEBOOKS = new Set(["content_es/posts", "content_en/posts"]);
+const PROTECTED_NOTEBOOKS = new Set(["content/posts", "content_es/posts", "content_en/posts"]);
 
 function sendJson(res, status, payload) {
   res.writeHead(status, {
@@ -248,26 +250,16 @@ function ensureSlug(value, separator = "-") {
   return slug;
 }
 
-function contentPathToUrl(relativePath) {
-  const normalized = normalizeRepoPath(relativePath);
-  const lang = normalized.startsWith("content_es/") ? "es" : "en";
-  const contentRoot = lang === "es" ? "content_es" : "content_en";
-  let route = normalized.slice(contentRoot.length).replace(/\.md$/, "");
-
-  route = route.replace(/\/index$/, "/").replace(/\/_index$/, "/");
-
-  if (!route.startsWith("/")) {
-    route = `/${route}`;
-  }
-
-  const prefix = lang === "es" ? "/es" : "";
-  const url = `${prefix}${route}`.replace(/\/+/g, "/");
-
-  return url.endsWith("/") ? url : `${url}/`;
+function resolveContentFile(value) {
+  const requested = safeContentPath(value);
+  if (existsSync(requested.absolutePath)) return requested;
+  const moved = contentStoragePath(requested.relativePath);
+  const alternate = moved === requested.relativePath ? projectionSourcePath(requested.relativePath) : moved;
+  return safeContentPath(alternate);
 }
 
-function parseMarkdownFile(relativePath) {
-  const { absolutePath } = safeContentPath(relativePath);
+function parseMarkdownFile(value) {
+  const { relativePath, absolutePath } = resolveContentFile(value);
 
   if (!existsSync(absolutePath)) {
     throw new Error("El archivo no existe.");
@@ -275,8 +267,10 @@ function parseMarkdownFile(relativePath) {
 
   const { frontMatter, body } = splitMarkdown(readFileSync(absolutePath, "utf8"));
 
+  const sourceIdentity = projectionSourcePath(relativePath);
   return {
     path: relativePath,
+    ...(sourceIdentity !== relativePath ? { sourceIdentity } : {}),
     frontMatter,
     body,
     url: contentPathToUrl(relativePath),
@@ -374,6 +368,7 @@ function listNotebooks() {
 
   for (const root of CONTENT_ROOTS) {
     const rootPath = path.join(REPO_ROOT, root);
+    if (!existsSync(rootPath)) continue;
 
     for (const entry of readdirSync(rootPath, { withFileTypes: true })) {
       if (!entry.isDirectory() || ignored.has(entry.name)) {
@@ -423,8 +418,6 @@ function writeContentFile(relativePath, frontMatter, body, overwrite = false) {
 }
 
 function createNotebook(payload) {
-  const lang = payload.lang === "en" ? "en" : "es";
-  const root = lang === "en" ? "content_en" : "content_es";
   const title = String(payload.title || "").trim();
 
   if (!title) {
@@ -432,7 +425,7 @@ function createNotebook(payload) {
   }
 
   const slug = ensureSlug(payload.slug || title);
-  const relativePath = `${root}/${slug}/_index.md`;
+  const relativePath = `${contentRoot}/${slug}/_index.md`;
   const frontMatter = {
     title,
     description: String(payload.description || ""),
@@ -454,13 +447,11 @@ function createPost(payload) {
     throw new Error("La pagina necesita titulo.");
   }
 
-  const notebook = safeContentPath(payload.notebook || "content_en/posts");
-  const notebookIndex = path.join(notebook.absolutePath, "_index.md");
+  const requested = safeContentPath(payload.notebook || "content/posts");
+  const notebookIndex = resolveContentFile(`${requested.relativePath}/_index.md`);
+  if (!existsSync(notebookIndex.absolutePath)) throw new Error("Notebook invalido.");
 
-  if (!existsSync(notebook.absolutePath) || !existsSync(notebookIndex)) {
-    throw new Error("Notebook invalido.");
-  }
-
+  const notebook = safeContentPath(path.posix.dirname(notebookIndex.relativePath));
   const isWritingNotebook = notebook.relativePath.endsWith("/posts");
   const separator = isWritingNotebook ? "_" : "-";
   const slug = ensureSlug(payload.slug || title, separator);
@@ -559,8 +550,8 @@ function imageItemsFromPayload(value) {
 }
 
 function savePage(payload) {
-  const relativePath = normalizeRepoPath(payload.path);
-  const current = parseMarkdownFile(relativePath);
+  const current = parseMarkdownFile(payload.path);
+  const relativePath = current.path;
   const frontMatter = {
     ...current.frontMatter,
     ...(payload.frontMatter || {}),
@@ -570,7 +561,7 @@ function savePage(payload) {
   });
   const body = String(payload.body || "");
 
-  if (/^content_(?:en|es)\/proyectos-profesionales\/(?!_index\.md$)/.test(relativePath)) {
+  if (/^content(?:_en|_es)?\/proyectos-profesionales\//.test(relativePath) && !isNotebookIndex(relativePath)) {
     applyProjectFields(frontMatter);
   }
   normalizeBookFrontMatter(relativePath, frontMatter, body);
@@ -584,7 +575,7 @@ function savePage(payload) {
 
   const mirrorPath = photographyMirrorPath(relativePath);
   if (mirrorPath) {
-    const { absolutePath: mirrorAbsolute } = safeContentPath(mirrorPath);
+    const { absolutePath: mirrorAbsolute } = resolveContentFile(mirrorPath);
     if (existsSync(mirrorAbsolute)) {
       const mirrorCurrent = parseMarkdownFile(mirrorPath);
       const mirrorFrontMatter = {
@@ -599,8 +590,6 @@ function savePage(payload) {
       if (mirrorNextContent !== readFileSync(mirrorAbsolute, "utf8")) {
         writeFileSync(mirrorAbsolute, mirrorNextContent, "utf8");
       }
-    } else {
-      writeContentFile(mirrorPath, frontMatter, body, false);
     }
   }
 
@@ -615,12 +604,12 @@ function savePage(payload) {
 
 async function createLocalNotebookChannel(payload) {
   const indexPath = normalizeRepoPath(payload.path);
-  if (!/^content_(es|en)\/[^/]+\/_index\.md$/.test(indexPath)) {
+  if (!/^content(?:_en|_es)?\/[^/]+\/_index\.md$/.test(projectionSourcePath(indexPath))) {
     throw new Error("Ruta de notebook invalida.");
   }
 
-  const notebookPath = indexPath.replace(/\/_index\.md$/, "");
   let notebook = parseMarkdownFile(indexPath);
+  const notebookPath = path.posix.dirname(notebook.path);
   const token = localArenaToken();
   const publicOrigin = process.env.PUBLIC_SITE_ORIGIN || "https://fbetancourt.work";
   const imageOrigin = arenaImageOriginFromEnv(process.env, publicOrigin);
@@ -639,7 +628,7 @@ async function createLocalNotebookChannel(payload) {
       metadata: {
         integration: "fbetancourt_blog",
         notebook_path: notebookPath,
-        language: notebookPath.startsWith("content_en/") ? "en" : "es",
+        language: projectionSourcePath(notebook.path).startsWith("content_es/") ? "es" : "en",
       },
     });
     channelId = channel.id;
@@ -657,7 +646,7 @@ async function createLocalNotebookChannel(payload) {
   }
 
   const files = walkFiles(path.join(REPO_ROOT, notebookPath), notebookPath)
-    .filter((file) => file.relativePath.endsWith(".md") && !file.relativePath.endsWith("/_index.md"));
+    .filter((file) => file.relativePath.endsWith(".md") && !isNotebookIndex(file.relativePath));
   const pages = files.map((file) => parseMarkdownFile(file.relativePath))
     .filter((page) => page.frontMatter.draft !== true && page.frontMatter.hidden !== true);
   const results = [];
@@ -811,7 +800,7 @@ function collectUploadReferences(frontMatter, body) {
 }
 
 function normalizePhotoFrontMatter(relativePath, frontMatter) {
-  if (!relativePath.startsWith("content_es/fotografia/") && !relativePath.startsWith("content_en/fotografia/")) {
+  if (!/^content(?:_en|_es)?\/fotografia\//.test(relativePath)) {
     return;
   }
 
@@ -863,19 +852,19 @@ function deleteImage(payload) {
 }
 
 function fallbackUrlForContent(relativePath) {
-  const [root, section] = relativePath.split("/");
+  const [root, section] = projectionSourcePath(relativePath).split("/");
   const prefix = root === "content_es" ? "/es" : "";
 
-  return section ? `${prefix}/${section}/` : `${prefix || "/"}`;
+  return sitePathForStoredRoute(section ? `${prefix}/${section}/` : "/");
 }
 
 function deletePage(payload) {
-  const { relativePath, absolutePath } = safeContentPath(payload.path);
+  const { relativePath, absolutePath } = resolveContentFile(payload.path);
 
   if (!relativePath.endsWith(".md")) {
     throw new Error("Ruta de pagina invalida.");
   }
-  if (relativePath.endsWith("/_index.md")) {
+  if (isNotebookIndex(relativePath)) {
     throw new Error("Usa borrar notebook para eliminar una pagina indice.");
   }
   if (!existsSync(absolutePath)) {
@@ -890,7 +879,7 @@ function deletePage(payload) {
 
   const mirrorPath = photographyMirrorPath(relativePath);
   if (mirrorPath) {
-    const { absolutePath: mirrorAbsolute } = safeContentPath(mirrorPath);
+    const { absolutePath: mirrorAbsolute } = resolveContentFile(mirrorPath);
     if (existsSync(mirrorAbsolute)) {
       unlinkSync(mirrorAbsolute);
     }
@@ -931,7 +920,9 @@ function walkFiles(absoluteDirectory, relativeDirectory) {
 }
 
 function deleteNotebook(payload) {
-  const { relativePath, absolutePath } = safeContentPath(payload.path);
+  const requested = safeContentPath(payload.path);
+  const merged = safeContentPath(mergedNotebookPath(requested.relativePath));
+  const { relativePath, absolutePath } = existsSync(merged.absolutePath) ? merged : requested;
 
   if (relativePath.endsWith(".md")) {
     throw new Error("Ruta de notebook invalida.");
@@ -970,7 +961,7 @@ function deleteNotebook(payload) {
     path: relativePath,
     deletedFiles: files.map((file) => file.relativePath),
     deletedImages,
-    url: relativePath.startsWith("content_es/") ? "/es/" : "/",
+    url: "/",
   };
 }
 
@@ -1027,7 +1018,9 @@ async function route(req, res) {
   }
 
   if (req.method === "GET" && url.pathname === "/api/project-writings") {
-    const root = url.searchParams.get("lang") === "es" ? "content_es/posts" : "content_en/posts";
+    const root = contentRoot === "content"
+      ? "content/posts"
+      : url.searchParams.get("lang") === "es" ? "content_es/posts" : "content_en/posts";
     const writings = walkFiles(path.join(REPO_ROOT, root), root)
       .filter(file => file.relativePath.endsWith(".md") && !/(?:^|\/)(?:_index|no_post[^/]*)\.md$/.test(file.relativePath))
       .map(file => parseMarkdownFile(file.relativePath))

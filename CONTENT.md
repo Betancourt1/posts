@@ -1,9 +1,6 @@
 # Editar contenido
 
-El contenido canonico vive en dos raices Markdown:
-
-- `content_es/`: contenido en espanol, publicado bajo `/es/`.
-- `content_en/`: contenido en ingles, publicado bajo `/`.
+El contenido canónico vive en `content/`, organizado por sección. Puedes escribir en cualquier idioma. Las variantes que compartían nombre conservan sus archivos y sus rutas previas mediante el mapa de migración.
 
 GitHub conserva estos archivos. El runtime Astro no los recorre en cada request: los proyecta a D1 y consulta esa proyeccion para renderizar paginas, busqueda, tags, backlinks, archivos y el grafo de conocimiento.
 
@@ -42,17 +39,17 @@ npm run dev
 Desde la raiz del repositorio:
 
 ```bash
-# Post en espanol, dentro de content_es/posts/<anio>/<mes>/
+# Post dentro de content/posts/<anio>/<mes>/
 npm run new:post -- "Titulo del texto"
 
-# Nota zettelkasten en espanol
+# Nota zettelkasten
 npm run new:zettel -- "Idea concreta"
 
-# Pagina independiente en espanol
-npm run new:page -- "Nombre de la pagina" --lang es
+# Página independiente
+npm run new:page -- "Nombre de la pagina"
 
 # Pagina dentro de una seccion existente
-npm run new:page -- "Nuevo proyecto" --lang es --section proyectos-profesionales
+npm run new:page -- "Nuevo proyecto" --section proyectos-profesionales
 ```
 
 Los comandos crean borradores con `draft: true`. Para publicar, cambia el valor a `false` o usa `--publish` al crear el archivo.
@@ -63,16 +60,16 @@ Usa `hidden: true` cuando una pieza deba seguir accesible por su URL pero no apa
 
 Las rutas habituales son:
 
-- Posts: `content_es/posts/<anio>/<mes>/<archivo>.md`
-- Zettelkasten: `content_es/zettelkasten/<archivo>.md`
-- Lecturas: `content_es/lit/<archivo>.md`
-- Proyectos: `content_es/proyectos-*/*.md` y `content_en/proyectos-*/*.md`
-- Paginas principales: `content_es/<seccion>/index.md` y `content_en/<seccion>/index.md`
+- Posts: `content/posts/<anio>/<mes>/<archivo>.md`
+- Zettelkasten: `content/zettelkasten/<archivo>.md`
+- Lecturas: `content/lit/<archivo>.md`
+- Proyectos: `content/proyectos-*/*.md`
+- Páginas principales: `content/<seccion>/index.md`
 
 Para encontrar una pieza por titulo o palabra:
 
 ```bash
-rg -n "texto que recuerdas" content_es content_en
+rg -n "texto que recuerdas" content
 ```
 
 Conserva UTF-8, front matter conciso, tags claros y nombres de archivo en minusculas con guiones bajos.
@@ -145,9 +142,9 @@ npm run site -- drafts
 Acciones utiles:
 
 ```bash
-npm run site -- publish content_es/posts/2026/julio/archivo.md
-npm run site -- hide content_es/posts/2026/julio/archivo.md
-npm run site -- update content_es/posts/2026/julio/archivo.md --tags "ensayo, politica"
+npm run site -- publish content/posts/2026/julio/archivo.md
+npm run site -- hide content/posts/2026/julio/archivo.md
+npm run site -- update content/posts/2026/julio/archivo.md --tags "ensayo, politica"
 npm run site -- photo attach fotografia-slug ./foto.jpg --caption "Pie de foto"
 npm run site -- media orphans
 npm run site -- validate

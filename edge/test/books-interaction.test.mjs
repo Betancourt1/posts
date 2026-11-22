@@ -1,3 +1,4 @@
+import { isNotebookIndex } from "../../functions/_lib/content-storage.js";
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import { hasUsableCoverDimensions } from "../scripts/verify-book-covers.mjs";
@@ -14,7 +15,7 @@ const booksPath = new URL("../src/components/Books.astro", import.meta.url);
 const bookRowPath = new URL("../src/components/BookRow.astro", import.meta.url);
 const layoutPath = new URL("../src/layouts/SiteLayout.astro", import.meta.url);
 const siteCssPath = new URL("../../static/css/site.css", import.meta.url);
-const booksContentPath = new URL("../../content_en/books/", import.meta.url);
+const booksContentPath = new URL("../../content/books/", import.meta.url);
 
 test("book cover verifier rejects placeholder dimensions", () => {
   assert.equal(hasUsableCoverDimensions({ width: 1, height: 1 }), false);
@@ -100,7 +101,7 @@ test("renders hidden rows and a progressive button for each shelf", async () => 
 
 test("every registered book has a direct HTTPS cover and accessible image text", async () => {
   const names = (await readdir(booksContentPath))
-    .filter((name) => name.endsWith(".md") && name !== "_index.md");
+    .filter((name) => name.endsWith(".md") && !isNotebookIndex(`content/books/${name}`));
   assert.equal(names.length, 100);
 
   for (const name of names) {

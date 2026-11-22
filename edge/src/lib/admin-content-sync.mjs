@@ -1,3 +1,4 @@
+import { isMarkdownSource, projectionSourcePath } from "../../../functions/_lib/content-storage.js";
 import { photographyMirrorPath } from "../../../functions/_lib/content.js";
 import { readGitHubFile } from "../../../functions/_lib/github.js";
 
@@ -90,7 +91,8 @@ function deletedContentPaths(action, payload) {
   const paths = [...new Set(
     (Array.isArray(candidates) ? candidates : [])
       .map((path) => String(path || "").trim())
-      .filter((path) => /^content_(?:en|es)\/.+\.md$/.test(path)),
+      .filter(isMarkdownSource)
+      .map(projectionSourcePath),
   )];
 
   if (!paths.length) {

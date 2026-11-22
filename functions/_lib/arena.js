@@ -1,3 +1,4 @@
+import { projectionSourcePath } from "./content-storage.js";
 const ARENA_API_BASE = "https://api.are.na/v3";
 const DEFAULT_TIMEOUT_MS = 12000;
 const PUBLIC_SITE_ORIGIN = "https://fbetancourt.work";
@@ -96,7 +97,7 @@ function pageTitle(page) {
 }
 
 function pageLanguage(path) {
-  return String(path || "").startsWith("content_en/") ? "en" : "es";
+  return projectionSourcePath(String(path || "")).startsWith("content_es/") ? "es" : "en";
 }
 
 function pageMetadata(page) {
@@ -109,7 +110,7 @@ function pageMetadata(page) {
 
 function isImagePage(page) {
   const hasImages = imageItemsFromPage(page).length > 0;
-  const isPhotographySection = /^content_(es|en)\/fotografia\/.+\.md$/.test(String(page?.path || ""));
+  const isPhotographySection = /^content(?:_en|_es)?\/fotografia\/.+\.md$/.test(String(page?.path || ""));
   const hasWrittenBody = Boolean(String(page?.body || "").trim());
   return hasImages && (isPhotographySection || !hasWrittenBody);
 }

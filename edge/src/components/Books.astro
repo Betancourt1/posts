@@ -51,7 +51,7 @@ const batchSize = 6;
     <h1>{title}</h1>
     {authorMode && (
       <div class="author-inline-actions">
-        <button type="button" class="author-action-button" data-author-action="add-post" data-editor-template="book" data-notebook="content_en/books" aria-label={addLabel} title={addLabel}>
+        <button type="button" class="author-action-button" data-author-action="add-post" data-editor-template="book" data-notebook="content/books" aria-label={addLabel} title={addLabel}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"></path><path d="M4 5.5v14"></path><path d="M12 7v6"></path><path d="M9 10h6"></path></svg>
         </button>
         <button type="button" class="author-action-button" data-author-action="edit-notebook" aria-label={lang === "es" ? "Editar notebook" : "Edit notebook"} title={lang === "es" ? "Editar notebook" : "Edit notebook"}>

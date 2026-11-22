@@ -37,7 +37,7 @@ export const editorCoreClientScript = String.raw`(function (global) {
     if (!/\/admin$/.test(base)) base += "/admin";
     var path = String(notebookPath || "")
       .replace(/^content_es/, "/es")
-      .replace(/^content_en/, "");
+      .replace(/^content(?:_en)?(?=\/|$)/, "");
     var storedPath = "/" + path.replace(/^\/+|\/+$/g, "");
     if (!storedPath.endsWith("/")) storedPath += "/";
     return base + sitePathForStoredRoute(storedPath);

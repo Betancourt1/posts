@@ -1,3 +1,4 @@
+import { contentStoragePath } from "../../../functions/_lib/content-storage.js";
 import { sitePathForStoredRoute } from "../../../functions/_lib/paths.js";
 import { renderMarkdown } from "./content-projector.mjs";
 import { catalogEntry } from "./catalog.mjs";
@@ -79,6 +80,7 @@ function hydrateDocument(row) {
   const { frontmatterJson, tagsJson, ...document } = row;
   const hydrated = {
     ...document,
+    sourcePath: contentStoragePath(document.sourcePath),
     draft: Boolean(document.draft),
     hidden: Boolean(document.hidden),
     searchable: Boolean(document.searchable),
