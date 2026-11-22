@@ -423,21 +423,35 @@ export async function archiveMonthCounts(db, lang, options = {}) {
 export async function homePosts(db, lang) {
   const result = await db.prepare(`
     WITH published AS (
-      SELECT ${documentColumns("d", { body: true })}, canonical.path AS path
+      SELECT d.id, d.lang, d.date, d.generated, canonical.path,
+        COALESCE(NULLIF(d.translation_key, ''), d.document_key) AS articleKey,
+        json_extract(d.frontmatter_json, '$.pinned') AS pinned,
+        json_extract(d.frontmatter_json, '$.essay') AS essay,
+        json_extract(d.frontmatter_json, '$.technical') AS technical
       FROM documents AS d
       JOIN routes AS canonical ON canonical.document_id = d.id AND canonical.kind = 'canonical'
-      WHERE d.lang = ? AND d.kind = 'page' AND d.section = 'posts'
+      WHERE d.kind = 'page' AND d.section = 'posts'
         AND d.draft = 0 AND d.hidden = 0
     ), latest AS (
       SELECT id FROM published
-      WHERE json_extract(frontmatterJson, '$.essay') = 1
-        AND COALESCE(json_extract(frontmatterJson, '$.technical'), 0) <> 1
+      WHERE lang = ?1 AND essay = 1 AND COALESCE(technical, 0) <> 1
       ORDER BY date DESC, path DESC LIMIT 1
+    ), selected AS (
+      SELECT published.id, published.path, latest.id IS NOT NULL AS latestEssay,
+        ROW_NUMBER() OVER (
+          PARTITION BY articleKey
+          ORDER BY latest.id IS NULL, published.lang <> ?1, generated, path, published.id
+        ) AS languageRank
+      FROM published
+      LEFT JOIN latest ON latest.id = published.id
+      WHERE latest.id IS NOT NULL
+        OR articleKey IN (SELECT articleKey FROM published WHERE pinned = 1)
     )
-    SELECT published.*, id IN (SELECT id FROM latest) AS latestEssay
-    FROM published
-    WHERE id IN (SELECT id FROM latest) OR json_extract(frontmatterJson, '$.pinned') = 1
-    ORDER BY latestEssay DESC, date DESC, path DESC
+    SELECT ${documentColumns("d", { body: true })}, selected.path, selected.latestEssay
+    FROM selected
+    JOIN documents AS d ON d.id = selected.id
+    WHERE selected.languageRank = 1
+    ORDER BY selected.latestEssay DESC, d.date DESC, selected.path DESC
   `).bind(language(lang)).all();
   return hydrateDocuments(result);
 }
