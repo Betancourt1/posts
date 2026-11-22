@@ -354,10 +354,18 @@ test("published legacy pages and colliding drafts have different canonical URLs"
   }
   assert.equal(await loadPublicPage(db, alternate), null);
   assert.equal((await loadPublicPage(db, alternate, author)).title, "Private version");
-  assert.deepEqual(await loadPublicPage(db, "/es/about/"), { redirect: "/about/alternate/" });
+  assert.deepEqual(await loadPublicPage(db, "/es/about/"), { redirect: "/about/" });
   assert.equal((await loadPublicPage(db, "/about/")).title, "About");
-  assert.equal((await loadPublicPage(db, "/about/alternate/")).title, "Sobre mí");
+  for (const mainPath of [
+    "/about/",
+    "/posts/2026/septiembre/tecno_fatalismo/",
+    "/proyectos-profesionales/mibici_junio_2026/",
+  ]) {
+    assert.deepEqual(await loadPublicPage(db, mainPath + "alternate/"), { redirect: mainPath });
+  }
   assert.deepEqual((await searchDocuments(db, "conversatorio")).map(item => item.path), [path]);
+  await db.prepare("UPDATE documents SET draft = 1 WHERE source_path = 'content_en/about/index.md'").run();
+  assert.equal(await loadPublicPage(db, "/about/"), null);
 });
 
 test("reads the projected public site through the real D1 API", async (t) => {

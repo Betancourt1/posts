@@ -1,4 +1,9 @@
-import { legacyRouteForSitePath, sitePathForStoredRoute, storedRouteForSitePath } from "../../../functions/_lib/paths.js";
+import {
+  RETIRED_ALTERNATE_MAIN_PATHS,
+  legacyRouteForSitePath,
+  sitePathForStoredRoute,
+  storedRouteForSitePath,
+} from "../../../functions/_lib/paths.js";
 import {
   archiveMonthCounts,
   archiveItems,
@@ -131,13 +136,17 @@ function equivalentArticle(document, peer) {
 export async function loadPublicPage(db, requestedPath, options = {}) {
   const path = normalizeRoute(requestedPath);
   if (path === "/es/" || path.startsWith("/es/tags/")) return { redirect: path.slice(3) };
+  if (path.endsWith("/alternate/")) {
+    const mainPath = path.slice(0, -"alternate/".length);
+    if (RETIRED_ALTERNATE_MAIN_PATHS.includes(mainPath)) return { redirect: mainPath };
+  }
   const synthetic = syntheticRoute(path);
   if (synthetic) return syntheticPage(db, synthetic, options);
 
   const readOptions = { ...options, tags: false };
   const storedPath = storedRouteForSitePath(path);
   const document = await resolveDocument(db, storedPath || path, readOptions)
-    || (!storedPath && !path.startsWith("/es/")
+    || (!storedPath && !path.startsWith("/es/") && !RETIRED_ALTERNATE_MAIN_PATHS.includes(path)
       ? await resolveDocument(db, legacyRouteForSitePath(path), readOptions)
       : null);
   if (!document) return null;

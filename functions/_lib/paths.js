@@ -5,10 +5,13 @@ const CONVERSATORIO = "/posts/2025/noviembre/conversatorio/";
 export const STORED_ROUTE_OVERRIDES = Object.freeze({
   [CONVERSATORIO]: CONVERSATORIO + "alternate/",
   ["/es" + CONVERSATORIO]: CONVERSATORIO,
-  "/es/about/": "/about/alternate/",
-  "/es/posts/2026/septiembre/tecno_fatalismo/": "/posts/2026/septiembre/tecno_fatalismo/alternate/",
-  "/es/proyectos-profesionales/mibici_junio_2026/": "/proyectos-profesionales/mibici_junio_2026/alternate/",
 });
+
+export const RETIRED_ALTERNATE_MAIN_PATHS = Object.freeze([
+  "/about/",
+  "/posts/2026/septiembre/tecno_fatalismo/",
+  "/proyectos-profesionales/mibici_junio_2026/",
+]);
 
 export function sitePathForStoredRoute(path) {
   if (Object.hasOwn(STORED_ROUTE_OVERRIDES, path)) return STORED_ROUTE_OVERRIDES[path];

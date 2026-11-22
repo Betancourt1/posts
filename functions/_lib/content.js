@@ -12,6 +12,7 @@ import { normalizeBookFrontMatter } from "./book-content.js";
 import { formatMarkdown, splitMarkdown, tagsFromValue } from "./markdown.js";
 import {
   CONTENT_ROOTS,
+  RETIRED_ALTERNATE_MAIN_PATHS,
   UPLOAD_ROOT,
   contentPathToUrl,
   extensionOf,
@@ -746,9 +747,11 @@ export async function deletePage(env, payload) {
     }
   }
 
+  const deletedUrl = contentPathToUrl(path);
+  const retiredAlternate = path.startsWith("content_es/") && RETIRED_ALTERNATE_MAIN_PATHS.includes(deletedUrl);
   return {
     path,
-    deletedUrl: contentPathToUrl(path),
+    deletedUrl: retiredAlternate ? "" : deletedUrl,
     deletedImages,
     url: fallbackUrlForContent(path),
     mirrorPath: mirrorPath || null,

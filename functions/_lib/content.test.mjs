@@ -162,6 +162,9 @@ test("deletePage returns the exact deleted URL separately from its fallback", as
     });
     assert.equal(result.deletedUrl, "/posts/2026/julio/temporal/");
     assert.equal(result.url, "/posts/");
+
+    const retired = await deletePage(env, { path: "content_es/about/index.md" });
+    assert.equal(retired.deletedUrl, "");
   } finally {
     globalThis.fetch = originalFetch;
   }
