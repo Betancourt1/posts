@@ -7,7 +7,7 @@ image: "https://is1-ssl.mzstatic.com/image/thumb/Publication221/v4/fc/84/ca/fc84
 image_alt: "Designing Data-Intensive Applications — Martin Kleppmann"
 binding: "ebook"
 book_author: "Martin Kleppmann"
-book_progress: "15"
+book_progress: "50"
 book_status: "currently-reading"
 bookshelves: ["currently-reading"]
 date_added: "2025-12-30"
@@ -21,7 +21,7 @@ translationKey: "goodreads-23463279"
 ---
 
 **Author:** Martin Kleppmann
-**Progress:** 15%
+**Progress:** 50%
 **Added:** 2025-12-30
 **Published:** 2015
 **Publisher:** O'Reilly
