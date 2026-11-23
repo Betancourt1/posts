@@ -89,12 +89,22 @@ export interface QuoteItem extends ContentListItem {
 export interface BookItem extends ContentListItem {
   sourcePath?: string | null;
   author?: string | null;
+  additionalAuthors?: string[];
   image?: string | null;
   imageAlt?: string | null;
   status?: "currently-reading" | "read" | "to-read" | string | null;
   progress?: number | string | null;
   rating?: number | string | null;
   review?: string | null;
+  dateRead?: string | Date | null;
+  dateAdded?: string | Date | null;
+  pages?: number | string | null;
+  publisher?: string | null;
+  publicationYear?: number | string | null;
+  binding?: string | null;
+  isbn13?: string | null;
+  goodreadsUrl?: string | null;
+  bookshelves?: string[];
 }
 
 export interface PhotoItem extends ContentListItem {

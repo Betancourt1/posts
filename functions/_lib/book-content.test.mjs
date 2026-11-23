@@ -29,7 +29,7 @@ test("editing a legacy book review preserves catalog details and adjacent sectio
   const updated = updateBookReading(metadata, body, { review });
   normalizeBookFrontMatter(path, metadata, updated);
 
-  assert.deepEqual(readBookReading(metadata, updated), { progress: "100", rating: "4", review });
+  assert.deepEqual(readBookReading(metadata, updated), { status: "read", progress: "100", rating: "4", review });
   assert.match(updated, /\*\*Status:\*\* Read/);
   assert.match(updated, /\*\*Publisher:\*\* Press/);
   assert.ok(updated.endsWith("## Notes\n\nKeep these.\n"));
@@ -38,12 +38,34 @@ test("editing a legacy book review preserves catalog details and adjacent sectio
 
   const cleared = updateBookReading(metadata, updated, { progress: "", rating: "", review: "" });
   normalizeBookFrontMatter(path, metadata, cleared);
-  assert.deepEqual(readBookReading(metadata, cleared), { progress: "", rating: "", review: "" });
+  assert.deepEqual(readBookReading(metadata, cleared), { status: "currently-reading", progress: "", rating: "", review: "" });
   assert.equal(metadata.book_status, "currently-reading");
   assert.doesNotMatch(cleared, /My rating|My review/);
   assert.ok(cleared.endsWith("## Notes\n\nKeep these.\n"));
 });
 
+test("changing book status updates progress and stamps date_read when marked read", () => {
+  const path = "content/books/status-flow.md";
+  const metadata = { book_author: "Author", book_status: "to-read", tags: ["book", "to-read", "essays"] };
+  const body = "**Author:** Author\n**Status:** Want to read\n**Added:** 2026-01-01\n";
+
+  const readingBody = updateBookReading(metadata, body, { status: "currently-reading" }, { now: "2026-11-23" });
+  normalizeBookFrontMatter(path, metadata, readingBody);
+  assert.equal(metadata.book_status, "currently-reading");
+  assert.equal(metadata.book_progress, undefined);
+  assert.equal(metadata.date_read, undefined);
+  assert.match(readingBody, /\*\*Progress:\*\* not set/);
+
+  const finishedBody = updateBookReading(metadata, readingBody, { status: "read", rating: "5" }, { now: "2026-11-23" });
+  normalizeBookFrontMatter(path, metadata, finishedBody);
+  assert.equal(metadata.book_status, "read");
+  assert.equal(metadata.book_progress, 100);
+  assert.equal(metadata.date_read, "2026-11-23");
+  assert.equal(metadata.rating, 5);
+  assert.match(finishedBody, /\*\*Progress:\*\* 100%/);
+  assert.match(finishedBody, /\*\*Finished:\*\* 2026-11-23/);
+  assert.match(finishedBody, /\*\*My rating:\*\* 5\/5/);
+});
 test("book Markdown derives progress, status, rating, summary, and tags", () => {
   const frontMatter = {
     title: "A Wizard of Earthsea",

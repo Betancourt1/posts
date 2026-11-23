@@ -7,12 +7,20 @@ import test from "node:test";
 import {
   BOOK_BATCH_SIZE,
   bookMoreLabel,
+  matchesBookFilter,
   nextBookBatch,
 } from "../client/books.js";
-import { previewBookCoverUrl } from "../src/components/_utils.js";
+import {
+  bookReadYear,
+  formatShelfLabel,
+  normalizeBookshelves,
+  previewBookCoverUrl,
+  stripBookMetadataHtml,
+} from "../src/components/_utils.js";
 
 const booksPath = new URL("../src/components/Books.astro", import.meta.url);
 const bookRowPath = new URL("../src/components/BookRow.astro", import.meta.url);
+const bookDetailPath = new URL("../src/components/BookDetail.astro", import.meta.url);
 const layoutPath = new URL("../src/layouts/SiteLayout.astro", import.meta.url);
 const siteCssPath = new URL("../../static/css/site.css", import.meta.url);
 const booksContentPath = new URL("../../content/books/", import.meta.url);
@@ -74,24 +82,60 @@ test("localizes the next batch label", () => {
   assert.equal(bookMoreLabel("Mostrar {count} más", 6), "Mostrar 6 más");
 });
 
-test("renders hidden rows and a progressive button for each shelf", async () => {
-  const [books, bookRow, layout, css] = await Promise.all([
+test("filters books by search, shelf, year, and review status", () => {
+  const sample = {
+    search: "ensayismo brian dillon ensayo crítica-literaria",
+    shelves: "ensayo|crítica-literaria",
+    year: "2026",
+    reviewed: true,
+  };
+  assert.equal(matchesBookFilter(sample, { query: "", shelf: "", year: "", reviewedOnly: false }), true);
+  assert.equal(matchesBookFilter(sample, { query: "dillon", shelf: "ensayo", year: "2026", reviewedOnly: true }), true);
+  assert.equal(matchesBookFilter(sample, { query: "kafka", shelf: "", year: "", reviewedOnly: false }), false);
+  assert.equal(matchesBookFilter(sample, { query: "", shelf: "matemáticas", year: "", reviewedOnly: false }), false);
+  assert.equal(matchesBookFilter(sample, { query: "", shelf: "", year: "2025", reviewedOnly: false }), false);
+  assert.equal(matchesBookFilter({ ...sample, reviewed: false }, { query: "", shelf: "", year: "", reviewedOnly: true }), false);
+});
+
+test("normalizes bookshelves and strips Goodreads metadata from book detail HTML", () => {
+  assert.deepEqual(
+    normalizeBookshelves(["currently-reading", "ensayo", "to-read", "libro-técnico", "ensayo"]),
+    ["ensayo", "libro-técnico"],
+  );
+  assert.equal(formatShelfLabel("ciencias-sociales"), "Ciencias sociales");
+  assert.equal(bookReadYear("2026-01-18"), "2026");
+  assert.equal(bookReadYear(null), "");
+
+  const enHtml = "<p><strong>Author:</strong> Author<br><strong>Status:</strong> Read</p>\n<p><a href=\"https://www.goodreads.com/book/show/1\">View on Goodreads</a></p>\n<h2>My review</h2>\n<p>Great book.</p>";
+  assert.equal(stripBookMetadataHtml(enHtml), "<h2>My review</h2>\n<p>Great book.</p>");
+
+  const esNoReview = "<p><strong>Autor:</strong> Autor<br><strong>Estado:</strong> Leído</p>\n<p><a href=\"https://www.goodreads.com/book/show/1\">Ver en Goodreads</a></p>";
+  assert.equal(stripBookMetadataHtml(esNoReview), "");
+});
+
+test("renders hidden rows, filter controls, covers default view, and BookDetail", async () => {
+  const [books, bookRow, bookDetail, layout, css] = await Promise.all([
     readFile(booksPath, "utf8"),
     readFile(bookRowPath, "utf8"),
+    readFile(bookDetailPath, "utf8"),
     readFile(layoutPath, "utf8"),
     readFile(siteCssPath, "utf8"),
   ]);
 
   assert.match(books, /data-book-shelf/);
+  assert.match(books, /data-book-controls/);
+  assert.match(books, /data-view=\{isRead \? "grid" : undefined\}/);
   assert.match(books, /remainingBooks\.map[\s\S]*initiallyHidden/);
   assert.match(books, /data-book-more/);
-  assert.match(books, /Math\.min\(batchSize, remainingBooks\.length\)/);
+  assert.match(books, /Math\.min\(batchSize, group\.remainingBooks\.length\)/);
   assert.doesNotMatch(books, /<details|<summary/);
   assert.match(bookRow, /data-book-extra=\{initiallyHidden/);
   assert.match(bookRow, /hidden=\{initiallyHidden\}/);
   assert.match(bookRow, /book\.image/);
   assert.match(bookRow, /src=\{previewBookCoverUrl\(book\.image\)\}/);
   assert.match(bookRow, /loading=\{initiallyHidden \? "lazy" : "eager"\}/);
+  assert.match(bookDetail, /book-detail-hero/);
+  assert.match(bookDetail, /stripBookMetadataHtml/);
   assert.match(layout, /isBooks[\s\S]*type="module" src="\/js\/books\.js"/);
   assert.match(css, /\.book-shelf-row\[hidden\]\s*\{\s*display:\s*none;/);
   assert.match(css, /\.book-shelf-more-button:focus-visible/);

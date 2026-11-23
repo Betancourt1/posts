@@ -71,3 +71,56 @@ export function previewBookCoverUrl(value) {
 
   return url.pathname === originalPathname ? value : url.toString();
 }
+
+const BOOK_STATUS_SHELVES = new Set([
+  "currently-reading",
+  "to-read",
+  "read",
+  "leyendo",
+  "por-leer",
+  "leído",
+  "leido",
+]);
+
+export function normalizeBookshelves(value) {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set();
+  const shelves = [];
+  for (const item of value) {
+    const slug = String(item || "").trim();
+    const key = slug.toLocaleLowerCase("es");
+    if (!slug || BOOK_STATUS_SHELVES.has(key) || seen.has(key)) continue;
+    seen.add(key);
+    shelves.push(slug);
+  }
+  return shelves;
+}
+
+export function formatShelfLabel(slug) {
+  const clean = String(slug || "").trim().replace(/[-_]+/g, " ");
+  if (!clean) return "";
+  return clean.charAt(0).toLocaleUpperCase("es") + clean.slice(1);
+}
+
+export function bookReadYear(dateRead) {
+  if (!dateRead) return "";
+  const match = String(dateRead instanceof Date ? dateRead.toISOString() : dateRead).match(/^(\d{4})/);
+  return match ? match[1] : "";
+}
+
+export function stripBookMetadataHtml(bodyHtml) {
+  let html = String(bodyHtml || "").trim();
+  if (!html) return "";
+
+  const metaParagraph = /^<p>\s*<strong>(?:Author|Autor):<\/strong>[\s\S]*?<\/p>\s*/i;
+  if (metaParagraph.test(html)) {
+    html = html.replace(metaParagraph, "");
+  }
+
+  const goodreadsParagraph = /^<p>\s*<a\b[^>]*>(?:View on Goodreads|Ver en Goodreads)<\/a>\s*<\/p>\s*/i;
+  if (goodreadsParagraph.test(html)) {
+    html = html.replace(goodreadsParagraph, "");
+  }
+
+  return html.trim();
+}

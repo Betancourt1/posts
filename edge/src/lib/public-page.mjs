@@ -163,21 +163,27 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
   const recentItemsPromise = layout === "home"
     ? recentPosts(db, { ...options, limit: 10 })
     : Promise.resolve([]);
-  const backlinksPromise = layout === "single" && ["posts", "zettelkasten"].includes(document.section)
+  const isSingleBook = layout === "single" && ["books", "libros"].includes(document.section);
+  const backlinksPromise = layout === "single" && ["posts", "zettelkasten", "books", "libros"].includes(document.section)
     ? backlinks(db, document.id, options)
+    : Promise.resolve([]);
+  const relatedBooksPromise = isSingleBook
+    ? sectionItems(db, document.section, { ...options, body: false, tags: false })
     : Promise.resolve([]);
   const guestbookPromise = layout === "guestbook"
     ? db.prepare("SELECT id, name, site, message, created_at FROM guestbook_entries ORDER BY created_at DESC LIMIT 200").all()
     : Promise.resolve({ results: [] });
 
-  const [tags, archives, items, recentItems, linkedFrom, guestbook] = await Promise.all([
+  const [tags, archives, items, recentItems, linkedFrom, siblingBooks, guestbook] = await Promise.all([
     tagsPromise,
     archivePromise,
     itemsPromise,
     recentItemsPromise,
     backlinksPromise,
+    relatedBooksPromise,
     guestbookPromise,
   ]);
+  const relatedBooks = isSingleBook ? selectRelatedBooks(document, siblingBooks, 4) : [];
   const chrome = await siteChrome(db, archives, options);
 
   return {
@@ -191,8 +197,49 @@ export async function loadPublicPage(db, requestedPath, options = {}) {
     items: archives || items,
     recentItems,
     backlinks: linkedFrom,
+    relatedBooks,
     entries: guestbook.results || [],
   };
+}
+
+const RELATED_STATUS_SHELVES = new Set([
+  "currently-reading",
+  "to-read",
+  "read",
+  "leyendo",
+  "por-leer",
+  "leído",
+  "leido",
+]);
+
+function bookTopicShelves(frontMatter) {
+  if (!Array.isArray(frontMatter?.bookshelves)) return [];
+  return frontMatter.bookshelves
+    .map((shelf) => String(shelf || "").trim().toLocaleLowerCase("es"))
+    .filter((shelf) => shelf && !RELATED_STATUS_SHELVES.has(shelf));
+}
+
+function selectRelatedBooks(document, candidates, limit = 4) {
+  const author = String(document.frontMatter?.book_author || "").trim().toLocaleLowerCase("es");
+  const shelves = new Set(bookTopicShelves(document.frontMatter));
+
+  return candidates
+    .filter((candidate) => candidate.id !== document.id && !candidate.hidden)
+    .map((candidate) => {
+      const candidateAuthor = String(candidate.frontMatter?.book_author || "").trim().toLocaleLowerCase("es");
+      const candidateShelves = bookTopicShelves(candidate.frontMatter);
+      let score = 0;
+      if (author && candidateAuthor === author) score += 10;
+      for (const shelf of candidateShelves) {
+        if (shelves.has(shelf)) score += 3;
+      }
+      if (candidate.frontMatter?.rating) score += Number(candidate.frontMatter.rating) * 0.1;
+      return { candidate, score };
+    })
+    .filter((entry) => entry.score >= 3)
+    .sort((left, right) => right.score - left.score)
+    .slice(0, limit)
+    .map((entry) => entry.candidate);
 }
 
 export async function loadNotFoundPage(db, path) {

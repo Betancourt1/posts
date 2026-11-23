@@ -607,7 +607,13 @@ export async function savePage(env, payload) {
   const body = bookReading
     ? updateBookReading(frontMatter, parsed.body, bookReading)
     : String(payload.body || "");
-  if (bookReading && body === parsed.body && frontMatter.rating === parsed.frontMatter.rating) {
+  if (
+    bookReading
+    && body === parsed.body
+    && frontMatter.rating === parsed.frontMatter.rating
+    && frontMatter.book_status === parsed.frontMatter.book_status
+    && frontMatter.date_read === parsed.frontMatter.date_read
+  ) {
     return { path, url: contentPathToUrl(path), changed: false, frontMatter };
   }
   if (/^content(?:_en|_es)?\/proyectos-profesionales\//.test(path) && !isNotebookIndex(path)) {

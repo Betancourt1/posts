@@ -65,10 +65,12 @@ function bindReadingForm(dialog) {
         if (signal.aborted) return;
         initialReading = readBookReading(book.frontMatter, book.body);
         form.querySelector("[data-book-title]").textContent = book.frontMatter.title;
-        for (const [name, value] of Object.entries(initialReading)) form.elements[name].value = value;
+        for (const [name, value] of Object.entries(initialReading)) {
+          if (form.elements[name]) form.elements[name].value = value;
+        }
         status.textContent = "";
         fields.disabled = submit.disabled = false;
-        if (document.activeElement === cancel) form.elements.progress.focus();
+        if (document.activeElement === cancel) (form.elements.status || form.elements.progress).focus();
       } catch (error) {
         if (!signal.aborted) status.textContent = error.message;
       }
@@ -84,6 +86,29 @@ function bindReadingForm(dialog) {
     else load?.abort();
   });
   draftOption?.addEventListener("change", syncSubmitLabel);
+  if ((updating || newBook) && form.elements.status && form.elements.progress) {
+    form.elements.status.addEventListener("change", () => {
+      const nextStatus = form.elements.status.value;
+      const currentProgress = form.elements.progress.value;
+      if (nextStatus === "to-read") form.elements.progress.value = "0";
+      else if (nextStatus === "read") form.elements.progress.value = "100";
+      else if (nextStatus === "currently-reading" && (currentProgress === "0" || currentProgress === "100")) {
+        form.elements.progress.value = "";
+      }
+    });
+    form.elements.progress.addEventListener("input", () => {
+      const raw = form.elements.progress.value.trim();
+      if (raw === "") {
+        form.elements.status.value = "currently-reading";
+        return;
+      }
+      const num = Number(raw);
+      if (!Number.isFinite(num)) return;
+      if (num === 0) form.elements.status.value = "to-read";
+      else if (num === 100) form.elements.status.value = "read";
+      else if (num > 0 && num < 100) form.elements.status.value = "currently-reading";
+    });
+  }
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();

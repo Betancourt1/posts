@@ -1,0 +1,327 @@
+---
+import TagList from "./TagList.astro";
+import {
+  bookReadYear,
+  displayDate,
+  formatShelfLabel,
+  normalizeBookProgress,
+  normalizeBookshelves,
+  previewBookCoverUrl,
+  stripBookMetadataHtml,
+} from "./_utils";
+import type { BacklinkItem, BookItem, TagItem } from "./types";
+
+interface Props {
+  title: string;
+  date?: string | Date | null;
+  section?: string;
+  summary?: string | null;
+  tags?: TagItem[];
+  bodyHtml: string;
+  bodyMarkdown?: string;
+  sourcePath?: string | null;
+  slug?: string | null;
+  permalink?: string;
+  author?: string | null;
+  additionalAuthors?: string[];
+  status?: string | null;
+  progress?: number | string | null;
+  rating?: number | string | null;
+  dateRead?: string | Date | null;
+  dateAdded?: string | Date | null;
+  pages?: number | string | null;
+  publisher?: string | null;
+  publicationYear?: number | string | null;
+  binding?: string | null;
+  isbn13?: string | null;
+  goodreadsUrl?: string | null;
+  bookshelves?: string[];
+  image?: string | null;
+  imageAlt?: string | null;
+  libraryHref: string;
+  relatedBooks?: BookItem[];
+  authorMode?: boolean;
+  backlinks?: BacklinkItem[];
+}
+
+const {
+  title,
+  date = null,
+  section = "books",
+  summary = null,
+  tags = [],
+  bodyHtml,
+  bodyMarkdown = "",
+  sourcePath = null,
+  slug = null,
+  permalink = Astro.url.pathname,
+  author = null,
+  additionalAuthors = [],
+  status = null,
+  progress = null,
+  rating = null,
+  dateRead = null,
+  dateAdded = null,
+  pages = null,
+  publisher = null,
+  publicationYear = null,
+  binding = null,
+  isbn13 = null,
+  goodreadsUrl = null,
+  bookshelves = [],
+  image = null,
+  imageAlt = title,
+  libraryHref,
+  relatedBooks = [],
+  authorMode = false,
+  backlinks = [],
+} = Astro.props;
+
+const es = false;
+const dateLabel = displayDate(date);
+const dateReadLabel = displayDate(dateRead);
+const dateAddedLabel = displayDate(dateAdded);
+const shelves = normalizeBookshelves(bookshelves);
+const normalizedProgress = normalizeBookProgress(progress);
+const isReading = status === "currently-reading";
+const statusText = status === "read"
+  ? (es ? "Leído" : "Read")
+  : status === "currently-reading"
+    ? (es ? "Leyendo ahora" : "Now reading")
+    : status === "to-read"
+      ? (es ? "Por leer" : "Want to read")
+      : "";
+const progressLabel = normalizedProgress !== null
+  ? `${normalizedProgress}%`
+  : (es ? "Progreso sin registrar" : "Progress not set");
+const filledSegments = normalizedProgress === null ? 0 : Math.floor((normalizedProgress * 7) / 100);
+const cleanBodyHtml = stripBookMetadataHtml(bodyHtml);
+const updateLabel = es ? "Actualizar lectura" : "Update reading";
+const backLabel = es ? "← Volver a libros" : "← Back to books";
+
+const colophon = [
+  dateReadLabel ? { label: es ? "Terminado" : "Finished", value: dateReadLabel } : null,
+  !dateReadLabel && dateAddedLabel ? { label: es ? "Añadido" : "Added", value: dateAddedLabel } : null,
+  publicationYear ? { label: es ? "Publicado" : "Published", value: String(publicationYear) } : null,
+  publisher ? { label: es ? "Editorial" : "Publisher", value: publisher } : null,
+  pages ? { label: es ? "Páginas" : "Pages", value: String(pages) } : null,
+  binding ? { label: es ? "Formato" : "Format", value: binding } : null,
+  isbn13 ? { label: "ISBN-13", value: isbn13 } : null,
+].filter(Boolean) as Array<{ label: string; value: string }>;
+
+const wordCount = bodyMarkdown.trim() ? bodyMarkdown.trim().split(/\s+/).length : 0;
+const readingTime = Math.max(1, Math.ceil(wordCount / 220));
+const metadata = [
+  sourcePath ? `file:         ${sourcePath}` : null,
+  `title:        ${title}`,
+  author ? `author:       ${author}` : null,
+  status ? `status:       ${status}` : null,
+  dateLabel ? `date:         ${dateLabel}` : null,
+  `section:      ${section}`,
+  slug ? `slug:         ${slug}` : null,
+  tags.length ? `tags:         [${tags.map((tag) => tag.label).join(", ")}]` : null,
+  `wordcount:    ${wordCount}`,
+  `reading_time: ${readingTime}min`,
+  `permalink:    ${permalink}`,
+  summary ? `summary:      ${summary}` : null,
+].filter(Boolean).join("\n");
+const rawSource = [
+  "---",
+  `title: ${title}`,
+  dateLabel ? `date: ${dateLabel}` : null,
+  tags.length ? `tags: [${tags.map((tag) => tag.label).join(", ")}]` : null,
+  summary ? `summary: ${summary}` : null,
+  "---",
+  "",
+  bodyMarkdown,
+].filter((line) => line !== null).join("\n");
+---
+
+<article class="post book-detail">
+  <div class="book-detail-topbar">
+    <a class="book-detail-back" href={libraryHref}>{backLabel}</a>
+    {authorMode && sourcePath && (
+      <div class="post-header-actions">
+        <button
+          type="button"
+          class="author-action-button"
+          data-source-path={sourcePath}
+          data-reading-form-trigger={sourcePath}
+          aria-haspopup="dialog"
+          aria-label={updateLabel}
+          title={updateLabel}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"></path></svg>
+        </button>
+        <button
+          type="button"
+          class="author-action-button author-action-button--danger"
+          data-author-action="delete-post"
+          data-source-path={sourcePath}
+          aria-label={es ? "Eliminar página" : "Delete page"}
+          title={es ? "Eliminar página" : "Delete page"}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 15H6L5 6"></path></svg>
+        </button>
+      </div>
+    )}
+  </div>
+
+  <header class="book-detail-hero">
+    {image && (
+      <figure class="post-featured-image book-detail-cover">
+        <img src={image} alt={imageAlt || title} decoding="async" fetchpriority="high" />
+      </figure>
+    )}
+    <div class="book-detail-info">
+      <div class="book-detail-status-row">
+        {statusText && <span class={`book-status-pill book-status-pill--${status}`}>{statusText}</span>}
+        {rating != null && <span class="book-rating-pill">{rating}/5</span>}
+      </div>
+
+      <h1 class="book-detail-title">{title}</h1>
+
+      {author && (
+        <p class="book-detail-author">
+          {author}
+          {additionalAuthors.length > 0 && (
+            <span class="book-detail-contributors"> · {additionalAuthors.join(", ")}</span>
+          )}
+        </p>
+      )}
+
+      {isReading && (
+        <div class="book-progress book-detail-progress">
+          <span class="book-progress-label">{progressLabel}</span>
+          <div
+            class="book-progress-track"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow={normalizedProgress ?? undefined}
+            aria-valuetext={progressLabel}
+          >
+            {[1, 2, 3, 4, 5, 6, 7].map((segment) => (
+              <span class:list={["book-progress-segment", { "is-filled": segment <= filledSegments }]} aria-hidden="true"></span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {colophon.length > 0 && (
+        <dl class="book-colophon">
+          {colophon.map((entry) => (
+            <div class="book-colophon-item">
+              <dt>{entry.label}</dt>
+              <dd>{entry.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      {(shelves.length > 0 || goodreadsUrl) && (
+        <div class="book-detail-links">
+          {shelves.map((shelf) => (
+            <a class="book-shelf-tag" href={`${libraryHref}?shelf=${encodeURIComponent(shelf)}`}>
+              {formatShelfLabel(shelf)}
+            </a>
+          ))}
+          {goodreadsUrl && (
+            <a class="book-goodreads-link" href={goodreadsUrl} target="_blank" rel="noopener noreferrer">
+              {es ? "Goodreads ↗" : "Goodreads ↗"}
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  </header>
+
+  {cleanBodyHtml ? (
+    <div class="post-body book-detail-body" set:html={cleanBodyHtml}></div>
+  ) : authorMode && sourcePath ? (
+    <div class="book-detail-empty-review">
+      <p>{es ? "Aún no hay reseña escrita para este libro." : "No review written for this book yet."}</p>
+      <button
+        type="button"
+        class="reading-update"
+        data-reading-form-trigger={sourcePath}
+        aria-haspopup="dialog"
+      >
+        {es ? "Escribir reseña o actualizar lectura" : "Write review or update reading"}
+      </button>
+    </div>
+  ) : null}
+
+  {relatedBooks.length > 0 && (
+    <section class="book-related" aria-labelledby="book-related-heading">
+      <div class="book-shelf-heading">
+        <h2 id="book-related-heading">{es ? "Libros relacionados" : "Related books"}</h2>
+      </div>
+      <div class="book-related-grid">
+        {relatedBooks.map((item) => {
+          const year = bookReadYear(item.dateRead);
+          return (
+            <a class="book-related-card" href={item.href}>
+              {item.image && (
+                <span class="book-related-cover">
+                  <img src={previewBookCoverUrl(item.image)} alt={item.imageAlt || item.title} loading="lazy" decoding="async" />
+                </span>
+              )}
+              <span class="book-related-meta">
+                <strong class="book-related-title">{item.title}</strong>
+                {item.author && <span class="book-related-author">{item.author}</span>}
+                {(year || item.rating != null) && (
+                  <span class="book-related-sub">
+                    {[year, item.rating != null ? `${item.rating}/5` : ""].filter(Boolean).join(" · ")}
+                  </span>
+                )}
+              </span>
+            </a>
+          );
+        })}
+      </div>
+    </section>
+  )}
+
+  <div class="infra-raw-block">
+    <div class="infra-metadata">
+      <h3 class="infra-section-label">// metadata</h3>
+      <pre class="infra-meta-raw">{metadata}</pre>
+    </div>
+    <div class="infra-raw-source">
+      <h3 class="infra-section-label">// raw source</h3>
+      <pre class="infra-raw-content"><code>{rawSource}</code></pre>
+    </div>
+  </div>
+
+  {backlinks.length > 0 && (
+    <section class="backlinks-section">
+      <hr class="backlinks-divider" />
+      <h3>{es ? "Enlaces que apuntan aquí" : "Links pointing here"}</h3>
+      <ul class="backlinks-list">
+        {backlinks.map((backlink) => (
+          <li>
+            <a href={backlink.href} class="backlink-link">
+              <span class="backlink-title">{backlink.title}</span>
+              <span class="backlink-meta"> ({displayDate(backlink.date)})</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {tags.length > 0 && (
+    <footer class="post-footer">
+      <TagList tags={tags} />
+    </footer>
+  )}
+</article>
+
+<dialog class="image-viewer" aria-label={es ? "Imagen ampliada" : "Expanded image"} data-image-viewer data-open-label={es ? "Ampliar imagen" : "Expand image"}>
+  <button type="button" class="image-viewer-close" aria-label={es ? "Cerrar imagen" : "Close image"} autofocus>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+  </button>
+  <div class="image-viewer-viewport"><img alt="" /></div>
+</dialog>
+<script is:inline src="/js/image-viewer.js" defer></script>

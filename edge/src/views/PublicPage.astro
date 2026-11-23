@@ -1,5 +1,6 @@
 ---
 import Archives from "../components/Archives.astro";
+import BookDetail from "../components/BookDetail.astro";
 import Books from "../components/Books.astro";
 import CvLinks from "../components/CvLinks.astro";
 import Guestbook from "../components/Guestbook.astro";
@@ -289,6 +290,50 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
 
   {model.layout === "single" && (page.section === "proyectos-profesionales" ? (
     <ProjectOverview page={page} authorMode={authorMode} bodyHtml={removeLegacyLinkSpacing(page.bodyHtml || "")} />
+  ) : ["books", "libros"].includes(page.section) ? (
+    <BookDetail
+      title={title}
+      date={page.date}
+      section={page.section}
+      summary={page.summary}
+      tags={tagsFor(page)}
+      bodyHtml={removeLegacyLinkSpacing(page.bodyHtml || "")}
+      bodyMarkdown={page.bodyMarkdown || ""}
+      sourcePath={page.sourcePath}
+      slug={frontMatter.slug}
+      permalink={page.path}
+      author={frontMatter.book_author}
+      additionalAuthors={Array.isArray(frontMatter.additional_authors) ? frontMatter.additional_authors : []}
+      status={frontMatter.book_status}
+      progress={frontMatter.book_progress}
+      rating={frontMatter.rating}
+      dateRead={frontMatter.date_read}
+      dateAdded={frontMatter.date_added}
+      pages={frontMatter.pages}
+      publisher={frontMatter.publisher}
+      publicationYear={frontMatter.publication_year}
+      binding={frontMatter.binding}
+      isbn13={frontMatter.isbn13}
+      goodreadsUrl={frontMatter.goodreads_url}
+      bookshelves={Array.isArray(frontMatter.bookshelves) ? frontMatter.bookshelves : []}
+      image={frontMatter.image}
+      imageAlt={frontMatter.image_alt}
+      libraryHref={contentHref("/books/")}
+      relatedBooks={(model.relatedBooks || []).map((book: any) => ({
+        ...listItem(book),
+        author: book.frontMatter?.book_author,
+        image: book.frontMatter?.image,
+        imageAlt: book.frontMatter?.image_alt,
+        rating: book.frontMatter?.rating,
+        dateRead: book.frontMatter?.date_read,
+      }))}
+      authorMode={authorMode}
+      backlinks={(model.backlinks || []).map((backlink: any) => ({
+        title: backlink.title,
+        href: contentHref(backlink.path),
+        date: backlink.date,
+      }))}
+    />
   ) : (
     <Single
       title={title}
@@ -357,6 +402,9 @@ const hasSidenotes = model.layout === "single" && String(page.bodyHtml || "").in
         status: book.frontMatter?.book_status,
         progress: book.frontMatter?.book_progress,
         rating: book.frontMatter?.rating,
+        dateRead: book.frontMatter?.date_read,
+        pages: book.frontMatter?.pages,
+        bookshelves: Array.isArray(book.frontMatter?.bookshelves) ? book.frontMatter.bookshelves : [],
         review: bookReview(book.bodyMarkdown),
       }))}
     />

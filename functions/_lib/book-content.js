@@ -4,9 +4,11 @@ const BOOK_PATH_PATTERN = /^content(?:_en)?\/books\/(?!_index\.md$)[^/]+\.md$/;
 const AUTHOR_LINE = /^\*\*(?:Author|Autor):\*\*[ \t]*(.*)$/mi;
 const PROGRESS_LINE = /^\*\*(?:Progress|Progreso):\*\*[ \t]*(.*)$/mi;
 const STATUS_LINE = /^\*\*(?:Status|Estado):\*\*[ \t]*(.*)$/mi;
+const FINISHED_LINE = /^\*\*(?:Finished|Terminado):\*\*[ \t]*(.*)$/mi;
 const RATING_LINE = /^\*\*(?:My rating|Mi calificación):\*\*[ \t]*(.*)$/mi;
 const RATING_LINE_WITH_BREAK = /^\*\*(?:My rating|Mi calificación):\*\*.*(?:\n|$)/mi;
 const REVIEW_SECTION = /^## (?:My review|Mi reseña)[ \t]*\n([\s\S]*?)(?=^#{1,2}[ \t]|(?![\s\S]))/m;
+const VALID_BOOK_STATUSES = new Set(["to-read", "currently-reading", "read"]);
 const BOOK_TAGS = new Set([
   "book",
   "libro",
@@ -19,13 +21,26 @@ const BOOK_TAGS = new Set([
   "pendiente-de-leer",
 ]);
 
+function formatIsoDate(now = new Date()) {
+  if (typeof now === "string" && /^\d{4}-\d{2}-\d{2}$/.test(now)) return now;
+  const date = now instanceof Date ? now : new Date(now);
+  return date.toISOString().slice(0, 10);
+}
+
 export function isBookContentPath(path) {
   return BOOK_PATH_PATTERN.test(projectionSourcePath(String(path || "")));
 }
 
 export function readBookReading(frontMatter, body) {
+  const progress = String(
+    frontMatter.book_progress ?? (frontMatter.book_status === "read" ? 100 : frontMatter.book_status === "to-read" ? 0 : ""),
+  );
+  const status = VALID_BOOK_STATUSES.has(frontMatter.book_status)
+    ? frontMatter.book_status
+    : (progress === "100" ? "read" : progress === "0" ? "to-read" : "currently-reading");
   return {
-    progress: String(frontMatter.book_progress ?? (frontMatter.book_status === "read" ? 100 : frontMatter.book_status === "to-read" ? 0 : "")),
+    status,
+    progress,
     rating: String(frontMatter.rating ?? ""),
     review: body.match(REVIEW_SECTION)?.[1].trim() || "",
   };
@@ -37,10 +52,18 @@ export function createBookBody({ author, ...reading }) {
   return updateBookReading({}, `**Author:** ${name}\n**Progress:** not set\n`, reading);
 }
 
-export function updateBookReading(frontMatter, body, reading) {
+export function updateBookReading(frontMatter, body, reading, options = {}) {
   const previous = readBookReading(frontMatter, body);
-  const { progress = previous.progress, rating = previous.rating } = reading;
+  const statusProvided = reading.status !== undefined;
+  const progressProvided = reading.progress !== undefined;
+  let status = statusProvided ? String(reading.status) : previous.status;
+  let progress = progressProvided ? String(reading.progress) : previous.progress;
+  const rating = reading.rating !== undefined ? String(reading.rating) : previous.rating;
   const review = String(reading.review ?? previous.review).replace(/\r\n/g, "\n").trim();
+
+  if (!VALID_BOOK_STATUSES.has(status)) {
+    throw new Error("Estado de lectura inválido.");
+  }
   if (typeof progress !== "string" || !/^(?:100|[1-9]?\d)?$/.test(progress)) {
     throw new Error("Progress must be a whole percentage between 0% and 100%.");
   }
@@ -48,15 +71,42 @@ export function updateBookReading(frontMatter, body, reading) {
     throw new Error("The rating must be between 1 and 5.");
   }
 
+  if (statusProvided && status !== previous.status && !progressProvided) {
+    if (status === "to-read") progress = "0";
+    else if (status === "read") progress = "100";
+    else if (status === "currently-reading" && (progress === "0" || progress === "100")) progress = "";
+  } else if (progressProvided && progress !== previous.progress && !statusProvided) {
+    status = progress === "" ? "currently-reading" : statusFromProgress(Number(progress));
+  } else if (statusProvided && progressProvided) {
+    if (status === "to-read") progress = "0";
+    else if (status === "read") progress = "100";
+    else if (status === "currently-reading" && (progress === "0" || progress === "100")) progress = "";
+  }
+
   const sectionStart = body.search(/^##[ \t]/m);
   const endOfHeader = sectionStart === -1 ? body.length : sectionStart;
   let header = body.slice(0, endOfHeader);
   let sections = body.slice(endOfHeader);
 
-  if (progress !== previous.progress) {
+  if (progress !== previous.progress || status !== previous.status) {
     const line = `**Progress:** ${progress === "" ? "not set" : `${progress}%`}`;
     const pattern = PROGRESS_LINE.test(header) ? PROGRESS_LINE : STATUS_LINE;
     header = pattern.test(header) ? header.replace(pattern, line) : insertBookLine(header, AUTHOR_LINE, line);
+    frontMatter.book_status = status;
+    if (status === "read" && previous.status !== "read" && !frontMatter.date_read) {
+      const finishedDate = formatIsoDate(options.now);
+      frontMatter.date_read = finishedDate;
+      if (!FINISHED_LINE.test(header)) {
+        const after = RATING_LINE.test(header)
+          ? RATING_LINE
+          : PROGRESS_LINE.test(header)
+            ? PROGRESS_LINE
+            : STATUS_LINE.test(header)
+              ? STATUS_LINE
+              : AUTHOR_LINE;
+        header = insertBookLine(header, after, `**Finished:** ${finishedDate}`);
+      }
+    }
   }
   if (rating !== previous.rating) {
     const line = rating ? `**My rating:** ${rating}/5` : "";

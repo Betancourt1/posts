@@ -28,7 +28,15 @@ const returnTo = book ? "/admin/books/" : "/admin/lit/";
       )}
       {book ? (
         <>
-          <div class="author-grid">
+          <div class="author-grid author-grid--book-reading">
+            <label class="author-field">
+              Status
+              <select name="status">
+                <option value="to-read">Want to read</option>
+                <option value="currently-reading">Reading</option>
+                <option value="read">Read</option>
+              </select>
+            </label>
             <label class="author-field">
               Progress (%)
               <input name="progress" type="number" inputmode="numeric" min="0" max="100" step="1" value={newBook ? "0" : undefined} placeholder="Not set" />

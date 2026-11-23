@@ -1,5 +1,6 @@
 ---
 import BookRow from "./BookRow.astro";
+import { bookReadYear, formatShelfLabel, normalizeBookshelves } from "./_utils";
 import type { BookItem } from "./types";
 
 interface Props {
@@ -16,29 +17,78 @@ const {
   authorMode = false,
 } = Astro.props;
 const visibleBooks = books.filter((book) => !book.hidden);
+
 const groups = [
   {
     status: "currently-reading",
     label: "Now reading",
+    shortLabel: "reading",
     statusLabel: "Reading",
     filled: 0,
-    preview: 2,
+    preview: 4,
   },
   {
     status: "read",
     label: "Read",
+    shortLabel: "read",
     statusLabel: "Read",
     filled: 7,
-    preview: 4,
+    preview: 12,
   },
   {
     status: "to-read",
     label: "Want to read",
+    shortLabel: "to read",
     statusLabel: "Want to read",
     filled: 0,
-    preview: 2,
+    preview: 4,
   },
 ];
+
+const grouped = groups.map((group) => {
+  const groupBooks = visibleBooks
+    .filter((book) => book.status === group.status)
+    .sort((left, right) => {
+      if (group.status !== "read") return 0;
+      const reviewDiff = Number(Boolean(right.review)) - Number(Boolean(left.review));
+      if (reviewDiff !== 0) return reviewDiff;
+      const leftYear = String(left.dateRead || left.date || "");
+      const rightYear = String(right.dateRead || right.date || "");
+      return rightYear.localeCompare(leftYear);
+    });
+  return {
+    ...group,
+    books: groupBooks,
+    previewBooks: groupBooks.slice(0, group.preview),
+    remainingBooks: groupBooks.slice(group.preview),
+  };
+});
+
+const reviewedCount = visibleBooks.filter((book) => Boolean(book.review)).length;
+
+const shelfCounts = new Map<string, { slug: string; label: string; count: number }>();
+for (const book of visibleBooks) {
+  for (const shelf of normalizeBookshelves(book.bookshelves)) {
+    const key = shelf.toLocaleLowerCase("es");
+    const existing = shelfCounts.get(key);
+    if (existing) existing.count += 1;
+    else shelfCounts.set(key, { slug: key, label: formatShelfLabel(shelf), count: 1 });
+  }
+}
+const topShelves = Array.from(shelfCounts.values())
+  .filter((shelf) => shelf.count >= 3)
+  .sort((left, right) => right.count - left.count)
+  .slice(0, 8);
+
+const readYears = Array.from(
+  new Set(
+    visibleBooks
+      .filter((book) => book.status === "read")
+      .map((book) => bookReadYear(book.dateRead))
+      .filter(Boolean),
+  ),
+).sort((left, right) => right.localeCompare(left));
+
 const addLabel = "New book";
 const moreLabel = "Show {count} more →";
 const batchSize = 6;
@@ -61,24 +111,137 @@ const batchSize = 6;
   {description && <p class="lead">{description}</p>}
 </header>
 
-<nav class="book-jump-links" aria-label="Jump to reading status">
-  {groups.map((group) => <a href={`#book-shelf-${group.status}`}>{group.label}</a>)}
+<nav class="book-jump-links book-stats-bar" aria-label="Jump to reading status">
+  {grouped.map((group) => (
+    <a href={`#book-shelf-${group.status}`}>
+      <span class="book-stat-count">{group.books.length}</span>
+      <span>{group.shortLabel}</span>
+    </a>
+  ))}
+  <span class="book-stat-sep" aria-hidden="true">·</span>
+  <span class="book-stat-meta">
+    {reviewedCount} reviewed
+  </span>
 </nav>
-<div class="book-library" aria-label="Books by reading status">
-  {groups.map((group) => {
-    const groupBooks = visibleBooks
-      .filter((book) => book.status === group.status)
-      .sort((left, right) => group.status === "read" ? Number(Boolean(right.review)) - Number(Boolean(left.review)) : 0);
-    const previewBooks = groupBooks.slice(0, group.preview);
-    const remainingBooks = groupBooks.slice(group.preview);
+
+<section class="book-controls" data-book-controls aria-label="Filter library">
+  <div class="book-controls-top">
+    <label class="book-search-field">
+      <span class="sr-only">Filter by title or author</span>
+      <input
+        type="search"
+        class="book-search-input"
+        data-book-search-input
+        placeholder="Filter by title or author…"
+        autocomplete="off"
+      />
+    </label>
+
+    <div class="book-controls-actions">
+      {readYears.length > 0 && (
+        <label class="book-year-field">
+          <span class="sr-only">Year read</span>
+          <select class="book-year-select" data-book-year-select>
+            <option value="">All years</option>
+            {readYears.map((year) => <option value={year}>{year}</option>)}
+          </select>
+        </label>
+      )}
+
+      <button
+        type="button"
+        class="book-filter-toggle"
+        data-book-review-toggle
+        aria-pressed="false"
+      >
+        With review ({reviewedCount})
+      </button>
+    </div>
+  </div>
+
+  {topShelves.length > 0 && (
+    <div class="book-shelf-chips" role="group" aria-label="Filter by topic">
+      <button
+        type="button"
+        class="book-filter-chip is-active"
+        data-book-shelf-chip=""
+        aria-pressed="true"
+      >
+        All
+      </button>
+      {topShelves.map((shelf) => (
+        <button
+          type="button"
+          class="book-filter-chip"
+          data-book-shelf-chip={shelf.slug}
+          aria-pressed="false"
+        >
+          <span>{shelf.label}</span>
+          <span class="book-filter-chip-count">{shelf.count}</span>
+        </button>
+      ))}
+    </div>
+  )}
+
+  <div class="book-filter-status" data-book-filter-status hidden>
+    <span data-book-filter-count></span>
+    <button type="button" class="book-filter-reset" data-book-filter-reset>
+      Clear filters
+    </button>
+  </div>
+</section>
+
+<div class="book-library" data-book-library aria-label="Books by reading status">
+  {grouped.map((group) => {
+    const isRead = group.status === "read";
     return (
-      <section class="book-shelf" data-book-shelf aria-labelledby={`book-shelf-${group.status}`}>
-        <div class="book-shelf-heading"><h2 id={`book-shelf-${group.status}`}>{group.label}</h2></div>
-        <div class="book-shelf-list" id={`book-shelf-list-${group.status}`}>
-          {previewBooks.map((book) => <BookRow book={book} statusLabel={group.statusLabel} defaultFilled={group.filled} authorMode={authorMode} />)}
-          {remainingBooks.map((book) => <BookRow book={book} statusLabel={group.statusLabel} defaultFilled={group.filled} authorMode={authorMode} initiallyHidden />)}
+      <section
+        class={`book-shelf book-shelf--${group.status}`}
+        data-book-shelf={group.status}
+        aria-labelledby={`book-shelf-${group.status}`}
+      >
+        <div class="book-shelf-heading">
+          <h2 id={`book-shelf-${group.status}`}>
+            {group.label}
+            <span class="book-shelf-count" data-book-shelf-count>({group.books.length})</span>
+          </h2>
+          {isRead && (
+            <div class="book-view-toggle" role="group" aria-label="View mode">
+              <button
+                type="button"
+                class="book-view-btn is-active"
+                data-book-view-btn="grid"
+                aria-pressed="true"
+              >
+                Covers
+              </button>
+              <button
+                type="button"
+                class="book-view-btn"
+                data-book-view-btn="list"
+                aria-pressed="false"
+              >
+                List
+              </button>
+            </div>
+          )}
         </div>
-        {remainingBooks.length > 0 && (
+
+        <div
+          class:list={["book-shelf-list", `book-shelf-list--${group.status}`]}
+          id={`book-shelf-list-${group.status}`}
+          data-book-view-target={isRead ? "" : undefined}
+          data-view={isRead ? "grid" : undefined}
+        >
+          {group.previewBooks.map((book) => (
+            <BookRow book={book} statusLabel={group.statusLabel} defaultFilled={group.filled} authorMode={authorMode} />
+          ))}
+          {group.remainingBooks.map((book) => (
+            <BookRow book={book} statusLabel={group.statusLabel} defaultFilled={group.filled} authorMode={authorMode} initiallyHidden />
+          ))}
+        </div>
+
+        {group.remainingBooks.length > 0 && (
           <button
             type="button"
             class="book-shelf-more-button"
@@ -86,10 +249,17 @@ const batchSize = 6;
             data-label-template={moreLabel}
             aria-controls={`book-shelf-list-${group.status}`}
           >
-            {moreLabel.replace("{count}", String(Math.min(batchSize, remainingBooks.length)))}
+            {moreLabel.replace("{count}", String(Math.min(batchSize, group.remainingBooks.length)))}
           </button>
         )}
       </section>
     );
   })}
+
+  <div class="book-empty-state" data-book-empty hidden>
+    <p>No books match the active filters.</p>
+    <button type="button" class="book-filter-reset" data-book-filter-reset>
+      Reset filters
+    </button>
+  </div>
 </div>

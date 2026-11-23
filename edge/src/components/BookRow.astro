@@ -1,5 +1,12 @@
 ---
-import { normalizeBookProgress, plainExcerpt, previewBookCoverUrl } from "./_utils";
+import {
+  bookReadYear,
+  formatShelfLabel,
+  normalizeBookProgress,
+  normalizeBookshelves,
+  plainExcerpt,
+  previewBookCoverUrl,
+} from "./_utils";
 import type { BookItem } from "./types";
 
 interface Props {
@@ -13,18 +20,37 @@ interface Props {
 const { book, statusLabel, defaultFilled, initiallyHidden = false, authorMode = false } = Astro.props;
 const updateLabel = "Update reading";
 const progress = normalizeBookProgress(book.progress);
+const isReading = book.status === "currently-reading";
+const isRead = book.status === "read";
+const isToRead = book.status === "to-read";
 const progressLabel = progress !== null
   ? `${progress}%`
-  : book.status === "currently-reading"
-    ? ("Progress not set")
+  : isReading
+    ? "Progress not set"
     : statusLabel;
 const filledSegments = progress === null ? defaultFilled : Math.floor((progress * 7) / 100);
-const opinion = book.review ? plainExcerpt(book.review) : "";
+const opinion = book.review ? plainExcerpt(book.review, 140) : "";
+const shelves = normalizeBookshelves(book.bookshelves);
+const primaryShelf = shelves[0] ? formatShelfLabel(shelves[0]) : "";
+const readYear = bookReadYear(book.dateRead);
+const searchText = [book.title, book.author, ...shelves].filter(Boolean).join(" ").toLocaleLowerCase("es");
+const shelvesData = shelves.map((s) => s.toLocaleLowerCase("es")).join("|");
+const reviewLabel = "Review";
+const readReviewLabel = "Read review →";
 ---
 
 <article
-  class:list={["book-shelf-row", { "has-opinion": Boolean(opinion) }]}
+  class:list={[
+    "book-shelf-row",
+    `book-shelf-row--${book.status || "read"}`,
+    { "has-opinion": Boolean(opinion) },
+  ]}
+  data-book-item
   data-book-extra={initiallyHidden ? "" : undefined}
+  data-book-search={searchText}
+  data-book-shelves={shelvesData}
+  data-book-year={readYear}
+  data-book-reviewed={opinion ? "true" : "false"}
   hidden={initiallyHidden}
 >
   <div class="book-row-main">
@@ -36,32 +62,94 @@ const opinion = book.review ? plainExcerpt(book.review) : "";
           loading={initiallyHidden ? "lazy" : "eager"}
           decoding="async"
         />
+        {isRead && (book.rating != null || opinion) && (
+          <span class="book-cover-badges" aria-hidden="true">
+            {book.rating != null && <span class="book-cover-rating">{book.rating}/5</span>}
+            {opinion && <span class="book-cover-review-dot" title={reviewLabel}>{reviewLabel}</span>}
+          </span>
+        )}
       </a>
     )}
     <div class="book-identity">
       <h3><a href={book.href}>{book.title}</a></h3>
-      {book.author && <p>{book.author}</p>}
-      {authorMode && book.draft && <p>Draft</p>}
+      {book.author && <p class="book-author">{book.author}</p>}
+      <div class="book-submeta">
+        {primaryShelf && <span class="book-shelf-chip">{primaryShelf}</span>}
+        {isRead && readYear && <span class="book-year-inline">{readYear}</span>}
+        {isRead && book.rating != null && <span class="book-rating-inline">{book.rating}/5</span>}
+        {isRead && opinion && <span class="book-review-inline">{reviewLabel}</span>}
+      </div>
     </div>
   </div>
-  <div class="book-progress">
-    <span class="book-progress-label">{progressLabel}</span>
-    <div class="book-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={progress ?? undefined} aria-valuetext={progressLabel}>
-      {[1, 2, 3, 4, 5, 6, 7].map((segment) => <span class:list={["book-progress-segment", { "is-filled": segment <= filledSegments }]} aria-hidden="true"></span>)}
+
+  {isReading && (
+    <div class="book-progress">
+      <div class="book-progress-head">
+        <span class="book-progress-label">{progressLabel}</span>
+        {authorMode && book.sourcePath && (
+          <button
+            type="button"
+            class="reading-update"
+            data-reading-form-trigger={book.sourcePath}
+            aria-haspopup="dialog"
+            aria-label={`${updateLabel} · ${book.title}`}
+          >
+            {updateLabel}
+          </button>
+        )}
+      </div>
+      <div
+        class="book-progress-track"
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow={progress ?? undefined}
+        aria-valuetext={progressLabel}
+      >
+        {[1, 2, 3, 4, 5, 6, 7].map((segment) => (
+          <span class:list={["book-progress-segment", { "is-filled": segment <= filledSegments }]} aria-hidden="true"></span>
+        ))}
+      </div>
     </div>
-    {authorMode && book.sourcePath && (
-      <button type="button" class="reading-update" data-reading-form-trigger={book.sourcePath} aria-haspopup="dialog" aria-label={`${updateLabel} · ${book.title}`}>
+  )}
+
+  {isRead && (
+    <div class="book-read-meta">
+      {readYear && <span class="book-meta-year">{readYear}</span>}
+      {book.rating != null && <span class="book-meta-rating">{book.rating}/5</span>}
+      {book.pages && <span class="book-meta-pages">{book.pages}p</span>}
+      {authorMode && book.sourcePath && (
+        <button
+          type="button"
+          class="reading-update"
+          data-reading-form-trigger={book.sourcePath}
+          aria-haspopup="dialog"
+          aria-label={`${updateLabel} · ${book.title}`}
+        >
+          {updateLabel}
+        </button>
+      )}
+    </div>
+  )}
+
+  {isRead && opinion && (
+    <div class="book-opinion">
+      <p>{opinion}</p>
+      <a class="book-opinion-link" href={book.href}>{readReviewLabel}</a>
+    </div>
+  )}
+
+  {isToRead && authorMode && book.sourcePath && (
+    <div class="book-toread-actions">
+      <button
+        type="button"
+        class="reading-update"
+        data-reading-form-trigger={book.sourcePath}
+        aria-haspopup="dialog"
+        aria-label={`${updateLabel} · ${book.title}`}
+      >
         {updateLabel}
       </button>
-    )}
-  </div>
-  {opinion && (
-    <div class="book-opinion">
-      <div class="book-opinion-heading">
-        <span>My opinion</span>
-        {book.rating != null && <span>{book.rating}/5</span>}
-      </div>
-      <p>{opinion}</p>
     </div>
   )}
 </article>
